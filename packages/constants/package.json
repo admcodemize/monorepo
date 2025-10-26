@@ -1,0 +1,19 @@
+{
+  "name": "@codemize/constants",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./Colors": "./Colors.ts",
+    "./Fonts": "./Fonts.ts",
+    "./Styles": "./Styles.ts",
+    "./System": "./System.ts"
+  },
+  "devDependencies": {
+    "@codemize/eslint-config": "*",
+    "@codemize/typescript-config": "*",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.38.0",
+    "typescript": "5.9.2"
+  }
+}
+

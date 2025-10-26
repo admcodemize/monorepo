@@ -1,0 +1,16 @@
+{
+  "name": "@codemize/utils",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./languageCodes": "./languageCodes.ts"
+  },
+  "devDependencies": {
+    "@codemize/eslint-config": "*",
+    "@codemize/typescript-config": "*",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.38.0",
+    "typescript": "5.9.2"
+  }
+}
+

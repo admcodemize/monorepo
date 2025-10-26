@@ -1,0 +1,23 @@
+{
+  "name": "@codemize/backend",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./Fetch": "./Fetch.ts",
+    "./Types": "./Types.ts"
+  },
+  "dependencies": {
+    "convex": "^1.28.0",
+    "convex-helpers": "^0.1.104",
+    "@clerk/clerk-expo": "^2.17.1",
+    "@clerk/types": "^4.95.1"
+  },
+  "devDependencies": {
+    "@codemize/eslint-config": "*",
+    "@codemize/typescript-config": "*",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.38.0",
+    "typescript": "5.9.2"
+  }
+}
+

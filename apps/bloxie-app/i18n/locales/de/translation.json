@@ -1,0 +1,88 @@
+{
+  "i18n": {
+    "searchField": {
+      "placeholder": "Suchen"
+    },
+    "routes": {
+      "index": "Dashboard",
+      "calendar": "Kalender",
+      "team": "Team"
+    },
+    "list": {
+      "active": "Aktiv"
+    },
+    "calendar": {
+      "week": "KW"
+    },
+    "dropdown": {
+      "dashboard": {
+        "calendar": {
+          "last30Days": "Letzte 30 Tage",
+          "last90Days": "Letzte 90 Tage",
+          "allTime": "Gesamter Zeitraum"
+        }
+      }
+    },
+    "screens": {
+      "dashboard": {
+        "analytics": {
+          "title": "Analytics",
+          "description": "Untersuche deine Daten mithilfe von Statistiken und Diagrammen um neue Erkenntnisse zu gewinnen oder Trends zu identifizieren."
+        },
+        "statistics": {
+          "title": "Statistiken",
+          "description": "Überblick der wichtigsten Daten zur Performance und Effizienz deiner Termine und Buchungen.",
+          "cards": {
+            "income": "Einkommen",
+            "freeSlots": "Freie Slots",
+            "newAppointments": "Neue Termine",
+            "confirmedAppointments": "Bestätigungen",
+            "rejectedAppointments": "Ablehnungen"
+          }
+        }
+      },
+      "trayAction": {
+        "title": "Aktionen",
+        "description": "Anlegen oder Verwalten",
+        "groups": {
+          "manage": "Allgemein",
+          "configuration": "Konfiguration"
+        },
+        "items": {
+          "booking": {
+            "title": "Buchung",
+            "description": "Buchung von Terminen mittels Termintyp"
+          },
+          "meeting": {
+            "title": "Termin",
+            "description": "Einmalige Termine ohne Wiederholung."
+          },
+          "type": {
+            "title": "Termintypen",
+            "description": "Verwendung für neue Termine auf der öffentlichen Buchungsseite."
+          },
+          "team": {
+            "title": "Mitarbeiter",
+            "description": "Aktive Mitarbeiter innerhalb der Organisation."
+          },
+          "poll": {
+            "title": "Umfrage",
+            "description": "Finde einen passenden Termin für mehrere Teilnehmer"
+          },
+          "bookingPage": {
+            "title": "Buchungsseite",
+            "description": "Öffentlicher Kalender deiner buchbaren Termine"
+          },
+          "workflow": {
+            "title": "Workflow",
+            "description": "Automatisierte Prozesse für deine Buchungen"
+          },
+          "availability": {
+            "title": "Verfügbarkeiten",
+            "description": "Wochen-/Datumsbasierte Anwesenheitszeiten"
+          }
+        }
+      }
+    }
+  }
+}

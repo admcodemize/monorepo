@@ -1,0 +1,79 @@
+{
+  "expo": {
+    "name": "bloxie",
+    "slug": "bloxie",
+    "version": "0.0.2",
+    "orientation": "portrait",
+    "icon": "",
+    "scheme": "bloxie",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.codemize.bloxie",
+      "appleTeamId": "R247V95WCZ",
+      "associatedDomains": [
+        "applinks:bloxie.ch",
+        "activitycontinuation:bloxie.ch"
+      ],
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.developer.applesignin": [
+          "Default"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "",
+        "backgroundImage": "",
+        "monochromeImage": ""
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.codemize.bloxie"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": ""
+    },
+    "plugins": [
+      ["expo-router", {
+        "origin": "https://bloxie.ch/"
+      }],
+      ["expo-splash-screen", {
+        "image": "",
+        "imageWidth": 200,
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff",
+        "dark": {
+          "backgroundColor": "#000000"
+        }
+      }],
+      ["expo-localization"],
+      ["expo-secure-store", {
+        "configureAndroidBackup": true,
+        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+      }],
+      ["@sentry/react-native/expo", {
+        "url": "https://sentry.io/",
+        "project": "react-native",
+        "organization": "codemize-gmbh"
+      }]
+    ],
+    "experiments": {
+      "typedRoutes": false,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7cc140bd-e268-47e6-96ff-44815d156207"
+      }
+    }
+  }
+}

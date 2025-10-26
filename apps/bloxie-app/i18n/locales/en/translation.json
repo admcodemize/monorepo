@@ -1,0 +1,8 @@
+{
+  "i18n": {
+    "routes": {
+      "index": "Home",
+      "calendar": "Calendar"
+    }
+  }
+}

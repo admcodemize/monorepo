@@ -1,0 +1,10 @@
+{
+  "extends": "@codemize/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "jsx": "react-jsx"
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}
+

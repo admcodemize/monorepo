@@ -1,8 +1,8 @@
 import { addWeeks, getMonth, getYear, Month, subWeeks } from "date-fns";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Dimensions, FlatList, ListRenderItemInfo, NativeScrollEvent, NativeSyntheticEvent, ScrollView, View, ViewToken, VirtualizedList } from "react-native";
-import Animated, { useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, runOnUI } from "react-native-reanimated";
+import { Dimensions, FlatList, ListRenderItemInfo, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View, ViewToken, VirtualizedList } from "react-native";
+import Animated, { useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, runOnUI, runOnJS } from "react-native-reanimated";
 import { LegendList, LegendListRef, LegendListRenderItemProps } from "@legendapp/list";
 import { getHours, getWeeks, HoursProps, WeeksObjInfoProps } from "@codemize/helpers/DateTime";
 import { STYLES } from "@codemize/constants/Styles";
@@ -21,6 +21,9 @@ import CalendarWeekList from "./CalendarWeekList";
 import ListItemHour from "../list/ListItemHour";
 import { KEYS } from "@/constants/Keys";
 import CalendarDayListStyle from "@/styles/components/calendar/day/CalendarDayList";
+import { highlightColor, useCalendarHighlight } from "@/hooks/calendar/useCalendarHighlight";
+import { useShallow } from "zustand/react/shallow";
+import GlobalTypographyStyle from "@/styles/GlobalTypography";
 
 
 /** @description Dimensions of the window */
@@ -263,126 +266,6 @@ const CalendarWeek = ({
     } return week;
   };
 
-  /**
-   * @description Handles the changing of the visible items during swiping gesture
-   * OPTIMIZED: Uses pre-computed week data + throttled state updates!
-   * @function */
-  const onViewableItemsChanged = (info: {
-    viewableItems: ViewToken<CalendarWeekVirtualizedListItem>[];
-    changed: ViewToken<CalendarWeekVirtualizedListItem>[];
-  }) => {
-    /** @description Get the viewable item, which is used for further processing such as setting the week and start of week to the context state */
-    const viewableItem = info.viewableItems.find(item => item.isViewable);
-    if (!viewableItem?.item?.week) return;
-
-    // Throttle: Only update state every STATE_UPDATE_THROTTLE ms
-    const now = Date.now();
-    if (now - lastStateUpdate.current < STATE_UPDATE_THROTTLE) return;
-    lastStateUpdate.current = now;
-
-    /** @description Set the week and start of week to the context state for updating the root calendar header  */
-    const { week } = viewableItem.item;
-    setWeek({
-      number: week.week, 
-      month: getMonth(week.startOfWeek) as Month, 
-      year: getYear(week.startOfWeek), 
-      startOfWeek: week.startOfWeek
-    });
-  };
-  
-  /**
-   * @description Handles viewable items changed for header week list
-   * Updates the current week number display
-   * OPTIMIZED: Uses pre-computed week data + throttled state updates!
-   * @function */
-  const onHeaderViewableItemsChanged = React.useCallback((info: {
-    viewableItems: ViewToken<CalendarWeekVirtualizedListItem>[];
-    changed: ViewToken<CalendarWeekVirtualizedListItem>[];
-  }) => {
-    const viewableItem = info.viewableItems.find(item => item.isViewable);
-    if (!viewableItem?.item?.week) return;
-
-    // Throttle: Only update state every STATE_UPDATE_THROTTLE ms
-    const now = Date.now();
-    if (now - lastStateUpdate.current < STATE_UPDATE_THROTTLE) return;
-    lastStateUpdate.current = now;
-
-    const { week } = viewableItem.item;
-    setCurrentWeekNumber(week.week);
-    setWeek({
-      number: week.week, 
-      month: getMonth(week.startOfWeek) as Month, 
-      year: getYear(week.startOfWeek), 
-      startOfWeek: week.startOfWeek
-    });
-  }, [setWeek, setCurrentWeekNumber]);
-
-  /**
-   * @description Handles the user interaction when pressing the today button in the root footer component
-   * @see {@link components/footer/private/RootFooter}
-   * @function */
-  const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    /** 
-     * @description Reset the today pressed state for further processing in the root footer component
-     * @see {@link components/footer/private/RootFooter} */
-    if (isTodayPressed) setIsTodayPressed(false);
-  };
-
-  /**
-   * @description Returns the total number of weeks to display
-   * @function */
-  const getItemCount = () => TOTAL_WEEKS;
-
-  /**
-   * @description Returns the item for the given index
-   * @param {VirtualizedListItem} item
-   * @param {number} index
-   * @function */
-  const getItem = (
-    item: CalendarWeekVirtualizedListItem, 
-    index: number
-  ): CalendarWeekVirtualizedListItem => ({ itemIndex: index - WEEKS_IN_PAST });
-
-  /**
-   * @description Optional optimization that lets us skip measurement of dynamic content if you know the height of items
-   * @param {VirtualizedListItem} _
-   * @param {number} index - The index of the item.
-   * @function */
-  const getItemLayout = (item: CalendarWeekVirtualizedListItem, index: number) => ({
-    length: WEEK_WIDTH,
-    offset: WEEK_WIDTH * index,
-    index
-  });
-
-  /**
-   * @description Returns the key for the given item (calendar week day)
-   * @param {VirtualizedListItem} item
-   * @function */
-  const keyExtractor = (
-    item: CalendarWeekVirtualizedListItem
-  ) => `${componentId}-${item.itemIndex}`;
-
-  /**
-   * @description Renders the item (calendar week day) for the given index
-   * @param {ListRenderItemInfo<CalendarWeekVirtualizedListItem>} info
-   * @function */
-  const renderItem = React.useCallback(({ 
-    item 
-  }: ListRenderItemInfo<CalendarWeekVirtualizedListItem>) => {
-    // OPTIMIZED: Use pre-computed week data, no getWeekByIndex calls!
-    if (!item.week) return null;
-    
-    return (
-      <ViewBase>
-        {/*<CalendarWeekHorizontal 
-          key={item.week.week.toString()} 
-          item={item.week}
-          borderColor={colors.primaryBorderColor} />*/}
-        {/*<CalendarWeekList />*/}
-      </ViewBase>
-    );
-  }, [colors.primaryBorderColor]);
-
   // Refs für Scroll-Synchronisation
   const headerScrollRef = useAnimatedRef<Animated.FlatList<any>>();
   const contentScrollRef = useAnimatedRef<Animated.FlatList<any>>();
@@ -400,46 +283,12 @@ const CalendarWeek = ({
   const isScrollingFromGrid = useSharedValue(false);
 
   const currentWeekIndex = useSharedValue(WEEKS_IN_PAST);
+  const lastVisibleWeekIndex = React.useRef<number>(WEEKS_IN_PAST);
 
   const { t } = useTranslation();
   
   /** @description Initialize hours for displaying in a vertical view */
   const hoursData: HoursProps[] = React.useMemo(() => getHours(24, locale), [locale]);
-  
-
-  // Reanimated scroll handler für Header FlatList (oben)
-  const headerScrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      if (isScrollingFromContent.value) return;
-      
-      isScrollingFromHeader.value = true;
-      horizontalScrollX.value = event.contentOffset.x;
-      scrollTo(contentScrollRef, event.contentOffset.x, 0, false);
-    },
-    onEndDrag: () => {
-      isScrollingFromHeader.value = false;
-    },
-    onMomentumEnd: () => {
-      isScrollingFromHeader.value = false;
-    }
-  });
-
-  // Reanimated scroll handler für Content ScrollView (unten)
-  const contentScrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      if (isScrollingFromHeader.value) return;
-      
-      isScrollingFromContent.value = true;
-      horizontalScrollX.value = event.contentOffset.x;
-      scrollTo(headerScrollRef, event.contentOffset.x, 0, false);
-    },
-    onEndDrag: () => {
-      isScrollingFromContent.value = false;
-    },
-    onMomentumEnd: () => {
-      isScrollingFromContent.value = false;
-    }
-  });
 
   // Reanimated scroll handler für Hours ScrollView (links - vertikal)
   const hoursScrollHandler = useAnimatedScrollHandler({
@@ -490,6 +339,74 @@ const CalendarWeek = ({
     }),
     [] // Empty deps = compute once after cache is populated
   );
+
+  /**
+   * @description Updates calendar context when horizontal scrolling ends
+   * Uses pre-computed headerWeeksData for instant access (no calculations!)
+   * Only updates if week actually changed (prevents unnecessary re-renders)
+   * @param scrollX - Current horizontal scroll position in pixels
+   */
+  const updateContextFromScroll = React.useCallback((scrollX: number) => {
+    // Calculate which week index is currently visible
+    const visibleIndex = Math.round(scrollX / totalGridWidth);
+    
+    // Skip if same week is still visible (prevents unnecessary re-renders)
+    if (visibleIndex === lastVisibleWeekIndex.current) return;
+    lastVisibleWeekIndex.current = visibleIndex;
+    
+    // Get pre-computed week data (instant - no calculation!)
+    const weekData = headerWeeksData[visibleIndex];
+    if (!weekData?.week) return;
+    
+    const { week } = weekData;
+    
+    // Update context state
+    setWeek({
+      number: week.week,
+      month: getMonth(week.startOfWeek) as Month,
+      year: getYear(week.startOfWeek),
+      startOfWeek: week.startOfWeek
+    });
+    setCurrentWeekNumber(week.week);
+  }, [headerWeeksData, totalGridWidth, setWeek]);
+
+  // Reanimated scroll handler für Header FlatList (oben)
+  const headerScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      if (isScrollingFromContent.value) return;
+      
+      isScrollingFromHeader.value = true;
+      horizontalScrollX.value = event.contentOffset.x;
+      scrollTo(contentScrollRef, event.contentOffset.x, 0, false);
+    },
+    onEndDrag: (event) => {
+      isScrollingFromHeader.value = false;
+      // Update context when user lifts finger (not during momentum!)
+      //runOnJS(updateContextFromScroll)(event.contentOffset.x);
+    },
+    onMomentumEnd: () => {
+      isScrollingFromHeader.value = false;
+    }
+  });
+
+  // Reanimated scroll handler für Content ScrollView (unten)
+  const contentScrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      if (isScrollingFromHeader.value) return;
+      
+      isScrollingFromContent.value = true;
+      horizontalScrollX.value = event.contentOffset.x;
+      scrollTo(headerScrollRef, event.contentOffset.x, 0, false);
+    },
+    onEndDrag: (event) => {
+      isScrollingFromContent.value = false;
+     // Update context when user lifts finger on content (not on header!)
+      //runOnJS(updateContextFromScroll)(event.contentOffset.x);
+    },
+    onMomentumEnd: () => {
+      isScrollingFromContent.value = false;
+    }
+  });
   
   // Render-Funktion für Header Wochen (optimized: no getWeekByIndex call!)
   const renderHeaderWeekItem = React.useCallback(({ item }: { item: CalendarWeekVirtualizedListItem }) => {
@@ -500,8 +417,7 @@ const CalendarWeek = ({
       <ViewBase style={{ width: totalGridWidth }}>
         <CalendarWeekHorizontal 
           key={item.week.week.toString()} 
-          item={item.week}
-          borderColor={colors.primaryBorderColor} />
+          item={item.week} />
       </ViewBase>
     );
   }, [totalGridWidth, colors.primaryBorderColor]);
@@ -533,25 +449,13 @@ const CalendarWeek = ({
   const renderHourGridItem = React.useCallback(({ 
     item 
   }: ListRenderItemInfo<CalendarWeekVirtualizedListItem>) => (
-    <CalendarWeekHourGridItem {...item} />
+    <CalendarWeekGridItem {...item} />
   ), []);
 
-  // Key extractor für FlatList
-  const keyExtractorHours = React.useCallback((item: HoursProps, index: number) => `hour-${index}`, []);
-  
-  // getItemLayout für optimierte Performance
-  const getItemLayoutHours = React.useCallback(
-    (_: any, index: number) => ({
-      length: STYLES.calendarHourHeight,
-      offset: STYLES.calendarHourHeight * index,
-      index,
-    }),
-    []
-  );
   
   /** @description Initialize current week number on mount and scroll to current week */
   React.useEffect(() => {
-    const currentWeek = getWeekByIndex(0);
+    const currentWeek = headerWeeksData[0].week;
     setCurrentWeekNumber(currentWeek.week);
     setWeek({
       number: currentWeek.week, 
@@ -594,15 +498,15 @@ const CalendarWeek = ({
       <View style={{ flex: 1 }}>
         {/* OBERE REIHE: Test 43 + Horizontal scrollbare Wochentage */}
         <View style={[GlobalContainerStyle.rowStartStart, CalendarWeekStyle.header, {
+          backgroundColor: "#fcfcfc",
           borderBottomColor: colors.primaryBorderColor
         }]}>
           {/* Links oben: Fixierte Box mit dynamischer Wochennummer - scrollt NIE */}
           <View style={[GlobalContainerStyle.columnCenterCenter, CalendarWeekStyle.weekNumber, { 
-            
             borderRightColor: colors.primaryBorderColor
           }]}>
-            <TextBase text={t("i18n.calendar.week")} style={{ fontSize: 9 }} />
-            <TextBase text={currentWeekNumber.toString()} style={{ fontSize: 10 }} />
+            <TextBase text={t("i18n.calendar.week")} style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 9, color: colors.infoColor }]} />
+            <TextBase text={currentWeekNumber.toString()} style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 10, color: colors.infoColor }]} />
           </View>
 
           {/* Rechts oben: Horizontal scrollbare Wochentage mit virtualisierter Liste */}
@@ -652,7 +556,31 @@ const CalendarWeek = ({
             onScroll={gridScrollHandler}
             scrollEventThrottle={16}
             bounces={false}
-            style={{ width: totalGridWidth }}>
+            style={{ position: 'relative', width: totalGridWidth 
+              //flex: 1
+            }}>
+
+            {/* ===== LAYER 1: Background - Stunden-Raster (NUR 1x!) ===== */}
+            <View style={{ 
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: totalGridWidth,
+              height: hoursData.length * STYLES.calendarHourHeight,
+              zIndex: 0  // Hinter den Wochen
+            }}>
+              {hoursData.map((hour) => (
+                <View 
+                  key={`hour-line-${hour.idx}`}
+                  style={{ 
+                    height: STYLES.calendarHourHeight,
+                    borderBottomWidth: 0.5,
+                    borderBottomColor: colors.primaryBorderColor
+                  }} 
+                />
+              ))}
+            </View>
+
             {/* Horizontal scrollbare Wochen */}
             <Animated.FlatList
               ref={contentScrollRef}
@@ -674,7 +602,11 @@ const CalendarWeek = ({
               maxToRenderPerBatch={1}
               windowSize={21}
               initialNumToRender={3}
-              overScrollMode="never" />
+              overScrollMode="never"
+              style={{ 
+                height: hoursData.length * STYLES.calendarHourHeight,  // Exakte Höhe
+                zIndex: 1  // Über dem Background
+              }} />
           </Animated.ScrollView>
 
           {/*<Animated.ScrollView
@@ -744,40 +676,55 @@ const CalendarWeek = ({
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @description Week item component
- * OPTIMIZED: No useThemeColors() hook - border color passed as prop!
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @param {Object} param0
  * @param {WeeksObjInfoProps} param0.item - The week item to display
  * @param {string} param0.borderColor - Border color for the component
  * @component */
 const CalendarWeekHorizontal = React.memo(({ 
   item,
-  borderColor 
-}: { item: WeeksObjInfoProps; borderColor: string }) => {
-  // Memoize the week number text to avoid re-creating it
-  const weekTexts = React.useMemo(() => 
-    item.datesInWeek.map((date, idx) => ({
-      key: `${item.week}-${idx}`,
-      text: item.week.toString()
-    })),
-    [item.week, item.datesInWeek]
+}: { item: WeeksObjInfoProps; }) => {
+  const colors = useThemeColors();
+
+  /**
+   * @description Determines the visual highlight color for this day
+   * Priority: Range states override single selection
+   * Get the store values with useShallow to prevent infinite loops 
+   * @see {@link hooks/calendar/useCalendarHighlight} */
+  const { selected, rangeStart, rangeEnd } = useCalendarContextStore(
+    useShallow((state) => ({
+      selected: state.selected,
+      rangeStart: state.rangeStart,
+      rangeEnd: state.rangeEnd
+    }))
+  );
+
+  /** @description Calculate all highlights once (instead of 7 times in each child) */
+  const highlights = React.useMemo(() => 
+    item.datesInWeek.map(date => highlightColor(date.now, colors, selected, rangeStart, rangeEnd)),
+    [item.datesInWeek, colors, selected, rangeStart, rangeEnd]
   );
 
   return (
     <View style={[GlobalContainerStyle.rowCenterCenter, CalendarWeekStyle.view, CalendarWeekStyle.header, { 
-      borderBottomWidth: 0
+      backgroundColor: "#fcfcfc",
+      borderBottomColor: colors.primaryBorderColor,
     }]}>
-      {weekTexts.map(({ key, text }) => (
-        <TextBase key={key} text={text} style={{ fontSize: 10 }} />
+      {item.datesInWeek.map((date, idx) => (
+        <CalendarWeekDay 
+          key={`${item.week}-${idx}`} 
+          idx={idx}
+          date={date}
+          highlight={highlights[idx]}
+          bookingProgress={BOOKING_PROGRESS_DATA[idx]} />
       ))}
     </View>
   );
 }, (prevProps, nextProps) => {
   // Only re-render if the week number or border color actually changes
   return prevProps.item.week === nextProps.item.week &&
-         prevProps.item.startOfWeek.getTime() === nextProps.item.startOfWeek.getTime() &&
-         prevProps.borderColor === nextProps.borderColor;
+         prevProps.item.startOfWeek.getTime() === nextProps.item.startOfWeek.getTime()
 });
 
 /**
@@ -817,57 +764,86 @@ const CalendarWeekHourItem = React.memo(({
  * @version 0.0.3
  * @param {CalendarWeekVirtualizedListItem} param0
  * @component */
-const CalendarWeekHourGridItem = React.memo(({
+const CalendarWeekGridItem = React.memo(({
   itemIndex,
   week
 }: CalendarWeekVirtualizedListItem) => {
   const colors = useThemeColors();
-  console.log('🚀 CalendarWeek', week?.week.toString());
   const totalGridWidth = ((DIM.width - STYLES.calendarHourWidth) / 7) * 7;
   const hoursData: HoursProps[] = React.useMemo(() => getHours(24, getLocalization()), []);
 
+
   if (!week) return null;
-
-  // Generate a subtle color based on week number
-  const backgroundColor = React.useMemo(() => {
-    const hue = (week.week * 7) % 360;
-    const saturation = 30;
-    const lightness = 92;
-    
-    const hslToHex = (h: number, s: number, l: number): string => {
-      l /= 100;
-      const a = s * Math.min(l, 1 - l) / 100;
-      const f = (n: number) => {
-        const k = (n + h / 30) % 12;
-        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-        return Math.round(255 * color).toString(16).padStart(2, '0');
-      };
-      return `#${f(0)}${f(8)}${f(4)}`;
-    };
-    
-    return hslToHex(hue, saturation, lightness);
-  }, [week.week]);
-
+  
   return (
     <View style={{ 
       width: totalGridWidth,
-      borderRightWidth: 0.5,
-      borderRightColor: colors.primaryBorderColor
+      height: hoursData.length * STYLES.calendarHourHeight,
+      backgroundColor: 'transparent',  // Transparent, Background zeigt durch!
     }}>
-      {/* Render 24 hours for this week */}
-      {hoursData.map((hour, idx) => (
-        <View 
-          key={`week-${week.week}-hour-${hour.idx}`}
-          style={{ 
-            height: STYLES.calendarHourHeight,
-            backgroundColor,
-            borderBottomWidth: 0.5,
-            borderBottomColor: colors.primaryBorderColor
-          }} 
-        >
-          {idx === 0 && <TextBase text={week.week.toString()} style={{ fontSize: 10 }} />}
-        </View>
-      ))}
+      {/* HIER kommen später deine Events/Termine pro Woche */}
+      {/* Für jetzt: Debug-Text */}
+      {[{id: "1", title: "Test", time: new Date(), duration: 200}].map((event) => {
+        //const topPosition = calculateEventPosition(event.time);
+        //const eventHeight = calculateEventHeight(event.duration);
+        
+        return (
+          <>
+          <View 
+            style={{
+              position: 'absolute',
+              top: 400,
+              height: 200,
+              left: 0,
+              padding: 4,
+              width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) - 1,
+              backgroundColor: '#ffda60',
+              // ...
+            }}>
+            <Text style={{ fontSize: 10 }}>{"Test"}</Text>
+          </View>
+          {week.week === 44 && <View 
+            style={{
+              position: 'absolute',
+              top: 200,
+              height: 300 - 1,
+              padding: 4,
+              left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
+              width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) - 1,
+              backgroundColor: '#ff65ed',
+              // ...
+            }}>
+            <Text style={{ fontSize: 10 }}>{"Test"}</Text>
+          </View>}
+          <View 
+            style={{
+              position: 'absolute',
+              top: 500,
+              height: 130,
+              padding: 4,
+              left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
+              width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) - 1,
+              backgroundColor: '#65ccff',
+              // ...
+            }}>
+            <Text style={{ fontSize: 10 }}>{"Test"}</Text>
+          </View>
+          <View 
+            style={{
+              position: 'absolute',
+              top: 250,
+              height: 100,
+              padding: 4,
+              left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 2,
+              width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) - 1,
+              backgroundColor: '#65ffbc',
+              // ...
+            }}>
+            <Text style={{ fontSize: 10 }}>{"Test"}</Text>
+          </View>
+          </>
+        );
+      })}
     </View>
   );
 }, (prevProps, nextProps) => {

@@ -2,7 +2,7 @@ import { faAddressBook, faBookOpenCover, faBusinessTime, faChartNetwork, faFileC
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { View } from "react-native";
 
-import { STYLES } from "@/constants/Styles";
+import { STYLES } from "@codemize/constants/Styles";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
@@ -22,12 +22,11 @@ import CreateStyle from "@/styles/screens/private/modal/Create";
  * @version 0.0.1
  * @component */
 const ScreenCreate = () => {
-  const { info } = useThemeColors();
+  const { infoColor } = useThemeColors();
 
   return (
     <ViewBase>
       <StackModalHeader 
-        icon={faGrid2Plus as IconProp}
         title={"i18n.modal.create.title"} />
       <View style={[GlobalContainerStyle.columnStartStart, { 
         padding: STYLES.paddingHorizontal,
@@ -35,7 +34,7 @@ const ScreenCreate = () => {
       }]}>
         <TextBase 
           text={"i18n.modal.create.description"}
-          style={[GlobalTypographyStyle.labelText, { color: info }]} />
+          style={[GlobalTypographyStyle.labelText, { color: infoColor }]} />
       </View>
       <View style={CreateStyle.view}>
         <ListItemGroup title={"i18n.sheets.create.groups.manage"}>

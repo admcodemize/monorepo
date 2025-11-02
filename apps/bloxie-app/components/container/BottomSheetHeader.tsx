@@ -1,9 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { useTrays } from "react-native-trays";
 
-import TouchableHapticClose from "@/components/button/TouchableHapticClose";
 import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
@@ -15,7 +13,7 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
  * @since 0.0.2
  * @version 0.0.1
  * @type */
-export type TrayHeaderProps = {
+export type BottomSheetHeaderProps = {
   title: string;
   description: string;
 }
@@ -25,18 +23,15 @@ export type TrayHeaderProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
  * @version 0.0.1
- * @param {TrayHeaderProps} param0
+ * @param {BottomSheetHeaderProps} param0
  * @param {string} param0.title - The title to display
  * @param {string} param0.description - The description to display (below the title)
  * @component */
-const TrayHeader = ({
+const BottomSheetHeader = ({
   title,
   description,
-}: TrayHeaderProps) => {
+}: BottomSheetHeaderProps) => {
   const { t } = useTranslation();
-  const { dismiss } = useTrays('main');
-  
-  const onPressClose = React.useCallback(() => dismiss('main'), [dismiss]);
 
   return (
     <View style={[GlobalContainerStyle.rowStartBetween]}>
@@ -51,9 +46,8 @@ const TrayHeader = ({
           ellipsizeMode={"tail"}
           style={[GlobalTypographyStyle.labelText]} />
       </View>
-      <TouchableHapticClose onPress={onPressClose} />
     </View>
   )
 }
 
-export default TrayHeader;
+export default BottomSheetHeader;

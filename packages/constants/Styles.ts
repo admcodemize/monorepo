@@ -28,6 +28,7 @@ type StylesProps = {
   calendarHourHeight: number;
   calendarHourWidth: number;
   calendarHourBorderHeight: number;
+  calendarHeaderHeight: number;
 }
 
 /**
@@ -58,6 +59,7 @@ export const STYLES = <StylesProps>{
   marginHorizontal: 20,
   layoutFooterHeight: 50,
   calendarHourHeight: 60,
-  calendarHourWidth: 60,
-  calendarHourBorderHeight: 1
+  calendarHourWidth: 50,
+  calendarHourBorderHeight: 1,
+  calendarHeaderHeight: 60
 }

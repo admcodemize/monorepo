@@ -95,7 +95,7 @@ const ChartLineArea = ({
   showCurrency = false,
   onPointerComponentMove
 }: ChartLineAreaProps) => {
-  const { focusedBg, focusedContent, primaryBorderColor, pointerComponent, secondaryBorderColor } = useThemeColors();
+  const colors = useThemeColors();
 
   /** @description Calculate the max and min value of the data for displaying the average line with spacer at the top */
   const dataMaxValue = Math.max(...data.map(({ value }) => value)) + additionalTopSpacing;
@@ -145,10 +145,10 @@ const ChartLineArea = ({
         focusEnabled={false}
         disableScroll={true}
         renderDataPointsAfterAnimationEnds={true}
-        color={startFillColor}
-        startFillColor={startFillColor}
+        color={colors.startFillColor}
+        startFillColor={colors.startFillColor}
         startOpacity={startOpacity}
-        endFillColor={endFillColor || secondaryBorderColor}
+        endFillColor={colors.endFillColor || colors.secondaryBorderColor}
         endOpacity={endOpacity}
         isAnimated={isAnimated}
         animateOnDataChange={animateOnDataChange}
@@ -156,11 +156,11 @@ const ChartLineArea = ({
         hideDataPoints
         stepValue={stepValue}
         initialSpacing={0} 
-        rulesColor={primaryBorderColor}
+        rulesColor={colors.primaryBorderColor}
         showReferenceLine1={false}
         pointerConfig={{
           barTouchable: true,
-          pointerStripColor: pointerStripColor,
+          pointerStripColor: colors.pointerStripColor,
           pointerStripWidth: 1,
           pointerStripUptoDataPoint: false,
           autoAdjustPointerLabelPosition: false,
@@ -169,19 +169,19 @@ const ChartLineArea = ({
           pointerEvents: "box-only",
           pointerLabelComponent: (items: ChartLineAreaDataProps[]) => onPointerComponentMove?.(items[0]),
           pointerComponent: () => <View style={[ChartLineAreaStyle.chartPointerView, { 
-            backgroundColor: pointerComponentColor || pointerComponent 
+            backgroundColor: colors.pointerComponentColor || pointerComponentColor 
           }]} />
         }} />
       {showReferenceLine1 && <Animated.View style={[ChartLineAreaStyle.averageLineView, animatedAverageLineStyle]}>
-        <HorizontalDashedLine strokeColor={`${focusedBg}80`} />
+        <HorizontalDashedLine strokeColor={`${colors.focusedBgColor}80`} />
         <View style={[ChartLineAreaStyle.averageLineLabelView, {
-          backgroundColor: focusedBg
+          backgroundColor: colors.focusedBgColor
         }]}>
           <TextBase
             text={`⌀ ${averageValue.toFixed(2)} ${showCurrency ? getCurrencyCode() : ""}`}
             style={[GlobalTypographyStyle.headerSubtitle, {
               fontSize: 10,
-              color: focusedContent,
+              color: colors.focusedContentColor,
             }]}
           />
         </View>

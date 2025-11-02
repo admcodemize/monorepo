@@ -12,12 +12,9 @@ const DIM = Dimensions.get("window");
  * @version 0.0.1 */
 const CalendarWeekDayStyle = StyleSheet.create({
   touchable: {
-    width: ((DIM.width - (STYLES.paddingHorizontal * 2) - STYLES.paddingHorizontal) / 7),
+    width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
     alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 2,
-    height: 60,
-    gap: 4
+    gap: 4,
   },
   shortText: {
     fontSize: 9, 

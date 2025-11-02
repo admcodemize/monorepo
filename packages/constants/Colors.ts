@@ -3,7 +3,7 @@
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const COLORS = {
   light: {
@@ -32,8 +32,9 @@ export const COLORS = {
     primaryIcon: "#303030",
     secondaryIcon: "#626D7B",
     primaryIconBg: "#fff",
-    weekendBgColor: "#5E5E5E",
-    todayBgColor: "#047dd4"
+    weekendBg: "#5E5E5E",
+    todayBg: "#047dd4",
+    blockedScopeBg: "#ededed"
   },
   dark: {
     info: "#626D7B",
@@ -61,7 +62,8 @@ export const COLORS = {
     primaryIcon: "#626D7B",
     secondaryIcon: "#fff",
     primaryIconBg: "#1f2127",
-    weekendBgColor: "#5E5E5E",
-    todayBgColor: "#303030"
+    weekendBg: "#5E5E5E",
+    todayBg: "#303030",
+    blockedScopeBg: "#ededed"
   },
 };

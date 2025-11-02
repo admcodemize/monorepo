@@ -1,4 +1,5 @@
 import ScreenTrayAction from "@/screens/private/tray/Action";
+import { View } from "react-native";
 
 /**
  * @public
@@ -18,17 +19,15 @@ export const stackConfigs = {
       borderWidth: 0,
       borderColor: "#dfdfdf"
     }
-  }
+  },
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @object */
 export const trays = {
-  ActionTray: {
-    component: ScreenTrayAction
-  },
+  ActionTray: { component: ScreenTrayAction }
 };

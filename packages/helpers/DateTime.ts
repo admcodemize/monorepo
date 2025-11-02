@@ -122,7 +122,7 @@ export type HoursProps = {
 }
 
 export const MINUTES_IN_DAY = (STYLES.calendarHourHeight * 24);
-export const MINUTES_IN_DAY_WITH_BORDER = (STYLES.calendarHourHeight * 24) + (STYLES.calendarHourBorderHeight * 24);
+export const MINUTES_IN_DAY_WITH_BORDER = (STYLES.calendarHourHeight * 24) //+ (STYLES.calendarHourBorderHeight * 24);
 export const PIXELS_PER_MINUTE = STYLES.calendarHourHeight / 60;
 export const PIXELS_PER_MINUTE_WITH_BORDER = (STYLES.calendarHourHeight + STYLES.calendarHourBorderHeight) / 60;
 export const BORDER_HEIGHT = STYLES.calendarHourBorderHeight;
@@ -299,4 +299,31 @@ export const getHours = (
   });
 
   return hours;
+};
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Returns the count of minutes since midnight
+ * @since 0.0.2
+ * @version 0.0.1
+ * @param {Date} now - Initial start/end date */
+ export const getMinutesSinceMidnight = (
+  now: Date = new Date()
+): number => (now.getHours() * 60) + now.getMinutes();
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Returns the total number of minutes between two dates.
+ * @since 0.0.2
+ * @version 0.0.1
+ * @param {Date} start - Start date
+ * @param {Date} end - End date */
+export const getMinutesBetweenDates = (
+  start: Date,
+  end: Date
+): number => {
+  const differenceInMinutes = end.getTime() - start.getTime();
+  return Math.round(differenceInMinutes / 60000);
 };

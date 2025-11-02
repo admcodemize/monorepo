@@ -21,6 +21,14 @@
           "last90Days": "Letzte 90 Tage",
           "allTime": "Gesamter Zeitraum"
         }
+      },
+      "calendar": {
+        "views": {
+          "day": "Tag",
+          "3days": "3 Tage",
+          "week": "Woche",
+          "agenda": "Agenda"
+        }
       }
     },
     "screens": {

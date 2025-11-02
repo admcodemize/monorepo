@@ -71,7 +71,8 @@ const TouchableHapticText = React.forwardRef<View, TouchableHapticTextProps>(({
           <TextBase 
             text={text}
             i18nTranslation={i18nTranslation}
-            type={type} />
+            type={type}
+            color={colors.textColor} />
         </View>
     </TouchableHaptic>
   )

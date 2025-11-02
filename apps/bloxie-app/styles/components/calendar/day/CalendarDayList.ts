@@ -9,7 +9,8 @@ import { LEVEL, STYLES } from "@codemize/constants/Styles";
 const CalendarDayListStyle = StyleSheet.create({
   left: {
     maxWidth: STYLES.calendarHourWidth,
-    borderBottomWidth: STYLES.calendarHourBorderHeight
+    //borderBottomWidth: STYLES.calendarHourBorderHeight,
+    borderRightWidth: STYLES.calendarHourBorderHeight
   },
   right: {
     flex: 1,

@@ -8,29 +8,51 @@ import {
   faCalendarDays,
   faCalendarDays as faCalendarDaysDuotone,
   faCalendar as faCalendarDuotone,
+  faCalendarWeek,
   faCalendarWeek as faCalendarWeekDuotone,
+  faDistributeSpacingVertical,
   faUsersBetweenLines
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
+  faCalendarDay as faCalendarDaySolid,
   faCalendarDays as faCalendarDaysSolid,
   faCalendar as faCalendarSolid,
-  faCalendarWeek as faCalendarWeekSolid
+  faCalendarWeek as faCalendarWeekSolid,
+  faDistributeSpacingVertical as faDistributeSpacingVerticalSolid
 } from "@fortawesome/pro-solid-svg-icons";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
- * @since 0.0.5
+ * @since 0.0.2
  * @version 0.0.1
  * @type */
-export type DashboardPeriodProps = {
+export type DropdownItemProps = {
   key: string|number;
   title: string;
   iconDuotone: IconProp;
   iconSolid: IconProp;
 }
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.1
+ * @version 0.0.2
+ * @type */
+export type DashboardPeriodProps = DropdownItemProps & {}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.2
+ * @version 0.0.1
+ * @type */
+export type CalendarViewProps = DropdownItemProps & {}
 
 /**
  * @public
@@ -70,6 +92,36 @@ export const DROPDOWN_DASHBOARD_PERIOD: DashboardPeriodProps[] = [{
   title: "i18n.dropdown.dashboard.calendar.allTime",
   iconDuotone: faCalendarDuotone as IconProp,
   iconSolid: faCalendarSolid as IconProp,
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling generic data inside dashboard component 
+ * @readonly
+ * @since 0.0.2
+ * @version 0.0.1
+ * @constant */
+export const DROPDOWN_CALENDAR_VIEWS: CalendarViewProps[] = [{
+  key: "day",
+  title: "i18n.dropdown.calendar.views.day",
+  iconDuotone: faCalendarDay as IconProp,
+  iconSolid: faCalendarDaySolid as IconProp,
+}, {
+  key: "3days",
+  title: "i18n.dropdown.calendar.views.3days",
+  iconDuotone: faCalendarDays as IconProp,
+  iconSolid: faCalendarDaysSolid as IconProp,
+}, {
+  key: "week",
+  title: "i18n.dropdown.calendar.views.week",
+  iconDuotone: faCalendarWeek as IconProp,
+  iconSolid: faCalendarWeekSolid as IconProp,
+}, {
+  key: "agenda",
+  title: "i18n.dropdown.calendar.views.agenda",
+  iconDuotone: faDistributeSpacingVertical as IconProp,
+  iconSolid: faDistributeSpacingVerticalSolid as IconProp,
 }];
 
 /**

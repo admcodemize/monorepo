@@ -22,6 +22,11 @@ const GlobalContainerStyle = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "flex-start",
   },
+  rowStartCenter: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
   rowCenterEnd: {
     flexDirection: "row",
     alignItems: "center",

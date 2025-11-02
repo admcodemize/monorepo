@@ -82,12 +82,12 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
           GlobalButtonStyle.spacing, 
           GlobalButtonStyle.defaultSize,  
           GlobalButtonStyle.border, {
-            gap: STYLES.sizeGap,
+            gap: STYLES.sizeGap - 2,
             height: STYLES.sizeTouchable,
             backgroundColor: backgroundColor ? backgroundColor : colors.secondaryBgColor,
             borderColor: colors.primaryBorderColor
         }]}>
-          <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap - 4 }]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
             {icon && <FontAwesomeIcon
               icon={icon as IconProp}
               size={STYLES.sizeFaIcon}

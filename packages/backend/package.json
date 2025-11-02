@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     "./Fetch": "./Fetch.ts",
-    "./Types": "./Types.ts"
+    "./Types": "./Types.ts",
+    "./Convert": "./Convert.ts"
   },
   "dependencies": {
     "convex": "^1.28.0",

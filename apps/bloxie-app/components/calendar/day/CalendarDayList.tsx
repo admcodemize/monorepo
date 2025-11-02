@@ -6,11 +6,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor, useThemeColors } from "@/hooks/theme/useThemeColor";
 //import { useCalendarEventStore } from "@/context/CalendarEventContext";
 //import { useUserContextStore } from "@/context/UserContext";
+import { convertFromConvex } from "@codemize/backend/Convert";
 //import { convertFromConvex, getHours, getLocaleTime, getMinutesBetweenDates, getMinutesSinceMidnight, getTimeZonedDate, MAX_TOP, MINUTES_IN_DAY, MINUTES_IN_DAY_WITH_BORDER } from "@/helpers/DateTime";
 //import { getEventsSorted, isEventOverlapping } from "@/helpers/Events";
 import { STYLES } from "@codemize/constants/Styles";
 import {ConvexEventsAPIProps} from "@codemize/backend/Types";
-import { getHours, HoursProps, MINUTES_IN_DAY_WITH_BORDER } from "@codemize/helpers/DateTime";
+import { getHours, getMinutesBetweenDates, getMinutesSinceMidnight, HoursProps, MINUTES_IN_DAY, MINUTES_IN_DAY_WITH_BORDER } from "@codemize/helpers/DateTime";
 
 import { KEYS } from "@/constants/Keys";
 //import { CalendarDayListProps } from "@/types/components/calendar/day/CalendarDayList";
@@ -29,10 +30,12 @@ import CalendarDayListStyle from "@/styles/components/calendar/day/CalendarDayLi
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 
-import { LayoutProps } from "@/types/GlobalLayout";
-import ListRenderItemDivider from "./render/ListRenderItemDivider";
-import ListRenderItemHour from "./render/ListRenderItemHour";
+import { GlobalLayoutProps } from "@/types/GlobalLayout";
+import ListItemDivider from "@/components/calendar/list/ListItemDivider";
+import ListItemHour from "@/components/calendar/list/ListItemHour";
 import { getLocalization } from "@/helpers/System";
+import { useUserContextStore } from "@/context/UserContext";
+import CalendarBlockedScope from "../CalendarBlockedScope";
 
 /** 
  * @description Hour style heigh plus the additional border height!
@@ -61,7 +64,7 @@ export type ListRenderItemEventNotAllowedProps = {
  * @type */
 export type ListRenderItemEventProps = {
   event: ConvexEventsAPIProps;
-  layout: LayoutProps;
+  layout: GlobalLayoutProps;
   isNewEvent?: boolean;
   isAllDayEvent?: boolean;
   notAllowed?: ListRenderItemEventNotAllowedProps[];
@@ -112,7 +115,7 @@ const CalendarDayList = ({
   /** 
    * @description Get the times (blocked times) for the current user from the convex database
    * @see {@link context/UserContext} */
-  //const { times } = useUserContextStore((state) => state);
+  const { times } = useUserContextStore((state) => state);
 
   /**
    * @private
@@ -391,7 +394,7 @@ const CalendarDayList = ({
       {/*index === 0 && <CalendarTimeIndicator />*/}
 
       {/** @description Renders the blocked times for the current user based on the day of the week */}
-      {/*index === 0 && times?.filter(({ isBlocked, day }) => isBlocked && day === item.now.getDay())
+      {index === 0 && times?.filter(({ isBlocked, day }) => isBlocked && day === item.now.getDay())
         .map(({ start, end }) => 
           <CalendarBlockedScope
             layout={{ 
@@ -400,7 +403,7 @@ const CalendarDayList = ({
               width: totalWidth, 
               height: getMinutesBetweenDates(convertFromConvex(start), convertFromConvex(end)) / MINUTES_IN_DAY * MINUTES_IN_DAY_WITH_BORDER
             }}/>
-      )}*/}
+      )}
 
       {/*index === 0 && <View style={{ left: showHours ? Styles.calendarHourWidth : 0 }}>
         {prepareEvents.map((item, idx) => 
@@ -453,7 +456,7 @@ const CalendarDayList = ({
           backgroundColor: tertiaryBgColor
         }]}>
           {/** @description Renders the hours on the left side of the calendar */}
-          <ListRenderItemHour
+          <ListItemHour
             key={`${KEYS.calendarHours}-${item.idx}`}
             {...item} />        
         </View>}
@@ -470,7 +473,7 @@ const CalendarDayList = ({
               onLongPress={() => prepareLongpressEvent(new Date(item.now.getFullYear(), item.now.getMonth(), item.now.getDate(), index, minute, 0))} />
           )})}
           {Array.from({ length: 4 }).map((_, idx) => 
-            <ListRenderItemDivider
+            <ListItemDivider
               key={`${KEYS.calendarHoursDivider}-${item.hour}-${idx}`}
               showBorder={Boolean(idx % 2)} />)}
         </View>

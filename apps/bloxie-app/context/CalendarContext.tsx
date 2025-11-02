@@ -12,6 +12,28 @@ const CalendarContext = createContext<StoreApi<CalendarContextProps>|undefined>(
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
  * @version 0.0.1
+ * @enum */
+export enum CalendarDropdownItemKeyView {
+  day = "day",
+  week = "week",
+  agenda = "agenda",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.2
+ * @version 0.0.1
+ * @type */
+export type CalendarDropdownProps = {
+  itemKeyView: CalendarDropdownItemKeyView;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.2
+ * @version 0.0.1
  * @type */
 export type CalendarProviderProps = PropsWithChildren & {
   now?: Date;
@@ -41,6 +63,10 @@ export type CalendarContextProps = {
   setNow: (now: Date) => void;
   week: CalendarViewWeekProps;
   setWeek: (week: CalendarViewWeekProps) => void;
+  view: CalendarDropdownItemKeyView;
+  setView: (view: CalendarDropdownItemKeyView) => void;
+  dropdown: CalendarDropdownProps;
+  setDropdown: (property: string, value: string|number) => void;
   isTodayPressed: boolean;
   setIsTodayPressed: (isTodayPressed: boolean) => void;
   selected: Date;
@@ -56,22 +82,29 @@ export type CalendarContextProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @param {Object} param0
  * @param {Date} param0.now - Selected date during user interaction */
 export default function CalendarProvider({ 
-  now = new Date(),
+  now,
   children, 
 }: CalendarProviderProps) {
+  const _now = now || new Date();
   const [store] = useState(() => 
     createStore<CalendarContextProps>()((set, get) => ({
-      now,
+      now: _now,
       setNow: (now) => set((state) => ({ ...state, now })),
-      week: { number: getWeekNumber({ now, locale: getLocalization() }), month: getMonth(now) as Month, year: getYear(now), startOfWeek: startOfWeek(now) },
+      week: { number: getWeekNumber({ now: _now, locale: getLocalization() }), month: getMonth(_now) as Month, year: getYear(_now), startOfWeek: startOfWeek(_now, { locale: getLocalization() }) },
       setWeek: (week) => set((state) => ({ ...state, week: { ...state.week, ...week } })),
+      view: CalendarDropdownItemKeyView.week,
+      setView: (view: CalendarDropdownItemKeyView) => set((state) => ({ ...state, view })),
+      dropdown: { itemKeyView: CalendarDropdownItemKeyView.week },
+      setDropdown: (property: string, value: string|number) => set((state) => ({ 
+        ...state,
+        dropdown: { ...state.dropdown, [property]: value as string|number } })),
       isTodayPressed: false,
-      setIsTodayPressed: (isTodayPressed) => set((state) => ({ ...state, isTodayPressed })),
-      selected: now,
+      setIsTodayPressed: (isTodayPressed: boolean) => set((state) => ({ ...state, isTodayPressed })),
+      selected: _now,
       setSelected: (selected: Date) => set((state) => ({ ...state, selected })),
       rangeStart: null,
       rangeEnd: null,
@@ -95,7 +128,7 @@ export default function CalendarProvider({
  * @since 0.0.2
  * @version 0.0.1
  * @param {function} selector */
-export function useCalendarStore<T>(selector: (state: CalendarContextProps) => T) {
+export function useCalendarContextStore<T>(selector: (state: CalendarContextProps) => T) {
   const context = useContext(CalendarContext);
   if (!context) throw new Error("CalendarContext.Provider is missing");
   return useStore(context, selector);

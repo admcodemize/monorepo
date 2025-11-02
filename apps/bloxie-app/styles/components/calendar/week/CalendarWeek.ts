@@ -1,3 +1,4 @@
+import { STYLES } from "@codemize/constants/Styles";
 import { Dimensions, StyleSheet } from "react-native";
 
 /** @description Dimensions of the window */
@@ -7,22 +8,21 @@ const DIM = Dimensions.get("window");
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1 */
+ * @version 0.0.2 */
 const CalendarWeekStyle = StyleSheet.create({
   view: {
-    width: DIM.width,
-    justifyContent: "center" ,
-    alignItems: "flex-start",
-    flexDirection: "row",
+    width: DIM.width - STYLES.calendarHourWidth + 0.5,
     gap: 1,
   },
-  viewWeek: {
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 2,
-    height: 60,
-    gap: 11
-  }
+  header: {
+    height: STYLES.calendarHeaderHeight,
+    borderBottomWidth: 1,
+  },
+  weekNumber: {
+    height: STYLES.calendarHeaderHeight,
+    width: STYLES.calendarHourWidth,
+    borderRightWidth: 1,
+  },
 })
 
 export default CalendarWeekStyle;

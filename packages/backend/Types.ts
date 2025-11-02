@@ -3,6 +3,14 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 /**
  * @public
+ * @since 0.0.2
+ * @version 0.0.1
+ * @type */
+export type ConvexTimesAPITypeEnum = "weekdays" | "dates";
+
+
+/**
+ * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
  * @version 0.0.1
@@ -23,4 +31,56 @@ export type ConvexEventsAPIProps = {
   bgColorEvent?: string;
   isPrivate?: boolean;
   isRepeating?: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.2
+ * @version 0.0.1
+ * @type */
+export type ConvexUsersAPIProps = {
+  _id: Id<"users">;
+  _creationTime: number;
+  clerkId: string;
+  email: string;
+  provider: string;
+  banned: boolean;
+  members: Id<"users">[];
+}
+
+/**
+ * @public
+ * @since 0.0.2
+ * @version 0.0.1
+ * @type */
+export type ConvexSettingsAPIProps = {
+  _id?: Id<"settings">;
+  _creationTime?: number;
+  userId: Id<"users">;
+  faceId?: boolean;
+  pushNotifications?: boolean;
+  durationMinute?: number;
+  breakingTimeBetweenEvents?: number;
+  timesMemberWithAccessRole?: boolean;
+  membersHighlightColor?: {
+    userId: Id<"users">;
+    color: string;
+  }[];
+}
+
+/**
+ * @public
+ * @since 0.0.2
+ * @version 0.0.1
+ * @type */
+export type ConvexTimesAPIProps = {
+  _id?: Id<"times">;
+  _creationTime?: number;
+  userId: Id<"users">;
+  day: number;
+  type: ConvexTimesAPITypeEnum;
+  start: string;
+  end: string;
+  isBlocked: boolean;
 }

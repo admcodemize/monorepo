@@ -12,8 +12,8 @@ const GlobalButtonStyle = StyleSheet.create({
     height: STYLES.sizeTouchable,
   },
   spacing: {
-    paddingHorizontal: 8,
-    paddingVertical: 6
+    paddingHorizontal: 6,
+    paddingVertical: 4
   },
   border: {
     borderWidth: 1,

@@ -20,7 +20,7 @@ export type ListRenderItemDividerProps = {
  * @description
  * @since 0.0.2
  * @version 0.0.1 */
-const ListRenderItemDivider = ({
+const ListItemDivider = ({
   showBorder = true
 }: ListRenderItemDividerProps) => {
   const colors = useThemeColors();
@@ -35,4 +35,4 @@ const ListRenderItemDivider = ({
   )
 }
 
-export default ListRenderItemDivider;
+export default ListItemDivider;

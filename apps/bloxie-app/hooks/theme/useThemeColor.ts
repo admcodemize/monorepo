@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useColorScheme } from 'react-native';
 import { COLORS } from '@codemize/constants/Colors';
 
@@ -35,13 +36,16 @@ export const useThemeColor = (
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @description Returns theme based colors
+ * @description Returns theme based colors (memoized to prevent unnecessary re-renders)
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @function */
 export const useThemeColors = (): Record<string, string> => {
-  return Object.keys(COLORS[useColorScheme() || "light"]).reduce((acc, key) => {
-    acc[`${key}Color`] = useThemeColor(key as keyof typeof COLORS.light & keyof typeof COLORS.dark);
-    return acc;
-  }, {} as Record<string, string>);
+  const theme = useColorScheme() || "light";
+  return React.useMemo(() => {
+    return Object.keys(COLORS[theme]).reduce((acc, key) => {
+      acc[`${key}Color`] = COLORS[theme][key as keyof typeof COLORS.light & keyof typeof COLORS.dark];
+      return acc;
+    }, {} as Record<string, string>);
+  }, [theme]);
 }

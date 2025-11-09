@@ -50,7 +50,7 @@ export const LEVEL = <LevelProps>{
  * @version 0.0.1
  * @constant */
 export const STYLES = <StylesProps>{
-  sizeTouchable: 30,
+  sizeTouchable: 28,
   sizeFaIcon: 14,
   sizeGap: 8,
   layoutTabHeight: 50,
@@ -59,7 +59,7 @@ export const STYLES = <StylesProps>{
   marginHorizontal: 20,
   layoutFooterHeight: 50,
   calendarHourHeight: 60,
-  calendarHourWidth: 50,
+  calendarHourWidth: 45,
   calendarHourBorderHeight: 1,
-  calendarHeaderHeight: 68
+  calendarHeaderHeight: 50
 }

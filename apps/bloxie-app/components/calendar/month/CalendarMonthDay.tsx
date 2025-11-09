@@ -13,23 +13,23 @@ import CalendarWeekDayChart from "@/components/calendar/week/CalendarWeekDayChar
 
 import CalendarWeekDayStyle from "@/styles/components/calendar/week/CalendarWeekDay";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
-import CalendarWeekDayCircle from "./CalendarWeekDayCircle";
-import { View } from "react-native";
+
+import { Dimensions, View } from "react-native";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
-import { STYLES } from "@codemize/constants/Styles";
-import { isToday } from "date-fns";
+import CalendarWeekDayCircle from "../week/CalendarWeekDayCircle";
+import { getWeek, startOfWeek } from "date-fns";
+import { getLocalization } from "@/helpers/System";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.2
- * @version 0.0.2
+ * @since 0.0.5
+ * @version 0.0.1
  * @type */
 export type CalendarWeekDayProps = {
   dateInWeek: DatesInWeekInfoProps;
   selected: Date;
-  showDayShortText?: boolean;
-  index: number;
+  month: number;
 }
 
 /**
@@ -50,11 +50,10 @@ export type CalendarWeekDayProps = {
  * @param {Date} param0.selected Selected date
  * @param {boolean} param0.showDayShortText Whether to show the short text of the day
  * @component */
-const CalendarWeekDay = ({
+const CalendarMonthDay = ({
   dateInWeek,
   selected,
-  showDayShortText = true,
-  index
+  month,
 }: CalendarWeekDayProps) => {
   //const rangeStartRef = React.useRef<Date|null>(null);
   // console.log("CalendarWeekDay", date.now.toISOString()); // Deactivated for performance testing
@@ -104,7 +103,7 @@ const CalendarWeekDay = ({
   //const number = React.useMemo(() => date.number, [date.number]);
   const colors = useThemeColors();
 
-  const config = useCalendarContextStore((state) => state.config);
+
 
   /** @description Calculate all highlights once (instead of 7 times in each child) */
   const highlight = highlightColor(dateInWeek.now, colors, selected);
@@ -113,28 +112,26 @@ const CalendarWeekDay = ({
     <TouchableHaptic 
       onPress={onPress}
       hitSlop={10}
-      style={[CalendarWeekDayStyle.touchable, {
-        width: config.width,
-        borderRightWidth: index === 6 ? 0 : 1,
-        borderRightColor: `${colors.secondaryBorderColor}60`,
-        height: STYLES.calendarHeaderHeight,
-        paddingVertical: 6,
-        borderTopWidth: isToday(dateInWeek.now) ? 3 : 0,
-        borderTopColor: colors.todayBgColor,
-        paddingTop: isToday(dateInWeek.now) ? 5 : 8
-      }]}>
-        {showDayShortText && <TextBase 
-          text={dateInWeek.shortText} 
-          style={[GlobalTypographyStyle.headerSubtitle, CalendarWeekDayStyle.shortText, { color: highlight }]} />}
-        <CalendarWeekDayChart 
-          number={dateInWeek.number}
-          highlight={highlight} />
-        {/*<View style={[GlobalContainerStyle.rowCenterCenter, { gap: 2 }]}>
-          <CalendarWeekDayCircle color={highlight} />
-          <CalendarWeekDayCircle color={highlight} />
-        </View>*/}
+      style={[CalendarWeekDayStyle.touchable, { width: (Dimensions.get("window").width / 8) - 2, 
+      backgroundColor: getWeek(dateInWeek.now, { locale: getLocalization() }) === getWeek(new Date(), { locale: getLocalization() }) 
+        ? startOfWeek(dateInWeek.now, { locale: getLocalization() }) === startOfWeek(new Date(), { locale: getLocalization() }) ? "green" : colors.focusedBgColor
+        : month === dateInWeek.now.getMonth() ? `${highlight}10` : `${highlight}05`}]}>
+        <View style={{  
+          height: 26, 
+          justifyContent: "center", 
+          alignItems: "center", 
+          borderRadius: 6, 
+        }}>
+          <TextBase 
+            type="label" 
+            text={dateInWeek.number.toString()}
+            style={[GlobalTypographyStyle.headerSubtitle, { 
+              color: getWeek(dateInWeek.now, { locale: getLocalization() }) === getWeek(new Date(), { locale: getLocalization() }) ? colors.focusedContentColor : month === dateInWeek.now.getMonth() ? `${highlight}` : colors.prevNextMonthColor, 
+              fontSize: 10
+            }]} />
+        </View>
     </TouchableHaptic>
   )
 }
 
-export default React.memo(CalendarWeekDay);
+export default React.memo(CalendarMonthDay);

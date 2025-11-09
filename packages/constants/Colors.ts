@@ -12,6 +12,7 @@ export const COLORS = {
     text: '#303030',
     title: "#1B1B1B",
     subtitle: "#303030",
+    prevNextMonth: "#D1D1D1",
     focusedBg: "#303030",
     focusedContent: "#fff",
     dashboardCardBg: "#e7e7e7",
@@ -32,9 +33,10 @@ export const COLORS = {
     primaryIcon: "#303030",
     secondaryIcon: "#626D7B",
     primaryIconBg: "#fff",
-    weekendBg: "#5E5E5E",
-    todayBg: "#047dd4",
-    blockedScopeBg: "#ededed"
+    weekendBg: "#626D7B",
+    todayBg: "#497BCB",
+    prevNextMonthBg: "#D1D1D1",
+    blockedScopeBg: "#f8f8f8"
   },
   dark: {
     info: "#626D7B",
@@ -42,6 +44,7 @@ export const COLORS = {
     text: '#FFF',
     title: "#FFF",
     subtitle: "#FFF",
+    prevNextMonth: "#D1D1D1",
     focusedBg: "#051120",
     focusedContent: "#fff",
     dashboardCardBg: "#e7e7e7",
@@ -64,6 +67,7 @@ export const COLORS = {
     primaryIconBg: "#1f2127",
     weekendBg: "#5E5E5E",
     todayBg: "#303030",
+    prevNextMonthBg: "#D1D1D1",
     blockedScopeBg: "#ededed"
   },
 };

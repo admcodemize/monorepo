@@ -14,6 +14,7 @@ import RootFooter from '@/components/layout/footer/private/RootFooter';
 import TextBase from '@/components/typography/Text';
 import ScreenTabsStyle from '@/styles/components/layout/ScreenTabs';
 import GlobalContainerStyle from '@/styles/GlobalContainer';
+import React from 'react';
 
 /**
  * @public
@@ -45,6 +46,10 @@ const ScreenTabs = ({
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
 
+        React.useEffect(() => {
+          console.log("route changed", state.routes[state.index]);
+        }, [state.index]);
+
         /**
          * @description Returns the actual route object for further usage during the rendering process
          * @function */
@@ -53,7 +58,9 @@ const ScreenTabs = ({
         /**
          * @description Handles the on press event for the tab bar
          * @function */
-        const onPress = () => (!isFocused) && navigation.navigate(route.name, route.params);
+        const onPress = () => {
+          (!isFocused) && navigation.navigate(route.name, route.params);
+        };
 
         return (
           <TouchableHaptic

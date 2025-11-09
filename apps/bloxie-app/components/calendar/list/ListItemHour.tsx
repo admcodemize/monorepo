@@ -38,7 +38,7 @@ const ListItemHour = ({
       {idx !== 0 && <TextBase
         text={hour}
         i18nTranslation={false}
-        style={[GlobalTypographyStyle.labelText, { color: colors.infoColor, marginTop: -6 }]} />}
+        style={[GlobalTypographyStyle.titleSubtitle, { color: colors.infoColor, fontSize: 9 }]} />}
     </View>         
   )
 }

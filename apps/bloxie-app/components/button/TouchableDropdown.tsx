@@ -52,9 +52,10 @@ export const open = ({
   children,
 }: OpenDropdownProps) => {
   refTouchable?.current?.measureLayout(refContainer?.current, (x, y, width, height) => {
+    console.log(x, y, width, height);
     open(children, { 
       top: y + height + 6,
-      left: measureInWindowLeft(containerWidth, { y, x, width, height }) 
+      left: measureInWindowLeft(containerWidth, { y, x, width, height }),
     })
   });
 }

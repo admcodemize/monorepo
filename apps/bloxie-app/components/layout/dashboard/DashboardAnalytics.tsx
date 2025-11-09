@@ -80,7 +80,7 @@ const DashboardAnalytics = ({
    * @param {React.RefObject<View|any>} ref - The ref of the dropdown component for calculating the measurement position
    * @param {GestureResponderEvent} e - The event of the dropdown component
    * @function */
-  const onPressDropdown = React.useCallback(
+  const onPressDropdown = 
     (ref: React.RefObject<View|any>) =>
     (children: React.ReactNode) =>
     (e: GestureResponderEvent) => {
@@ -93,7 +93,7 @@ const DashboardAnalytics = ({
       open,
       children,
     });
-  }, [open]);
+  }
   
   return (
     <View style={[{ gap: STYLES.sizeGap }]}>
@@ -148,11 +148,11 @@ const TouchableDropdownBaseTeams = ({
    * @param {GestureResponderEvent} e - The event of the dropdown item
    * @param {string|number} key - The key of the dropdown item
    * @function */
-  const onPressItem = React.useCallback(
+  const onPressItem = 
     (key: string|number|DashboardDropdownItemKeyDays) => {
       onPress(key);
       setDropdown("itemKeyTeam", key);
-    }, [onPress]);
+    }
 
   return (
     <TouchableDropdown>
@@ -195,11 +195,11 @@ const TouchableDropdownBaseDays = ({
    * @param {GestureResponderEvent} e - The event of the dropdown item
    * @param {string|number} key - The key of the dropdown item
    * @function */
-  const onPressItem = React.useCallback(
+  const onPressItem = 
     (key: string|number|DashboardDropdownItemKeyDays) => {
       onPress(key as DashboardDropdownItemKeyDays);
       setDropdown("itemKeyDays", key);
-    }, [onPress]);
+    }
 
   return (
     <TouchableDropdown>

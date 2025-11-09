@@ -1,5 +1,4 @@
-import { Stack } from "expo-router";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { router, Stack } from "expo-router";
 import { Id } from "../../../../packages/backend/convex/_generated/dataModel";
 
 import { getTimeZone } from "@/helpers/System";
@@ -7,6 +6,7 @@ import { getTimeZone } from "@/helpers/System";
 import CalendarProvider from "@/context/CalendarContext";
 import DateTimeProvider from "@/context/DateTimeContext";
 import UserProvider from "@/context/UserContext";
+import React from "react";
 
 /**
  * @public
@@ -19,7 +19,6 @@ const PrivateLayout = () => {
    * @see {@link @clerk/clerk-expo} */
 
   return (
-    <BottomSheetModalProvider>
     <UserProvider 
       settings={{ userId: "a" as Id<"users"> }} 
       times={[
@@ -42,7 +41,7 @@ const PrivateLayout = () => {
           <Stack.Protected guard={true}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(modal)/action/booking" options={{ presentation: "fullScreenModal" }} />
-            <Stack.Screen name="(modal)/action/meeting" options={{ presentation: "fullScreenModal" }} />
+            <Stack.Screen name="(modal)/action/meeting" options={{ presentation: "fullScreenModal" }}  />
             <Stack.Screen name="(modal)/action/type" options={{ presentation: "fullScreenModal" }} />
             <Stack.Screen name="(modal)/action/team" options={{ presentation: "fullScreenModal" }} />
             <Stack.Screen name="(modal)/action/poll" options={{ presentation: "fullScreenModal" }} />
@@ -53,7 +52,6 @@ const PrivateLayout = () => {
     </DateTimeProvider>
     </CalendarProvider>
     </UserProvider>
-    </BottomSheetModalProvider>
   );
 }
 

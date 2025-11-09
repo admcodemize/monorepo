@@ -18,7 +18,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 type TouchableHapticIconProps = TouchableHapticProps & {
   icon: IconProp;
@@ -27,6 +27,8 @@ type TouchableHapticIconProps = TouchableHapticProps & {
   backgroundColor?: string;
   iconColor?: string;
   styleView?: ViewStyle|ViewStyle[];
+  hasViewCustomStyle?: boolean;
+  viewCustomStyle?: ViewStyle;
 }
 
 /**
@@ -34,13 +36,15 @@ type TouchableHapticIconProps = TouchableHapticProps & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.1
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Object} param0 - Handles the touchable haptic events and styling
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @param {Function} param0.onLongPress - Callback function when user long presses the button
  * @param {Function} param0.onLayout - Callback function invoked on mount and layout changes 
  * @param {StyleProp<ViewStyle>} param0.style - Extended custom styling for the touchable haptic
  * @param {StyleProp<ViewStyle>} param0.styleView - Extended custom styling for the view
+ * @param {boolean} param0.hasViewCustomStyle - Handles the custom styling of the rendered button
+ * @param {ViewStyle} param0.viewCustomStyle - Custom styling for the view
  * @param {boolean} param0.disabled - Handles the inactivity of the rendered button
  * @param {number|Insets|null|undefined} param0.hitSlop - Handles the hit slop of the rendered button. 
  * -> A hit slop is a property that allows you to set the area around the button that will trigger the onPress event.
@@ -56,6 +60,8 @@ const TouchableHapticIcon = React.forwardRef<View, TouchableHapticIconProps>(({
   onLayout = () => {},
   style, 
   styleView,
+  hasViewCustomStyle = false,
+  viewCustomStyle,
   disabled, 
   hitSlop = 10,
   hideNotificationBadge = true,
@@ -77,7 +83,7 @@ const TouchableHapticIcon = React.forwardRef<View, TouchableHapticIconProps>(({
       disabled={disabled}
       hitSlop={hitSlop}
       hideNotificationBadge={hideNotificationBadge}>
-        <View style={[GlobalButtonStyle.spacing, GlobalContainerStyle.columnCenterCenter, GlobalButtonStyle.border, RootHeaderStyle.router, {
+        <View style={hasViewCustomStyle ? viewCustomStyle : [GlobalButtonStyle.spacing, GlobalContainerStyle.columnCenterCenter, GlobalButtonStyle.border, RootHeaderStyle.router, {
           backgroundColor: backgroundColor ? backgroundColor : hideBorder ? colors.primaryBgColor : colors.secondaryBgColor,
           borderColor: colors.primaryBorderColor,
           borderWidth: hideBorder ? 0 : 1

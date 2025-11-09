@@ -10,7 +10,7 @@ import DropdownOverlayStyle from "@/styles/components/container/DropdownOverlay"
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a positioned dropdown based on parent component
  * @since 0.0.2
- * @version 0.0.1 */
+ * @version 0.0.2 */
 const DropdownOverlay = () => {
   /** @see {@link context/DropdownContext} */
   const { isOpen, children, position, close } = useDropdownContextStore((state) => state);
@@ -30,7 +30,8 @@ const DropdownOverlay = () => {
         <View style={{ 
           position: "absolute",  
           top: position.top, 
-          left: position.left
+          left: position.left,
+          right: position.right
         }}>{children}</View>
     </Animated.View>
   )

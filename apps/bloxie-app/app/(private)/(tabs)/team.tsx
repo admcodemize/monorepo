@@ -1,3 +1,6 @@
+import ViewBase from "@/components/container/View"
+import TextBase from "@/components/typography/Text";
+
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
@@ -6,7 +9,9 @@
  * @component */
 const TabTeam = () => {
   return (
-    <></>
+    <ViewBase>
+      <TextBase text="Team" />
+    </ViewBase>
   );
 }
 

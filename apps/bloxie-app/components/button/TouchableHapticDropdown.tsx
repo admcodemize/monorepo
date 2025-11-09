@@ -1,7 +1,7 @@
 import React from "react";
-import { View } from "react-native";
+import { GestureResponderEvent, View, ViewStyle } from "react-native";
 
-import { faCaretDown } from "@fortawesome/duotone-thin-svg-icons";
+import { faAngleDown, faAngleUp } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
@@ -29,6 +29,9 @@ type TouchableHapticDropdownProps = TouchableHapticProps & {
   type?: TextBaseTypes;
   i18nTranslation?: boolean;
   backgroundColor?: string;
+  hasViewCustomStyle?: boolean;
+  viewCustomStyle?: ViewStyle;
+  hasAngleChange?: boolean;
 }
 
 /**
@@ -48,6 +51,9 @@ type TouchableHapticDropdownProps = TouchableHapticProps & {
  * @param {boolean} param0.hideNotificationBadge - Handles the visibility of the notification badge
  * @param {boolean} param0.i18nTranslation - Handles the translation of the text
  * @param {string} param0.backgroundColor - Handles the background color of the rendered button
+ * @param {boolean} param0.hasViewCustomStyle - Handles the custom styling of the rendered button
+ * @param {ViewStyle} param0.viewCustomStyle - Custom styling for the view
+ * @param {boolean} param0.hasAngleChange - Handles the angle change of the icon when pressed
  * @param {IconProp} param0.icon - Icon to display on the left side
  * @param {string} param0.text - Text to display after the icon (when visible)
  * @param {TextBaseTypes} param0.type - Text type used for styling */
@@ -61,23 +67,36 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
   hideNotificationBadge = true,
   i18nTranslation = true,
   backgroundColor,
+  hasViewCustomStyle = false,
+  viewCustomStyle,
+  hasAngleChange = false,
   text,
   icon,
   type = "text"
 }, ref) => {
   const colors = useThemeColors();
 
+  /** @description Handles the angle change of the icon when pressed */
+  const [iconAngle, setIconAngle] = React.useState<IconProp>(faAngleDown as IconProp);
+
+  /** @description Handles the press event of the dropdown */
+  const onPressInternal = React.useCallback(
+    (e: GestureResponderEvent) => {
+      hasAngleChange && setIconAngle(iconAngle === faAngleDown ? faAngleUp as IconProp : faAngleDown as IconProp);
+      onPress(e);
+    }, [onPress, iconAngle, hasAngleChange]);
+
   return (
     <TouchableHaptic
       ref={ref}
-      onPress={onPress}
+      onPress={onPressInternal}
       onLongPress={onLongPress}
       onLayout={onLayout}
       style={style}
       disabled={disabled}
       hitSlop={hitSlop}
       hideNotificationBadge={hideNotificationBadge}>
-        <View style={[
+        <View style={hasViewCustomStyle ? viewCustomStyle : [
           GlobalContainerStyle.rowCenterBetween,
           GlobalButtonStyle.spacing, 
           GlobalButtonStyle.defaultSize,  
@@ -87,7 +106,7 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
             backgroundColor: backgroundColor ? backgroundColor : colors.secondaryBgColor,
             borderColor: colors.primaryBorderColor
         }]}>
-          <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap - 2 }]}>
             {icon && <FontAwesomeIcon
               icon={icon as IconProp}
               size={STYLES.sizeFaIcon}
@@ -96,11 +115,11 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
               text={text}
               i18nTranslation={i18nTranslation}
               type={type}
-              style={[GlobalTypographyStyle.labelText]} />
+              style={[GlobalTypographyStyle.titleSubtitle, { color: colors.infoColor }]} />
           </View>
           <FontAwesomeIcon
-            icon={faCaretDown as IconProp}
-            size={STYLES.sizeFaIcon}
+            icon={iconAngle}
+            size={STYLES.sizeFaIcon - 4}
             color={colors.primaryIconColor} />
         </View>
     </TouchableHaptic>

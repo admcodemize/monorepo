@@ -51,7 +51,6 @@ const DashboardStatistics = ({
 }: DashboardStatisticsProps) => {
   const { t } = useTranslation();
 
-
   const setChartProperties = useDashboardContextStore((state) => state.setChartProperties);
 
   const onPressCard = React.useCallback(
@@ -122,10 +121,10 @@ const DashboardStatistics = ({
           style={cardStyle} />
       </View>
       <View style={{ gap: STYLES.sizeGap, paddingTop: 10 }}>
-      <TitleWithDescription
+      {/*<TitleWithDescription
         title={"Buchungsaktivität"}
-        description={"Übersicht der gebuchten Slots basierend der Wochentage/Stunden zum ausgewählten Zeitraum."} />
-      <DashboardHeatmap events={[
+        description={"Übersicht der gebuchten Slots basierend der Wochentage/Stunden zum ausgewählten Zeitraum."} />*/}
+      {/*<DashboardHeatmap events={[
           // Woche 1 (14-16 Okt) - Montag bis Mittwoch (erweitert)
           { userId: "1", start: "2025-10-14T06:00:00Z", end: "2025-10-14T06:30:00Z", title: "Early Standup" },
           { userId: "1", start: "2025-10-14T07:00:00Z", end: "2025-10-14T08:00:00Z", title: "Morning Review" },
@@ -201,7 +200,7 @@ const DashboardStatistics = ({
           { userId: "1", start: "2025-10-10T15:00:00Z", end: "2025-10-10T16:00:00Z", title: "Tech Discussion" },
           { userId: "1", start: "2025-10-10T16:30:00Z", end: "2025-10-10T17:30:00Z", title: "Architecture Review" },
           { userId: "1", start: "2025-10-10T18:00:00Z", end: "2025-10-10T19:00:00Z", title: "Late Meeting" },
-          { userId: "1", start: "2025-10-10T20:00:00Z", end: "2025-10-10T21:00:00Z", title: "Evening Workshop" },*/
+          { userId: "1", start: "2025-10-10T20:00:00Z", end: "2025-10-10T21:00:00Z", title: "Evening Workshop" },*
           
           { userId: "1", start: "2025-10-11T06:30:00Z", end: "2025-10-11T07:30:00Z", title: "Morning Sync" },
           { userId: "1", start: "2025-10-11T08:00:00Z", end: "2025-10-11T09:00:00Z", title: "Team Retro" },
@@ -314,7 +313,7 @@ const DashboardStatistics = ({
           { userId: "1", start: "2025-09-20T09:00:00Z", end: "2025-09-20T10:00:00Z", title: "Friday Standup" },
           { userId: "1", start: "2025-09-20T11:00:00Z", end: "2025-09-20T12:00:00Z", title: "Demo" },
           { userId: "1", start: "2025-09-20T14:00:00Z", end: "2025-09-20T15:00:00Z", title: "Weekly Review" },
-        ]} />
+        ]} />*/}
       </View>
     </View>
   )

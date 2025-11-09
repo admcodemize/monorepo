@@ -1,11 +1,13 @@
 import React from "react";
 import { Dimensions, GestureResponderEvent, ScrollView, StyleSheet, Text, View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faCalendarDays, faCalendarRange, faCaretLeft, faCaretRight, faChevronLeft, faChevronRight, faCircleChevronLeft, faCircleChevronRight, faGlobe, faRectangleHistory, faStopwatch, faUserSecret } from "@fortawesome/duotone-thin-svg-icons";
+import { faAngleLeft, faAngleRight, faCalendarDays, faCalendarRange, faCaretLeft, faCaretRight, faChevronLeft, faChevronRight, faCircleChevronLeft, faCircleChevronRight, faGlobe, faRectangleHistory, faSparkles, faStopwatch, faUserSecret } from "@fortawesome/duotone-thin-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
 
-import { getMonthWide } from "@codemize/helpers/DateTime";
+import { getDatesInMonth, getMonthWide, DatesInMonthInfoProps, WeeksInMonthProps, DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
 import { STYLES } from "@codemize/constants/Styles";
+import { Month } from "date-fns";
 
 import { useCalendarContextStore } from "@/context/CalendarContext";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
@@ -23,23 +25,36 @@ import { getLocalization } from "@/helpers/System";
 import TouchableHapticDropdown from "../button/TouchableHapticDropdown";
 import TouchableHapticIcon from "../button/TouchableHaptichIcon";
 import Divider from "../container/Divider";
-import CalendarWeekList from "./week/CalendarWeekList";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TouchableHapticText from "../button/TouchableHaptichText";
 import { useTrays } from "react-native-trays";
 import { DROPDOWN_CALENDAR_VIEWS, DROPDOWN_DASHBOARD_PERIOD } from "@/constants/Models";
 import TouchableDropdownItemBase from "../button/TouchableDropdownItemBase";
-import BottomSheet, { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import ViewBase from "../container/View";
-import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 import CalendarStyle from "@/styles/components/calendar/Calendar";
 import TrayHeader from "../container/TrayHeader";
 import BottomSheetHeader from "../container/BottomSheetHeader";
+import CalendarHeaderRight from "./CalendarHeaderRight";
+import CalendarHeaderWeek from "./CalendarHeaderLeft";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
+import CalendarWeekDay from "./week/CalendarWeekDay";
+import CalendarMonthDay from "./month/CalendarMonthDay";
+import CalendarMonthHeaderMonth from "./month/CalendarMonthHeaderMonth";
+import CalendarMonthHeaderYear from "./month/CalendarMonthHeaderYear";
+import CalendarHeaderLeft from "./CalendarHeaderLeft";
+import CalendarMonthHeader from "./month/CalendarMonthHeader";
+import CalendarMonth from "./month/CalendarMonth";
 
 /** @description Height constants for expand/collapse */
-const COLLAPSED_HEIGHT = 56;
-const EXPANDED_HEIGHT = 300;
-const DRAG_THRESHOLD = 50;
+const COLLAPSED_HEIGHT = 0;
+const EXPANDED_HEIGHT = 250;
+
+/** @description Dimensions for month calendar */
+const DIM = Dimensions.get("window");
+const MONTH_WIDTH = DIM.width; // Full screen width for proper snapping
+const MONTH_CONTENT_WIDTH = MONTH_WIDTH; // Content width with padding
+const DAY_SIZE = MONTH_CONTENT_WIDTH / 7; // 7 days
 
 /**
  * @private
@@ -72,68 +87,125 @@ const Calendar = ({
   const colors = useThemeColors();
   const locale = getLocalization();
 
-  const week = useCalendarContextStore((state) => state.week);
+  const setIsTodayPressed = useCalendarContextStore((state) => state.setIsTodayPressed);
+  
+  //const isMonthCalendarOpen = React.useRef(false);
 
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
 
-
-  const refCalendar = React.useRef<View>(null);
-   
-  const { open } = useDropdown();
-
-  /**
-   * @description Used to open the dropdown component
-   * @param {React.RefObject<View|any>} ref - The ref of the dropdown component for calculating the measurement position
-   * @param {GestureResponderEvent} e - The event of the dropdown component
-   * @function */
-  const onPressDropdown = React.useCallback(
-    (ref: React.RefObject<View|any>) =>
-    (children: React.ReactNode) =>
-    (e: GestureResponderEvent) => {
-
-    /** 
-     * @description Open the dropdown component based on a calculated measurement template
-     * @see {@link components/button/TouchableDropdown} */
-    _open({
-      refTouchable: ref,
-      refContainer,
-      open,
-      children,
-    });
-  }, [open]);
+  const isMonthExpanded = useSharedValue(false);
+  
+  // Toggle month calendar visibility
+  const toggleMonthCalendar = () => {
+    const newValue = !isMonthExpanded.value;
+    isMonthExpanded.value = newValue;
+  };
   
   return (
-    <>
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <View 
       style={[GlobalContainerStyle.rowCenterBetween, { 
         paddingHorizontal: 14, 
-        borderTopWidth: 0, 
-        borderTopColor: colors.primaryBorderColor, height: 30,
-        marginBottom: 10,
-        gap: 6
+        height: 30,
+        gap: 6,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.primaryBorderColor,
+        backgroundColor: "#f9f9f9"
       }]}>
-        <View 
-          style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
-            <TouchableHapticDropdown
-              icon={faCalendarRange as IconProp}
-              text={`${getMonthWide({ number: week.month, locale })} ${week.year.toString().substring(2)}`}
-              backgroundColor={colors.tertiaryBgColor}
-              onPress={() => {}} />
-            <TouchableHapticDropdown
-              icon={faStopwatch as IconProp}
-              text={`GMT+10`}
-              backgroundColor={colors.tertiaryBgColor}
-              onPress={() => {}} />
-            <TouchableHapticIcon
-              ref={refCalendar}
-              icon={faRectangleHistory as IconProp}
-              backgroundColor={colors.tertiaryBgColor}
-              onPress={onPressDropdown(refCalendar)(<TouchableDropdownBaseView onPress={() => {}} />)} />
-            <Divider vertical />
+          <CalendarHeaderLeft onPress={toggleMonthCalendar} />
+          <CalendarHeaderRight refContainer={refContainer} />
+      </View>
+
+
+      {/* reanimated view opening when month is pressed */}
+      <CalendarMonth isExpanded={isMonthExpanded} />
+
+
+      <View style={[GlobalContainerStyle.rowCenterBetween, { 
+        backgroundColor: "#f9f9f9",
+        borderBottomColor: colors.primaryBorderColor,  
+        height: 36,
+        paddingHorizontal: 14
+      }]}>
+      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 6 }]}>
+        <View style={{ }}>
+          <FontAwesomeIcon
+            icon={faUserSecret as IconProp}
+            size={STYLES.sizeFaIcon + 2}
+            color={colors.primaryIconColor} />
+        </View>
+        <View>
+          <TextBase
+            text="Private Kalender"
+            style={[GlobalTypographyStyle.headerSubtitle, { color: colors.infoColor, fontSize: 10 }]}/>
+          <TextBase
+            text="Persönliche Termine"
+            style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: colors.infoColor }]} />
         </View>
 
-          {/*<ScrollView 
+        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
+          <View style={{ 
+
+           }}>
+          <FontAwesomeIcon
+            icon={faAngleLeft as IconProp}
+            size={STYLES.sizeFaIcon}
+            color={colors.primaryIconColor} />
+          </View>
+          <Divider vertical />
+          <View style={{ 
+
+            }}>
+            <FontAwesomeIcon
+              icon={faAngleRight as IconProp}
+              size={STYLES.sizeFaIcon}
+              color={colors.primaryIconColor} />
+            </View>
+        </View>
+
+      </View>
+
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
+      <TouchableHapticText text="Heute" onPress={() => setIsTodayPressed(true)} hasViewCustomStyle={true} viewCustomStyle={{}} />
+        <Divider vertical />
+        <TouchableHapticDropdown
+          text="AI"
+          icon={faSparkles as IconProp}
+          onPress={() => {}}
+          hasViewCustomStyle={true}
+          viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+        />
+      </View>
+
+
+
+
+      </View>
+
+
+
+
+
+
+      <Divider />
+      <View style={[ {  
+        flex: 1,
+
+        backgroundColor: colors.tertiaryBgColor,
+        borderBottomColor: colors.primaryBorderColor,  
+        borderTopColor: colors.primaryBorderColor
+      }]}>
+          <CalendarWeek now={new Date()} />
+      </View>
+      
+
+    </View>
+  );
+};
+
+
+export default Calendar;
+
+          /*<ScrollView 
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: 6 }}>
@@ -149,146 +221,4 @@ const Calendar = ({
                     style={[GlobalTypographyStyle.titleSubtitle, { fontSize: 10, color: colors.focusedContentColor }]} />
                 </TouchableHaptic>
               ))}
-          </ScrollView>*/}
-        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
-          <Divider vertical />
-          <TouchableHapticText text="Heute" type="label" onPress={() => { console.log("Heute"); }} />
-        </View>
-      </View>
-      <View style={[GlobalContainerStyle.rowCenterBetween, { 
-        borderTopWidth: 1,
-        backgroundColor: "#fcfcfc",
-        borderBottomColor: colors.primaryBorderColor,  
-        borderTopColor: colors.primaryBorderColor,
-        height: 36,
-        paddingHorizontal: 14
-      }]}>
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 10 }]}>
-        <View style={{ backgroundColor: colors.secondaryBgColor, padding: 4, borderRadius: 6, borderWidth: 1, borderColor: colors.primaryBorderColor }}>
-        <FontAwesomeIcon
-          icon={faUserSecret as IconProp}
-          size={STYLES.sizeFaIcon + 2}
-          color={colors.primaryIconColor} />
-        </View>
-          <View>
-            <TextBase
-              text="Private Kalender"
-              style={[GlobalTypographyStyle.headerSubtitle, { color: colors.infoColor, fontSize: 10 }]}/>
-            <TextBase
-              text="Persönliche Termine"
-              style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: colors.infoColor }]} />
-          </View>
-        </View>
-        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 10}]}>
-          <View style={{ backgroundColor: colors.secondaryBgColor, padding: 4, borderRadius: 14, borderWidth: 1, borderColor: colors.primaryBorderColor,
-           }}>
-          <FontAwesomeIcon
-            icon={faChevronLeft as IconProp}
-            size={STYLES.sizeFaIcon}
-            color={colors.primaryIconColor} />
-          </View>
-        <Divider vertical />
-        <View style={{ backgroundColor: colors.secondaryBgColor, padding: 4, borderRadius: 14, borderWidth: 1, borderColor: colors.primaryBorderColor,
-           }}>
-          <FontAwesomeIcon
-            icon={faChevronRight as IconProp}
-            size={STYLES.sizeFaIcon}
-            color={colors.primaryIconColor} />
-          </View>
-        </View>
-      </View>
-      <Divider style={{ width: "94%", marginLeft: "3%" }} />
-      <View style={[ {  
-        flex: 1,
-        borderBottomWidth: 1,
-        backgroundColor: colors.tertiaryBgColor,
-        borderBottomColor: colors.primaryBorderColor,  
-        borderTopColor: colors.primaryBorderColor
-      }]}>
-          <CalendarWeek now={new Date()} />
-      </View>
-      
-
-    </View>
-      <CreateEventSheet 
-        ref={bottomSheetRef} 
-        snapPoints={[Dimensions.get("window").height - 68 - 36 - 169]} 
-        onPressCreate={() => { }} />
-    </>
-  );
-};
-
-/**
- * @private
- * @author Marc Stöckli - Codemize GmbH 
- * @description The sheet for creating a new event
- * @since 0.0.2
- * @version 0.0.1
- * @component */
-const CreateEventSheet = React.forwardRef<BottomSheet, CreateEventSheetProps>(({
-  snapPoints,
-  onPressCreate
-}, ref) => {
-  const colors = useThemeColors();
-  const { bottom } = useSafeAreaInsets();
-  return (
-    <BottomSheet
-      ref={ref}
-      snapPoints={snapPoints}
-      style={[CalendarStyle.sheetContainer, { borderColor: colors.primaryBorderColor }]}
-      backgroundStyle={CalendarStyle.sheetBackgroundStyle}>
-      <BottomSheetView style={[CalendarStyle.sheetContentContainer, { paddingBottom: bottom + 10 }]}>
-        <View>
-        <BottomSheetHeader
-          title="Neuer Termin"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit." />
-
-        </View>
-      </BottomSheetView>
-    </BottomSheet>
-  )
-});
-
-/**
- * @private
- * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.2
- * @version 0.0.1
- * @description The dropdown component for displaying the possible periods for displaying the analytics
- * @component */
-const TouchableDropdownBaseView = ({
-  onPress
-}: TouchableDropdownBaseProps) => {
-  /**
-   * @description Get the dropdown context store for handling the selected item key for teams and calendar.
-   * @see {@link context/CalendarContext} */
-   const setDropdown = useCalendarContextStore((state) => state.setDropdown);
-   const dropdown = useCalendarContextStore((state) => state.dropdown);
-
-  /**
-   * @description Used to handle the press event of the dropdown item
-   * @param {GestureResponderEvent} e - The event of the dropdown item
-   * @param {string|number} key - The key of the dropdown item
-   * @function */
-  const onPressItem = React.useCallback(
-    (key: string|number) => {
-      onPress(key);
-      setDropdown("itemKeyView", key);
-    }, [onPress]);
-
-  return (
-    <TouchableDropdown>
-      {DROPDOWN_CALENDAR_VIEWS.map((period) => (
-        <TouchableDropdownItemBase
-          key={period.key}
-          itemKey={period.key}
-          icon={period.iconDuotone as IconProp}
-          text={period.title}
-          isSelected={dropdown.itemKeyView === period.key}
-          onPress={onPressItem} />
-      ))}
-    </TouchableDropdown>
-  )
-}
-
-export default Calendar;
+          </ScrollView>*/

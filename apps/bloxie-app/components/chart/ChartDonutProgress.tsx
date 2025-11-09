@@ -124,5 +124,5 @@ const ChartDonutProgress = ({
   );
 };
 
-export default ChartDonutProgress;
+export default React.memo(ChartDonutProgress);
 

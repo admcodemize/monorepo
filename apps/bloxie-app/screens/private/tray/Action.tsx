@@ -15,6 +15,7 @@ import TrayHeader from "@/components/container/TrayHeader";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
+import React from "react";
 
 /**
  * @public
@@ -25,6 +26,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
 const ScreenTrayAction = () => {
   /** @description Used to get the theme based colors */
   const colors = useThemeColors();
+
   return (
     <View style={{ padding: STYLES.paddingHorizontal, backgroundColor: colors.primaryBgColor, borderColor: colors.primaryBorderColor }}>
       <View style={{ gap: STYLES.sizeGap }}>

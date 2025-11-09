@@ -9,12 +9,11 @@ const DIM = Dimensions.get("window");
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1 */
+ * @version 0.0.2 */
 const CalendarWeekDayStyle = StyleSheet.create({
   touchable: {
-    width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
     alignItems: "center",
-    gap: 4,
+    gap: 2
   },
   shortText: {
     fontSize: 9, 

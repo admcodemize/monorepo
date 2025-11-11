@@ -28,7 +28,11 @@ const ScreenTrayAction = () => {
   const colors = useThemeColors();
 
   return (
-    <View style={{ padding: STYLES.paddingHorizontal, backgroundColor: colors.primaryBgColor, borderColor: colors.primaryBorderColor }}>
+    <View style={{ 
+      padding: STYLES.paddingHorizontal, 
+      backgroundColor: colors.primaryBgColor, 
+      borderColor: colors.primaryBorderColor 
+    }}>
       <View style={{ gap: STYLES.sizeGap }}>
         <TrayHeader
           title={"i18n.screens.trayAction.title"}

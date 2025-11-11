@@ -45,7 +45,6 @@ const CalendarWeekHorizontalItem = ({
     <ViewBase style={{ width: config.totalWidth }}>
     <View style={[GlobalContainerStyle.rowCenterCenter, CalendarWeekHorizontalStyle.view, CalendarWeekHorizontalStyle.header, {
       width: config.totalWidth,
-      //backgroundColor: "#f9f9f9",
       borderBottomColor: `${colors.secondaryBorderColor}60`,
     }]}>
       {datesInWeek.map((dateInWeek, index) => (

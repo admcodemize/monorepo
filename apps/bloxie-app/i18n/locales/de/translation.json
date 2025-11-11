@@ -69,10 +69,6 @@
             "title": "Termintypen",
             "description": "Verwendung für neue Termine auf der öffentlichen Buchungsseite."
           },
-          "team": {
-            "title": "Mitarbeiter",
-            "description": "Aktive Mitarbeiter innerhalb der Organisation."
-          },
           "poll": {
             "title": "Umfrage",
             "description": "Finde einen passenden Termin für mehrere Teilnehmer"
@@ -81,6 +77,10 @@
             "title": "Buchungsseite",
             "description": "Öffentlicher Kalender deiner buchbaren Termine"
           },
+          "team": {
+            "title": "Mitarbeiter",
+            "description": "Aktive Mitarbeiter innerhalb der Organisation."
+          },
           "workflow": {
             "title": "Workflow",
             "description": "Automatisierte Prozesse für deine Buchungen"
@@ -88,6 +88,10 @@
           "availability": {
             "title": "Verfügbarkeiten",
             "description": "Wochen-/Datumsbasierte Anwesenheitszeiten"
+          },
+          "integration": {
+            "title": "Integrationen",
+            "description": "Verbindungen zu externen Systemen und Diensten"
           }
         }
       }

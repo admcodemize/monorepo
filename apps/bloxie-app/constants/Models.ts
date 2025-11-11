@@ -11,7 +11,9 @@ import {
   faCalendarWeek,
   faCalendarWeek as faCalendarWeekDuotone,
   faDistributeSpacingVertical,
-  faUsersBetweenLines
+  faUsersBetweenLines,
+  faTrowelBricks,
+  faUsersViewfinder
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -139,24 +141,6 @@ export const TRAY_ACTION_ITEMS: TrayActionItemProps[] = [{
   title: "i18n.screens.trayAction.items.booking.title",
   description: "i18n.screens.trayAction.items.booking.description",
 }, {
-  key: "meeting",
-  route: "meeting",
-  icon: faCalendarDay as IconProp,
-  title: "i18n.screens.trayAction.items.meeting.title",
-  description: "i18n.screens.trayAction.items.meeting.description",
-}, {
-  key: "type",
-  route: "type",
-  icon: faBoltSlash as IconProp,
-  title: "i18n.screens.trayAction.items.type.title",
-  description: "i18n.screens.trayAction.items.type.description",
-}, {
-  key: "team",
-  route: "team",
-  icon: faUsersBetweenLines as IconProp,
-  title: "i18n.screens.trayAction.items.team.title",
-  description: "i18n.screens.trayAction.items.team.description",
-}, {
   key: "poll",
   route: "poll",
   icon: faBarsProgress as IconProp,
@@ -183,6 +167,24 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   icon: faBusinessTime as IconProp,
   title: "i18n.screens.trayAction.items.availability.title",
   description: "i18n.screens.trayAction.items.availability.description",
+}, {
+  key: "type",
+  route: "type",
+  icon: faBoltSlash as IconProp,
+  title: "i18n.screens.trayAction.items.type.title",
+  description: "i18n.screens.trayAction.items.type.description",
+}, {
+  key: "team",
+  route: "team",
+  icon: faUsersBetweenLines as IconProp,
+  title: "i18n.screens.trayAction.items.team.title",
+  description: "i18n.screens.trayAction.items.team.description",
+}, {
+  key: "integration",
+  route: "integration",
+  icon: faTrowelBricks as IconProp,
+  title: "i18n.screens.trayAction.items.integration.title",
+  description: "i18n.screens.trayAction.items.integration.description",
 }, {
   key: "workflow",
   route: "workflow",

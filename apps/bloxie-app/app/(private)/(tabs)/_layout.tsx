@@ -1,12 +1,12 @@
 import { Tabs } from "expo-router";
 
 import RootHeader from "@/components/layout/header/private/RootHeader";
-import ScreenTabs from "@/components/layout/ScreenTabs";
 import { View } from "react-native";
 import ViewBase from "@/components/container/View";
 import React from "react";
 import Animated from "react-native-reanimated";
 import Calendar from "@/components/calendar/Calendar";
+import TouchableFloationAction from "@/components/button/TouchableFloatingAction";
 
 /**
  * @public
@@ -19,19 +19,7 @@ const TabLayout = () => {
     <ViewBase>
       <RootHeader />
       <Calendar refContainer={refContainer as React.RefObject<Animated.View>} />
-      {/*<Tabs 
-        initialRouteName="calendar"
-        //tabBar={(props) => <ScreenTabs {...props} />}
-        screenOptions={{
-          headerShown: false,
-          animation: "shift",
-          lazy: false
-        }}>
-          <Tabs.Screen name="index" />
-          <Tabs.Screen name="calendar" />
-          <Tabs.Screen name="team" />
-      </Tabs>*/}
-
+      <TouchableFloationAction />
     </ViewBase>
   );
 }

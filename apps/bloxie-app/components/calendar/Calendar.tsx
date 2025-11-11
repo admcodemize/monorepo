@@ -1,9 +1,10 @@
 import React from "react";
 import { Dimensions, GestureResponderEvent, ScrollView, StyleSheet, Text, View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faAngleLeft, faAngleRight, faCalendarDays, faCalendarRange, faCaretLeft, faCaretRight, faChevronLeft, faChevronRight, faCircleChevronLeft, faCircleChevronRight, faGlobe, faRectangleHistory, faSparkles, faStopwatch, faUserSecret } from "@fortawesome/duotone-thin-svg-icons";
+import { faAngleLeft, faAngleRight, faAngleUp, faCalendarDays, faCalendarRange, faCaretLeft, faCaretRight, faChevronLeft, faChevronRight, faCircleChevronLeft, faCircleChevronRight, faGlobe, faRectangleHistory, faSparkles, faStopwatch, faUserSecret } from "@fortawesome/duotone-thin-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 import { getDatesInMonth, getMonthWide, DatesInMonthInfoProps, WeeksInMonthProps, DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
 import { STYLES } from "@codemize/constants/Styles";
@@ -37,7 +38,7 @@ import TrayHeader from "../container/TrayHeader";
 import BottomSheetHeader from "../container/BottomSheetHeader";
 import CalendarHeaderRight from "./CalendarHeaderRight";
 import CalendarHeaderWeek from "./CalendarHeaderLeft";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from "react-native-reanimated";
 import CalendarWeekDay from "./week/CalendarWeekDay";
 import CalendarMonthDay from "./month/CalendarMonthDay";
 import CalendarMonthHeaderMonth from "./month/CalendarMonthHeaderMonth";
@@ -47,14 +48,16 @@ import CalendarMonthHeader from "./month/CalendarMonthHeader";
 import CalendarMonth from "./month/CalendarMonth";
 
 /** @description Height constants for expand/collapse */
-const COLLAPSED_HEIGHT = 0;
+const COLLAPSED_HEIGHT = 75;
 const EXPANDED_HEIGHT = 250;
+
+const MIN_HEIGHT = 0;
+const MAX_HEIGHT = 300;
 
 /** @description Dimensions for month calendar */
 const DIM = Dimensions.get("window");
 const MONTH_WIDTH = DIM.width; // Full screen width for proper snapping
 const MONTH_CONTENT_WIDTH = MONTH_WIDTH; // Content width with padding
-const DAY_SIZE = MONTH_CONTENT_WIDTH / 7; // 7 days
 
 /**
  * @private
@@ -93,12 +96,50 @@ const Calendar = ({
 
 
   const isMonthExpanded = useSharedValue(false);
+  const newEventHeight = useSharedValue(MIN_HEIGHT);
   
   // Toggle month calendar visibility
   const toggleMonthCalendar = () => {
     const newValue = !isMonthExpanded.value;
     isMonthExpanded.value = newValue;
   };
+  /**
+   * 
+   *   const panGesture = Gesture.Pan()
+  .onBegin(() => {
+    startNewEventHeight.value = newEventHeight.value;
+  })
+  .onUpdate((event) => {
+    // neue Höhe berechnen
+    const newHeight = startNewEventHeight.value - event.translationY;
+
+    // Begrenzen
+    const clamped = Math.min(Math.max(newHeight, MIN_HEIGHT), MAX_HEIGHT);
+
+    // animiert folgen, aber weich (anstatt hart zu springen)
+    newEventHeight.value = withSpring(clamped, {
+      damping: 20,
+      stiffness: 150,
+      mass: 0.5,
+      //restDisplacementThreshold: 0.1,
+      //restSpeedThreshold: 0.1,
+    });
+  })
+  .onEnd((e) => {
+    const momentumHeight = newEventHeight.value - e.velocityY * 0.05;
+    const clamped = Math.min(Math.max(momentumHeight, MIN_HEIGHT), MAX_HEIGHT);
+  
+    newEventHeight.value = withSpring(clamped, {
+      damping: 20,
+      stiffness: 120,
+    });
+  });
+
+   */
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: newEventHeight.value,
+  }));
   
   return (
     <View style={{ flex: 1 }}>
@@ -197,7 +238,27 @@ const Calendar = ({
           <CalendarWeek now={new Date()} />
       </View>
       
+      <Animated.View style={[animatedStyle, { backgroundColor: colors.primaryBgColor, borderTopColor: colors.primaryBorderColor, borderTopWidth: 1,
 
+       }]}>
+        <View style={[GlobalContainerStyle.rowCenterBetween, { backgroundColor: "#f9f9f9", height: 30, paddingHorizontal: 14,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.primaryBorderColor,
+         }]}>
+        <TextBase text="Neuer Termin" style={[GlobalTypographyStyle.titleSubtitle, { fontSize: 10 }]} />
+        <TouchableHapticIcon
+          icon={faAngleUp as IconProp}
+          onPress={() => {
+            newEventHeight.value = withTiming(newEventHeight.value >= MAX_HEIGHT ? MIN_HEIGHT : MAX_HEIGHT, {
+              duration: 300,
+              
+            });
+          }}
+          hasViewCustomStyle={true}
+          viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+        />
+        </View>
+      </Animated.View>
     </View>
   );
 };

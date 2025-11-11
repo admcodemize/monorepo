@@ -1,5 +1,5 @@
 import React from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import { LegendList, LegendListRenderItemProps } from "@legendapp/list";
 
 import { DatesInMonthInfoProps, getDatesInMonth } from "@codemize/helpers/DateTime";
@@ -15,10 +15,24 @@ const DIM = Dimensions.get("window");
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.5
+ * @since 0.0.6
  * @version 0.0.1
+ * @type */
+export type CalendarMonthListProps = {
+  onWeeksChange?: (weeks: number) => void;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.5
+ * @version 0.0.2
+ * @param {CalendarMonthListProps} param0
+ * @param {function} param0.onWeeksChange - The function to call when the weeks change
  * @component */
-const CalendarMonthList = () => {
+const CalendarMonthList = ({
+  onWeeksChange,
+}: CalendarMonthListProps) => {
   const colors = useThemeColors();
 
   /** 
@@ -32,10 +46,15 @@ const CalendarMonthList = () => {
     return months.findIndex(({ month }) => month.year === now.getFullYear() && month.month === now.getMonth());
   }, [months]);
 
-  /** @description Key extractor for the months */
+  /** 
+   * @description Key extractor for the months
+   * @param {CalendarCachedMonthsHorizontalProps} item - The item to extract the key from */
   const keyExtractor = (item: CalendarCachedMonthsHorizontalProps) => `${item.index}`;
 
-  /** @description Render item for the months */
+  /** 
+   * @description Render item for the months
+   * @param {LegendListRenderItemProps<CalendarCachedMonthsHorizontalProps>} item - The item to render
+   * @see {@link @/components/calendar/month/CalendarMonthListItem} */
   const renderItem = ({ 
     item 
   }: LegendListRenderItemProps<CalendarCachedMonthsHorizontalProps>) => <CalendarMonthListItem 
@@ -43,11 +62,22 @@ const CalendarMonthList = () => {
     month={item.month.month} 
     weeks={item.month.weeks}  />;
 
-  /** @description Content container style for the list */
-  const contentContainerStyle = React.useMemo(() => ({ 
-    borderTopWidth: 1, 
-    borderTopColor: colors.primaryBorderColor, 
-  }), [colors.primaryBorderColor]);
+  /** 
+   * @description Handles the momentum scroll end event for updating the weeks count in the parent component
+   * @param {NativeSyntheticEvent<NativeScrollEvent>} e - The event object
+   * @param {number} index - The index of the month
+   * @param {number} weeks - The weeks count of the month
+   * @see {@link @/components/calendar/month/CalendarMonth} */
+  const onMomentumScrollEnd = React.useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetX = e.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / DIM.width);
+
+      /** @description Ensure we are in the range */
+      if (index >= 0 && index < months.length) onWeeksChange?.(months[index].month.weeks.length);
+    },
+    [months, onWeeksChange]
+  );
 
   return (
     <LegendList
@@ -62,9 +92,13 @@ const CalendarMonthList = () => {
       scrollEventThrottle={16}
       initialScrollIndex={initialScrollIndex}
       estimatedItemSize={DIM.width}
-      contentContainerStyle={contentContainerStyle}
+      onMomentumScrollEnd={onMomentumScrollEnd}
       keyExtractor={keyExtractor}
-      renderItem={renderItem} />
+      renderItem={renderItem} 
+      contentContainerStyle={{
+        borderTopWidth: 1, 
+        borderTopColor: colors.primaryBorderColor, 
+      }} />
   )
 }
 

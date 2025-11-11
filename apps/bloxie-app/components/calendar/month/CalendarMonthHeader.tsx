@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, ViewStyle } from "react-native";
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { getMonths, getWeeks } from "@codemize/helpers/DateTime";
 
@@ -18,6 +18,7 @@ import Divider from "@/components/container/Divider";
 import CalendarMonthHeaderMonths from "./CalendarMonthHeaderMonths";
 import CalendarMonthHeaderYears from "./CalendarMonthHeaderYears";
 import ViewBase from "@/components/container/View";
+import { STYLES } from "@codemize/constants/Styles";
 
 /**
  * @public
@@ -46,6 +47,7 @@ export enum CalendarMonthHeaderViewEnum {
  * @type */
 type CalendarMonthHeaderDayProps = {
   text: string;
+  viewStyle?: ViewStyle;
 }
 
 /**
@@ -139,7 +141,7 @@ const CalendarMonthHeader = ({
         borderTopColor: colors.primaryBorderColor,
       }]}>
         <View style={[GlobalContainerStyle.rowCenterCenter]}>
-          <CalendarMonthHeaderDay text="KW" />
+          <CalendarMonthHeaderDay text="KW" viewStyle={{ width: STYLES.calendarHourWidth }} />
           {days.map((day, idx) => <CalendarMonthHeaderDay 
             key={`${KEYS.calendarMonthHeaderDay}-${idx}`} 
             text={day.shortText} />)}
@@ -158,11 +160,12 @@ const CalendarMonthHeader = ({
  * @param {string} param0.text - The text to display in the day
  * @component */
 const CalendarMonthHeaderDay = ({ 
-  text
+  text, 
+  viewStyle = {},
 }: CalendarMonthHeaderDayProps) => {
   const infoColor = useThemeColor("info");
   return (
-    <View style={[GlobalContainerStyle.rowCenterCenter, CalendarMonthHeaderStyle.days]}>
+    <View style={[GlobalContainerStyle.rowCenterCenter, CalendarMonthHeaderStyle.days, viewStyle]}>
       <TextBase
         text={text}
         i18nTranslation={false}

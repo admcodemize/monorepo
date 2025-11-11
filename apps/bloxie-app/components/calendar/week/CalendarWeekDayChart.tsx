@@ -5,6 +5,8 @@ import TextBase from "@/components/typography/Text";
 
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
+import CalendarWeekDayCircle from "./CalendarWeekDayCircle";
+import GlobalContainerStyle from "@/styles/GlobalContainer";
 
 /**
  * @public
@@ -34,17 +36,23 @@ const CalendarWeekDayChart = ({
     <View style={{ 
       width: 26, 
       height: 26, 
-      justifyContent: "center", 
+      justifyContent: "flex-start", 
       alignItems: "center", 
-      //backgroundColor: `${highlight}10`,
+      gap: 4,
+      paddingTop: 2,
     }}>
       <TextBase 
       type="subtitle" 
       text={number.toString()}
       style={[GlobalTypographyStyle.headerSubtitle, { 
         color: highlight, 
-        fontSize: 12 
+        fontSize: 12,
       }]} />
+          {<View style={[GlobalContainerStyle.rowCenterCenter, { gap: 1 }]}>
+            {number === 13 && <CalendarWeekDayCircle color={"#159F85"} />}
+            {(number === 13 || number === 9) && <CalendarWeekDayCircle color={"#047dd4"} />}
+            {(number === 13 || number === 9) && <CalendarWeekDayCircle color={"#D15555"} />}
+          </View>}
     </View>
   )
 }

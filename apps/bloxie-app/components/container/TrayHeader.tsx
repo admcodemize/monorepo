@@ -34,9 +34,6 @@ const TrayHeader = ({
   description,
 }: TrayHeaderProps) => {
   const { t } = useTranslation();
-  const { dismiss } = useTrays('main');
-  
-  const onPressClose = React.useCallback(() => dismiss('main'), [dismiss]);
 
   return (
     <View style={[GlobalContainerStyle.rowStartBetween]}>
@@ -51,7 +48,7 @@ const TrayHeader = ({
           ellipsizeMode={"tail"}
           style={[GlobalTypographyStyle.labelText]} />
       </View>
-      <TouchableHapticClose onPress={onPressClose} />
+      {/*<TouchableHapticClose onPress={onPressClose} />*/}
     </View>
   )
 }

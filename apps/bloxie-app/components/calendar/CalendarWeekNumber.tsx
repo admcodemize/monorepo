@@ -16,7 +16,7 @@ import { STYLES } from "@codemize/constants/Styles";
  * @author Marc Stöckli - Codemize GmbH 
  * @description Calendar week number component
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const CalendarWeekNumber = () => {
   const colors = useThemeColors();
@@ -29,11 +29,11 @@ const CalendarWeekNumber = () => {
     <View style={[GlobalContainerStyle.columnCenterStart, CalendarWeekNumberStyle.number, { 
       borderRightColor: `${colors.secondaryBorderColor}60`,
       height: STYLES.calendarHeaderHeight,
-      paddingVertical: 8,
-      gap: 8
+      paddingVertical: 7,
+      gap: 4
     }]}>
       <TextBase text={t("i18n.calendar.week")} style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 9, color: colors.infoColor }]} />
-      <TextBase text={number.toString()} style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 10, color: colors.infoColor }]} />
+      <TextBase text={number.toString()} style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 10, color: colors.infoColor, height: 16 }]} />
     </View>
   );
 };

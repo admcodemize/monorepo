@@ -17,8 +17,9 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import { Dimensions, View } from "react-native";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import CalendarWeekDayCircle from "../week/CalendarWeekDayCircle";
-import { getWeek, startOfWeek } from "date-fns";
+import { endOfWeek, getWeek, isSameDay, startOfWeek } from "date-fns";
 import { getLocalization } from "@/helpers/System";
+import { shadeColor } from "@codemize/helpers/Colors";
 
 /**
  * @public
@@ -102,34 +103,61 @@ const CalendarMonthDay = ({
 
   //const number = React.useMemo(() => date.number, [date.number]);
   const colors = useThemeColors();
-
-
-
+  const config = useCalendarContextStore((state) => state.config);
+  const week = useCalendarContextStore((state) => state.week);
   /** @description Calculate all highlights once (instead of 7 times in each child) */
   const highlight = highlightColor(dateInWeek.now, colors, selected);
+  
+  const isCurrentWeek = dateInWeek.now >= week.startOfWeek && dateInWeek.now <= week.endOfWeek;
+  
+  let backgroundColor = "transparent";
+  
+  // Wenn dieser Tag in der aktuellen Woche liegt
+  if (isCurrentWeek) {
+    if (isSameDay(dateInWeek.now, week.startOfWeek) || isSameDay(dateInWeek.now, week.endOfWeek)) {
+      // erster oder letzter Tag der Woche → kräftig
+      backgroundColor =shadeColor("#303030", 0);
+    } else {
+      // Tag dazwischen → hellere Variante
+      backgroundColor = shadeColor("#626D7B", 0.9);
+    }
+  } else {
+    // Nicht aktuelle Woche → bisherige Logik
+    /*backgroundColor =
+      month === dateInWeek.now.getMonth()
+        ? `${highlight}10`
+        : `${highlight}05`;*/
+  }
 
+  
   return (
     <TouchableHaptic 
       onPress={onPress}
       hitSlop={10}
-      style={[CalendarWeekDayStyle.touchable, { width: (Dimensions.get("window").width / 8) - 2, 
-      backgroundColor: getWeek(dateInWeek.now, { locale: getLocalization() }) === getWeek(new Date(), { locale: getLocalization() }) 
-        ? startOfWeek(dateInWeek.now, { locale: getLocalization() }) === startOfWeek(new Date(), { locale: getLocalization() }) ? "green" : colors.focusedBgColor
-        : month === dateInWeek.now.getMonth() ? `${highlight}10` : `${highlight}05`}]}>
-        <View style={{  
-          height: 26, 
-          justifyContent: "center", 
-          alignItems: "center", 
-          borderRadius: 6, 
-        }}>
+      style={[CalendarWeekDayStyle.touchable, { width: config.width - 1, 
+      backgroundColor,
+        height: 30, 
+        justifyContent: "flex-start", 
+        alignItems: "center",
+        paddingTop: 4,
+        gap: 4
+        }]}>
           <TextBase 
             type="label" 
             text={dateInWeek.number.toString()}
             style={[GlobalTypographyStyle.headerSubtitle, { 
-              color: getWeek(dateInWeek.now, { locale: getLocalization() }) === getWeek(new Date(), { locale: getLocalization() }) ? colors.focusedContentColor : month === dateInWeek.now.getMonth() ? `${highlight}` : colors.prevNextMonthColor, 
-              fontSize: 10
-            }]} />
-        </View>
+              color: isCurrentWeek && (isSameDay(dateInWeek.now, week.startOfWeek) || isSameDay(dateInWeek.now, week.endOfWeek))
+              ? colors.focusedContentColor 
+              : month === dateInWeek.now.getMonth() 
+              ? colors.infoColor //`${highlight}` 
+              : colors.prevNextMonthColor, 
+            fontSize: 10,
+          }]} />
+          <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 1 }]}>
+            {dateInWeek.number === 4 && <CalendarWeekDayCircle color={"#159F85"} />}
+            {(dateInWeek.number === 5 || dateInWeek.number === 9) && <CalendarWeekDayCircle color={"#047dd4"} />}
+            {(dateInWeek.number === 13 || dateInWeek.number === 9 || dateInWeek.number === 4) && <CalendarWeekDayCircle color={"#D15555"} />}
+          </View>
     </TouchableHaptic>
   )
 }

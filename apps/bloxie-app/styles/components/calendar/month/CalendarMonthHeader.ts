@@ -16,7 +16,7 @@ const CalendarMonthHeaderStyle = StyleSheet.create({
   bottom: {
     width: DIM.width,
     borderTopWidth: 1,
-    height: 30
+    height: 30,
   },
   days: {
     width: DIM.width / 8,

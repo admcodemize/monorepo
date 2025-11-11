@@ -9,6 +9,7 @@ import { DatesInMonthInfoProps, WeeksInMonthProps } from "@codemize/helpers/Date
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import CalendarMonthDay from "./CalendarMonthDay";
 import React from "react";
+import { STYLES } from "@codemize/constants/Styles";
 
 const DIM = Dimensions.get("window");
 
@@ -55,8 +56,11 @@ const CalendarMonthWeekRow = React.memo(({
   const today = new Date();
   
   return (
-    <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 2, marginTop: 2 }]}>
-      <TextBase text={week.number.toString()} i18nTranslation={false} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, width: ((DIM.width - 28) / 8) - 2, textAlign: "center", color: colors.infoColor}]} />
+    <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 1, marginVertical: 0.5 }]}>
+      <TextBase text={week.number.toString()} i18nTranslation={false} type="label" style={[GlobalTypographyStyle.labelText, { 
+        fontSize: 9, width: STYLES.calendarHourWidth, textAlign: "center", color: colors.infoColor,
+
+      }]} />
       {week.dates.map((dateInWeek, idx) => {
         const isCurrentMonth = dateInWeek.now.getMonth() === currentMonth;
         const isToday = dateInWeek.now.getDate() === today.getDate() && 

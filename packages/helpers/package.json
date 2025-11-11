@@ -5,7 +5,8 @@
   "exports": {
     "./Sentry": "./Sentry.ts",
     "./System": "./System.ts",
-    "./DateTime": "./DateTime.ts"
+    "./DateTime": "./DateTime.ts",
+    "./Colors": "./Colors.ts"
   },
   "dependencies": {
     "@sentry/react-native": "^7.0.1"

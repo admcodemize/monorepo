@@ -30,9 +30,7 @@ export type CalendarHourGridProps = {
  * @since 0.0.5
  * @version 0.0.1
  * @type */
-type HourItemProps = {
-  numberOfDays: number;
-}
+type HourItemProps = {}
 
 /**
  * @public
@@ -53,7 +51,7 @@ const CalendarHourGrid = ({
       width: ((DIM.width - STYLES.calendarHourWidth) / numberOfDays) * numberOfDays,
       height: hours.length * STYLES.calendarHourHeight,
     }]}>
-      {hours.map((hour) => <HourItem key={`${KEYS.calendarHourGrid}-${hour.idx}`} numberOfDays={numberOfDays} />)}
+      {hours.map((hour) => <HourItem key={`${KEYS.calendarHourGrid}-${hour.idx}`} />)}
     </View>
   )
 }
@@ -63,11 +61,11 @@ const CalendarHourGrid = ({
 | * @author Marc Stöckli - Codemize GmbH 
 | * @description Renders a single hour row with vertical day separators
 | * @since 0.0.5
-| * @version 0.0.1
+| * @version 0.0.2
 | * @param {HourItemProps} param0
-| * @param {number} param0.numberOfDays - Number of days to display
 | * @component */
-const HourItem = ({ numberOfDays }: HourItemProps) => {
+const HourItem = ({ 
+}: HourItemProps) => {
   const colors = useThemeColors();
 
   const config = useCalendarContextStore((state) => state.config);

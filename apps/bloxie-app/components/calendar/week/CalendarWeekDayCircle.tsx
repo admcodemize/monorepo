@@ -1,6 +1,6 @@
 import React from "react";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faCircle } from "@fortawesome/pro-solid-svg-icons";
+import { faCircle, faSquare } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 /**
@@ -26,7 +26,7 @@ const CalendarWeekDayCircle = ({
 }: CalendarWeekDayCircleProps) => {
   return (
     <FontAwesomeIcon 
-      icon={faCircle as IconProp} 
+      icon={faSquare as IconProp} 
       size={5} 
       color={color} />
   )

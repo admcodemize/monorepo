@@ -18,6 +18,7 @@ import { View } from "react-native";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import { STYLES } from "@codemize/constants/Styles";
 import { isToday } from "date-fns";
+import { useTrays } from "react-native-trays";
 
 /**
  * @public
@@ -59,6 +60,10 @@ const CalendarWeekDay = ({
   //const rangeStartRef = React.useRef<Date|null>(null);
   // console.log("CalendarWeekDay", date.now.toISOString()); // Deactivated for performance testing
 
+  /**
+   * @description Handles the opening of the trays which are defined in the @/helpers/Trays.tsx file as screens in the @/screens/private/tray folder
+   * @see {@link @/helpers/Trays} */
+   const { push } = useTrays('main');
   /** 
    * @description Handles the events of the day -> Used for highlighting the members of the event as a circle
    * @see {@link hooks/calendar/useCalendarStore}
@@ -92,6 +97,15 @@ const CalendarWeekDay = ({
 
     /** @description If the range start is the same as the selected day, the range selection will be stopped => Single day selection */
     //rangeStartRef.current && isEqual(rangeStartRef.current, date.now) && onRangeStart(null);
+
+
+
+    /**
+      * @description Handles the on press event for opening the action tray
+      * @function */
+    push("CalendarDayTray", {
+      ...dateInWeek
+    });
   };
   
   /**
@@ -118,7 +132,7 @@ const CalendarWeekDay = ({
         borderRightWidth: index === 6 ? 0 : 1,
         borderRightColor: `${colors.secondaryBorderColor}60`,
         height: STYLES.calendarHeaderHeight,
-        paddingVertical: 6,
+        //paddingVertical: 6,
         borderTopWidth: isToday(dateInWeek.now) ? 3 : 0,
         borderTopColor: colors.todayBgColor,
         paddingTop: isToday(dateInWeek.now) ? 5 : 8
@@ -129,10 +143,6 @@ const CalendarWeekDay = ({
         <CalendarWeekDayChart 
           number={dateInWeek.number}
           highlight={highlight} />
-        {/*<View style={[GlobalContainerStyle.rowCenterCenter, { gap: 2 }]}>
-          <CalendarWeekDayCircle color={highlight} />
-          <CalendarWeekDayCircle color={highlight} />
-        </View>*/}
     </TouchableHaptic>
   )
 }

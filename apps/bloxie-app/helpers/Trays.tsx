@@ -1,5 +1,6 @@
 import ScreenTrayAction from "@/screens/private/tray/Action";
-import { View } from "react-native";
+import ScreenTrayCalendarDay from "@/screens/private/tray/CalendarDay";
+import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
 
 /**
  * @public
@@ -29,5 +30,6 @@ export const stackConfigs = {
  * @version 0.0.2
  * @object */
 export const trays = {
-  ActionTray: { component: ScreenTrayAction }
+  ActionTray: { component: ScreenTrayAction },
+  CalendarDayTray: { component: (dateInWeek: DatesInWeekInfoProps ) => <ScreenTrayCalendarDay {...dateInWeek} /> }
 };

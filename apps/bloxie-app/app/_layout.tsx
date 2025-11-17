@@ -61,13 +61,13 @@ const StartSlot = () => {
 
   return (
     <SafeAreaContextViewBase>
-      <TrayProvider 
-        stackConfigs={stackConfigs}
-        trays={trays}>
-        <DropdownProvider>
-          <Slot /> 
-        </DropdownProvider>
-      </TrayProvider>
+      <DropdownProvider>
+        <TrayProvider 
+          stackConfigs={stackConfigs}
+          trays={trays}>
+            <Slot /> 
+        </TrayProvider>
+      </DropdownProvider>
     </SafeAreaContextViewBase>
   )
 }

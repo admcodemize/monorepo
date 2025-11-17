@@ -169,8 +169,15 @@ export const uses24HourClock = (): boolean => Localization.getCalendars()[0]?.us
  * @param {number} componentWidth - The width of the component
  * @param {MeasureInWindowProps} measure - The measure of the component
  * @function */
-export const measureInWindowLeft = (componentWidth: number, { x, width }: MeasureInWindowProps) => 
+export const measureInWindowLeft = (
+  componentWidth: number,
+  { x, width }: MeasureInWindowProps,
+  totalWidth: number = DIM.width
+) => 
   /** 
    * @description Ensure the left position is within the screen width. Math.max prevents negative values. 
    * Math.min prevents the component from being off the screen. */
-  Math.max(0, Math.min(x < componentWidth ? (x) : ((x + width) - componentWidth), DIM.width - componentWidth));
+  Math.max(0, Math.min(
+    x < componentWidth ? x : ((x + width) - componentWidth),
+    (totalWidth || DIM.width) - componentWidth
+  ));

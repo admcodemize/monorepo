@@ -1,4 +1,8 @@
 import { LEVEL } from '@codemize/constants/Styles';
+import {  IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faChartCandlestick, faChartFft, faGrid2Plus, faPlus, faSliders } from '@fortawesome/duotone-thin-svg-icons';
+import { faEllipsisVertical } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React from 'react';
 import { StyleSheet, SafeAreaView, View, Pressable, Text, Dimensions } from 'react-native';
 import Animated, {
@@ -11,6 +15,7 @@ import Animated, {
   SharedValue,
 } from 'react-native-reanimated';
 import { useTrays } from 'react-native-trays';
+import { useThemeColors } from '@/hooks/theme/useThemeColor';
 
 const DIM = Dimensions.get("window");
 
@@ -22,9 +27,15 @@ const SPRING_CONFIG = {
   dampingRatio: 0.8,
 };
 
-const OFFSET = 40;
+const OFFSET = 50;
 
-const TouchableFloatingActionButton = ({ isExpanded, index, buttonLetter, onPress }: { isExpanded: SharedValue<boolean>, index: number, buttonLetter: string, onPress: () => void }) => {
+const TouchableFloatingActionButton = ({ isExpanded, index, onPress, icon }: { 
+  isExpanded: SharedValue<boolean>, 
+  index: number, 
+  onPress: () => void,
+  icon: IconProp
+}) => {
+  const colors = useThemeColors();
   const animatedStyles = useAnimatedStyle(() => {
     // highlight-next-line
     const moveValue = isExpanded.value ? OFFSET * index : 0;
@@ -46,7 +57,7 @@ const TouchableFloatingActionButton = ({ isExpanded, index, buttonLetter, onPres
 
   return (
     <AnimatedPressable style={[animatedStyles, styles.shadow, styles.button]} onPress={onPress}>
-      <Animated.Text style={styles.content}>{buttonLetter}</Animated.Text>
+      <FontAwesomeIcon icon={icon as IconProp} size={16} color={colors.focusedContentColor} />
     </AnimatedPressable>
   );
 };
@@ -58,20 +69,6 @@ export default function TouchableFloationAction () {
     isExpanded.value = !isExpanded.value;
   };
 
-  const plusIconStyle = useAnimatedStyle(() => {
-    // highlight-next-line
-    const moveValue = interpolate(Number(isExpanded.value), [0, 1], [0, 2]);
-    const translateValue = withTiming(moveValue);
-    const rotateValue = isExpanded.value ? '45deg' : '0deg';
-
-    return {
-      transform: [
-        { translateX: translateValue },
-        { rotate: withTiming(rotateValue) },
-      ],
-    };
-  });
-
   const { push } = useTrays('main');
 
   return (
@@ -80,27 +77,19 @@ export default function TouchableFloationAction () {
           <AnimatedPressable
             onPress={handlePress}
             style={[styles.shadow, mainButtonStyles.button]}>
-            <Animated.Text style={[plusIconStyle, mainButtonStyles.content]}>
-              +
-            </Animated.Text>
+            <FontAwesomeIcon icon={faSliders as IconProp} size={20} color="white" />
           </AnimatedPressable>
           <TouchableFloatingActionButton
             isExpanded={isExpanded}
             index={1}
-            buttonLetter={'M'}
+            icon={faGrid2Plus as IconProp}
             onPress={() => { push("ActionTray", {}) }}
           />
           <TouchableFloatingActionButton
             isExpanded={isExpanded}
             index={2}
-            buttonLetter={'W'}
-            onPress={() => {}}
-          />
-          <TouchableFloatingActionButton
-            isExpanded={isExpanded}
-            index={3}
-            buttonLetter={'S'}
-            onPress={() => {}}
+            icon={faChartCandlestick as IconProp}
+            onPress={() => { push("DashboardTray", {}) }}
           />
         </View>
       </View>
@@ -110,9 +99,9 @@ export default function TouchableFloationAction () {
 const mainButtonStyles = StyleSheet.create({
   button: {
     zIndex: 1,
-    height: 40,
-    width: 40,
-    borderRadius: 20,
+    height: 44,
+    width: 44,
+    borderRadius: 22,
     backgroundColor: '#303030',
     display: 'flex',
     justifyContent: 'center',
@@ -133,8 +122,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    width: 34,
-    height: 34,
+    width: 40,
+    height: 40,
     backgroundColor: '#303030',
     position: 'absolute',
     borderRadius: 100,

@@ -51,8 +51,17 @@ const DashboardStatistics = ({
 }: DashboardStatisticsProps) => {
   const { t } = useTranslation();
 
+  /**
+   * @description The function to set the properties of the chart
+   * @see {@link @/context/DashboardContext.tsx} */
   const setChartProperties = useDashboardContextStore((state) => state.setChartProperties);
 
+  /**
+   * @description The function to handle the press event of the card which will update the chart
+   * @param {string} title - The title of the card
+   * @param {boolean} showCurrency - Whether to show the currency of the card
+   * @param {GestureResponderEvent} e - The event of the card
+   * @function */
   const onPressCard = React.useCallback(
     (title: string, showCurrency: boolean) => 
     (e: GestureResponderEvent) => {

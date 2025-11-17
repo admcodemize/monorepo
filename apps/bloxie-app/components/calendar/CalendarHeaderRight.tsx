@@ -17,16 +17,6 @@ import Divider from "@/components/container/Divider";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 
 /**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.2
- * @version 0.0.1
- * @type */
-export type CalendarHeaderProps = {
-  refContainer: React.RefObject<View>;
-};
-
-/**
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
@@ -41,12 +31,8 @@ type TouchableDropdownBaseProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.5
  * @version 0.0.1
- * @param {CalendarHeaderProps} param0
- * @param {React.RefObject<View>} param0.refContainer - The container ref from parent component
  * @component */
-const CalendarHeaderRight = ({
-  refContainer,
-}: CalendarHeaderProps) => {
+const CalendarHeaderRight = () => {
   const colors = useThemeColors();
 
   /**
@@ -65,14 +51,13 @@ const CalendarHeaderRight = ({
   const onPressDropdown = 
     (ref: React.RefObject<View|null>) =>
     (children: React.ReactNode) =>
-    (e: GestureResponderEvent) => {
+    (_event: GestureResponderEvent) => {
 
     /** 
      * @description Open the dropdown component based on a calculated measurement template
      * @see {@link components/button/TouchableDropdown} */
     _open({
       refTouchable: ref,
-      refContainer,
       open,
       children,
     });

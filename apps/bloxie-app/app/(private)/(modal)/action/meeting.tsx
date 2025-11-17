@@ -1,7 +1,4 @@
 import React from "react";
-import { View } from "react-native";
-import Animated from "react-native-reanimated";
-
 import { TRAY_ACTION_ITEMS } from "@/constants/Models";
 
 import ViewBase from "@/components/container/View";
@@ -19,17 +16,16 @@ const KEY = "meeting";
  * @version 0.0.2
  * @component */
 const ModalActionMeeting = () => {
-  const refContainer = React.useRef<View>(null);
   const tray = TRAY_ACTION_ITEMS.find((item) => item.key === KEY);
 
   return (
-    <ViewBase ref={refContainer as React.RefObject<Animated.View>}>
+    <ViewBase>
       <SafeAreaContextViewBase 
         style={{ gap: 10 }}>
         <StackModalHeader
           title={tray!.title}
           description={"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."} />
-            <Calendar refContainer={refContainer as React.RefObject<Animated.View>} />
+            <Calendar />
         <DropdownOverlay />
       </SafeAreaContextViewBase>
     </ViewBase>

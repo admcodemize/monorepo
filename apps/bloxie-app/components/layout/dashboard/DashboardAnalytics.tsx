@@ -23,11 +23,25 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
 /**
  * @private
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.2
+ * @since 0.0.7
  * @version 0.0.1
  * @type */
-type TouchableDropdownBaseProps = {
+type TouchableDropdownBaseTeamsProps = {
+  onPress: (itemKey: string|number) => void;
+  selectedTeam: string|number;
+  onSelectTeam: (itemKey: string|number) => void;
+}
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.7
+ * @version 0.0.1
+ * @type */
+type TouchableDropdownBaseDaysProps = {
   onPress: (itemKey: string|number|DashboardDropdownItemKeyDays) => void;
+  selectedDay: DashboardDropdownItemKeyDays;
+  onSelectDay: (itemKey: string|number|DashboardDropdownItemKeyDays) => void;
 }
 
 /**
@@ -37,7 +51,7 @@ type TouchableDropdownBaseProps = {
  * @version 0.0.1
  * @type */
 export type DashboardAnalyticsProps = {
-  refContainer: React.RefObject<View>;
+  refContainer: React.RefObject<View|null>;
   onPressRefresh: () => void;
   onPressTeams: (itemKey: string|number) => void;
   onPressDays: (itemKey: string|number|DashboardDropdownItemKeyDays) => void;
@@ -49,7 +63,6 @@ export type DashboardAnalyticsProps = {
  * @since 0.0.2
  * @version 0.0.1
  * @param {DashboardAnalyticsProps} param0
- * @param {React.RefObject<View>} param0.refContainer - The container ref from parent component
  * @param {Function} param0.onPressRefresh - The function to call when the refresh button is pressed 
  * @param {Function} param0.onPressTeams - The function to call when an item in the teams dropdown is pressed
  * @param {Function} param0.onPressDays - The function to call when an item in the days dropdown is pressed
@@ -74,11 +87,23 @@ const DashboardAnalytics = ({
    * @description Get the dropdown context store for handling the selected item key for teams and calendar.
    * @see {@link context/DashboardContext} */
   const dropdown = useDashboardContextStore((state) => state.dropdown);
+  const setDropdown = useDashboardContextStore((state) => state.setDropdown);
+
+  /**
+   * @description Used to handle the selection of the team dropdown item
+   * @param {string|number} key - The key of the team
+   * @function */
+  const handleSelectTeam = React.useCallback((key: string|number) => setDropdown("itemKeyTeam", key), [setDropdown]);
+
+  /**
+   * @description Used to handle the selection of the day dropdown item
+   * @param {string|number|DashboardDropdownItemKeyDays} key - The key of the day
+   * @function */
+  const handleSelectDay = React.useCallback((key: string|number|DashboardDropdownItemKeyDays) => setDropdown("itemKeyDays", key as DashboardDropdownItemKeyDays), [setDropdown]);
 
   /**
    * @description Used to open the dropdown component
    * @param {React.RefObject<View|any>} ref - The ref of the dropdown component for calculating the measurement position
-   * @param {GestureResponderEvent} e - The event of the dropdown component
    * @function */
   const onPressDropdown = 
     (ref: React.RefObject<View|any>) =>
@@ -89,40 +114,31 @@ const DashboardAnalytics = ({
      * @see {@link components/button/TouchableDropdown} */
     _open({
       refTouchable: ref,
-      refContainer,
+      relativeToRef: refContainer,
+      hostId: "tray",
       open,
       children,
     });
   }
   
   return (
-    <View style={[{ gap: STYLES.sizeGap }]}>
-      <TitleWithDescription
-        title={t("i18n.screens.dashboard.analytics.title")}
-        description={t("i18n.screens.dashboard.analytics.description")} />
-      <View style={[GlobalContainerStyle.rowCenterBetween]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
-          <TouchableHapticDropdown
-            ref={refTeams}
-            icon={faUsersBetweenLines as IconProp}
-            text={"codemize.com"}
-            backgroundColor={colors.primaryBgColor}
-            onPress={onPressDropdown(refTeams)(<TouchableDropdownBaseTeams onPress={onPressTeams} />)} />
-          <TouchableHapticDropdown
-            ref={refCalendar}
-            icon={DROPDOWN_DASHBOARD_PERIOD.find(({ key}) => key === dropdown.itemKeyDays)!.iconDuotone as IconProp}
-            text={t(DROPDOWN_DASHBOARD_PERIOD.find(({ key}) => key === dropdown.itemKeyDays)!.title)}
-            backgroundColor={colors.primaryBgColor}
-            onPress={onPressDropdown(refCalendar)(<TouchableDropdownBaseDays onPress={onPressDays} />)} />
-        </View>
-        <View>
-          <TouchableHapticIcon
-            icon={faRotate as IconProp}
-            iconColor={colors.primaryIconColor}
-            backgroundColor={colors.primaryBgColor}
-            onPress={onPressRefresh} />
-        </View>
-      </View>
+    <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+      <TouchableHapticDropdown
+        ref={refTeams}
+        icon={faUsersBetweenLines as IconProp}
+        text={"codemize.com"}
+        onPress={onPressDropdown(refTeams)(<TouchableDropdownBaseTeams 
+          onPress={onPressTeams} 
+          selectedTeam={dropdown.itemKeyTeam} 
+          onSelectTeam={handleSelectTeam} />)} />
+      <TouchableHapticDropdown
+        ref={refCalendar}
+        icon={DROPDOWN_DASHBOARD_PERIOD.find(({ key}) => key === dropdown.itemKeyDays)!.iconDuotone as IconProp}
+        text={t(DROPDOWN_DASHBOARD_PERIOD.find(({ key}) => key === dropdown.itemKeyDays)!.title)}
+        onPress={onPressDropdown(refCalendar)(<TouchableDropdownBaseDays 
+          onPress={onPressDays} 
+          selectedDay={dropdown.itemKeyDays} 
+          onSelectDay={handleSelectDay} />)} />
     </View>
   )
 }
@@ -131,27 +147,26 @@ const DashboardAnalytics = ({
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
+ * @param {TouchableDropdownBaseTeamsProps} param0
+ * @param {Function} param0.onPress - The function to call when the dropdown item is pressed
+ * @param {string|number} param0.selectedTeam - The selected team
+ * @param {Function} param0.onSelectTeam - The function to call when the dropdown item is selected
  * @description The dropdown component for displaying the teams and the private calendar for users selection
  * @component */
 const TouchableDropdownBaseTeams = ({
-  onPress
-}: TouchableDropdownBaseProps) => {
-  /**
-   * @description Get the dropdown context store for handling the selected item key for teams and calendar.
-   * @see {@link context/DashboardContext} */
-   const setDropdown = useDashboardContextStore((state) => state.setDropdown);
-   const dropdown = useDashboardContextStore((state) => state.dropdown);
-
+  onPress,
+  selectedTeam,
+  onSelectTeam
+}: TouchableDropdownBaseTeamsProps) => {
   /**
    * @description Used to handle the press event of the dropdown item
-   * @param {GestureResponderEvent} e - The event of the dropdown item
    * @param {string|number} key - The key of the dropdown item
    * @function */
   const onPressItem = 
     (key: string|number|DashboardDropdownItemKeyDays) => {
       onPress(key);
-      setDropdown("itemKeyTeam", key);
+      onSelectTeam(key);
     }
 
   return (
@@ -161,14 +176,14 @@ const TouchableDropdownBaseTeams = ({
         itemKey={0}
         icon={faUsersBetweenLines as IconProp}
         text="codemize.com"
-        isSelected={dropdown.itemKeyTeam === 0}
+        isSelected={selectedTeam === 0}
         onPress={onPressItem} />
       <TouchableDropdownItemBase
         key={1}
         itemKey={1}
         icon={faUserSecret as IconProp}
         text="Privater Kalender"
-        isSelected={dropdown.itemKeyTeam === 1}
+        isSelected={selectedTeam === 1}
         onPress={onPressItem} />
     </TouchableDropdown>
   )
@@ -178,27 +193,26 @@ const TouchableDropdownBaseTeams = ({
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @description The dropdown component for displaying the possible periods for displaying the analytics
+ * @param {TouchableDropdownBaseDaysProps} param0
+ * @param {Function} param0.onPress - The function to call when the dropdown item is pressed
+ * @param {DashboardDropdownItemKeyDays} param0.selectedDay - The selected day
+ * @param {Function} param0.onSelectDay - The function to call when the dropdown item is selected
  * @component */
 const TouchableDropdownBaseDays = ({
-  onPress
-}: TouchableDropdownBaseProps) => {
-  /**
-   * @description Get the dropdown context store for handling the selected item key for teams and calendar.
-   * @see {@link context/DashboardContext} */
-   const setDropdown = useDashboardContextStore((state) => state.setDropdown);
-   const dropdown = useDashboardContextStore((state) => state.dropdown);
-
+  onPress,
+  selectedDay,
+  onSelectDay
+}: TouchableDropdownBaseDaysProps) => {
   /**
    * @description Used to handle the press event of the dropdown item
-   * @param {GestureResponderEvent} e - The event of the dropdown item
    * @param {string|number} key - The key of the dropdown item
    * @function */
   const onPressItem = 
     (key: string|number|DashboardDropdownItemKeyDays) => {
       onPress(key as DashboardDropdownItemKeyDays);
-      setDropdown("itemKeyDays", key);
+      onSelectDay(key as DashboardDropdownItemKeyDays);
     }
 
   return (
@@ -209,7 +223,7 @@ const TouchableDropdownBaseDays = ({
           itemKey={period.key}
           icon={period.iconDuotone as IconProp}
           text={period.title}
-          isSelected={dropdown.itemKeyDays === period.key}
+          isSelected={selectedDay === period.key}
           onPress={onPressItem} />
       ))}
     </TouchableDropdown>

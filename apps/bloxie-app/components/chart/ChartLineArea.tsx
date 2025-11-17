@@ -127,7 +127,7 @@ const ChartLineArea = ({
       <LineChart
         areaChart
         data={data}
-        width={DIM.width - STYLES.paddingHorizontal * 2}
+        width={DIM.width - STYLES.paddingHorizontal * 4}
         height={height}
         maxValue={dataMaxValue}
         noOfSections={noOfSections}
@@ -145,10 +145,10 @@ const ChartLineArea = ({
         focusEnabled={false}
         disableScroll={true}
         renderDataPointsAfterAnimationEnds={true}
-        color={colors.startFillColor}
-        startFillColor={colors.startFillColor}
+        color={startFillColor || colors.startFillColor}
+        startFillColor={startFillColor || colors.startFillColor}
         startOpacity={startOpacity}
-        endFillColor={colors.endFillColor || colors.secondaryBorderColor}
+        endFillColor={endFillColor || colors.endFillColor || colors.secondaryBorderColor}
         endOpacity={endOpacity}
         isAnimated={isAnimated}
         animateOnDataChange={animateOnDataChange}

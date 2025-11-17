@@ -35,7 +35,6 @@ import TouchableDropdownItemBase from "../button/TouchableDropdownItemBase";
 import ViewBase from "../container/View";
 import CalendarStyle from "@/styles/components/calendar/Calendar";
 import TrayHeader from "../container/TrayHeader";
-import BottomSheetHeader from "../container/BottomSheetHeader";
 import CalendarHeaderRight from "./CalendarHeaderRight";
 import CalendarHeaderWeek from "./CalendarHeaderLeft";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from "react-native-reanimated";
@@ -81,11 +80,9 @@ type TouchableDropdownBaseProps = {
 }
 
 const Calendar = ({
-  refContainer,
   showDragHandle = false
 }: {
   showDragHandle?: boolean;
-  refContainer: React.RefObject<View>;
 }) => {
   const colors = useThemeColors();
   const locale = getLocalization();
@@ -153,7 +150,7 @@ const Calendar = ({
         backgroundColor: "#f9f9f9"
       }]}>
           <CalendarHeaderLeft onPress={toggleMonthCalendar} />
-          <CalendarHeaderRight refContainer={refContainer} />
+          <CalendarHeaderRight />
       </View>
 
 
@@ -238,7 +235,7 @@ const Calendar = ({
           <CalendarWeek now={new Date()} />
       </View>
       
-      <Animated.View style={[animatedStyle, { backgroundColor: colors.primaryBgColor, borderTopColor: colors.primaryBorderColor, borderTopWidth: 1,
+      {/*<Animated.View style={[animatedStyle, { backgroundColor: colors.primaryBgColor, borderTopColor: colors.primaryBorderColor, borderTopWidth: 1,
 
        }]}>
         <View style={[GlobalContainerStyle.rowCenterBetween, { backgroundColor: "#f9f9f9", height: 30, paddingHorizontal: 14,
@@ -258,7 +255,7 @@ const Calendar = ({
           viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
         />
         </View>
-      </Animated.View>
+      </Animated.View>*/}
     </View>
   );
 };

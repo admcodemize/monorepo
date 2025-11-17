@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 import { ConvexEventsAPIProps } from "@codemize/backend/Types";
@@ -12,6 +12,7 @@ import { GlobalLayoutProps } from "@/types/GlobalLayout";
 import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
+import { shadeColor } from "@codemize/helpers/Colors";
 
 /**
  * @public
@@ -118,9 +119,9 @@ const ListRenderItemEvent = ({
      * the initialization with "useSharedValue"
      * -> Reason: When working with slots which can be changed it will not change the position when 
      * initialized with "useSharedValue" */
-    translateY.value = layout.top
-    startOffset.value = layout.top;
-    height.value = layout.height;
+    translateY.value = layout.top + 0.5;
+    startOffset.value = layout.top + 0.5;
+    height.value = layout.height - 1.5;
 
     /*updateLabelLiveTime(layout.top, layout.height);
     
@@ -197,7 +198,7 @@ const ListRenderItemEvent = ({
   
   
     const resizeBottomGesture = Gesture.Pan()
-    /*.enabled(isNewEvent)
+    .enabled(true)
     .onStart(() => {
       startOffset.value = height.value; // Aktuelle Höhe merken
     })
@@ -206,36 +207,43 @@ const ListRenderItemEvent = ({
   
       height.value = proposedHeight;
   
-      runOnJS(updateLabelLiveTime)(translateY.value, proposedHeight);
+      //runOnJS(updateLabelLiveTime)(translateY.value, proposedHeight);
     })
     .onEnd(() => {
       // Höhe snappen
-      const rawHeightMin = getMinutesFromPixels(height.value);
+     /* const rawHeightMin = getMinutesFromPixels(height.value);
       const snappedHeightMin = Math.round(rawHeightMin / GRID_MINUTES) * GRID_MINUTES;
       const snappedHeight = getPixelFromMinutes(snappedHeightMin);
       
-      height.value = withSpring(snappedHeight);
+      height.value = withSpring(snappedHeight);*/
 
       // Prüfe und setze Flag ob das Event in einem blockierten Bereich liegt
-      runOnJS(checkAndSetBlockedAreaFlag)(translateY.value, snappedHeight);
+      //runOnJS(checkAndSetBlockedAreaFlag)(translateY.value, snappedHeight);
 
       /** 
        * @description Used to update the duratin minute for evaluate the free slots for creating a new event
-       * @see {@link components/calendar/CalendarTimeSlotsHorizontal} *
+       * @see {@link components/calendar/CalendarTimeSlotsHorizontal} */
       //runOnJS(setDurationMinute)(snappedHeightMin);
-    });*/
+    });
 
   return (
     <>
         <Animated.View
           style={[ListRenderItemEventStyle.animated, animatedStyle, {
             //height: height.value, // Used when the user is resizing the event 
-            width: layout.width,
-            left: layout.left,
-            borderRadius: 3,
-            backgroundColor: "#fbf1c6",
-            borderLeftColor: "#ffd739",
-            borderLeftWidth: 4
+            width: layout.width - 1,
+            left: layout.left + 0.5,
+            backgroundColor: shadeColor(event.bgColorEvent || "#fbf1c6", 0.6),
+            borderLeftColor: event.bgColorEvent || "#ffd739",
+            borderLeftWidth: 3
+
+            /**
+             * 
+             *       width: width, 
+      height: height - 2, 
+      top: top + 0.5,
+      left: left + 1,
+             */
           }]}>
 
               <View style={{ 
@@ -246,14 +254,16 @@ const ListRenderItemEvent = ({
                   <View style={[GlobalContainerStyle.rowStartStart, { gap: 6 }]}>
                     <TextBase style={{ 
                       flex: 1,
-                      fontSize: Number(SIZES.label),
+                      fontSize: 9, //Number(SIZES.label) - 2,
                       fontFamily: String(FAMILIY.subtitle),
+                      color: shadeColor(event.bgColorEvent || "#fbf1c6", -0.5),
                     }} numberOfLines={3} text={event.title} />
                   </View>
                   <TextBase style={{ 
                     flex: 1,
-                    fontSize: Number(SIZES.label),
+                    fontSize: 9,//Number(SIZES.label),
                     fontFamily: String(FAMILIY.text),
+                    color: shadeColor(event.bgColorEvent || "#fbf1c6", -0.3),
                   }} numberOfLines={3} text={isNewEvent && labelLiveTime ? labelLiveTime : event.descr || ""} />
               </View>
         </Animated.View>   

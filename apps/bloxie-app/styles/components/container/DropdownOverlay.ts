@@ -7,8 +7,7 @@ import { StyleSheet } from "react-native";
  * @version 0.0.1 */
 const DropdownOverlayStyle = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#00000010",
+    ...StyleSheet.absoluteFillObject
   },
 });
 

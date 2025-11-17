@@ -5,13 +5,14 @@ import { createStore, StoreApi, useStore } from "zustand";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type DropdownContextProps = {
   isOpen: boolean;
   children: React.ReactNode;
   position: DropdownContextPositionProps|null;
-  open: (children: React.ReactNode, position: DropdownContextPositionProps|null) => void;
+  hostId: string|null;
+  open: (children: React.ReactNode, position: DropdownContextPositionProps|null, hostId?: string) => void;
   close: () => void;
 };
 
@@ -42,7 +43,7 @@ const DropdownOverlayContext = createContext<StoreApi<DropdownContextProps>|unde
  * @author Marc Stöckli - Codemize GmbH 
  * @description 
  * @since 0.0.2
- * @version 0.0.1 */
+ * @version 0.0.2 */
 export default function DropdownProvider({ 
   children 
 }: DropdownProviderProps) {
@@ -51,9 +52,10 @@ export default function DropdownProvider({
       isOpen: false,
       children: null,
       position: null,
+      hostId: null,
       initialDropdownItemIdx: null,
-      open: (children, position) => set((state) => ({ ...state, children, position, isOpen: true })),
-      close: () => set((state) => ({ ...state, isOpen: false, children: null, position: null, initialDropdownItemIdx: null })),
+      open: (children, position, hostId = "default") => set((state) => ({ ...state, children, position, hostId, isOpen: true })),
+      close: () => set((state) => ({ ...state, isOpen: false, children: null, position: null, hostId: null, initialDropdownItemIdx: null })),
     }))
   );
 

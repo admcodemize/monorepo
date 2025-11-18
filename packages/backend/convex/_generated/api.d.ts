@@ -11,6 +11,8 @@
 import type * as auth_httpActions from "../auth/httpActions.js";
 import type * as auth_mutation from "../auth/mutation.js";
 import type * as auth_query from "../auth/query.js";
+import type * as sync_events_mutation from "../sync/events/mutation.js";
+import type * as sync_events_query from "../sync/events/query.js";
 
 import type {
   ApiFromModules,
@@ -30,6 +32,8 @@ declare const fullApi: ApiFromModules<{
   "auth/httpActions": typeof auth_httpActions;
   "auth/mutation": typeof auth_mutation;
   "auth/query": typeof auth_query;
+  "sync/events/mutation": typeof sync_events_mutation;
+  "sync/events/query": typeof sync_events_query;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

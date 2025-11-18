@@ -1,26 +1,60 @@
-import { router, Stack } from "expo-router";
+import React from "react";
+import { Stack } from "expo-router";
+import { useAuth } from "@clerk/clerk-expo";
 import { Id } from "../../../../packages/backend/convex/_generated/dataModel";
 
+import { ConvexUsersAPIProps } from "@codemize/backend/Types";
+
+import { useCalendarEvents } from "@/hooks/calendar/useCalendarEvents";
 import { getTimeZone } from "@/helpers/System";
 
-import CalendarProvider from "@/context/CalendarContext";
+import LoadingScreen from "@/screens/private/LoadingScreen";
+
 import DateTimeProvider from "@/context/DateTimeContext";
 import UserProvider from "@/context/UserContext";
-import React from "react";
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.8
+ * @version 0.0.1
+ * @type */
+type LoadedProps = {
+  eventsFetchFinished: boolean;
+}
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.2 */
+ * @version 0.0.3 */
 const PrivateLayout = () => { 
   /**
    * @description Handles the authentication state of the user
    * @see {@link @clerk/clerk-expo} */
+  const { isSignedIn } = useAuth();
+
+  /**
+   * @description Will be used to handle the visibility of the custom splashscreen which will be shown until
+   * all the ressources are loaded */
+  const [isLoaded, setIsLoaded] = React.useState<LoadedProps>({
+    eventsFetchFinished: false,
+  });
+
+  /**
+   * @description Loads the currently signed in and subscripted users events 
+   * -> Handles the automatic refresh when a new custom event is added or some data in the database changes!
+   * @see {@link hooks/calendar/useCalendarEvents} */
+  useCalendarEvents({ 
+    convexUser: { _id: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">, _creationTime: 0, clerkId: "a", email: "a", provider: "a", banned: false, members: [] } as unknown as ConvexUsersAPIProps, 
+    onFetchFinished: () => { setIsLoaded({ eventsFetchFinished: true }); } 
+  });
+
+  if (!isLoaded.eventsFetchFinished) return <LoadingScreen />;
 
   return (
     <UserProvider 
-      settings={{ userId: "a" as Id<"users"> }} 
+      settings={{ userId: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users"> }} 
       times={[
         { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T07:00:00.000Z", isBlocked: true },
         { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-29T09:00:00.000Z", end: "2025-10-29T10:30:00.000Z", isBlocked: true },
@@ -31,13 +65,12 @@ const PrivateLayout = () => {
         { userId: "a" as Id<"users">, day: 6, type: "weekdays", start: "2025-10-29T13:00:00.000Z", end: "2025-10-29T15:00:00.000Z", isBlocked: true },
         { userId: "a" as Id<"users">, day: 4, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T05:00:00.000Z", isBlocked: true }
       ]}>
-    <CalendarProvider now={new Date()}>
     <DateTimeProvider timeZone={getTimeZone()}>
       <Stack
         screenOptions={{ 
           headerShown: false 
         }}>
-          {/*<Stack.Protected guard={(isSignedIn && isLoaded) || true}>*/}
+          {/*<Stack.Protected guard={(isSignedIn && isLoaded.eventsFetchFinished) || true}>*/}
           <Stack.Protected guard={true}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(modal)/action/booking" options={{ presentation: "fullScreenModal" }} />
@@ -50,7 +83,6 @@ const PrivateLayout = () => {
           </Stack.Protected>
       </Stack>  
     </DateTimeProvider>
-    </CalendarProvider>
     </UserProvider>
   );
 }

@@ -226,6 +226,7 @@ const CalendarWeek = ({
     onScroll: (event, context) => {
       'worklet';
       if (isScrollingFromContent.value) return;
+      console.log("onScrollHorizontalList");
       
       // Berechne aktuellen Index basierend auf Scroll-Position
       const currentIndex = Math.round(event.contentOffset.x / TOTAL_GRID_WIDTH);
@@ -251,14 +252,17 @@ const CalendarWeek = ({
       // Finale Position nach Momentum
       const finalIndex = Math.round(event.contentOffset.x / TOTAL_GRID_WIDTH);
       context.lastVisibleIndex = finalIndex;
-      
+
       runOnJS(updateContextFromScroll)(event.contentOffset.x);
+
+
     }
   });
 
   // Reanimated scroll handler für Content ScrollView (unten)
   const onScrollContentList = useAnimatedScrollHandler({
     onScroll: (event) => {
+      'worklet';
       if (isScrollingFromHeader.value) return;
       
       isScrollingFromContent.value = true;
@@ -267,11 +271,12 @@ const CalendarWeek = ({
     },
     onEndDrag: (event) => {
       isScrollingFromContent.value = false;
-     // Update context when user lifts finger on content (not on header!)
-      runOnJS(updateContextFromScroll)(event.contentOffset.x);
     },
-    onMomentumEnd: () => {
+    onMomentumEnd: (event) => {
+      if (isScrollingFromHeader.value) return;
       isScrollingFromContent.value = false;
+      console.log("updateContextFromScroll 2");
+      runOnJS(updateContextFromScroll)(event.contentOffset.x);
     }
   });
 
@@ -315,7 +320,7 @@ const CalendarWeek = ({
         }]}>
           <CalendarWeekNumber />
           <CalendarWeekHorizontalList 
-            ref={headerScrollRef as React.Ref<Animated.FlatList<CalendarWeekHorizontalListProps>>}
+            ref={headerScrollRef as React.Ref<LegendListRef>}
             selected={new Date()}
             onScroll={onScrollHorizontalList} />
         </View>
@@ -346,10 +351,8 @@ const CalendarWeek = ({
               scrollEventThrottle={16}
               bounces={false}
               style={{ width: TOTAL_GRID_WIDTH }}>
-
-                <CalendarHourGrid numberOfDays={7} />
                 <CalendarWeekHorizontalGridList
-                  ref={contentScrollRef}
+                  ref={contentScrollRef as React.Ref<LegendListRef>}
                   onScroll={onScrollContentList} />
             </Animated.ScrollView>
           </View>

@@ -1,11 +1,13 @@
 import React, { createContext, PropsWithChildren, useContext, useState } from "react";
+import { Dimensions } from "react-native";
 import { createStore, StoreApi, useStore } from "zustand";
 import { endOfWeek, getMonth, getYear, Month, startOfWeek } from "date-fns";
+
 import { DatesInMonthInfoProps, getDatesInMonth, getWeekNumber, getWeeks, WeeksObjInfoProps } from "@codemize/helpers/DateTime";
+import { STYLES } from "@codemize/constants/Styles";
 
 import { getLocalization } from "@/helpers/System";
-import { STYLES } from "@codemize/constants/Styles";
-import { Dimensions } from "react-native";
+import { ConvexEventsAPIProps } from "../../../packages/backend/Types";
 
 export const WEEKS_IN_PAST = 104;
 export const WEEKS_IN_FUTURE = 156;
@@ -112,7 +114,7 @@ export type CalendarCachedMonthsHorizontalProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type CalendarContextProps = {
   now: Date;
@@ -130,6 +132,8 @@ export type CalendarContextProps = {
   setIsTodayPressed: (isTodayPressed: boolean) => void;
   selected: Date;
   setSelected: (selected: Date) => void;
+  events: ConvexEventsAPIProps[];
+  setEvents: (events: ConvexEventsAPIProps[]) => void;
 }
 
 const CACHED_MONTHS = new Map<number, DatesInMonthInfoProps>();
@@ -226,6 +230,8 @@ export const store = (
   setIsTodayPressed: (isTodayPressed: boolean) => set((state) => ({ ...state, isTodayPressed })),
   selected: now,
   setSelected: (selected: Date) => set((state) => ({ ...state, selected })),
+  events: [],
+  setEvents: (events: ConvexEventsAPIProps[]) => set((state) => ({ ...state, events })),
 }));
 
 /**

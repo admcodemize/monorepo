@@ -31,6 +31,8 @@
     "@react-navigation/native": "^7.1.8",
     "@sentry/react-native": "^7.0.1",
     "@legendapp/list": "^2.0.14",
+    "@clerk/clerk-expo": "^2.19.2",
+    "@clerk/types": "^4.101.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "convex": "^1.27.0",
     "convex-helpers": "^0.1.104",

@@ -50,36 +50,29 @@ const CalendarMonth = ({
   const height = useSharedValue<number>(COLLAPSED_HEIGHT);
   const weeks = useSharedValue<number>(months.get(index)?.weeks.length ?? 5);
 
-  /** @description Local state for the expanded state of the month calendar -> Used for re-rendering the month calendar when parent component updates the shared value */
-  const [isExpandedInternal, setIsExpandedInternal] = React.useState<boolean>(false);
-
-  /** 
-   * @description Updates the height of the month calendar
-   * @param {number} weeks - The weeks count of the month
-   * @see {@link @/components/calendar/month/CalendarMonthList} */
-  const updateHeight = (weeks: number) => {
-    const targetHeight = (weeks * WEEK_HEIGHT) + HEADER_HEIGHT + (weeks * 2.25);
-    height.value = withTiming(isExpanded.value ? targetHeight : COLLAPSED_HEIGHT, {
-      duration: timingDuration,
-    });
+  /**
+   * @description Handles the weeks change event by updating the shared value.
+   * The animated reaction below will react to this change and adjust the height. */
+  const onWeeksChange = (nextWeeks: number) => {
+    weeks.value = nextWeeks;
   };
 
-  /** 
-   * @description Handles the weeks change event for updating the height of the month calendar
-   * @param {number} weeks - The weeks count of the month
-   * @see {@link @/components/calendar/month/CalendarMonthList} */
-  const onWeeksChange = (weeks: number) => updateHeight(weeks);
-
-  /** @description Watch the shared value and update local state */
-  useAnimatedReaction(
-    () => isExpanded.value,
-    (currentValue) => runOnJS(setIsExpandedInternal)(currentValue)
-  );
-
-  /** @description Update the height of the month calendar when the expanded state changes */
   React.useEffect(() => {
-    updateHeight(weeks.value);
-  }, [isExpandedInternal]);
+    const currentWeeks = months.get(index)?.weeks.length ?? 5;
+    weeks.value = currentWeeks;
+  }, [index, months, weeks]);
+  
+  /** @description Animated reaction to the weeks change event and adjust the height */
+  useAnimatedReaction(
+    () => ({ expanded: isExpanded.value, weekCount: weeks.value }),
+    ({ expanded, weekCount }) => {
+      const target = expanded
+        ? weekCount * WEEK_HEIGHT + HEADER_HEIGHT + weekCount * 2.25
+        : COLLAPSED_HEIGHT;
+  
+      height.value = withTiming(target, { duration: timingDuration });
+    },
+  );
   
   /** @description Animated style for the month calendar -> Used for the reanimated styling */
   const animatedStyle = useAnimatedStyle(() => {

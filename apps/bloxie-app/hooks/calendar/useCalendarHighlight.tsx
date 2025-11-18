@@ -1,5 +1,5 @@
 import { useCalendarContextStore } from "@/context/CalendarContext";
-import { getMonth, isEqual, isToday, isWeekend, isWithinInterval, max, min } from "date-fns";
+import { isEqual, isToday, isWeekend } from "date-fns";
 import { useThemeColors } from "../theme/useThemeColor";
 
 /**

@@ -3,6 +3,9 @@ import * as React from 'react';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TrayProvider } from 'react-native-trays';
+import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ConvexProviderWithClerk } from "convex/react-clerk";
+
 import { initSentry } from "@codemize/helpers/Sentry";
 
 import { Inter_100Thin, Inter_300Light, Inter_500Medium, Inter_600SemiBold, Inter_800ExtraBold, useFonts } from '@expo-google-fonts/inter';
@@ -13,9 +16,12 @@ import { StatusBar } from 'expo-status-bar';
 import { isNetworkConnected } from "@/helpers/Network";
 import { stackConfigs, trays } from "@/helpers/Trays";
 import { getVersion } from '@/helpers/System';
+import { tokenCache } from '@/utils/auth/cache';
+import { convex } from '@/utils/backend/convex';
 
 import SafeAreaContextViewBase from '@/components/container/SafeAreaContextView';
 
+import CalendarProvider from '@/context/CalendarContext';
 import DropdownProvider from "@/context/DropdownContext";
 
 import "@/i18n";
@@ -77,8 +83,9 @@ const StartSlot = () => {
  * @author Marc Stöckli - Codemize GmbH
  * @description Root layout component
  * @since 0.0.1
- * @version 0.0.1 */
+ * @version 0.0.2 */
 const RootLayout = () => {
+  initSentry({ version: getVersion() || "0.0.1" });
   const [isAppReady, setIsAppReady] = React.useState(false);
 
   /** @description Load custom fonts */
@@ -92,7 +99,6 @@ const RootLayout = () => {
 
   React.useEffect(() => {
     if (!hasFontsLoaded) return;
-    initSentry({ version: getVersion() || "0.0.1" });
     (async () => setIsAppReady(true))();
   }, [hasFontsLoaded]);
 
@@ -116,9 +122,19 @@ const RootLayout = () => {
       onLayout={onLayoutRootView}>
         <StatusBar style="auto" />
         <GestureHandlerRootView>
-          
-          <StartSlot />
-          
+          <ClerkProvider
+            tokenCache={tokenCache}
+            publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+              <ClerkLoaded>
+                <ConvexProviderWithClerk
+                  client={convex} 
+                  useAuth={useAuth}>
+                <CalendarProvider now={new Date()}>
+                  <StartSlot />
+                </CalendarProvider>
+                </ConvexProviderWithClerk>
+              </ClerkLoaded>
+          </ClerkProvider>
         </GestureHandlerRootView>
     </SafeAreaProvider>
   );

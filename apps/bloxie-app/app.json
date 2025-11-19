@@ -10,6 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.codemize.bloxie",
       "appleTeamId": "R247V95WCZ",
       "associatedDomains": [
@@ -63,6 +64,9 @@
         "url": "https://sentry.io/",
         "project": "react-native",
         "organization": "codemize-gmbh"
+      }],
+      ["@react-native-google-signin/google-signin", {
+        "iosUrlScheme": "com.googleusercontent.apps.666953031943-gl30ibjglicn13hna67upqn2a2mt6obl"
       }]
     ],
     "experiments": {

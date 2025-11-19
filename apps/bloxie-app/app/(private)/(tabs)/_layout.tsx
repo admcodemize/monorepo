@@ -7,6 +7,7 @@ import React from "react";
 import Calendar from "@/components/calendar/Calendar";
 import TouchableFloationAction from "@/components/button/TouchableFloatingAction";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
+import TouchableHapticGoogle from "@/components/button/oauth/TouchableHapticGoogle";
 
 /**
  * @public

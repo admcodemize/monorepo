@@ -109,7 +109,6 @@ const CalendarWeek = ({
   //const cached = useCalendarContextStore((state) => state.cached);
  const weeksHorizontal = useCalendarContextStore((state) => state.cached.weeksHorizontal);
 
-
   /** 
    * @description Used to set the today pressed state for further processing in the root footer component when clicking the today button
    * -> handles the scrolling to the current week when the today button is pressed

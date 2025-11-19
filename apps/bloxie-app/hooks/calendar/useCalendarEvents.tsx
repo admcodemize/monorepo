@@ -1,5 +1,5 @@
 import * as React from "react";
-import { isEqual } from "date-fns";
+import { isEqual, startOfDay } from "date-fns";
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../packages/backend/convex/_generated/api";
@@ -26,7 +26,7 @@ type UseCalendarEventsProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description - Sets the events stored in convex and all the connected calendars
  * @since 0.0.8
- * @version 0.0.1 */
+ * @version 0.0.2 */
 export function useCalendarEvents({
   convexUser,
   componentId = "calendar",
@@ -66,12 +66,13 @@ export function useCalendarEvents({
       let _startDate: Date|null = null;
 
       events.forEach((event) => {
-        if (!_startDate || !isEqual(new Date(event.start).setHours(0, 0, 0, 0), _startDate.setHours(0, 0, 0, 0))) {
+        const date = startOfDay(new Date(event.start));
+        if (!_startDate || !isEqual(date, _startDate)) {
           _events.push({
-            ..._getInitialAPIObj(new Date(event.start)),
+            ..._getInitialAPIObj(date),
             //isListHeader: true
           });
-          _startDate = new Date(event.start);
+          _startDate = date;
         } _events.push({
             ...event,
             //isListHeader: false
@@ -85,6 +86,6 @@ export function useCalendarEvents({
 
     console.log("events", events);
     
-    setTimeout(() => onFetchFinished(), 1000);
+    setTimeout(() => onFetchFinished(), 3000);
   }, [events, _getInitialAPIObj, onFetchFinished, setEvents]);
 }

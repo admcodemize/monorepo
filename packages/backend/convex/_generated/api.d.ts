@@ -11,8 +11,14 @@
 import type * as auth_httpActions from "../auth/httpActions.js";
 import type * as auth_mutation from "../auth/mutation.js";
 import type * as auth_query from "../auth/query.js";
+import type * as http_integrations_google from "../http/integrations/google.js";
+import type * as http from "../http.js";
 import type * as sync_events_mutation from "../sync/events/mutation.js";
 import type * as sync_events_query from "../sync/events/query.js";
+import type * as sync_integrations_action from "../sync/integrations/action.js";
+import type * as sync_integrations_google_action from "../sync/integrations/google/action.js";
+import type * as sync_integrations_mutation from "../sync/integrations/mutation.js";
+import type * as sync_integrations_query from "../sync/integrations/query.js";
 
 import type {
   ApiFromModules,
@@ -32,8 +38,14 @@ declare const fullApi: ApiFromModules<{
   "auth/httpActions": typeof auth_httpActions;
   "auth/mutation": typeof auth_mutation;
   "auth/query": typeof auth_query;
+  "http/integrations/google": typeof http_integrations_google;
+  http: typeof http;
   "sync/events/mutation": typeof sync_events_mutation;
   "sync/events/query": typeof sync_events_query;
+  "sync/integrations/action": typeof sync_integrations_action;
+  "sync/integrations/google/action": typeof sync_integrations_google_action;
+  "sync/integrations/mutation": typeof sync_integrations_mutation;
+  "sync/integrations/query": typeof sync_integrations_query;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

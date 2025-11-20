@@ -46,7 +46,7 @@ export const get = query({
             .collect()
         ) : []
       ),
-      
+
       /** @description 3. Get events where current user is a participant */
       /*ctx.db.query("events")
         .filter((q) => q.and(

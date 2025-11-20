@@ -2,6 +2,17 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 /**
+ * @since 0.0.9
+ * @version 0.0.1
+ * @description Schema definition for table "encryptedToken"
+ * @constant */
+export const encryptedTokenSchema = {
+  iv: v.string(),
+  value: v.string(),
+  tag: v.string(),
+}
+
+/**
  * @since 0.0.1
  * @version 0.0.1
  * @description Schema definition for table "users"
@@ -62,6 +73,20 @@ export const eventSchema = {
   isRepeating: v.optional(v.boolean()),
 }
 
+/**
+ * @since 0.0.9
+ * @version 0.0.1
+ * @description Schema definition for table "events"
+ * @interface */
+export const linkedSchema = {
+  userId: v.id("users"),
+  provider: v.string(),
+  providerId: v.string(),
+  email: v.string(),
+  scopes: v.optional(v.array(v.string())),
+  refreshToken: v.object(encryptedTokenSchema),
+}
+
 export default defineSchema({
   /**
    * @since 0.0.1
@@ -83,8 +108,7 @@ export default defineSchema({
    * @version 0.0.1
    * @description Schema definition for table "times"
    * @type */
-  times: defineTable(timesSchema)
-    .index("byUserId", ["userId"]),
+  times: defineTable(timesSchema).index("byUserId", ["userId"]),
 
   /**
    * @since 0.0.1
@@ -92,4 +116,11 @@ export default defineSchema({
    * @description Schema definition for table "events"
    * @type */
   events: defineTable(eventSchema).index("byUserId", ["userId"]),
+
+  /**
+   * @since 0.0.9
+   * @version 0.0.1
+   * @description Schema definition for table "linked"
+   * @type */
+  linked: defineTable(linkedSchema).index("byUserId", ["userId"]),
 });

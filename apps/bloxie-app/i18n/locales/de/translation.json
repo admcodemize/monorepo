@@ -95,6 +95,22 @@
           }
         }
       }
+    },
+    "convex": {
+      "http": {
+        "integrations": {
+          "google": {
+            "error": {
+              "clientIdOrSecretNotFound": "Google Client ID oder Secret nicht gefunden.",
+              "missingRefreshToken": "Refresh Token nicht gefunden."
+            },
+            "success": {
+              "callback": "Callback erfolgreich.",
+              "linkOrUpdate": "Account erfolgreich verknüpft oder aktualisiert."
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -3,6 +3,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 /**
  * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
  * @version 0.0.1
  * @type */
@@ -51,6 +52,7 @@ export type ConvexUsersAPIProps = {
 
 /**
  * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
  * @version 0.0.1
  * @type */
@@ -71,6 +73,7 @@ export type ConvexSettingsAPIProps = {
 
 /**
  * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
  * @version 0.0.1
  * @type */
@@ -83,4 +86,16 @@ export type ConvexTimesAPIProps = {
   start: string;
   end: string;
   isBlocked: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.9
+ * @version 0.0.1
+ * @type */
+export type EncryptedToken = {
+  iv: string;
+  value: string;
+  tag: string;
 }

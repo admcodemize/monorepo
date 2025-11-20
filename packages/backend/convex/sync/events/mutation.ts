@@ -3,8 +3,8 @@ import { eventSchema } from "../../schema";
 
 /**
  * @public
- * @since 0.0.9
- * @version 0.0.9
+ * @since 0.0.8
+ * @version 0.0.1
  * @description Handles the internal database mutation for newly created clerk user
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0

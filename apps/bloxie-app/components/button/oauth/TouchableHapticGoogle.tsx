@@ -7,13 +7,13 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { config } from "@/utils/integrations/google";
+import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
 
 const TouchableHapticGoogle = () => {
 
   const startSignInFlow = async () => {
     const scopes = [
       "https://www.googleapis.com/auth/calendar",
-      "openid",
     ];
 
     /**
@@ -34,8 +34,24 @@ const TouchableHapticGoogle = () => {
 
     GoogleSignin.configure(googleConfig);
 
-    GoogleOneTapSignIn.presentExplicitSignIn(googleConfig).then((response) => {
-      console.log("Explicit sign in success:", response);
+    GoogleOneTapSignIn.presentExplicitSignIn(googleConfig).then(async(res) => {
+      console.log("Explicit sign in success:", res);
+      console.log((`${process.env.EXPO_PUBLIC_CONVEX_SITE}/integrations/google/oauth/exchange`));
+
+      const a = await fetch(`${process.env.EXPO_PUBLIC_CONVEX_SITE}/integrations/google/oauth/exchange`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serverAuthCode: res.serverAuthCode,
+          googleUser: {
+            id: res.user.id,
+            email: res.user.email,
+          },
+          userId: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">,
+        }),
+      });
+      console.log("a:", a);
+
     }).catch((error) => {
       console.error("Explicit sign in failed:", error);
     });

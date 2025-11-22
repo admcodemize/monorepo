@@ -3,6 +3,22 @@ import { v } from 'convex/values';
 
 /**
  * @public
+ * @since 0.0.10
+ * @version 0.0.1
+ * @description Returns the linked account by id
+ * @param {Object} param0
+ * @param {string} param0._id - Linked account id
+ * @function */
+export const linkedById = internalQuery({
+  args: { _id: v.id('linked') },
+  handler: async ({ db }, { _id }) => db
+    .query('linked')
+    .withIndex('by_id', (q) => q.eq('_id', _id))
+    .unique()
+});
+
+/**
+ * @public
  * @since 0.0.9
  * @version 0.0.1
  * @description Returns the linked account by provider id
@@ -16,22 +32,18 @@ export const linkedByProviderId = internalQuery({
   args: {
     userId: v.id('users'),
     provider: v.string(),
-    providerId: v.string(),
-    email: v.string(),
+    providerId: v.string()
   },
-  handler: async ({ db }, args) => {
-    return db
-      .query('linked')
-      .withIndex('byUserId', (q) => q.eq('userId', args.userId))
-      .filter((q) =>
-        q.and(
-          q.eq(q.field('provider'), args.provider),
-          q.eq(q.field('providerId'), args.providerId),
-          q.eq(q.field('email'), args.email)
-        )
+  handler: async ({ db }, args) => db
+    .query('linked')
+    .withIndex('byUserId', (q) => q.eq('userId', args.userId))
+    .filter((q) =>
+      q.and(
+        q.eq(q.field('provider'), args.provider),
+        q.eq(q.field('providerId'), args.providerId)
       )
-      .unique();
-  },
+    )
+    .unique()
 });
 
 /**

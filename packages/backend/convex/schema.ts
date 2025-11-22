@@ -6,10 +6,50 @@ import { v } from "convex/values";
  * @version 0.0.1
  * @description Schema definition for table "encryptedToken"
  * @constant */
-export const encryptedTokenSchema = {
+export const encryptedTokenSchemaObj = {
   iv: v.string(),
   value: v.string(),
   tag: v.string(),
+}
+
+/**
+ * @since 0.0.10
+ * @version 0.0.1
+ * @description Schema definition for additional information for the Google integration
+ * @interface */
+export const googleSchemaObj = {
+  calendarId: v.string(),
+  watchId: v.string(),
+  resourceId: v.string(),
+  expiration: v.float64(),
+  nextSyncToken: v.string(),
+  lastSyncToken: v.string(),
+}
+
+/**
+ * @since 0.0.10
+ * @version 0.0.1
+ * @description Schema definition for additional information for the event user such as creator, organizer and more
+ * @interface */
+export const eventUserInformationSchemaObj = {
+  email: v.string(),
+  self: v.boolean(),
+  displayName: v.optional(v.string()),
+  _id: v.optional(v.id("users"))
+}
+
+/**
+ * @since 0.0.10
+ * @version 0.0.1
+ * @description Schema definition for additional information for the watch -> Used for the schema linked and watch
+ * -> Calendar integrations such as Google, Apple, etc.
+ * @interface */
+export const watchSchemaObj = {
+  id: v.string(),
+  resourceId: v.string(),
+  expiration: v.float64(),
+  nextSyncToken: v.string(),
+  lastSyncToken: v.string(),
 }
 
 /**
@@ -65,26 +105,59 @@ export const eventSchema = {
   start: v.string(),
   title: v.string(),
   descr: v.optional(v.string()),
-  reminder: v.optional(v.string()),
-  participants: v.optional(v.array(v.id("users"))),
+  calendarId: v.optional(v.string()),
+  htmlLink: v.optional(v.string()),
+  visibility: v.optional(v.string()),
+  creator: v.optional(v.object(eventUserInformationSchemaObj)),
+  organizer: v.optional(v.object(eventUserInformationSchemaObj)),
+  attendees: v.optional(v.array(v.object({
+    email: v.string(),
+    name: v.string(),
+    responseStatus: v.union(v.literal("accepted"), v.literal("declined"), v.literal("tentative"), v.literal("needsAction")),
+    _id: v.optional(v.id("users")),
+  }))),
+  type: v.optional(v.union(v.literal("default"), v.literal("focusTime"), v.literal("workingLocation"), v.literal("outOfOffice"), v.literal("task"), v.literal("birthday"), v.literal("fromGmail"))),
   tags: v.optional(v.array(v.id("tags"))),
-  location: v.optional(v.string()),
-  isPrivate: v.optional(v.boolean()),
-  isRepeating: v.optional(v.boolean()),
+  recurring: v.optional(v.object({
+    eventId: v.optional(v.string()),
+    isRecurring: v.optional(v.boolean()),
+  })),
+  location: v.optional(v.object({
+    name: v.string(),
+    conferenceData: v.optional(v.object({
+      id: v.string(),
+      link: v.string(),
+    })),
+    isAddress: v.boolean(),
+    isConference: v.boolean(),
+  })),
 }
 
 /**
  * @since 0.0.9
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for table "events"
  * @interface */
 export const linkedSchema = {
   userId: v.id("users"),
   provider: v.string(),
   providerId: v.string(),
+  providerWatchId: v.array(v.id("watch")),
   email: v.string(),
   scopes: v.optional(v.array(v.string())),
-  refreshToken: v.object(encryptedTokenSchema),
+  refreshToken: v.object(encryptedTokenSchemaObj),
+  watch: v.object(watchSchemaObj)
+}
+
+
+/**
+ * @since 0.0.10
+ * @version 0.0.1
+ * @description Schema definition for table "watch" -> Handles the additional information for the linked provider account(s)
+ * @interface */
+export const watchSchema = {
+  calendarId: v.string(),
+  watch: v.object(watchSchemaObj)
 }
 
 export default defineSchema({
@@ -123,4 +196,11 @@ export default defineSchema({
    * @description Schema definition for table "linked"
    * @type */
   linked: defineTable(linkedSchema).index("byUserId", ["userId"]),
+
+  /**
+   * @since 0.0.10
+   * @version 0.0.1
+   * @description Schema definition for table "linkedProvider" -> Handles the additional information for the linked provider account
+   * @type */
+  watch: defineTable(watchSchema),
 });

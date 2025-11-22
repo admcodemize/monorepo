@@ -2,8 +2,6 @@
 import { v } from "convex/values";
 import { internalAction } from "../../_generated/server";
 import crypto from "node:crypto";
-import { internal } from "../../_generated/api";
-import { encryptedTokenSchema } from "../../schema";
 
 const ALGO = "aes-256-gcm";
 
@@ -48,7 +46,7 @@ export const encryptedToken = internalAction({
  * @description Converts an encrypted token to a decrypted string
  * @since 0.0.9
  * @version 0.0.1
- * @param {EncryptedToken} encryptedToken - The encrypted token to convert */
+ * @param {EncryptedTokenProps} encryptedToken - The encrypted token to convert */
 export const decryptedToken = internalAction({
   args: { encryptedToken: v.object({
     iv: v.string(),

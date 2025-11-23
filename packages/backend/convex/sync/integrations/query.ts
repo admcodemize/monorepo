@@ -1,3 +1,4 @@
+import { ConvexCalendarAPIProps } from '../../../Types';
 import { internalQuery } from '../../_generated/server';
 import { v } from 'convex/values';
 
@@ -61,3 +62,16 @@ export const linkedByUser = internalQuery({
     .withIndex('byUserId', (q) => q.eq('userId', userId))
     .collect()
 });
+
+/**
+ * @public
+ * @since 0.0.11
+ * @version 0.0.1
+ * @description Returns the calendar by id
+ * @param {Object} param0
+ * @param {Id<"calendar">} param0._id - The convex calendar id to get
+ * @function */
+export const calendarById = internalQuery({
+  args: { _id: v.id('calendar') },
+  handler: async ({ db }, { _id }) => await db.get(_id) as ConvexCalendarAPIProps
+})

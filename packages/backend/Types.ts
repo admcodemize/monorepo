@@ -9,23 +9,84 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
  * @type */
 export type ConvexTimesAPITypeEnum = "weekdays" | "dates";
 
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @type */
+export type ConvexEventsAPIUserInformationProps = {
+  email: string;
+  self: boolean;
+  displayName?: string;
+  _id?: Id<"users">;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @type */
+export type ConvexEventsAPIAttendeesProps = {
+  email: string;
+  name: string;
+  responseStatus: IntegrationAPICalendarEventResponseStatusEnum;
+  _id?: Id<"users">;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @type */
+export type ConvexEventsAPIRecurringProps = {
+  eventId: string;
+  isRecurring: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @type */
+export type ConvexEventsAPILocationProps = {
+  name: string;
+  conferenceData?: {
+    id: string;
+    link: string;
+  };
+  isAddress: boolean;
+  isConference: boolean;
+}
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.3
  * @type */
 export type ConvexEventsAPIProps = {
   _id?: Id<"events">;
   _creationTime?: number;
-  userId: string;
+  userId: Id<"users">;
   start: string;
   end: string;
   title: string;
-  descr?: string;
+  description?: string;
   calendarId?: string;
-  type?: APIGoogleCalendarEventTypeEnum;
+  eventProviderId?: string;
+  backgroundColor?: string;
+  htmlLink?: string;
+  visibility?: IntegrationAPICalendarVisibilityEnum;
+  creator?: ConvexEventsAPIUserInformationProps;
+  organizer?: ConvexEventsAPIUserInformationProps;
+  attendees?: ConvexEventsAPIAttendeesProps[];
+  type?: IntegrationAPICalendarEventTypeEnum;
+  recurring?: ConvexEventsAPIRecurringProps;
+  location?: ConvexEventsAPILocationProps
 }
 
 /**
@@ -85,10 +146,28 @@ export type ConvexTimesAPIProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @type */
+export type ConvexCalendarAPIProps = {
+  _id?: Id<"calendar">;
+  _creationTime?: number;
+  id: string;
+  accessRole: IntegrationAPICalendarAccessRoleEnum;
+  backgroundColor: string;
+  description: string;
+  foregroundColor: string;
+  primary: boolean;
+  watch?: ConvexCalendarWatchAPIProps;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
  * @version 0.0.1
  * @type */
-export type ConvexWatchProps = {
+export type ConvexCalendarWatchAPIProps = {
   id: string;
   resourceId: string;
   expiration: number;
@@ -144,11 +223,12 @@ export type EncryptedTokenProps = {
  * @since 0.0.10
  * @version 0.0.1
  * @type */
-export type APIGoogleCalendarEventProps = {
+export type IntegrationAPIGoogleCalendarEventProps = {
   kind: string;
   etag: string;
   id: string;
-  status: string;
+  colorId: string;
+  status: IntegrationAPICalendarEventStatusEnum;
   htmlLink?: string;
   created?: string;
   updated?: string;
@@ -163,14 +243,14 @@ export type APIGoogleCalendarEventProps = {
     email: string;
     displayName: string;
   };
-  start: APIGoogleCalendarEventStartEndProps;
-  end: APIGoogleCalendarEventStartEndProps;
+  start: IntegrationAPICalendarEventStartEndProps;
+  end: IntegrationAPICalendarEventStartEndProps;
   iCalUID?: string;
   sequence?: number;
   attendees?: {
     email: string;
     self: boolean;
-    responseStatus: APIGoogleCalendarEventResponseStatusEnum;
+    responseStatus: IntegrationAPICalendarEventResponseStatusEnum;
     organizer: boolean;
   }[];
   attachments?: {
@@ -180,26 +260,15 @@ export type APIGoogleCalendarEventProps = {
   }[];
   guestsCanInviteOthers?: boolean;
   privateCopy?: boolean;
-  eventType?: APIGoogleCalendarEventTypeEnum;
+  visibility?: IntegrationAPICalendarVisibilityEnum;
+  eventType?: IntegrationAPICalendarEventTypeEnum;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.1
- * @type */
-export type APIGoogleCalendarEventStartEndProps = {
-  date?: string;
-  dateTime?: string;
-  timeZone?: string;
-}
-
-/**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @type
  * @example 
  * { kind: 'calendar#events',
@@ -212,7 +281,7 @@ export type APIGoogleCalendarEventStartEndProps = {
  * defaultReminders: [],
  * nextSyncToken: 'CIz0mpGG15ADEIz0mpGG15ADGAEg1MSwjQMo1MSwjQM='
  * nextPageToken: 'CIz0mpGG15ADEIz0mpGG15ADGAEg1MSwjQMo1MSwjQM=' } */
-export type APIGoogleCalendarEventsProps = {
+export type IntegrationAPIGoogleCalendarEventsProps = {
   kind: string;
   etag: string;
   summary: string;
@@ -223,14 +292,14 @@ export type APIGoogleCalendarEventsProps = {
   defaultReminders: {}[];
   nextSyncToken?: string;
   nextPageToken?: string;
-  items: APIGoogleCalendarEventProps[];
+  items: IntegrationAPIGoogleCalendarEventProps[];
 }
 
 /** 
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @type
  * @example
  * { access_token: 'ya29.a..0206',
@@ -239,7 +308,7 @@ export type APIGoogleCalendarEventsProps = {
  *   scope: 'openid https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events.owned https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.events',
  *   token_type: 'Bearer',
  *   id_token: 'ey...D} */
-export type APIGoogleCalendarTokenExchangeProps = {
+export type IntegrationAPIGoogleCalendarTokenExchangeProps = {
   access_token: string;
   expires_in: number;
   refresh_token: string;
@@ -252,7 +321,7 @@ export type APIGoogleCalendarTokenExchangeProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @type
  * @example
  * { kind: 'api#channel',
@@ -261,12 +330,12 @@ export type APIGoogleCalendarTokenExchangeProps = {
  *   resourceUri: 'https://www.googleapis.com/calendar/v3/calendars/primary/events?alt=json',
  *   token: '{"userId":"j97bzw0450931g8rfqmmx38xh57vnhhz","linkedId":"jx74d1nv330x6600fhkmwb9j5s7vsycq","calendarId":"primary"}',
  *   expiration: '1764326169000' } */
-export type APIGoogleCalendarChannelWatchProps = {
-  kind: string;
+export type IntegrationAPIGoogleCalendarChannelWatchProps = {
+  kind?: string;
   id: string;
   resourceId: string;
-  resourceUri: string;
-  token: string;
+  resourceUri?: string;
+  token?: string;
   expiration: number;
 }
 
@@ -274,7 +343,7 @@ export type APIGoogleCalendarChannelWatchProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @type
  * @example
  * { etag: '"p32fod5uqqi2p20o"',
@@ -297,7 +366,7 @@ export type APIGoogleCalendarChannelWatchProps = {
   }],
   kind: 'calendar#calendarList',
   nextSyncToken: 'CJ-Gl9rUhZEDEhRzdG9lY2tsaW03QGdtYWlsLmNvbQ==' } */
-export type APIGoogleCalendarListProps = {
+export type IntegrationAPIGoogleCalendarListProps = {
   etag: string;
   items: {
     accessRole: string;
@@ -311,6 +380,7 @@ export type APIGoogleCalendarListProps = {
       minutes: number;
     }[];
     etag: string;
+    description?: string;
     foregroundColor: string;
     id: string;
     kind: string;
@@ -329,10 +399,54 @@ export type APIGoogleCalendarListProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @type
+ * @example
+ * { kind: 'calendar#colors',
+  updated: '2012-02-14T00:00:00.000Z',
+  calendar: {
+    '1': { background: '#ac725e', foreground: '#1d1d1d' },
+  },
+  event: {
+    '1': { background: '#a4bdfc', foreground: '#1d1d1d' },
+  } } */
+export type IntegrationAPIGoogleCalendarColorsProps = {
+  kind: string;
+  updated: string;
+  calendar: {
+    background: string;
+    foreground: string;
+  }[];
+  event: {
+    background: string;
+    foreground: string;
+  }[];
+}
+
+/** 
+ * @description GENERAL INTEGRATION TYPES WHICH ARE NOT SPECIFIC TO A PROVIDER
+ * ------------------------------------------------------------> */
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.10
+ * @version 0.0.2
+ * @type */
+export type IntegrationAPICalendarEventStartEndProps = {
+  date?: string;
+  dateTime?: string;
+  timeZone?: string;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
  * @version 0.0.1
  * @enum */
-export enum APIGoogleCalendarEventTypeEnum {
+export enum IntegrationAPICalendarEventTypeEnum {
   DEFAULT = "default",
   FOCUS_TIME = "focusTime",
   WORKING_LOCATION = "workingLocation",
@@ -345,12 +459,49 @@ export enum APIGoogleCalendarEventTypeEnum {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.10
+ * @since 0.0.11
  * @version 0.0.1
  * @enum */
-export enum APIGoogleCalendarEventResponseStatusEnum {
+export enum IntegrationAPICalendarVisibilityEnum {
+  PUBLIC = "public",
+  PRIVATE = "private",
+  CONFIDENTIAL = "confidential"
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.10
+ * @version 0.0.2
+ * @enum */
+export enum IntegrationAPICalendarEventResponseStatusEnum {
   ACCEPTED = "accepted",
   DECLINED = "declined",
   TENTATIVE = "tentative",
-  NEEDS_ACTION = "needsAction"
+  NEEDS_ACTION = "needsAction",
+};
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Status of the calendar event during the watch process -> Called during a webhook when in an integrated provider some data has been changed
+ * @since 0.0.11
+ * @version 0.0.1
+ * @enum */
+export enum IntegrationAPICalendarEventStatusEnum {
+  CONFIRMED = "confirmed",
+  CANCELLED = "cancelled"
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.11
+ * @version 0.0.1
+ * @enum */
+export enum IntegrationAPICalendarAccessRoleEnum {
+  READER = "reader",
+  WRITER = "writer",
+  OWNER = "owner",
+  FREE_BUSY_READER = "freeBusyReader"
 }

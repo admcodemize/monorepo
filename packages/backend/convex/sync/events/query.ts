@@ -1,5 +1,4 @@
-import { Id } from "../../_generated/dataModel";
-import { query } from "../../_generated/server";
+import { internalQuery, query } from "../../_generated/server";
 import { v } from "convex/values";
 
 import { ConvexEventsAPIProps } from "../../../Types";
@@ -13,10 +12,10 @@ import { ConvexEventsAPIProps } from "../../../Types";
  * @param {ConvexEventsAPIProps} event - The event to check
  * @param {Id<"users">} userId - The user id to check
  * @function */
-const isPrivateMemberEvent = (
+/*const isPrivateMemberEvent = (
   event: ConvexEventsAPIProps, 
   userId: Id<"users">|undefined
-): boolean => (event.isPrivate && event.userId !== userId && !event.participants?.includes(userId as Id<"users">)) || false;
+): boolean => (event.isPrivate && event.userId !== userId && !event.participants?.includes(userId as Id<"users">)) || false;*/
 
 /**
  * @public
@@ -69,10 +68,10 @@ export const get = query({
        * -> This is used to translate the title and description for events created by members 
        * -> The location will be hidden for private events by members */
       .map(event => ({
-        ...event,
-        title: isPrivateMemberEvent(event, _id) ? "i18n.calendar.privateTitleForMembers" : event.title,
+        ...event as ConvexEventsAPIProps,
+        /*title: isPrivateMemberEvent(event, _id) ? "i18n.calendar.privateTitleForMembers" : event.title,
         descr: isPrivateMemberEvent(event, _id) ? "i18n.calendar.privateDescriptionForMembers" : event.descr,
-        location: isPrivateMemberEvent(event, _id) ? String() : event.location
+        location: isPrivateMemberEvent(event, _id) ? String() : event.location*/
       }));
   }
 });
@@ -85,11 +84,23 @@ export const get = query({
  * @param {Id<"events">} _id - The event id to get
  * @function */
 export const getById = query({
-  args: {
-    _id: v.optional(v.id("events"))
-  },
-  handler: async (ctx, { _id }): Promise<ConvexEventsAPIProps|null> => {
-    if (!_id) return null;
-    return await ctx.db.get(_id);
-  }
+  args: { _id: v.id("events") },
+  handler: async (ctx, { _id }): Promise<ConvexEventsAPIProps|null> => await ctx.db.get(_id) as ConvexEventsAPIProps
 });
+
+/**
+ * @public
+ * @since 0.0.11
+ * @version 0.0.1
+ * @description Returns the event with the given provider id based on the integrated provider id
+ * @param {string} providerId - The provider id to get
+ * @function */
+export const getByProviderId = internalQuery({
+  args: { providerId: v.string() }, 
+  handler: async (ctx, { providerId }): Promise<ConvexEventsAPIProps|null> => await ctx.db
+    .query("events")
+    .withIndex("byEventProviderId", (q) =>
+      q.eq("eventProviderId", providerId)
+    )
+    .unique() as ConvexEventsAPIProps
+})

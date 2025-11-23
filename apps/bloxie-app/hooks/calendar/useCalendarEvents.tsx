@@ -26,7 +26,7 @@ type UseCalendarEventsProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description - Sets the events stored in convex and all the connected calendars
  * @since 0.0.8
- * @version 0.0.2 */
+ * @version 0.0.3 */
 export function useCalendarEvents({
   convexUser,
   componentId = "calendar",
@@ -54,11 +54,11 @@ export function useCalendarEvents({
    * @function */
   const _getInitialAPIObj = React.useCallback((now: Date): ConvexEventsAPIProps => ({
     _id: `${KEYS.calendarEvent}-${componentId}-${now.toLocaleDateString()}` as Id<"events">,
-    userId: String(),
+    userId: convexUser?._id ?? ("" as Id<"users">),
     title: String(),
     start: now.toDateString(),
     end: now.toDateString(),
-  }), [componentId]);
+  }), [componentId, convexUser?._id]);
 
   React.useEffect(() => {
     if (events instanceof Array && events.length > 0) {

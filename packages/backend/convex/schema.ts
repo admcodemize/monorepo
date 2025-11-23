@@ -96,7 +96,7 @@ export const timesSchema = {
 
 /**
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for table "events"
  * @interface */
 export const eventSchema = {
@@ -104,8 +104,10 @@ export const eventSchema = {
   end: v.string(),
   start: v.string(),
   title: v.string(),
-  descr: v.optional(v.string()),
+  description: v.optional(v.string()),
   calendarId: v.optional(v.string()),
+  eventProviderId: v.optional(v.string()),
+  backgroundColor: v.optional(v.string()),
   htmlLink: v.optional(v.string()),
   visibility: v.optional(v.string()),
   creator: v.optional(v.object(eventUserInformationSchemaObj)),
@@ -117,7 +119,6 @@ export const eventSchema = {
     _id: v.optional(v.id("users")),
   }))),
   type: v.optional(v.union(v.literal("default"), v.literal("focusTime"), v.literal("workingLocation"), v.literal("outOfOffice"), v.literal("task"), v.literal("birthday"), v.literal("fromGmail"))),
-  tags: v.optional(v.array(v.id("tags"))),
   recurring: v.optional(v.object({
     eventId: v.optional(v.string()),
     isRecurring: v.optional(v.boolean()),
@@ -142,22 +143,27 @@ export const linkedSchema = {
   userId: v.id("users"),
   provider: v.string(),
   providerId: v.string(),
-  providerWatchId: v.array(v.id("watch")),
+  calendarsId: v.array(v.id("calendar")),
   email: v.string(),
   scopes: v.optional(v.array(v.string())),
   refreshToken: v.object(encryptedTokenSchemaObj),
   watch: v.object(watchSchemaObj)
 }
 
-
 /**
- * @since 0.0.10
+ * @since 0.0.11
  * @version 0.0.1
- * @description Schema definition for table "watch" -> Handles the additional information for the linked provider account(s)
+ * @description Schema definition for additional information for the calendar(s) within an integrated provider account
+ * -> freeBusyReader: Sees only blocked out times and the status of the calendar without any other information
  * @interface */
-export const watchSchema = {
-  calendarId: v.string(),
-  watch: v.object(watchSchemaObj)
+export const calendarSchema = {
+  id: v.string(),
+  accessRole: v.union(v.literal("reader"), v.literal("writer"), v.literal("owner"), v.literal("freeBusyReader")),
+  backgroundColor: v.string(),
+  description: v.string(),
+  foregroundColor: v.string(),
+  primary: v.boolean(),
+  watch: v.optional(v.object(watchSchemaObj))
 }
 
 export default defineSchema({
@@ -188,19 +194,23 @@ export default defineSchema({
    * @version 0.0.1
    * @description Schema definition for table "events"
    * @type */
-  events: defineTable(eventSchema).index("byUserId", ["userId"]),
+  events: defineTable(eventSchema)
+    .index("byUserId", ["userId"])
+    .index("byEventProviderId", ["eventProviderId"]),
 
   /**
    * @since 0.0.9
    * @version 0.0.1
    * @description Schema definition for table "linked"
    * @type */
-  linked: defineTable(linkedSchema).index("byUserId", ["userId"]),
+  linked: defineTable(linkedSchema)
+    .index("byUserId", ["userId"])
+    .index("byProviderId", ["providerId"]),
 
   /**
-   * @since 0.0.10
+   * @since 0.0.11
    * @version 0.0.1
-   * @description Schema definition for table "linkedProvider" -> Handles the additional information for the linked provider account
+   * @description Schema definition for table "calendar" -> Handles the additional information for each calendar whitin an integrated provider account
    * @type */
-  watch: defineTable(watchSchema),
+  calendar: defineTable(calendarSchema).index("byIntegrationId", ["id"]),
 });

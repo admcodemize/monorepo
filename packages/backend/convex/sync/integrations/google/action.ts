@@ -3,7 +3,15 @@ import { v } from "convex/values";
 import { internal } from "../../../_generated/api";
 import { internalAction } from "../../../_generated/server";
 import { encryptedTokenSchemaObj } from "../../../schema";
-import { APIGoogleCalendarChannelWatchProps, APIGoogleCalendarEventProps, APIGoogleCalendarEventsProps, APIGoogleCalendarListProps, ConvexActionReturnProps, ConvexActionServerityEnum } from "../../../../Types";
+import { 
+  IntegrationAPIGoogleCalendarChannelWatchProps, 
+  IntegrationAPIGoogleCalendarColorsProps, 
+  IntegrationAPIGoogleCalendarEventProps, 
+  IntegrationAPIGoogleCalendarEventsProps, 
+  IntegrationAPIGoogleCalendarListProps, 
+  ConvexActionReturnProps, 
+  ConvexActionServerityEnum 
+} from "../../../../Types";
 
 /**
  * @public
@@ -43,36 +51,30 @@ export const refreshAccessToken = internalAction({
  * @version 0.0.1
  * @description Stops a channel watch for a calendar
  * @param {Object} param0
- * @param {string} param0.linkedId - The linked id to stop the channel watch for
+ * @param {string} param0.channelId - The channel id to stop the channel watch for
+ * @param {string} param0.resourceId - The resource id to stop the channel watch for
  * @param {string} param0.calendarId - The calendar id to stop the channel watch for
  * @function */
 export const stopChannelWatch = internalAction({
   args: {
-    linkedId: v.id('linked'),
-    calendarId: v.string(),
+    channelId: v.string(),
+    resourceId: v.string(),
+    refreshToken: v.object(encryptedTokenSchemaObj),  
   },
-  handler: async ({ runAction, runQuery }, { linkedId, calendarId }) => {
-    /** @description Get the linked google account for the user */
-    const linked = await runQuery(internal.sync.integrations.query.linkedById, { _id: linkedId });
-    if (!linked) throw new Error("i18n.convex.sync.integrations.google.error.linkedNotFound", { cause: linkedId });
-
-    /** @description Get the google account for the calendar which should be stopped the channel watch for */
-    const google = linked.google?.find((google) => google.calendarId === calendarId);
-    if (!google) throw new Error("i18n.convex.sync.integrations.google.error.googleNotFound", { cause: calendarId });
-
+  handler: async ({ runAction, runQuery }, { channelId, resourceId, refreshToken }) => {
     /** @description Refresh the access token for stopping the channel watch */
-    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken: linked.refreshToken });
+    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
 
     /** @description Stop the channel watch for the calendar */
     const res = await fetch(`https://www.googleapis.com/calendar/v3/channels/stop`, {
-      method: 'DELETE',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${access_token}`,
         Accept: 'application/json',
       },
       body: JSON.stringify({ 
-        id: google?.watchId,
-        resourceId: google?.resourceId,
+        id: channelId,
+        resourceId: resourceId,
       })
     });
 
@@ -92,14 +94,14 @@ export const stopChannelWatch = internalAction({
  * @param {Object} param0
  * @param {string} param0.userId - The user id to register the channel watch for
  * @param {string} param0.refreshToken - The refresh token to register the channel watch for
- * @returns {ConvexActionReturnProps<APIGoogleCalendarChannelWatchProps>}
+ * @returns {ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>}
  * @function */
 export const startWatchCalendarLists = internalAction({
   args: {
     userId: v.id('users'),
     refreshToken: v.object(encryptedTokenSchemaObj),
   },
-  handler: async ({ runAction, runQuery }, { userId, refreshToken }): Promise<ConvexActionReturnProps<APIGoogleCalendarChannelWatchProps>> => {
+  handler: async ({ runAction, runQuery }, { userId, refreshToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>> => {
     /** @description Refresh the access token for registering the channel watch */
     const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
     const channelId = crypto.randomUUID();
@@ -121,7 +123,7 @@ export const startWatchCalendarLists = internalAction({
 
     if (!res.ok) return {
       hasErr: true,
-      data: {} as APIGoogleCalendarChannelWatchProps,
+      data: {} as IntegrationAPIGoogleCalendarChannelWatchProps,
       message: {
         statusCode: 500,
         info: await res.text(),
@@ -132,7 +134,7 @@ export const startWatchCalendarLists = internalAction({
 
     return {
       hasErr: false,
-      data: await res.json() as APIGoogleCalendarChannelWatchProps,
+      data: await res.json() as IntegrationAPIGoogleCalendarChannelWatchProps,
       message: {
         statusCode: 200,
         info: "i18n.convex.http.integrations.google.success.watch",
@@ -151,15 +153,17 @@ export const startWatchCalendarLists = internalAction({
  * @param {string} param0.userId - The user id to register the channel watch for
  * @param {string} param0.linkedId - The linked id to register the channel watch for
  * @param {string} param0.calendarId - The calendar id to register the channel watch for
- * @returns {ConvexActionReturnProps<APIGoogleCalendarChannelWatchProps>}
+ * @returns {ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>}
  * @function */
 export const startWatchCalendarEvents = internalAction({
   args: { 
     userId: v.id('users'),
+    providerId: v.string(),
+    convexCalendarId: v.id('calendar'),
     refreshToken: v.object(encryptedTokenSchemaObj),
     calendarId: v.string(),
   },
-  handler: async ({ runAction, runQuery }, { userId, refreshToken, calendarId }): Promise<ConvexActionReturnProps<APIGoogleCalendarChannelWatchProps>> => {
+  handler: async ({ runAction, runQuery }, { userId, providerId, convexCalendarId, refreshToken, calendarId }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>> => {
     /** @description Refresh the access token for registering the channel watch */
     const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
     const channelId = crypto.randomUUID();
@@ -175,14 +179,14 @@ export const startWatchCalendarEvents = internalAction({
         id: channelId,
         type: 'web_hook',
         address: `https://harmless-dodo-18.convex.site/integrations/google/events/watch`,
-        token: JSON.stringify({ userId, calendarId })
+        token: JSON.stringify({ userId, providerId, convexCalendarId, calendarId })
       }),
     });
 
     /** @description Starting the channel watch has failed */
     if (!res.ok) return {
       hasErr: true,
-      data: {} as APIGoogleCalendarChannelWatchProps,
+      data: {} as IntegrationAPIGoogleCalendarChannelWatchProps,
       message: {
         statusCode: 500,
         info: await res.text(),
@@ -193,7 +197,7 @@ export const startWatchCalendarEvents = internalAction({
 
     return {
       hasErr: false,
-      data: await res.json() as APIGoogleCalendarChannelWatchProps,
+      data: await res.json() as IntegrationAPIGoogleCalendarChannelWatchProps,
       message: {
         statusCode: 200,
         info: "i18n.convex.http.integrations.google.success.watch",
@@ -213,7 +217,7 @@ export const startWatchCalendarEvents = internalAction({
  * @function */
 export const fetchCalendarList = internalAction({
   args: { refreshToken: v.object(encryptedTokenSchemaObj) },
-  handler: async ({ runAction }, { refreshToken }): Promise<ConvexActionReturnProps<APIGoogleCalendarListProps>> => {
+  handler: async ({ runAction }, { refreshToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarListProps>> => {
       /** @description Refresh the access token for fetching the calendar events */
     const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
 
@@ -228,7 +232,7 @@ export const fetchCalendarList = internalAction({
     /** @description If the calendar list fetch fails, return the error */
     if (!res.ok) return {
       hasErr: true,
-      data: {} as APIGoogleCalendarListProps,
+      data: {} as IntegrationAPIGoogleCalendarListProps,
       message: {
         statusCode: 500,
         info: await res.text(),
@@ -237,11 +241,13 @@ export const fetchCalendarList = internalAction({
       },
     };
 
-    const data: APIGoogleCalendarListProps = await res.json();
+    const data: IntegrationAPIGoogleCalendarListProps = await res.json();
 
-    /** @description Remove the weeknum calendar from the calendar list */
-    //const idx = data?.items.findIndex((item) => item.id.includes("#weeknum@group.v.calendar.google.com"));
-    //data.items.splice(idx, 1);
+    /** @description Remove the default calendars "weeknum" and "holiday" from the calendar list */
+    ["#weeknum@group.v.calendar.google.com", "holiday@group.v.calendar.google.com"].forEach((calendarId) => {
+      const idx = data?.items.findIndex((item) => item.id.includes(calendarId));
+      if (idx >= 0) data.items.splice(idx, 1);
+    });
 
     return {
       hasErr: false,
@@ -269,10 +275,11 @@ export const fetchCalendarEvents = internalAction({
   args: { 
     calendarId: v.string(),
     refreshToken: v.object(encryptedTokenSchemaObj),
+    nextSyncToken: v.optional(v.string()),
   },
-  handler: async ({ runAction }, { refreshToken, calendarId }): Promise<ConvexActionReturnProps<APIGoogleCalendarEventsProps>> => {
-    let data: APIGoogleCalendarEventsProps;
-    let items: APIGoogleCalendarEventProps[] = [];
+  handler: async ({ runAction }, { refreshToken, calendarId, nextSyncToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarEventsProps>> => {
+    let data: IntegrationAPIGoogleCalendarEventsProps;
+    let items: IntegrationAPIGoogleCalendarEventProps[] = [];
     let nextPageToken: string|undefined;
 
     /** @description Refresh the access token for fetching the calendar events */
@@ -280,11 +287,15 @@ export const fetchCalendarEvents = internalAction({
 
     /** @description Build the query parameters for the calendar events fetch */
     const now: Date = new Date();
-    const params = new URLSearchParams({
+    let params = new URLSearchParams({
       showDeleted: 'false', 
       singleEvents: 'true',
       timeMin: new Date(now.setFullYear(now.getFullYear() - 2)).toISOString(), // 2 years in the past
-    });
+    } as Record<string, string>);
+
+    if (nextSyncToken) params = new URLSearchParams({
+      syncToken: nextSyncToken,
+    } as Record<string, string>);
 
     do {
       /** @description The page token is needed for fetching the next page of calendar events when not all events have been fetched in one request */
@@ -301,7 +312,7 @@ export const fetchCalendarEvents = internalAction({
       /** @description If the calendar events fetch fails, return the error */
       if (!res.ok) return {
         hasErr: true,
-        data: {} as APIGoogleCalendarEventsProps,
+        data: {} as IntegrationAPIGoogleCalendarEventsProps,
         message: {
           statusCode: 500,
           info: await res.text(),
@@ -323,6 +334,37 @@ export const fetchCalendarEvents = internalAction({
     return {
       hasErr: false,
       data,
+      message: {
+        statusCode: 200,
+        severity: ConvexActionServerityEnum.SUCCESS,
+        reason: "BLOXIE_HAR_S02",
+      },
+    };
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.11
+ * @version 0.0.1
+ * @description Fetches the calendar colors from Google
+ * @param {Object} param0
+ * @param {string} param0.refreshToken - The refresh token to fetch the calendar colors
+ * @function */
+export const fetchCalendarColors = internalAction({
+  args: { refreshToken: v.object(encryptedTokenSchemaObj) },
+  handler: async ({ runAction }, { refreshToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarColorsProps>> => {
+    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
+    const res = await fetch("https://www.googleapis.com/calendar/v3/colors", {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        Accept: "application/json",
+      },
+    });
+
+    return {
+      hasErr: false,
+      data: res.ok ? await res.json() : {},
       message: {
         statusCode: 200,
         severity: ConvexActionServerityEnum.SUCCESS,

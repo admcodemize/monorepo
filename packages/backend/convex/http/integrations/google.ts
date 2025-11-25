@@ -183,10 +183,11 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
        * @description Update the calendar watch information
        * -> The watch object is not written to the convex database at the beginning because 
        * the generated convex ID is used for the registration of the calendar watch for the later process flow. */
-      if (_id) await runMutation(internal.sync.integrations.mutation.updateCalendarWatch, {
+      if (_id) await runMutation(internal.sync.integrations.mutation.updateCalendar, {
         _id, 
         /** @description Add the watch events to the linked data watch for further determing of the next sync token to check if a calendar events (created, updated, deleted) has been changed */
         watch: !hasErrWatch ? toWatch(watchEvents, events?.nextSyncToken, events?.nextSyncToken) : null,
+        eventsCount: events?.items?.length ?? 0
       });
     }
 
@@ -262,6 +263,8 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
 
  //console.log("tokenPayload:", tokenPayload);
 
+ console.log("calendar:", calendar);
+
  console.log(req.headers);
 
 
@@ -307,13 +310,14 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
 
   console.log("data:", data);
 
-    await runMutation(internal.sync.integrations.mutation.updateCalendarWatch, {
+    await runMutation(internal.sync.integrations.mutation.updateCalendar, {
       _id: tokenPayload.convexCalendarId as Id<"calendar">,
       watch: toWatch({ 
         id: channelId,
         resourceId: resourceId,
         expiration: expirationMs,
-       }, data.nextSyncToken, calendar.watch.nextSyncToken),
+      }, data.nextSyncToken, calendar.watch.nextSyncToken),
+      eventsCount: data.items?.length ?? 0
     });
 
   // neuer eintrag => "confirmed"

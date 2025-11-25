@@ -1,5 +1,5 @@
 import React from "react";
-import { GestureResponderEvent, View, ViewStyle } from "react-native";
+import { GestureResponderEvent, TextStyle, View, ViewStyle } from "react-native";
 
 import { faAngleDown, faAngleUp } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
@@ -21,7 +21,7 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 type TouchableHapticDropdownProps = TouchableHapticProps & {
   text: string;
@@ -31,6 +31,7 @@ type TouchableHapticDropdownProps = TouchableHapticProps & {
   backgroundColor?: string;
   hasViewCustomStyle?: boolean;
   viewCustomStyle?: ViewStyle;
+  textCustomStyle?: TextStyle;
   hasAngleChange?: boolean;
 }
 
@@ -39,7 +40,7 @@ type TouchableHapticDropdownProps = TouchableHapticProps & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Object} param0 - Handles the touchable haptic events and styling
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @param {Function} param0.onLongPress - Callback function when user long presses the button
@@ -53,6 +54,7 @@ type TouchableHapticDropdownProps = TouchableHapticProps & {
  * @param {string} param0.backgroundColor - Handles the background color of the rendered button
  * @param {boolean} param0.hasViewCustomStyle - Handles the custom styling of the rendered button
  * @param {ViewStyle} param0.viewCustomStyle - Custom styling for the view
+ * @param {StyleProp<TextStyle>} param0.textCustomStyle - Custom styling for the text
  * @param {boolean} param0.hasAngleChange - Handles the angle change of the icon when pressed
  * @param {IconProp} param0.icon - Icon to display on the left side
  * @param {string} param0.text - Text to display after the icon (when visible)
@@ -69,6 +71,7 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
   backgroundColor,
   hasViewCustomStyle = false,
   viewCustomStyle,
+  textCustomStyle,
   hasAngleChange = false,
   text,
   icon,
@@ -115,7 +118,7 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
               text={text}
               i18nTranslation={i18nTranslation}
               type={type}
-              style={[GlobalTypographyStyle.titleSubtitle, { color: colors.infoColor }]} />
+              style={[GlobalTypographyStyle.titleSubtitle, { color: colors.infoColor }, textCustomStyle]} />
           </View>
           <FontAwesomeIcon
             icon={iconAngle}

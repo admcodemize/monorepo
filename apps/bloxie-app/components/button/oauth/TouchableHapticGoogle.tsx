@@ -8,8 +8,11 @@ import {
 } from "@react-native-google-signin/google-signin";
 import { config } from "@/utils/integrations/google";
 import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
-
+import TouchableHaptic from "../TouchableHaptic";
+import TextBase from "@/components/typography/Text";
+import { useThemeColors } from "@/hooks/theme/useThemeColor";
 const TouchableHapticGoogle = () => {
+  const { linkColor } = useThemeColors();
 
   const startSignInFlow = async () => {
     const scopes = [
@@ -105,10 +108,10 @@ const TouchableHapticGoogle = () => {
     TODO: 666953031943-9ke7ccv64j5fc122g842a9ln788plm1p.apps.googleusercontent.com => Client ID for Google OAuth
     URL: https://console.cloud.google.com/apis/credentials?authuser=4&hl=de&inv=1&invt=AboIiw&project=bloxie-dev
     */}
-        <Button
-      title="Mit Google anmelden"
-      onPress={startSignInFlow}
-    />
+    <TouchableHaptic
+      onPress={startSignInFlow}>
+      <TextBase text="Kalenderkonto verknüpfen" type="label" style={[{ fontSize: 10, color: linkColor }]} />
+    </TouchableHaptic>
     </>
   );
 };

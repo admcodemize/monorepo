@@ -7,6 +7,7 @@
  * @constant */
 export const COLORS = {
   light: {
+    link: "#047dd4",
     info: "#626D7B",
     label: "#999999",
     text: '#303030',
@@ -39,6 +40,7 @@ export const COLORS = {
     blockedScopeBg: "#f8f8f8"
   },
   dark: {
+    link: "#047dd4",
     info: "#626D7B",
     label: "#FFF",
     text: '#FFF',

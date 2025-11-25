@@ -163,7 +163,8 @@ export const calendarSchema = {
   description: v.string(),
   foregroundColor: v.string(),
   primary: v.boolean(),
-  watch: v.optional(v.object(watchSchemaObj))
+  watch: v.optional(v.object(watchSchemaObj)),
+  eventsCount: v.optional(v.number())
 }
 
 export default defineSchema({
@@ -196,6 +197,7 @@ export default defineSchema({
    * @type */
   events: defineTable(eventSchema)
     .index("byUserId", ["userId"])
+    .index("byCalendarId", ["calendarId"])
     .index("byEventProviderId", ["eventProviderId"]),
 
   /**

@@ -45,11 +45,13 @@ export const createCalendar = internalMutation({
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0
  * @param {Id<"calendar">} param0._id - The calendar id to update
- * @param {Object<watchSchemaObj>} param0.watch - The watch data to update */
-export const updateCalendarWatch = internalMutation({
+ * @param {Object<watchSchemaObj>} param0.watch - The watch data to update
+ * @param {number} param0.eventsCount - The events count to update */
+export const updateCalendar = internalMutation({
   args: { 
     _id: v.id("calendar"),
-    watch: v.object(watchSchemaObj)
+    watch: v.object(watchSchemaObj),
+    eventsCount: v.number()
   },
-  handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch })
+  handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch, eventsCount: args.eventsCount })
 });

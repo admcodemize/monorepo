@@ -1,5 +1,16 @@
 import { Id } from "./convex/_generated/dataModel";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.9
+ * @version 0.0.1
+ * @type */
+export type EncryptedTokenProps = {
+  iv: string;
+  value: string;
+  tag: string;
+}
 
 /**
  * @public
@@ -146,6 +157,24 @@ export type ConvexTimesAPIProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.13
+ * @version 0.0.1
+ * @type */
+export type ConvexLinkedAPIProps = {
+  _id?: Id<"linked">;
+  _creationTime?: number;
+  provider: string;
+  providerId: string;
+  calendarsId: Id<"calendar">[];
+  email: string;
+  scopes?: string[];
+  refreshToken: EncryptedTokenProps;
+  watch: ConvexCalendarWatchAPIProps;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
  * @version 0.0.1
  * @type */
@@ -159,6 +188,30 @@ export type ConvexCalendarAPIProps = {
   foregroundColor: string;
   primary: boolean;
   watch?: ConvexCalendarWatchAPIProps;
+  eventsCount?: number;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.13
+ * @version 0.0.1
+ * @type */
+export type ConvexCalendarQueryAPIProps = {
+  _id?: Id<"linked">;
+  _creationTime?: number;
+  email: string;
+  provider: string;
+  calendars?: {
+    _id?: Id<"calendar">;
+    _creationTime?: number;
+    accessRole: IntegrationAPICalendarAccessRoleEnum;
+    backgroundColor: string;
+    description: string;
+    foregroundColor: string;
+    primary: boolean;
+    eventsCount?: number;
+  }[];
 }
 
 /**
@@ -208,20 +261,20 @@ export enum ConvexActionServerityEnum {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.9
+ * @since 0.0.11
  * @version 0.0.1
  * @type */
-export type EncryptedTokenProps = {
-  iv: string;
-  value: string;
-  tag: string;
+export type IntegrationAPIGoogleCalendarEventUserInformationProps = {
+  email: string;
+  self: boolean;
+  displayName: string;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type IntegrationAPIGoogleCalendarEventProps = {
   kind: string;
@@ -232,17 +285,11 @@ export type IntegrationAPIGoogleCalendarEventProps = {
   htmlLink?: string;
   created?: string;
   updated?: string;
-  summary?: string;
+  summary: string;
   description?: string;
   location?: string;
-  creator?: {
-    email: string;
-    self: boolean;
-  };
-  organizer?: {
-    email: string;
-    displayName: string;
-  };
+  creator: IntegrationAPIGoogleCalendarEventUserInformationProps;
+  organizer?: IntegrationAPIGoogleCalendarEventUserInformationProps;
   start: IntegrationAPICalendarEventStartEndProps;
   end: IntegrationAPICalendarEventStartEndProps;
   iCalUID?: string;

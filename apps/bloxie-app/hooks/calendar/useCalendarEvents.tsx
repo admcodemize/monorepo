@@ -84,7 +84,7 @@ export function useCalendarEvents({
       setEvents(_events);
     } 
 
-    console.log("events", events);
+    //console.log("events", events);
     
     setTimeout(() => onFetchFinished(), 3000);
   }, [events, _getInitialAPIObj, onFetchFinished, setEvents]);

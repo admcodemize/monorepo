@@ -1,5 +1,8 @@
 {
   "i18n": {
+    "buttons": {
+      "close": "Schliessen"
+    },
     "searchField": {
       "placeholder": "Suchen"
     },
@@ -91,7 +94,25 @@
           },
           "integration": {
             "title": "Integrationen",
-            "description": "Verbindungen zu externen Systemen und Diensten"
+            "description": "Verbindungen zu externen Systemen und Diensten",
+            "modal": "Das Verknüpfen von Integrationen ermöglicht es ihnen Kalender von unterschiedlichen Providern in Echtzeit zu synchronisieren",
+            "group1": {
+              "title": "Google"
+            },
+            "group2": {
+              "title": "Microsoft"
+            },
+            "group3": {
+              "title": "Apple"
+            },
+            "group4": {
+              "title": "Weitere Provider"
+            },
+            "connections": {
+              "group1": {
+                "title": "Kalender für Konfliktprüfungen"
+              }
+            }
           }
         }
       }

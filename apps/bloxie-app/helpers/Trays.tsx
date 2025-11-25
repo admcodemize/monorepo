@@ -1,6 +1,7 @@
 import ScreenTrayAction from "@/screens/private/tray/Action";
 import ScreenTrayCalendarDay from "@/screens/private/tray/CalendarDay";
 import ScreenTrayDashboard from "@/screens/private/tray/Dashboard";
+import ScreenTraySyncedCalendar from "@/screens/private/tray/SyncedCalendar";
 import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
 
 /**
@@ -32,6 +33,7 @@ export const stackConfigs = {
  * @object */
 export const trays = {
   ActionTray: { component: ScreenTrayAction },
+  SyncedCalendarTray: { component: ScreenTraySyncedCalendar },
   DashboardTray: { component: ScreenTrayDashboard },
   CalendarDayTray: { component: (dateInWeek: DatesInWeekInfoProps ) => <ScreenTrayCalendarDay {...dateInWeek} /> },
 };

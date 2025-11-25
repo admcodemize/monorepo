@@ -8,6 +8,7 @@ import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
+import Divider from "./Divider";
 
 /**
  * @public

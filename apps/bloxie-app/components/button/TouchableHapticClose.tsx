@@ -1,12 +1,9 @@
 import React from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome"
-import { faXmark } from "@fortawesome/pro-solid-svg-icons"
-import { IconProp } from "@fortawesome/fontawesome-svg-core"
-
-import { STYLES } from "@codemize/constants/Styles"
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor"
+import { useTranslation } from "react-i18next"
 
+import TextBase from "@/components/typography/Text"
 import TouchableHaptic from "@/components/button/TouchableHaptic"
 
 import TouchableHapticCloseStyle from "@/styles/components/button/TouchableHapticClose"
@@ -31,7 +28,8 @@ const TouchableHapticClose = ({
   onPress,
 }: TouchableHapticCloseProps) => {
   const colors = useThemeColors();
-
+  const { t } = useTranslation();
+  
   /**
    * @description Handles the on press event for the close button
    * @function */
@@ -40,14 +38,11 @@ const TouchableHapticClose = ({
   return (
     <TouchableHaptic
       onPress={onPressClose}
-      style={[TouchableHapticCloseStyle.close, { 
-        borderColor: colors.secondaryBorderColor,
-        backgroundColor: colors.tertiaryBgColor 
-      }]}>
-        <FontAwesomeIcon
-          icon={faXmark as IconProp}
-          size={STYLES.sizeFaIcon - 2}
-          color={colors.secondaryIconColor} />
+      style={[TouchableHapticCloseStyle.close]}>
+        <TextBase
+          text={t("i18n.buttons.close")}
+          type="label"
+          style={[{ fontSize: 10, color: colors.linkColor }]} />
     </TouchableHaptic>
   )
 }

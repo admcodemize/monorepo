@@ -10,8 +10,8 @@ const SearchFieldStyle = StyleSheet.create({
   view: {
     gap: STYLES.sizeGap, 
     height: STYLES.sizeTouchable + 4,
-    paddingHorizontal: STYLES.paddingHorizontal, 
-    paddingVertical: STYLES.paddingVertical,
+    paddingHorizontal: STYLES.paddingHorizontal - 4, 
+    paddingVertical: STYLES.paddingVertical - 2,
     borderWidth: 1, 
     borderRadius: 6,
   }

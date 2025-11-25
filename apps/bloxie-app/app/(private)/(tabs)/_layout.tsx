@@ -1,25 +1,22 @@
-import { Tabs } from "expo-router";
+import React from "react";
 
 import RootHeader from "@/components/layout/header/private/RootHeader";
-import { View } from "react-native";
 import ViewBase from "@/components/container/View";
-import React from "react";
 import Calendar from "@/components/calendar/Calendar";
-import TouchableFloationAction from "@/components/button/TouchableFloatingAction";
+import TouchableFloatingAction from "@/components/button/TouchableFloatingAction";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
-import TouchableHapticGoogle from "@/components/button/oauth/TouchableHapticGoogle";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.3 */
+ * @version 0.0.4 */
 const TabLayout = () => {
   return (
     <ViewBase>
       <RootHeader />
       <Calendar />
-      <TouchableFloationAction />
+      <TouchableFloatingAction />
       <DropdownOverlay />
     </ViewBase>
   );

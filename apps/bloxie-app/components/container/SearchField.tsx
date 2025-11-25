@@ -70,7 +70,7 @@ const SearchField = ({
   return (
     <View style={[GlobalContainerStyle.rowCenterBetween, SearchFieldStyle.view, { 
       borderColor: colors.primaryBorderColor, 
-      backgroundColor: colors.secondaryBgColor
+      backgroundColor: colors.tertiaryBgColor
     }]}>
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
         <FontAwesomeIcon 

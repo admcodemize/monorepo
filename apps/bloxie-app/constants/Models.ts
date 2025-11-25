@@ -69,6 +69,7 @@ export type TrayActionItemProps = {
   icon: IconProp;
   title: string;
   description: string;
+  modal?: string;
 }
 
 /**
@@ -185,6 +186,7 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   icon: faTrowelBricks as IconProp,
   title: "i18n.screens.trayAction.items.integration.title",
   description: "i18n.screens.trayAction.items.integration.description",
+  modal: "i18n.screens.trayAction.items.integration.modal",
 }, {
   key: "workflow",
   route: "workflow",

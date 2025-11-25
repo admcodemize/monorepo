@@ -26,6 +26,7 @@ import DropdownProvider from "@/context/DropdownContext";
 
 import "@/i18n";
 import 'react-native-reanimated';
+import IntegrationProvider from '@/context/IntegrationContext';
 
 /** 
  * @public
@@ -129,9 +130,11 @@ const RootLayout = () => {
                 <ConvexProviderWithClerk
                   client={convex} 
                   useAuth={useAuth}>
+                <IntegrationProvider>
                 <CalendarProvider now={new Date()}>
                   <StartSlot />
                 </CalendarProvider>
+                </IntegrationProvider>
                 </ConvexProviderWithClerk>
               </ClerkLoaded>
           </ClerkProvider>

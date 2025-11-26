@@ -8,7 +8,7 @@ import { getYears } from "@codemize/helpers/DateTime";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { WEEKS_IN_FUTURE, WEEKS_IN_PAST } from "@/context/CalendarContext";
 
-import TouchableHapticText from "@/components/button/TouchableHaptichText";
+import TouchableHapticText from "@/components/button/TouchableHapticText";
 
 /**
  * @public

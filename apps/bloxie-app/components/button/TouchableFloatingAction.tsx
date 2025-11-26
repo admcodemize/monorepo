@@ -29,6 +29,8 @@ const SPRING_CONFIG = {
 
 const OFFSET = 50;
 
+/** @todo refactoring: this component is not used anymore and should be removed */
+
 const TouchableFloatingActionButton = ({ isExpanded, index, onPress, icon }: { 
   isExpanded: SharedValue<boolean>, 
   index: number, 

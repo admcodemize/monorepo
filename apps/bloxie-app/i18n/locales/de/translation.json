@@ -52,6 +52,15 @@
           }
         }
       },
+      "integration": {
+        "connect": "Verknüpfen",
+        "google": {
+          "gmail": {
+          },
+          "calendar": {
+          }
+        }
+      },
       "trayAction": {
         "title": "Aktionen",
         "description": "Anlegen oder Verwalten",
@@ -95,7 +104,7 @@
           "integration": {
             "title": "Integrationen",
             "description": "Verbindungen zu externen Systemen und Diensten",
-            "modal": "Das Verknüpfen von Integrationen ermöglicht es ihnen Kalender von unterschiedlichen Providern in Echtzeit zu synchronisieren",
+            "modal": "Das Verknüpfen von Diensten unterschiedlicher Provider ermöglicht eine Effizienzsteigerung in der Buchung von Terminen.",
             "group1": {
               "title": "Google"
             },

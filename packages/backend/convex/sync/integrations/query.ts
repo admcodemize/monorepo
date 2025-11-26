@@ -6,7 +6,7 @@ import { v } from 'convex/values';
 /**
  * @public
  * @since 0.0.13
- * @version 0.0.1
+ * @version 0.0.2
  * @description Returns all the integrations for the currently signed in user
  * @param {Object} param0
  * @param {string} param0.userId - User identification (Clerk)
@@ -28,6 +28,8 @@ export const get = query({
         _creationTime: linkedAccount._creationTime,
         email: linkedAccount.email,
         provider: linkedAccount.provider,
+        providerId: linkedAccount.providerId,
+        hasMailPermission: linkedAccount.hasMailPermission,
         calendars: []
       } as ConvexCalendarQueryAPIProps;
 
@@ -35,6 +37,7 @@ export const get = query({
         const calendar = await db.query('calendar')
           .filter((q) => q.eq(q.field('_id'), calendarId))
           .unique() as ConvexCalendarAPIProps;
+        if (!calendar) return;
 
         calendarQuery.calendars.push({
           _id: calendar._id,
@@ -126,5 +129,5 @@ export const linkedByUser = internalQuery({
  * @function */
 export const calendarById = internalQuery({
   args: { _id: v.id('calendar') },
-  handler: async ({ db }, { _id }) => await db.get(_id) as ConvexCalendarAPIProps
+  handler: async ({ db }, { _id }) => _id && await db.get(_id) as ConvexCalendarAPIProps
 })

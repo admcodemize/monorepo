@@ -16,7 +16,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { faAlarmClock, faHourglass, faHourglassHalf, faLink, faPaperPlane } from "@fortawesome/duotone-thin-svg-icons";
-import { faLinkSlash } from "@fortawesome/pro-solid-svg-icons";
+import { faLinkSlash } from "@fortawesome/duotone-thin-svg-icons";
 import HorizontalNavigation from "@/components/container/HorizontalNavigation";
 import { SceneMap } from "react-native-tab-view";
 import ViewBase from "@/components/container/View";
@@ -32,19 +32,233 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useTrays } from "react-native-trays";
 import TouchableCheckbox from "@/components/button/TouchableCheckbox";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
+import TouchableHapticGmail from "@/components/button/oauth/TouchableHapticGmail.tsx";
+import { unlinkGoogleAccount } from "@/helpers/Provider";
+import { Image } from "react-native";
+import { useToastStore } from "@/context/ToastContext";
 
 const ScreenConfigurationIntegration = () => {
 
-  const { linkColor, textColor } = useThemeColors();
+  const { linkColor, textColor, successColor, errorColor, secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, focusedBgColor, focusedContentColor } = useThemeColors();
 
   const integrations = useIntegrationContextStore((state) => state.integrations);
 
-  const hContentLeft = () =>       <View style={{ paddingHorizontal: STYLES.paddingHorizontal, paddingVertical: STYLES.paddingVertical + 4, gap: STYLES.sizeGap * 2 }}>
+  const { open, close } = useToastStore((state) => state);
+
+  const hContentLeft = () =>       <View style={{ paddingHorizontal: STYLES.paddingHorizontal, paddingVertical: STYLES.paddingVertical + 4, gap: STYLES.sizeGap * 3 }}>
 
     <ListItemGroup 
         title={"i18n.screens.trayAction.items.integration.group1.title"}
-        gap={STYLES.sizeGap}>        
-        <ListItemWithChildren
+        gap={STYLES.sizeGap}>   
+
+
+
+      <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+        <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+          <Image source={PNG_ASSETS.googleCalendar} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+          <View style={{ gap: 1 }}>
+            <TextBase text="Google Kalender" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+            <TextBase text="Synchronisierung von Google Kalendern" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+          </View>
+        </View>
+        <TouchableHapticSwitch state={true} onStateChange={() => {}} />
+        </View>
+
+        <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+          borderTopRightRadius: 8,
+          borderTopLeftRadius: 8,
+         }}>
+
+        <View style={GlobalContainerStyle.rowCenterBetween}>
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#159F85", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#159F85", -0.1)} />
+                <TextBase text="Aktive Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#159F85", -0.1) }]} />
+              </View>
+              <TouchableHapticGoogle />
+            </View>
+
+        </View>
+      </View>
+
+      <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+        <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+          <Image source={PNG_ASSETS.googleMail} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+          <View style={{ gap: 1 }}>
+            <TextBase text="Google Gmail" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+            <TextBase text="Personalisierter E-Mail-Versand" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+          </View>
+        </View>
+        <TouchableHapticSwitch state={true} onStateChange={() => {}} />
+        </View>
+
+        <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+          borderTopRightRadius: 8,
+          borderTopLeftRadius: 8,
+         }}>
+
+         <View style={{ gap: 4 }}>
+            <View style={GlobalContainerStyle.rowCenterBetween}>
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                  <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
+                  <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+              </View>
+              <TouchableHapticGmail grantScopeGmail={true} />
+            </View>
+            <TextBase text="E-Mails welche über einen Workflow ausgelöst werden, sind über das verknüpfte Gmail Konto personalisiert." type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />
+          </View>
+        </View>
+      </View>
+
+
+      <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+        <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+          <Image source={PNG_ASSETS.googleMeet} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+          <View style={{ gap: 1 }}>
+            <TextBase text="Google Meet" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+            <TextBase text="Videokonferenz- und Instant-Messaging-Dienst" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+          </View>
+        </View>
+        <TouchableHapticSwitch state={true} onStateChange={() => {}} />
+        </View>
+
+        <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+          borderTopRightRadius: 8,
+          borderTopLeftRadius: 8,
+         }}>
+
+         <View style={{ gap: 4 }}>
+            <View style={GlobalContainerStyle.rowCenterBetween}>
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                  <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
+                  <TextBase text="Keine Verwendungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+              </View>
+            </View>
+            <TextBase text="Aktivierung von Online-Besprechungen über Google Meet für Termintypen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />
+          </View>
+        </View>
+      </View>
+      </ListItemGroup>
+
+
+      <ListItemGroup 
+        title={"i18n.screens.trayAction.items.integration.group2.title"}
+        gap={STYLES.sizeGap}>    
+          <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+            <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+              <Image source={PNG_ASSETS.microsoftOutlook} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+              <View style={{ gap: 1 }}>
+                <TextBase text="Microsoft Outlook" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+                <TextBase text="Synchronisierung von Office 365 Kalendern" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+              </View>
+            </View>
+            <TouchableHapticSwitch state={false} onStateChange={() => {}} />
+            </View>
+
+            <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+              borderTopRightRadius: 8,
+              borderTopLeftRadius: 8,
+            }}>
+
+            <View style={{ gap: 4 }}>
+                <View style={GlobalContainerStyle.rowCenterBetween}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
+                    <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  </View>
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ea7373", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faAlarmClock as IconProp} size={10} color={shadeColor("#ea7373", -0.1)} />
+                    <TextBase text="Bald verfügbar" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ea7373", -0.1) }]} />
+                  </View>
+                </View>
+                  <TouchableHapticGmail grantScopeGmail={true} />
+                </View>
+              </View>
+            </View>
+          </View>
+      </ListItemGroup>
+
+      <ListItemGroup 
+        title={"i18n.screens.trayAction.items.integration.group4.title"}
+        gap={STYLES.sizeGap}> 
+
+        <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+            <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+              <Image source={PNG_ASSETS.slackCalendar} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+              <View style={{ gap: 1 }}>
+                <TextBase text="Slack Kalender" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+                <TextBase text="Synchronisierung von Slack Kalendern" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+              </View>
+            </View>
+            <TouchableHapticSwitch state={false} onStateChange={() => {}} />
+            </View>
+
+            <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+              borderTopRightRadius: 8,
+              borderTopLeftRadius: 8,
+            }}>
+
+            <View style={{ gap: 4 }}>
+                <View style={GlobalContainerStyle.rowCenterBetween}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
+                    <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  </View>
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ea7373", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faAlarmClock as IconProp} size={10} color={shadeColor("#ea7373", -0.1)} />
+                    <TextBase text="Bald verfügbar" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ea7373", -0.1) }]} />
+                  </View>
+                </View>
+                  <TouchableHapticGmail grantScopeGmail={true} />
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+            <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+              <Image source={PNG_ASSETS.paypalPayments} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+              <View style={{ gap: 1 }}>
+                <TextBase text="PayPal - Bezahldienst" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+                <TextBase text="Empfangen von Zahlungen für kostenpflichtige Termine" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+              </View>
+            </View>
+            <TouchableHapticSwitch state={false} onStateChange={() => {}} />
+            </View>
+
+            <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+              borderTopRightRadius: 8,
+              borderTopLeftRadius: 8,
+            }}>
+
+            <View style={{ gap: 4 }}>
+                <View style={GlobalContainerStyle.rowCenterBetween}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
+                    <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  </View>
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ea7373", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faAlarmClock as IconProp} size={10} color={shadeColor("#ea7373", -0.1)} />
+                    <TextBase text="Bald verfügbar" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ea7373", -0.1) }]} />
+                  </View>
+                </View>
+                  <TouchableHapticGmail grantScopeGmail={true} />
+                </View>
+              </View>
+            </View>
+          </View>
+
+      </ListItemGroup>
+
+        {/*<ListItemWithChildren
           image={PNG_ASSETS.googleCalendar} 
           title={"Google Kalender"} 
           description={"Synchronisierung von Google Kalendern"}
@@ -58,9 +272,6 @@ const ScreenConfigurationIntegration = () => {
               </View>
               <TouchableHapticGoogle />
             </View>
-          } 
-          bottom={
-              <TextBase text="Ereignisse welche in den synchronisierten Kalendern erstellt, geändert oder gelöscht werden, werden in Bloxie in Echtzeit synchronisiert." type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />
           } />
           <Divider />
           <ListItemWithChildren
@@ -69,16 +280,6 @@ const ScreenConfigurationIntegration = () => {
           description={"Videokonferenz- und Instant-Messaging-Dienst "}
           type={ListItemWithChildrenTypeEnum.custom}
           right={<TouchableHapticSwitch state={false} onStateChange={() => {}} />}
-          top={
-            <View style={GlobalContainerStyle.rowCenterBetween}>
-              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
-                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
-                  <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
-                  <TextBase text="Inaktiv" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
-                </View>
-              </View>
-            </View>
-          } 
           bottom={
             <TextBase text="Aktivierung von Online-Besprechungen über Google Meet für Termintypen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />
         } />
@@ -94,9 +295,10 @@ const ScreenConfigurationIntegration = () => {
               <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
                   <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
-                  <TextBase text="Inaktiv" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
                 </View>
               </View>
+              <TouchableHapticGmail grantScopeGmail={true} />
             </View>
           }
           bottom={
@@ -106,7 +308,7 @@ const ScreenConfigurationIntegration = () => {
       </ListItemGroup>
       <ListItemGroup 
         title={"i18n.screens.trayAction.items.integration.group2.title"}
-        gap={STYLES.sizeGap * 1.75}>        
+        gap={STYLES.sizeGap}>        
         <ListItemWithChildren
           image={PNG_ASSETS.microsoftOutlook} 
           title={"Microsoft Outlook"} 
@@ -122,7 +324,7 @@ const ScreenConfigurationIntegration = () => {
                 </View>
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
                   <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
-                  <TextBase text="Inaktiv" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
                 </View>
               </View>
               <TouchableHapticGoogle />
@@ -131,10 +333,10 @@ const ScreenConfigurationIntegration = () => {
           bottom={
               <TextBase text="Für die Synchronisierung von Microsoft Outlook Geschäftskonten muss Bloxie als autorisierte Anwendung hinzugefügt werden." type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />
           } />
-        </ListItemGroup>
-        <ListItemGroup 
+        </ListItemGroup>*/}
+        {/*<ListItemGroup 
         title={"i18n.screens.trayAction.items.integration.group4.title"}
-        gap={STYLES.sizeGap * 1.75}>        
+        gap={STYLES.sizeGap}>        
         <ListItemWithChildren
           image={PNG_ASSETS.slackCalendar} 
           title={"Slack Kalender"} 
@@ -150,7 +352,7 @@ const ScreenConfigurationIntegration = () => {
                 </View>
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
                   <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
-                  <TextBase text="Inaktiv" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
                 </View>
               </View>
               <TouchableHapticGoogle />
@@ -172,13 +374,13 @@ const ScreenConfigurationIntegration = () => {
                 </View>
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#ababab", 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
                   <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#ababab", -0.1)} />
-                  <TextBase text="Inaktiv" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  <TextBase text="Keine Verknüpfungen" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
                 </View>
               </View>
               <TouchableHapticGoogle />
             </View>
           }  />
-        </ListItemGroup>
+        </ListItemGroup>*/}
       </View>;
   const hContentRight = () => 
   
@@ -191,7 +393,65 @@ const ScreenConfigurationIntegration = () => {
   gap={STYLES.sizeGap}>   
 {integrations.map((integration, index) => (
   <View style={{ gap: STYLES.sizeGap}}>
-    <ListItemWithChildren
+
+      <View style={{ borderRadius: 10, backgroundColor: secondaryBgColor, padding: 2 }}>
+        <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 8 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+          <Image source={PNG_ASSETS.googleCalendar} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
+          <View style={{ gap: 1 }}>
+            <TextBase text={integration.email} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+            <TextBase text="Letzte Synchronisation vor 5 Minuten" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+          </View>
+        </View>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+    
+              <TouchableHaptic
+              onPress={async () => { 
+                await unlinkGoogleAccount({ providerId: integration.providerId, open });
+                close();
+                
+              }}>
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor(errorColor, 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                <FontAwesomeIcon icon={faLinkSlash as IconProp} size={11} color={shadeColor(errorColor, -0.1)} />
+                <TextBase text="Trennen" i18nTranslation={false} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(errorColor, -0.1) }]} />
+              </View>
+              </TouchableHaptic>
+            </View>
+        </View>
+
+        <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+          borderTopRightRadius: 8,
+          borderTopLeftRadius: 8,
+        }}>
+
+        <View style={{ gap: 4 }}>
+
+              <View style={[GlobalContainerStyle.rowCenterBetween]}>
+                
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap" }]}>
+                  {integration.calendars?.map((calendar) => (
+                    <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#159F85", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                      <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#159F85", -0.1)} />
+                      <TextBase text={calendar.description} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#159F85", -0.1) }]} />
+                    </View>
+                  ))}
+                </View>
+
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                  <Divider vertical />
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: integration.hasMailPermission ? focusedBgColor : shadeColor("#ababab", 0.7), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={integration.hasMailPermission ? focusedContentColor : shadeColor("#ababab", -0.1)} />
+                    <TextBase text="Gmail" type="label" style={[{ fontSize: 10, color: integration.hasMailPermission ? focusedContentColor : shadeColor("#ababab", -0.1) }]} />
+                  </View>
+                </View>
+
+              </View>
+          </View>
+        </View>
+      </View>
+
+
+    {/*<ListItemWithChildren
       image={PNG_ASSETS.googleCalendar} 
       title={integration.email} 
       description={"Letzte Synchronisation vor 5 Minuten"}
@@ -203,13 +463,11 @@ const ScreenConfigurationIntegration = () => {
             <TextBase text="Synchronisierte Ereignisse:" i18nTranslation={false} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
             <TextBase text={integration.calendars?.reduce((acc, calendar) => acc + (calendar.eventsCount ?? 0), 0).toString() ?? "0"} type="label" style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 9, fontWeight: "bold", color: shadeColor("#ababab", -0.1) }]} />
             </View>
-            <TouchableHaptic
-              onPress={() => {}}>
-                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor(linkColor, 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
-                  <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={shadeColor(linkColor, -0.1)} />
-                  <TextBase text="Aktivierung Gmail" type="label" style={[{ fontSize: 10, color: shadeColor(linkColor, -0.1) }]} />
-                </View>
-            </TouchableHaptic>
+
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor(integration.hasMailPermission ? successColor : errorColor, 0.8), padding: 6, paddingVertical: 2, borderRadius: 4 }]}>
+              <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={shadeColor(integration.hasMailPermission ? successColor : errorColor, -0.1)} />
+              <TextBase text="Gmail" type="label" style={[{ fontSize: 10, color: shadeColor(integration.hasMailPermission ? successColor : errorColor, -0.1) }]} />
+            </View>
           </View>
           <View style={[GlobalContainerStyle.rowCenterStart, { gap: 14 }]}>
             <TouchableHapticIcon
@@ -218,7 +476,7 @@ const ScreenConfigurationIntegration = () => {
               iconColor={linkColor}
               hideBorder={true}
               hasViewCustomStyle={true}
-              onPress={() => {}}
+              onPress={() => { unlinkGoogleAccount({ providerId: integration.providerId }); }}
             />
           </View>
         </View>
@@ -244,8 +502,8 @@ const ScreenConfigurationIntegration = () => {
               </View>} />
             </View>
           ))}
-        </View>*/
-      } />
+        </View>*
+      } />*/}
       {index !== integrations.length - 1 && <Divider />}
     </View>
     ))}

@@ -1,21 +1,7 @@
-import { internalQuery, query } from "../../_generated/server";
+import { internalMutation, internalQuery, query } from "../../_generated/server";
 import { v } from "convex/values";
 
 import { ConvexEventsAPIProps } from "../../../Types";
-
-/**
- * @private
- * @description Used to check if the event is private and the user is a member
- * -> Duplicate of the function in @/helpers/Events.ts because it is used in the query
- * @since 0.0.8
- * @version 0.0.1
- * @param {ConvexEventsAPIProps} event - The event to check
- * @param {Id<"users">} userId - The user id to check
- * @function */
-/*const isPrivateMemberEvent = (
-  event: ConvexEventsAPIProps, 
-  userId: Id<"users">|undefined
-): boolean => (event.isPrivate && event.userId !== userId && !event.participants?.includes(userId as Id<"users">)) || false;*/
 
 /**
  * @public
@@ -83,7 +69,7 @@ export const get = query({
  * @description Returns the event with the given id 
  * @param {Id<"events">} _id - The event id to get
  * @function */
-export const getById = query({
+export const byId = query({
   args: { _id: v.id("events") },
   handler: async (ctx, { _id }): Promise<ConvexEventsAPIProps|null> => await ctx.db.get(_id) as ConvexEventsAPIProps
 });
@@ -93,14 +79,38 @@ export const getById = query({
  * @since 0.0.11
  * @version 0.0.1
  * @description Returns the event with the given provider id based on the integrated provider id
+ * @param {Id<"users">} userId - The user id to get the event for
  * @param {string} providerId - The provider id to get
  * @function */
-export const getByProviderId = internalQuery({
-  args: { providerId: v.string() }, 
-  handler: async (ctx, { providerId }): Promise<ConvexEventsAPIProps|null> => await ctx.db
+export const byProviderId = internalQuery({
+  args: { 
+    userId: v.id("users"),
+    providerId: v.string() 
+  }, 
+  handler: async (ctx, { userId, providerId }): Promise<ConvexEventsAPIProps|null> => await ctx.db
     .query("events")
-    .withIndex("byEventProviderId", (q) =>
-      q.eq("eventProviderId", providerId)
-    )
+    .withIndex("byEventProviderId", (q) => q.eq("eventProviderId", providerId))
+    .filter((q) => q.eq(q.field("userId"), userId))
     .unique() as ConvexEventsAPIProps
+})
+
+/**
+ * @public
+ * @since 0.0.14
+ * @version 0.0.1
+ * @description Returns all the events for the given provider id
+ * -> Used for deleting all the events for a given provider id
+ * @param {Id<"users">} userId - The user id to get the events for
+ * @param {string} providerCalendarId - The provider calendar id to get
+ * @function */
+export const byProviderCalendarId = internalQuery({
+  args: { 
+    userId: v.id("users"),
+    providerCalendarId: v.string()
+  }, 
+  handler: async (ctx, { userId, providerCalendarId }): Promise<ConvexEventsAPIProps[]> => await ctx.db
+    .query("events")
+    .withIndex("byCalendarId", (q) => q.eq("calendarId", providerCalendarId))
+    .filter((q) => q.eq(q.field("userId"), userId))
+    .collect() as ConvexEventsAPIProps[]
 })

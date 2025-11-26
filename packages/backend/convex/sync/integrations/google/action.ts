@@ -49,47 +49,6 @@ export const refreshAccessToken = internalAction({
  * @public
  * @since 0.0.10
  * @version 0.0.1
- * @description Stops a channel watch for a calendar
- * @param {Object} param0
- * @param {string} param0.channelId - The channel id to stop the channel watch for
- * @param {string} param0.resourceId - The resource id to stop the channel watch for
- * @param {string} param0.calendarId - The calendar id to stop the channel watch for
- * @function */
-export const stopChannelWatch = internalAction({
-  args: {
-    channelId: v.string(),
-    resourceId: v.string(),
-    refreshToken: v.object(encryptedTokenSchemaObj),  
-  },
-  handler: async ({ runAction, runQuery }, { channelId, resourceId, refreshToken }) => {
-    /** @description Refresh the access token for stopping the channel watch */
-    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
-
-    /** @description Stop the channel watch for the calendar */
-    const res = await fetch(`https://www.googleapis.com/calendar/v3/channels/stop`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ 
-        id: channelId,
-        resourceId: resourceId,
-      })
-    });
-
-    /** @description If the channel watch stop fails, return the error */
-    if (!res.ok) throw new Error(await res.text());
-
-    /** @description Return the channel watch */
-    return await res.json();
-  }
-});
-
-/**
- * @public
- * @since 0.0.10
- * @version 0.0.1
  * @description Starts a channel watch for the calendar list -> Used for adding/removing events in convex database!
  * @param {Object} param0
  * @param {string} param0.userId - The user id to register the channel watch for
@@ -202,6 +161,52 @@ export const startWatchCalendarEvents = internalAction({
         statusCode: 200,
         info: "i18n.convex.http.integrations.google.success.watch",
         severity: ConvexActionServerityEnum.SUCCESS
+      },
+    };
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.10
+ * @version 0.0.1
+ * @description Stops a channel watch for a calendar
+ * @param {Object} param0
+ * @param {string} param0.channelId - The channel id to stop the channel watch for
+ * @param {string} param0.resourceId - The resource id to stop the channel watch for
+ * @param {string} param0.calendarId - The calendar id to stop the channel watch for
+ * @function */
+export const stopChannelWatch = internalAction({
+  args: {
+    channelId: v.string(),
+    resourceId: v.string(),
+    refreshToken: v.object(encryptedTokenSchemaObj),  
+  },
+  handler: async ({ runAction }, { channelId, resourceId, refreshToken }) => {
+    /** @description Refresh the access token for stopping the channel watch */
+    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
+
+    /** @description Stop the channel watch for the calendar */
+    const res = await fetch(`https://www.googleapis.com/calendar/v3/channels/stop`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ 
+        id: channelId,
+        resourceId: resourceId,
+      })
+    });
+
+    return {
+      hasErr: !res.ok,
+      data: {} as IntegrationAPIGoogleCalendarChannelWatchProps,
+      message: {
+        statusCode: res.ok ? 200 : 500,
+        info: res.ok ? "i18n.convex.http.integrations.google.success.stopChannelWatch" : await res.text(),
+        severity: res.ok ? ConvexActionServerityEnum.SUCCESS : ConvexActionServerityEnum.ERROR,
+        reason: res.ok ? "BLOXIE_HAR_S03" : "BLOXIE_HAR_E09",
       },
     };
   }
@@ -363,13 +368,78 @@ export const fetchCalendarColors = internalAction({
     });
 
     return {
-      hasErr: false,
-      data: res.ok ? await res.json() : {},
+      hasErr: !res.ok,
+      data: res.ok ? await res.json() : {} as IntegrationAPIGoogleCalendarColorsProps,
       message: {
-        statusCode: 200,
-        severity: ConvexActionServerityEnum.SUCCESS,
-        reason: "BLOXIE_HAR_S02",
-      },
-    };
+        statusCode: res.ok ? 200 : 500,
+        info: res.ok ? "i18n.convex.http.integrations.google.success.colors" : await res.text(),
+        severity: res.ok ? ConvexActionServerityEnum.SUCCESS : ConvexActionServerityEnum.ERROR,
+        reason: res.ok ? "BLOXIE_HAR_S02" : "BLOXIE_HAR_E09",
+      }
+    }
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.14
+ * @version 0.0.1
+ * @description Sends an email via Gmail
+ * @param {Object} param0
+ * @param {string} param0.refreshToken - The refresh token to send the email
+ * @param {string} param0.from - The sender email address (e.g. stoecklim7@gmail.com)
+ * @param {string} param0.to - The recipient email address (e.g. marc.stoeckli@all-for-one.com)
+ * @param {string} param0.subject - The subject of the email
+ * @param {string} param0.body - The body of the email
+ * @function */
+export const sendGmail = internalAction({
+  args: { 
+    refreshToken: v.object(encryptedTokenSchemaObj),
+    from: v.string(),
+    to: v.string(),
+    subject: v.string(),
+    body: v.string(),  
+  },
+  handler: async ({ runAction }, { refreshToken, from, to, subject, body }) => {
+    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
+
+    async function sendGmail(access_token: string, message: string) {
+      const raw = Buffer.from(message)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    
+      const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ raw }),
+      });
+    
+      return {
+        hasErr: !res.ok,
+        data: res.ok ? await res.json() : {} as IntegrationAPIGoogleCalendarColorsProps,
+        message: {
+          statusCode: res.ok ? 200 : 500,
+          info: res.ok ? "i18n.convex.http.integrations.google.success.send" : await res.text(),
+          severity: res.ok ? ConvexActionServerityEnum.SUCCESS : ConvexActionServerityEnum.ERROR,
+          reason: res.ok ? "BLOXIE_HAR_S02" : "BLOXIE_HAR_E09",
+        }
+      };
+    }
+    
+    const email = [
+      `From: ${from} <${from}>`,
+      `To: ${to} <${to}>`,
+      `Subject: ${subject}`,
+      "Content-Type: text/plain; charset=UTF-8",
+      "",
+      body,
+    ].join("\r\n");
+    
+    return await sendGmail(access_token, email);
   }
 });

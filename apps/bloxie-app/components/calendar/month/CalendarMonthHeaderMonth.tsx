@@ -8,7 +8,7 @@ import { getLocalization } from "@/helpers/System";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import { CalendarMonthHeaderViewEnum } from "@/components/calendar/month/CalendarMonthHeader";
-import TouchableHapticText from "@/components/button/TouchableHaptichText";
+import TouchableHapticText from "@/components/button/TouchableHapticText";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import CalendarMonthHeaderMonthStyle from "@/styles/components/calendar/month/CalendarMonthHeaderMonth";

@@ -8,7 +8,7 @@ import { getMonths, MonthInfoObjProps } from "@codemize/helpers/DateTime";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { getLocalization } from "@/helpers/System";
 
-import TouchableHapticText from "@/components/button/TouchableHaptichText";
+import TouchableHapticText from "@/components/button/TouchableHapticText";
 
 /**
  * @public

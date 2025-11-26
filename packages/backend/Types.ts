@@ -170,6 +170,7 @@ export type ConvexLinkedAPIProps = {
   scopes?: string[];
   refreshToken: EncryptedTokenProps;
   watch: ConvexCalendarWatchAPIProps;
+  hasMailPermission?: boolean;
 }
 
 /**
@@ -202,6 +203,8 @@ export type ConvexCalendarQueryAPIProps = {
   _creationTime?: number;
   email: string;
   provider: string;
+  providerId: string;
+  hasMailPermission?: boolean;
   calendars?: {
     _id?: Id<"calendar">;
     _creationTime?: number;

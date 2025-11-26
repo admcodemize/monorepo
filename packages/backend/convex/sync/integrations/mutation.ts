@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation } from "../../_generated/server";
-import { linkedSchema, calendarSchema, watchSchemaObj } from "../../schema";
+import { linkedSchema, calendarSchema, watchSchemaObj, encryptedTokenSchemaObj } from "../../schema";
 
 /**
  * @public
@@ -16,6 +16,39 @@ import { linkedSchema, calendarSchema, watchSchemaObj } from "../../schema";
 export const createLinked = internalMutation({
   args: { ...linkedSchema },
   handler: async (ctx, args) => await ctx.db.insert("linked", { ...args })
+});
+
+/**
+ * @public
+ * @since 0.0.14
+ * @version 0.0.1
+ * @description Handles the internal database mutation for updating an existing linked account
+ * -> Hint: Function can not be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"linked">} param0._id - The linked id to update
+ * @param {Object<encryptedTokenSchemaObj>} param0.refreshToken - The refresh token to update
+ * @param {boolean} param0.hasMailPermission - The has mail permission to update which handles if the user has the permission to send emails via the google provider */
+export const updateLinked = internalMutation({
+  args: { 
+    _id: v.id("linked"), 
+    refreshToken: v.object(encryptedTokenSchemaObj),
+    scopes: v.array(v.string()),
+    hasMailPermission: v.boolean()
+  },
+  handler: async (ctx, { _id, refreshToken, scopes, hasMailPermission }) => await ctx.db.patch(_id, { refreshToken, scopes, hasMailPermission })
+});
+
+/**
+ * @public
+ * @since 0.0.14
+ * @version 0.0.1
+ * @description Handles the internal database mutation for removing an existing linked account
+ * -> Hint: Function can not be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"linked">} param0._id - The linked id to remove */
+export const removeLinked = internalMutation({
+  args: { _id: v.id("linked") },
+  handler: async (ctx, { _id }) => await ctx.db.delete(_id)
 });
 
 /**
@@ -54,4 +87,17 @@ export const updateCalendar = internalMutation({
     eventsCount: v.number()
   },
   handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch, eventsCount: args.eventsCount })
+});
+
+/**
+ * @public
+ * @since 0.0.14
+ * @version 0.0.1
+ * @description Handles the internal database mutation for removing an existing calendar for a linked account
+ * -> Hint: Function can not be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"calendar">} param0._id - The calendar id to remove */
+export const removeCalendar = internalMutation({
+  args: { _id: v.id("calendar") },
+  handler: async (ctx, { _id }) => await ctx.db.delete(_id)
 });

@@ -37,7 +37,7 @@ const TrayHeader = ({
 
   return (
     <View style={[GlobalContainerStyle.rowStartBetween]}>
-      <View style={[]}>
+      <View>
         <TextBase 
           text={t(title)}
           style={GlobalTypographyStyle.titleSubtitle} />

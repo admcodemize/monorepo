@@ -4,6 +4,7 @@ import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView"
 import StackModalHeader from "@/components/container/StackModalHeader";
 
 import ScreenConfigurationIntegration from "@/screens/private/modal/configuration/Integration";
+import ToastOverlay from "@/components/container/ToastOverlay";
 
 /** 
  * @public
@@ -19,6 +20,7 @@ const ModalConfigurationIntegration = () => {
         title={tray!.title} 
         description={tray?.modal || ""} />
       <ScreenConfigurationIntegration />
+      <ToastOverlay />
     </SafeAreaContextViewBase>
   )
 }

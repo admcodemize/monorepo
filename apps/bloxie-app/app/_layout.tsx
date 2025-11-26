@@ -23,10 +23,11 @@ import SafeAreaContextViewBase from '@/components/container/SafeAreaContextView'
 
 import CalendarProvider from '@/context/CalendarContext';
 import DropdownProvider from "@/context/DropdownContext";
+import IntegrationProvider from '@/context/IntegrationContext';
+import ToastProvider from "@/context/ToastContext";
 
 import "@/i18n";
 import 'react-native-reanimated';
-import IntegrationProvider from '@/context/IntegrationContext';
 
 /** 
  * @public
@@ -131,9 +132,11 @@ const RootLayout = () => {
                   client={convex} 
                   useAuth={useAuth}>
                 <IntegrationProvider>
+                <ToastProvider>
                 <CalendarProvider now={new Date()}>
                   <StartSlot />
                 </CalendarProvider>
+                </ToastProvider>
                 </IntegrationProvider>
                 </ConvexProviderWithClerk>
               </ClerkLoaded>

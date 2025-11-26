@@ -44,8 +44,8 @@ const TouchableHapticSwitch = ({
   /**
    * @description Animated styling for container backgroundColor */
   const backgroundColorContainerStyle = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(progress.value, [0, 18], ["#eeeeee", "#eeeeee"]);
-    const borderColor = interpolateColor(progress.value, [0, 18], ["#e4e4e4", "#e4e4e4"]);
+    const backgroundColor = interpolateColor(progress.value, [0, 18], ["#e6e6e6", "#fefefe"]);
+    const borderColor = interpolateColor(progress.value, [0, 18], ["#d5d5d5", "#d5d5d5"]);
     return { 
       backgroundColor,
       borderColor

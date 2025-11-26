@@ -28,7 +28,7 @@ import TouchableHapticIcon from "../button/TouchableHaptichIcon";
 import Divider from "../container/Divider";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import TouchableHapticText from "../button/TouchableHaptichText";
+import TouchableHapticText from "../button/TouchableHapticText";
 import { useTrays } from "react-native-trays";
 import { DROPDOWN_CALENDAR_VIEWS, DROPDOWN_DASHBOARD_PERIOD } from "@/constants/Models";
 import TouchableDropdownItemBase from "../button/TouchableDropdownItemBase";

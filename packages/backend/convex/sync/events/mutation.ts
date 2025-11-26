@@ -33,3 +33,16 @@ export const update = internalMutation({
   },
   handler: async (ctx, args) => await ctx.db.patch(args._id, { ...args }),
 });
+
+/**
+ * @public
+ * @since 0.0.14
+ * @version 0.0.1
+ * @description Handles the internal database mutation for removing an existing event
+ * -> Hint: Function can not be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"events">} param0._id - The event id to remove */
+export const remove = internalMutation({
+  args: { _id: v.id("events") },
+  handler: async (ctx, { _id }) => await ctx.db.delete(_id)
+});

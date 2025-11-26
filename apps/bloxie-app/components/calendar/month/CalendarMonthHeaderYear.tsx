@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { useCalendarContextStore } from "@/context/CalendarContext";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import TouchableHapticText from "@/components/button/TouchableHaptichText";
+import TouchableHapticText from "@/components/button/TouchableHapticText";
 import { CalendarMonthHeaderViewEnum } from "@/components/calendar/month/CalendarMonthHeader";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";

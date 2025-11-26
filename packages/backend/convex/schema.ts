@@ -147,7 +147,8 @@ export const linkedSchema = {
   email: v.string(),
   scopes: v.optional(v.array(v.string())),
   refreshToken: v.object(encryptedTokenSchemaObj),
-  watch: v.object(watchSchemaObj)
+  watch: v.object(watchSchemaObj),
+  hasMailPermission: v.optional(v.boolean())
 }
 
 /**

@@ -67,7 +67,7 @@ export const userSchema = {
 
 /**
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for table "settings"
  * -> Handles the user settings for the calendar or overall application
  * @interface */
@@ -76,7 +76,11 @@ export const settingsSchema = {
   faceId: v.optional(v.boolean()),
   pushNotifications: v.optional(v.boolean()),
   durationMinute: v.optional(v.number()),
-  breakingTimeBetweenEvents: v.optional(v.number())
+  breakingTimeBetweenEvents: v.optional(v.number()),
+  integrations: v.optional(v.array(v.object({
+    integrationKey: v.string(),
+    state: v.boolean(),
+  }))),
 }
 
 /**

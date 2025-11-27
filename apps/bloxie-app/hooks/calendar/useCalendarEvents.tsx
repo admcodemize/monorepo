@@ -26,7 +26,7 @@ type UseCalendarEventsProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description - Sets the events stored in convex and all the connected calendars
  * @since 0.0.8
- * @version 0.0.3 */
+ * @version 0.0.4 */
 export function useCalendarEvents({
   convexUser,
   componentId = "calendar",
@@ -40,11 +40,12 @@ export function useCalendarEvents({
   /**
   * @description Get events based on currently signed in user id and also the members of the user
   * @see {@link convex/sync/events/query/get}*/
-  const queriedEvents = useQuery(api.sync.events.query.get, { 
+  const queriedEvents = useQuery(api.sync.events.query.get, {
     _id: convexUser?._id as Id<"users">,
     members: convexUser?.members ?? []
   });
 
+  const isReady = queriedEvents !== undefined && queriedEvents !== null;
   const events: ConvexEventsAPIProps[] = Array.isArray(queriedEvents) ? queriedEvents : [];
 
   /**
@@ -83,9 +84,6 @@ export function useCalendarEvents({
        * @description Update events based on convex selection */
       setEvents(_events);
     } 
-
-    //console.log("events", events);
-    
-    setTimeout(() => onFetchFinished(), 3000);
-  }, [events, _getInitialAPIObj, onFetchFinished, setEvents]);
+    if (isReady) onFetchFinished();
+  }, [events, _getInitialAPIObj, isReady, onFetchFinished, setEvents]);
 }

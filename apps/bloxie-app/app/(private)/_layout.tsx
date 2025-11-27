@@ -3,8 +3,9 @@ import { Stack } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import { Id } from "../../../../packages/backend/convex/_generated/dataModel";
 
-import { ConvexUsersAPIProps } from "@codemize/backend/Types";
+import { ConvexSettingsAPIProps, ConvexUsersAPIProps } from "@codemize/backend/Types";
 
+import { useUserSettings } from "@/hooks/settings/useUserSettings";
 import { useCalendarEvents } from "@/hooks/calendar/useCalendarEvents";
 import { useIntegrations } from "@/hooks/integrations/useIntegrations";
 import { getTimeZone } from "@/helpers/System";
@@ -18,9 +19,10 @@ import UserProvider from "@/context/UserContext";
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 type LoadedProps = {
+  userSettingsFetchFinished: boolean;
   eventsFetchFinished: boolean;
   integrationsFetchFinished: boolean;
 }
@@ -31,6 +33,22 @@ type LoadedProps = {
  * @since 0.0.1
  * @version 0.0.3 */
 const PrivateLayout = () => { 
+  const loadedRef = React.useRef<LoadedProps>({
+    userSettingsFetchFinished: false,
+    eventsFetchFinished: false,
+    integrationsFetchFinished: false,
+  });
+
+  /**
+   * @description Marks the given key as loaded
+   * @param {keyof LoadedProps} key - The key to mark as loaded
+   * @see {@link LoadedProps} */
+  const markLoaded = (key: keyof LoadedProps) => {
+    if (loadedRef.current[key]) return;
+    loadedRef.current = { ...loadedRef.current, [key]: true };
+    setIsLoaded(loadedRef.current);
+  };
+
   /**
    * @description Handles the authentication state of the user
    * @see {@link @clerk/clerk-expo} */
@@ -39,9 +57,14 @@ const PrivateLayout = () => {
   /**
    * @description Will be used to handle the visibility of the custom splashscreen which will be shown until
    * all the ressources are loaded */
-  const [isLoaded, setIsLoaded] = React.useState<LoadedProps>({
-    eventsFetchFinished: false,
-    integrationsFetchFinished: false,
+  const [isLoaded, setIsLoaded] = React.useState<LoadedProps>(loadedRef.current);
+
+  /**
+   * @description Loads the user settings for the currently signed in user
+   * @see {@link hooks/settings/useUserSettings} */
+  const { settings } = useUserSettings({
+    convexUser: { _id: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">, _creationTime: 0, clerkId: "a", email: "a", provider: "a", banned: false, members: [] } as unknown as ConvexUsersAPIProps, 
+    onFetchFinished: () => { markLoaded("userSettingsFetchFinished"); },
   });
 
   /**
@@ -50,19 +73,19 @@ const PrivateLayout = () => {
    * @see {@link hooks/calendar/useCalendarEvents} */
   useCalendarEvents({ 
     convexUser: { _id: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">, _creationTime: 0, clerkId: "a", email: "a", provider: "a", banned: false, members: [] } as unknown as ConvexUsersAPIProps, 
-    onFetchFinished: () => { setIsLoaded((state) => ({ ...state, eventsFetchFinished: true })); } 
+    onFetchFinished: () => { markLoaded("eventsFetchFinished"); } 
   });
 
   useIntegrations({
     convexUser: { _id: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">, _creationTime: 0, clerkId: "a", email: "a", provider: "a", banned: false, members: [] } as unknown as ConvexUsersAPIProps, 
-    onFetchFinished: () => { setIsLoaded((state) => ({ ...state, integrationsFetchFinished: true })); },
+    onFetchFinished: () => { markLoaded("integrationsFetchFinished"); },
   });
 
-  if (!isLoaded.eventsFetchFinished || !isLoaded.integrationsFetchFinished) return <LoadingScreen />;
+  if (!isLoaded.userSettingsFetchFinished || !isLoaded.eventsFetchFinished || !isLoaded.integrationsFetchFinished) return <LoadingScreen />;
 
   return (
     <UserProvider 
-      settings={{ userId: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users"> }} 
+      settings={settings} 
       times={[
         { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T07:00:00.000Z", isBlocked: true },
         { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-29T09:00:00.000Z", end: "2025-10-29T10:30:00.000Z", isBlocked: true },

@@ -27,7 +27,7 @@ export type EncryptedToken = {
  * @param {string} token - The token to convert */
 export const encryptedToken = internalAction({
   args: { token: v.string() },
-  handler: async (ctx, { token }) => {
+  handler: async (ctx, { token }): Promise<EncryptedToken> => {
     const iv = crypto.randomBytes(12);
     const cipher = crypto.createCipheriv(ALGO, convertToBase64Key(process.env.PROVIDER_CRYPTO_KEY), iv);
     const encrypted = Buffer.concat([cipher.update(token, "utf8"), cipher.final()]);
@@ -53,7 +53,7 @@ export const decryptedToken = internalAction({
     value: v.string(),
     tag: v.string(),
   }) },
-  handler: async (ctx, { encryptedToken }) => {
+  handler: async (ctx, { encryptedToken }): Promise<string> => {
     const iv = Buffer.from(encryptedToken.iv, "base64");
     const encrypted = Buffer.from(encryptedToken.value, "base64");
     const authTag = Buffer.from(encryptedToken.tag, "base64");
@@ -71,4 +71,4 @@ export const decryptedToken = internalAction({
  * @since 0.0.9
  * @version 0.0.1
  * @param {string} key - The key to convert */
-const convertToBase64Key = (key: string) => Buffer.from(key, "base64");
+const convertToBase64Key = (key: string): Buffer => Buffer.from(key, "base64");

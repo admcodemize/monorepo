@@ -1,5 +1,8 @@
 {
   "i18n": {
+    "global": {
+      "comingSoon": "Bald verfügbar"
+    },
     "buttons": {
       "close": "Schliessen"
     },
@@ -52,12 +55,45 @@
           }
         }
       },
-      "integration": {
+      "integrations": {
         "connect": "Verknüpfen",
-        "google": {
-          "gmail": {
+        "activeConnections": "Aktive Verknüpfungen",
+        "noConnections": "Keine Verknüpfungen",
+        "provider": {
+          "google": {
+            "title": "Google",
+            "gmail": {
+              "title": "Google Gmail",
+              "description": "Personalisierter E-Mail-Versand",
+              "info": "E-Mails welche über einen Workflow ausgelöst werden, sind über das verknüpfte Gmail Konto personalisiert."
+            },
+            "calendar": {
+              "title": "Google Kalender",
+              "description": "Synchronisierung von Google Kalendern"
+            },
+            "meet": {
+              "title": "Google Meet",
+              "description": "Videokonferenz- und Instant-Messaging-Dienst",
+              "info": "Aktivierung von Online-Besprechungen über Google Meet für Termintypen"
+            }
           },
-          "calendar": {
+          "microsoft": {
+            "title": "Microsoft",
+            "calendar": {
+              "title": "Microsoft Kalender",
+              "description": "Synchronisierung von Office 365 Kalendern"
+            }
+          },
+          "others": {
+            "title": "Weitere Provider",
+            "calendar": {
+              "title": "Slack Kalender",
+              "description": "Synchronisierung von Slack Kalendern"
+            },
+            "paypal": {
+              "title": "PayPal - Bezahldienst",
+              "description": "Empfangen von Zahlungen für kostenpflichtige Termine"
+            }
           }
         }
       },
@@ -104,24 +140,7 @@
           "integration": {
             "title": "Integrationen",
             "description": "Verbindungen zu externen Systemen und Diensten",
-            "modal": "Das Verknüpfen von Diensten unterschiedlicher Provider ermöglicht eine Effizienzsteigerung in der Buchung von Terminen.",
-            "group1": {
-              "title": "Google"
-            },
-            "group2": {
-              "title": "Microsoft"
-            },
-            "group3": {
-              "title": "Apple"
-            },
-            "group4": {
-              "title": "Weitere Provider"
-            },
-            "connections": {
-              "group1": {
-                "title": "Kalender für Konfliktprüfungen"
-              }
-            }
+            "modal": "Das Verknüpfen von Diensten unterschiedlicher Provider ermöglicht eine Effizienzsteigerung in der Buchung von Terminen und verhindert Überbuchungen."
           }
         }
       }

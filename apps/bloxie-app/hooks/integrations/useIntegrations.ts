@@ -12,7 +12,7 @@ import { useIntegrationContextStore } from "@/context/IntegrationContext";
  * @private
  * @description Props for the useIntegrations hook
  * @since 0.0.13
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 type UseIntegrationsProps = {
   convexUser: ConvexUsersAPIProps|undefined;
@@ -41,6 +41,7 @@ export function useIntegrations({
     userId: convexUser?._id as Id<"users">,
   });
 
+  const isReady = queriedIntegrations !== undefined && queriedIntegrations !== null;
   const integrations: ConvexCalendarQueryAPIProps[] = Array.isArray(queriedIntegrations) ? queriedIntegrations : [];
 
   React.useEffect(() => {
@@ -52,6 +53,6 @@ export function useIntegrations({
       /**
        * @description Update integrations based on convex selection */
       setIntegrations(integrations);
-    } onFetchFinished();
-  }, [integrations, setIntegrations, onFetchFinished]);
+    } if (isReady) onFetchFinished();
+  }, [integrations, isReady, setIntegrations, onFetchFinished]);
 }

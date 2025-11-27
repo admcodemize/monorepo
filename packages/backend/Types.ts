@@ -120,7 +120,7 @@ export type ConvexUsersAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexSettingsAPIProps = {
   _id?: Id<"settings">;
@@ -130,10 +130,10 @@ export type ConvexSettingsAPIProps = {
   pushNotifications?: boolean;
   durationMinute?: number;
   breakingTimeBetweenEvents?: number;
-  timesMemberWithAccessRole?: boolean;
-  membersHighlightColor?: {
-    userId: Id<"users">;
-    color: string;
+  integrations?: {
+    provider: string;
+    integrationKey: string;
+    state: boolean;
   }[];
 }
 

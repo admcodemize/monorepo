@@ -37,7 +37,6 @@ export type TouchableHapticGoogleProps =  {};
 const TouchableHapticGoogle = ({
 }: TouchableHapticGoogleProps) => {
   const { focusedBgColor, focusedContentColor } = useThemeColors();
-  const { t } = useTranslation();
 
   const { open, close } = useToastStore((state) => state);
 
@@ -56,7 +55,7 @@ const TouchableHapticGoogle = ({
             size={10} 
             color={focusedContentColor} />
           <TextBase 
-            text={t("i18n.screens.integration.connect")} 
+            text={"i18n.screens.integrations.connect"} 
             type="label" 
             style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: focusedContentColor }]} />
         </View>

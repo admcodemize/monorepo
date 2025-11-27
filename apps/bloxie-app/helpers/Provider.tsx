@@ -61,7 +61,6 @@ export const startGoogleFlow = async ({
   GoogleSignin.configure(googleConfig);
   const res = await GoogleOneTapSignIn.presentExplicitSignIn(googleConfig);
 
-  console.log("res:");
   open?.({
     children: <View style={{ height: 300 }}></View>,
     data: {

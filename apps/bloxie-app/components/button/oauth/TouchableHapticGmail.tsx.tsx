@@ -38,7 +38,6 @@ const TouchableHapticGmail = ({
   grantScopeGmail,
 }: TouchableHapticGmailProps) => {
   const { focusedBgColor, focusedContentColor } = useThemeColors();
-  const { t } = useTranslation();
 
   /** @description Handles the onPress event for the Gmail OAuth flow */
   const onPress = async () => await startGoogleFlow({ email, grantScopeGmail });
@@ -52,7 +51,7 @@ const TouchableHapticGmail = ({
             size={10} 
             color={focusedContentColor} />
           <TextBase 
-            text={t("i18n.screens.integration.connect")} 
+            text={"i18n.screens.integrations.connect"} 
             type="label" 
             style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: focusedContentColor }]} />
         </View>

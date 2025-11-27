@@ -19,6 +19,9 @@ import type * as sync_integrations_action from "../sync/integrations/action.js";
 import type * as sync_integrations_google_action from "../sync/integrations/google/action.js";
 import type * as sync_integrations_mutation from "../sync/integrations/mutation.js";
 import type * as sync_integrations_query from "../sync/integrations/query.js";
+import type * as sync_settings_action from "../sync/settings/action.js";
+import type * as sync_settings_mutation from "../sync/settings/mutation.js";
+import type * as sync_settings_query from "../sync/settings/query.js";
 
 import type {
   ApiFromModules,
@@ -46,6 +49,9 @@ declare const fullApi: ApiFromModules<{
   "sync/integrations/google/action": typeof sync_integrations_google_action;
   "sync/integrations/mutation": typeof sync_integrations_mutation;
   "sync/integrations/query": typeof sync_integrations_query;
+  "sync/settings/action": typeof sync_settings_action;
+  "sync/settings/mutation": typeof sync_settings_mutation;
+  "sync/settings/query": typeof sync_settings_query;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

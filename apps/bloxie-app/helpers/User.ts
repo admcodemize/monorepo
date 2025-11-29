@@ -9,7 +9,7 @@ export const DEFAULT_BREAKING_TIME_BETWEEN_EVENTS = 0;
  * @description Get the default settings object for a user
  * @function
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.3
  * @param {Id<"users">} userId - The id of the user */
 export const getDefaultSettingsObject = (
   userId: Id<"users">

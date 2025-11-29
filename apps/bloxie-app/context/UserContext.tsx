@@ -1,18 +1,21 @@
-import { PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import { createContext, useContext, useState } from "react";
 import { createStore, useStore, StoreApi } from "zustand";
 
 import { ConvexSettingsAPIProps, ConvexTimesAPIProps } from "@codemize/backend/Types";
+import { ProviderIntegrationEnum } from "@/constants/Provider";
+import { Id } from "../../../packages/backend/convex/_generated/dataModel";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type UserContextProps = {
   settings: ConvexSettingsAPIProps;
   times: ConvexTimesAPIProps[];
+  setSettings: (settings: ConvexSettingsAPIProps) => void;
 };
 
 /**
@@ -31,24 +34,37 @@ const UserContext = createContext<StoreApi<UserContextProps>|undefined>(undefine
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.16
+ * @version 0.0.1
+ * @description Create the store and initialize the state
+ * @param {ConvexSettingsAPIProps} settings - The settings of the currently signed in user.
+ * @param {ConvexTimesAPIProps[]} times - The times of the currently signed in user.
+ * @returns {StoreApi<UserContextProps>} - The store */
+export const store = (
+  settings: ConvexSettingsAPIProps,
+  times: ConvexTimesAPIProps[]
+): StoreApi<UserContextProps> => createStore<UserContextProps>()((set, get) => ({
+  settings,
+  times,
+  setSettings: (settings: ConvexSettingsAPIProps) => set((state) => ({ ...state, settings })),
+}));
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @description 
  * @since 0.0.2
- * @version 0.0.1 */
+ * @version 0.0.3 */
 export default function UserProvider({ 
   settings,
   times,
   children 
 }: UserProviderProps) {
-  const [store] = useState(() =>
-    createStore<UserContextProps>((set) => ({
-      settings,
-      times
-    }))
-  );
-
+  const [storeInstance] = React.useState(() => store(settings, times));
+  
   return (
     <UserContext.Provider 
-      value={store}>
+      value={storeInstance}>
         {children}
     </UserContext.Provider>
   );

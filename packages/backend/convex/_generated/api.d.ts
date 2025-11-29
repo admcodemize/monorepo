@@ -8,9 +8,9 @@
  * @module
  */
 
-import type * as auth_httpActions from "../auth/httpActions.js";
 import type * as auth_mutation from "../auth/mutation.js";
 import type * as auth_query from "../auth/query.js";
+import type * as http_auth_user from "../http/auth/user.js";
 import type * as http_integrations_google from "../http/integrations/google.js";
 import type * as http from "../http.js";
 import type * as sync_events_mutation from "../sync/events/mutation.js";
@@ -38,9 +38,9 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  "auth/httpActions": typeof auth_httpActions;
   "auth/mutation": typeof auth_mutation;
   "auth/query": typeof auth_query;
+  "http/auth/user": typeof http_auth_user;
   "http/integrations/google": typeof http_integrations_google;
   http: typeof http;
   "sync/events/mutation": typeof sync_events_mutation;

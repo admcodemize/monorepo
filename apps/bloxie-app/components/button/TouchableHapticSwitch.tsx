@@ -9,9 +9,10 @@ import TouchableHapticSwitchStyle from "@/styles/components/button/TouchableHapt
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TouchableHapticSwitchProps = {
+  disabled?: boolean;
   state: boolean;
   onStateChange?: (state: boolean) => void;
 }
@@ -20,15 +21,19 @@ export type TouchableHapticSwitchProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticSwitchProps} param0
  * @param {boolean} param0.state - Activity state 
  * @param {Function} param0.onStateChange - Callback function to handle the state change
  * @component */
 const TouchableHapticSwitch = ({ 
+  disabled = false,
   state,
   onStateChange
 }: TouchableHapticSwitchProps) => {
+  const didMount = React.useRef<boolean>(false);
+  const isUserInteraction = React.useRef<boolean>(false);
+
   /**
    * @description Handles the switches toggle state */
   const [toggle, setToggle] = React.useState<boolean>(state);
@@ -73,18 +78,44 @@ const TouchableHapticSwitch = ({
     }]
   }));
 
+  /** @description Handles the press event of the switch for select/deselect the switch */
+  const onPress = React.useCallback(() => {
+    isUserInteraction.current = true;
+    setToggle(!toggle);
+  }, [toggle]);
+
+  /** @description Reset the didMount flag when the component unmounts */
+  React.useEffect(() => {
+    return () => {
+      didMount.current = false;
+    };
+  }, []);
+
   React.useEffect(() => {
     if (toggle) switchToggle.value = 18;
     else switchToggle.value = 4;
 
+    /** @description Prevent the callback function from being called on initial mount */
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+
+    if (!isUserInteraction.current) return;
+    isUserInteraction.current = false;
+
     onStateChange?.(toggle);
   }, [toggle, switchToggle]);
 
-  React.useEffect(() => setToggle(state), [state]);
+  React.useEffect(() => {
+    if (isUserInteraction.current) return;
+    setToggle(state);
+  }, [state]);
 
   return (
     <TouchableHaptic  
-      onPress={() => setToggle(!toggle)}>
+      disabled={disabled}
+      onPress={onPress}>
       <Animated.View style={[TouchableHapticSwitchStyle.container, backgroundColorContainerStyle]}>
         <Animated.View style={[TouchableHapticSwitchStyle.circle, backgroundColorCircleStyle, springStyle]} />
       </Animated.View>

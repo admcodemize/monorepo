@@ -1,3 +1,4 @@
+import { ProviderIntegrationEnum } from "../../apps/bloxie-app/constants/Provider";
 import { Id } from "./convex/_generated/dataModel";
 
 /**
@@ -131,8 +132,7 @@ export type ConvexSettingsAPIProps = {
   durationMinute?: number;
   breakingTimeBetweenEvents?: number;
   integrations?: {
-    provider: string;
-    integrationKey: string;
+    integrationKey: ProviderIntegrationEnum;
     state: boolean;
   }[];
 }

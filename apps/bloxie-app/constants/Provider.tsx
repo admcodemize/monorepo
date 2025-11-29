@@ -10,13 +10,13 @@ import TouchableHapticGoogle from "@/components/button/oauth/TouchableHapticGoog
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.2
  * @enum */
 export enum ProviderEnum {
-  GOOGLE = "google",
-  MICROSOFT = "microsoft",
-  SLACK = "slack",
-  PAYPAL = "paypal",
+  GOOGLE = "oauth_google",
+  MICROSOFT = "oauth_microsoft",
+  SLACK = "oauth_slack",
+  PAYPAL = "oauth_paypal",
 }
 
 /**
@@ -38,7 +38,7 @@ export enum ProviderIntegrationEnum {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ProviderItemProps = PropsWithChildren & {
   integrationKey: ProviderIntegrationEnum;
@@ -46,7 +46,6 @@ export type ProviderItemProps = PropsWithChildren & {
   title: string;
   description: string;
   info?: string;
-  state: boolean;
   hasConnections?: boolean;
   isCommingSoon?: boolean;
 }
@@ -55,15 +54,13 @@ export type ProviderItemProps = PropsWithChildren & {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.3
  * @constant */
 export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
     integrationKey: ProviderIntegrationEnum.GOOGLE_CALENDAR,
     image: PNG_ASSETS.googleCalendar,
     title: "i18n.screens.integrations.provider.google.calendar.title",
     description: "i18n.screens.integrations.provider.google.calendar.description",
-    state: true,
-    isCommingSoon: false,
     children: <TouchableHapticGoogle />
   }, {
     integrationKey: ProviderIntegrationEnum.GOOGLE_GMAIL,
@@ -71,8 +68,6 @@ export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
     title: "i18n.screens.integrations.provider.google.gmail.title",
     description: "i18n.screens.integrations.provider.google.gmail.description",
     info: "i18n.screens.integrations.provider.google.gmail.info",
-    state: false,
-    isCommingSoon: false,
     children: <TouchableHapticGmail grantScopeGmail={true} />
   }, {
     integrationKey: ProviderIntegrationEnum.GOOGLE_MEET,
@@ -80,22 +75,19 @@ export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
     title: "i18n.screens.integrations.provider.google.meet.title",
     description: "i18n.screens.integrations.provider.google.meet.description",
     info: "i18n.screens.integrations.provider.google.meet.info",
-    isCommingSoon: false,
-    state: false,
 }]
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const PROVIDER_ITEMS_MICROSOFT: ProviderItemProps[] = [{
   integrationKey: ProviderIntegrationEnum.MICROSOFT_CALENDAR,
   image: PNG_ASSETS.microsoftOutlook,
   title: "i18n.screens.integrations.provider.microsoft.calendar.title",
   description: "i18n.screens.integrations.provider.microsoft.calendar.description",
-  state: false,
   hasConnections: false,
   isCommingSoon: true,
 }]
@@ -104,14 +96,13 @@ export const PROVIDER_ITEMS_MICROSOFT: ProviderItemProps[] = [{
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const PROVIDER_ITEMS_OTHERS: ProviderItemProps[] = [{
   integrationKey: ProviderIntegrationEnum.SLACK_CALENDAR,
   image: PNG_ASSETS.slackCalendar,
   title: "i18n.screens.integrations.provider.others.calendar.title",
   description: "i18n.screens.integrations.provider.others.calendar.description",
-  state: false,
   hasConnections: false,
   isCommingSoon: true,
 }, {
@@ -119,7 +110,6 @@ export const PROVIDER_ITEMS_OTHERS: ProviderItemProps[] = [{
   image: PNG_ASSETS.paypalPayments,
   title: "i18n.screens.integrations.provider.others.paypal.title",
   description: "i18n.screens.integrations.provider.others.paypal.description",
-  state: false,
   hasConnections: false,
   isCommingSoon: true,
 }]

@@ -12,7 +12,7 @@ import { userSchema } from "../schema";
  * @param {string} param0.email - Email-address by oauth provider or email authentication 
  * @param {boolean} param0.banned - Handles further queries which the user has the be unbanned 
  * @param {string} param0.provider - Oauth provider which has been used for the authentication flow */
-export const createUser = internalMutation({
+export const create = internalMutation({
   args: { ...userSchema },
   handler: async (ctx, args) => await ctx.db.insert("users", { ...args }),
 }); 

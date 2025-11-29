@@ -52,7 +52,7 @@ const StartSlot = () => {
   /**
    * @description Hook is needed to check if user data has been loaded and of course if user is signed in
    * @see {@link clerk/clerk-expo} */
-
+  const { isSignedIn, isLoaded } = useAuth();
 
   /** @description Used for imperative routing after user is signed in */
   const router = useRouter();
@@ -61,11 +61,11 @@ const StartSlot = () => {
   const segments = useSegments();
 
   React.useEffect((): void => {
-    router.replace("/(private)/(tabs)");
+    if (!isLoaded) return;
 
-    /*if (isSignedIn && !segments[0].includes("(private)")) router.replace("/(private)/(tabs)")
-    else if (!isSignedIn) router.replace("/(public)")*/
-  }, []);
+    if (isSignedIn && !segments[0].includes("(private)")) router.replace("/(private)/(tabs)")
+    else if (!isSignedIn) router.replace("/(public)")
+  }, [isSignedIn, isLoaded]);
 
   return (
     <SafeAreaContextViewBase>

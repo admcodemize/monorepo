@@ -90,11 +90,11 @@ const ScreenConfigurationIntegration = () => {
 
         <View style={{ gap: 4 }}>
 
-              <View style={[GlobalContainerStyle.rowCenterBetween]}>
+              <View style={[GlobalContainerStyle.rowStartBetween]}>
                 
-                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap" }]}>
+                <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap", maxWidth: "80%" }]}>
                   {integration.calendars?.map((calendar) => (
-                    <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#159F85", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <View key={calendar._id} style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#159F85", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
                       <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#159F85", -0.1)} />
                       <TextBase text={calendar.description} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#159F85", -0.1) }]} />
                     </View>
@@ -103,9 +103,9 @@ const ScreenConfigurationIntegration = () => {
 
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
                   <Divider vertical />
-                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: integration.hasMailPermission ? focusedBgColor : shadeColor("#ababab", 0.7), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
-                    <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={integration.hasMailPermission ? focusedContentColor : shadeColor("#ababab", -0.1)} />
-                    <TextBase text="Gmail" type="label" style={[{ fontSize: 10, color: integration.hasMailPermission ? focusedContentColor : shadeColor("#ababab", -0.1) }]} />
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: integration.hasMailPermission ? shadeColor("#159F85", 0.8) : shadeColor("#ababab", 0.7), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={integration.hasMailPermission ? shadeColor("#159F85", -0.1) : shadeColor("#ababab", -0.1)} />
+                    <TextBase text="Gmail" type="label" style={[{ fontSize: 10, color: integration.hasMailPermission ? shadeColor("#159F85", -0.1) : shadeColor("#ababab", -0.1) }]} />
                   </View>
                 </View>
 

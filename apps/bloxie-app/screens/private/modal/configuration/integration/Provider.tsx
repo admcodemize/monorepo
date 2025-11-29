@@ -27,23 +27,34 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
 import { update } from "../../../../../../../packages/backend/convex/sync/settings/action";
+import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.16
+ * @version 0.0.1
+ * @type */
+type ScreenConfigurationIntegrationProviderContextProps = {
+  settings: ConvexSettingsAPIProps;
+  integrationSettings: ConvexSettingsAPIProps["integrations"];
+  setIntegrationSettings: (integrationSettings: ConvexSettingsAPIProps["integrations"]) => void;
+}
 
 /**
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
-type ScreenConfigurationIntegrationProviderItemProps = {
-  integrationKey: string;
+type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegrationProviderContextProps & {
+  integrationKey: ProviderIntegrationEnum;
   image: ImageSourcePropType;
   title: string;
   description: string;
   info?: string;
-  state: boolean;
   hasConnections?: boolean;
   isCommingSoon?: boolean;
-  onStateChange: (state: boolean) => void | Promise<void>;
   children?: React.ReactNode;
 }
 
@@ -51,7 +62,7 @@ type ScreenConfigurationIntegrationProviderItemProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const ScreenConfigurationIntegrationProvider = () => {
   /**
@@ -60,37 +71,21 @@ const ScreenConfigurationIntegrationProvider = () => {
   const settings = useUserContextStore((state) => state.settings);
 
   /**
+   * @description Get the integration settings from the context for updating the integration state
+   * @see {@link context/UserContext} */
+  const [integrationSettings, setIntegrationSettings] = React.useState<ConvexSettingsAPIProps["integrations"]>([]);
+
+  React.useEffect(() => {
+    setIntegrationSettings(Object.values(ProviderIntegrationEnum).map((key) => ({
+      integrationKey: key as ProviderIntegrationEnum,
+      state: settings?.integrations?.find((integration) => integration.integrationKey === key as ProviderIntegrationEnum)?.state ?? false
+    })));
+  }, [settings]);
+
+  /**
    * @description Get the integrations from the context for updating the UI/UX accordingly
    * @see {@link context/IntegrationContext} */
   const integrations = useIntegrationContextStore((state) => state.integrations);
-
-  /** @description Used for updating the integration state for the currently signed in user */
-  const update: ReactAction<typeof api.sync.settings.action.update> = useAction(api.sync.settings.action.update);
-
-  /**
-   * @description Handles the state change for the integration
-   * @param {ProviderIntegrationEnum} integrationKey - The integration key to update the state for
-   * @param {boolean} nextState - The new state to set for the integration
-   * @todo
-   * @function */
-  const onStateChange = 
-    (integrationKey: ProviderIntegrationEnum) => 
-    async (nextState: boolean) => {
-      if (!settings?._id || !settings?.userId) return;
-
-      const { hasErr, err } = await update({
-        _id: settings?._id as Id<"settings">,
-        userId: settings?.userId as Id<"users">,
-        integrations: settings?.integrations?.length === 0 ? [{
-          integrationKey: integrationKey,
-          state: nextState
-        }] : [...(settings?.integrations || []), {
-          integrationKey: integrationKey,
-          state: nextState
-        }]
-    });
-    console.log(hasErr, err);
-  };
 
   /**
    * @description Checks if the Google integration has connections based on the integration key
@@ -116,8 +111,10 @@ const ScreenConfigurationIntegrationProvider = () => {
               <ScreenConfigurationIntegrationProviderItem
                 key={item.integrationKey}
                 {...item}
-                hasConnections={hasGoogleConnections(item.integrationKey)}
-                onStateChange={onStateChange(item.integrationKey)}/>
+                settings={settings}
+                integrationSettings={integrationSettings}
+                setIntegrationSettings={setIntegrationSettings}
+                hasConnections={hasGoogleConnections(item.integrationKey)}/>
             ))}
         </ListItemGroup>
         <ListItemGroup 
@@ -127,7 +124,9 @@ const ScreenConfigurationIntegrationProvider = () => {
               <ScreenConfigurationIntegrationProviderItem
                 key={item.integrationKey}
                 {...item}
-                onStateChange={onStateChange(item.integrationKey)} />
+                settings={settings}
+                integrationSettings={integrationSettings}
+                setIntegrationSettings={setIntegrationSettings} />
             ))}
         </ListItemGroup>
         <ListItemGroup 
@@ -137,7 +136,9 @@ const ScreenConfigurationIntegrationProvider = () => {
               <ScreenConfigurationIntegrationProviderItem
                 key={item.integrationKey}
                 {...item}
-                onStateChange={onStateChange(item.integrationKey)} />
+                settings={settings}
+                integrationSettings={integrationSettings}
+                setIntegrationSettings={setIntegrationSettings} />
             ))}
         </ListItemGroup>
     </ScrollView>
@@ -150,28 +151,60 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @since 0.0.15
  * @version 0.0.1
  * @param {ScreenConfigurationIntegrationProviderItemProps} param0
+ * @param {ConvexSettingsAPIProps} param0.settings - The settings of the currently signed in user.
+ * @param {ConvexSettingsAPIProps["integrations"]} param0.integrationSettings - The integration settings of each item to update the state when user changes the usage of the integration.
+ * @param {ProviderIntegrationEnum} param0.integrationKey - The integration key of the item for updating the state and fetching the state from the context.
  * @param {ImageSourcePropType} param0.image - The image source of the item.
  * @param {string} param0.title - The title of the item.
  * @param {string} param0.description - The description of the item.
  * @param {string} param0.info - The info of the item.
- * @param {boolean} param0.state - The state of the item.
  * @param {boolean} param0.hasConnections - Whether the item has connections.
  * @param {boolean} param0.isCommingSoon - Whether the item is already available or coming soon.
- * @param {(state: boolean) => void|Promise<void>} param0.onStateChange - The function to call when the state changes.
  * @param {React.ReactNode} param0.children - The custom children to display on the right side of the item.
  * @component */
 const ScreenConfigurationIntegrationProviderItem = ({
+  settings,
+  integrationSettings,
+  setIntegrationSettings,
+  integrationKey,
   image,
   title,
   description,
   info,
-  state,
-  onStateChange,
   hasConnections = false,
   isCommingSoon = false,
   children
 }: ScreenConfigurationIntegrationProviderItemProps) => {
   const { secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, successColor, errorColor } = useThemeColors();
+
+  /** @description Used for updating the integration state for the currently signed in user */
+  const update: ReactAction<typeof api.sync.settings.action.update> = useAction(api.sync.settings.action.update);
+
+
+
+  const getIntegrationState = (integrationKey: ProviderIntegrationEnum) => integrationSettings?.find((integration) => integration.integrationKey === integrationKey)?.state ?? false;
+
+  //const [state, setState] = React.useState(getIntegrationState(integrationKey));
+
+
+  const onStateChange = async (
+    nextState: boolean
+  ) => {
+    console.log("onStateChange", integrationKey, nextState);
+
+    const updatedIntegrations = integrationSettings?.map((integration) => integration.integrationKey === integrationKey ? { ...integration, state: nextState } : integration) || integrationSettings || [];
+
+    debugger;
+
+    const { hasErr, err } = await update({
+      _id: settings?._id as Id<"settings">,
+      ...convertToCleanObjectForUpdate({ ...settings, integrations: updatedIntegrations }),
+    });
+
+    if (hasErr) {
+      handleConvexError(err);
+    } else setIntegrationSettings(updatedIntegrations);
+  };
 
   return (
     <View style={[ProviderStyle.item, { backgroundColor: secondaryBgColor }]}>
@@ -192,7 +225,8 @@ const ScreenConfigurationIntegrationProviderItem = ({
           </View>
         </View>
         <TouchableHapticSwitch 
-          state={state} 
+          disabled={hasConnections}
+          state={getIntegrationState(integrationKey)} 
           onStateChange={onStateChange} />
       </View>
       <View style={[ProviderStyle.itemBottom, {
@@ -233,7 +267,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
                   style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(errorColor, -0.1) }]} />
               </View>}
             </View>
-            {children && state && children}
+            {children && getIntegrationState(integrationKey) && children}
           </View>
           {info && <TextBase 
             text={info} 

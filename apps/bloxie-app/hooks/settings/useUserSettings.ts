@@ -10,7 +10,7 @@ import { ConvexSettingsAPIProps, ConvexUsersAPIProps } from "@codemize/backend/T
  * @version 0.0.2
  * @type */
 type UseEventSettingsProps = {
-  convexUser: ConvexUsersAPIProps;
+  convexUser?: ConvexUsersAPIProps;
   onFetchFinished: () => void;
 }
 
@@ -29,7 +29,7 @@ export function useUserSettings({
   /**
    * @description Get settings based on currently signed in user id 
    * @see {@link convex/sync/settings/query/get} */
-  const settingsQuery = useQuery(api.sync.settings.query.get, { _id: convexUser?._id });
+  const settingsQuery = useQuery(api.sync.settings.query.get, convexUser?._id ? { _id: convexUser._id } : "skip");
   const isReady = settingsQuery !== null && settingsQuery !== undefined;
   
   /** @description Call onFetchFinished only when real settings from DB are loaded */

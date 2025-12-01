@@ -32,7 +32,6 @@ const CalendarWeekHorizontalGridListItem = ({
   const showTimeIndicator = isThisWeek(week.startOfWeek, { locale });
 
   const config = useCalendarContextStore(selectConfig);
-  console.log("config");
   return (
     <View style={{ 
       width: config.totalWidth,

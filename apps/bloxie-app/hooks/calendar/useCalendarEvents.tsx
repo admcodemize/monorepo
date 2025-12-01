@@ -17,7 +17,7 @@ import { KEYS } from "@/constants/Keys";
  * @version 0.0.1 */
 type UseCalendarEventsProps = {
   componentId?: string;
-  convexUser: ConvexUsersAPIProps|undefined;
+  convexUser?: ConvexUsersAPIProps;
   onFetchFinished: () => void;
 }
 
@@ -40,10 +40,13 @@ export function useCalendarEvents({
   /**
   * @description Get events based on currently signed in user id and also the members of the user
   * @see {@link convex/sync/events/query/get}*/
-  const queriedEvents = useQuery(api.sync.events.query.get, {
-    _id: convexUser?._id as Id<"users">,
-    members: convexUser?.members ?? []
-  });
+  const queriedEvents = useQuery(
+    api.sync.events.query.get,
+    convexUser?._id ? {
+      _id: convexUser._id as Id<"users">,
+      members: convexUser.members ?? [],
+    } : "skip"
+  );
 
   const isReady = queriedEvents !== undefined && queriedEvents !== null;
   const events: ConvexEventsAPIProps[] = Array.isArray(queriedEvents) ? queriedEvents : [];

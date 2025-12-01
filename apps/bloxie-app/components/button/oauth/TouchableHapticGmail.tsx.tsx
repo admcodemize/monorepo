@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
-import { useTranslation } from "react-i18next";
+import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 
@@ -20,27 +20,31 @@ import TouchableHapticGmailStyle from "@/styles/components/button/oauth/Touchabl
 /** 
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.3
  * @type */
-export type TouchableHapticGmailProps = StartGoogleFlowProps & {};
+export type TouchableHapticGmailProps = {
+  userId?: Id<"users">;
+} & StartGoogleFlowProps;
 
 /** 
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.3
  * @param {StartGoogleFlowProps} param0 - The props for the Gmail OAuth flow
+ * @param {Id<"users">} param0.userId - The convex user id
  * @param {string} param0.email - The email of the user
  * @param {boolean} param0.grantScopeGmail - Whether to grant the Gmail scope
  * @function */
 const TouchableHapticGmail = ({
+  userId,
   email,
   grantScopeGmail,
 }: TouchableHapticGmailProps) => {
   const { focusedBgColor, focusedContentColor } = useThemeColors();
 
   /** @description Handles the onPress event for the Gmail OAuth flow */
-  const onPress = async () => await startGoogleFlow({ email, grantScopeGmail });
+  const onPress = async () => await startGoogleFlow({ userId, email, grantScopeGmail });
 
   return (
     <TouchableHaptic
@@ -53,7 +57,7 @@ const TouchableHapticGmail = ({
           <TextBase 
             text={"i18n.screens.integrations.connect"} 
             type="label" 
-            style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: focusedContentColor }]} />
+            style={[GlobalTypographyStyle.labelText, { color: focusedContentColor }]} />
         </View>
     </TouchableHaptic>
   );

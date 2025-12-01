@@ -227,7 +227,6 @@ const Calendar = ({
       <Divider />
       <View style={[ {  
         flex: 1,
-
         backgroundColor: colors.tertiaryBgColor,
         borderBottomColor: colors.primaryBorderColor,  
         borderTopColor: colors.primaryBorderColor

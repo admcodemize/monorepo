@@ -1,4 +1,4 @@
-import TouchableHapticGoogle from "@/components/button/oauth/TouchableHapticGoogle";
+
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
 import StackModalHeader from "@/components/container/StackModalHeader";
 import { TRAY_ACTION_ITEMS } from "@/constants/Models";
@@ -14,7 +14,6 @@ const ModalActionPoll = () => {
   return (
     <SafeAreaContextViewBase>
       <StackModalHeader title={tray!.title} />
-      <TouchableHapticGoogle />
     </SafeAreaContextViewBase>
   )
 }

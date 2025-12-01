@@ -12,6 +12,7 @@ import { View } from "react-native";
  * @version 0.0.1
  * @type */
 export type StartGoogleFlowProps = {
+  userId?: Id<"users">;
   email?: string;
   grantScopeGmail?: boolean;
   open?: (props: ToastContextOpenProps) => void;
@@ -23,7 +24,7 @@ export type StartGoogleFlowProps = {
  * @version 0.0.1
  * @type */
 export type UnlinkGoogleAccountProps = {
-  userId?: Id<"users">;
+  userId: Id<"users">;
   providerId: string;
   open?: (props: ToastContextOpenProps) => void;
 };
@@ -31,14 +32,16 @@ export type UnlinkGoogleAccountProps = {
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.2
  * @description Starts the Google OAuth flow
  * @param {StartGoogleFlowProps} param0 - The props for the Google OAuth flow
+ * @param {Id<"users">} param0.userId - The convex user id
  * @param {string} param0.email - The email of the user
  * @param {boolean} param0.grantScopeGmail - Whether to grant the Gmail scope
  * @param {Function} param0.open - The function to open the toast which indicates the loading state
  * @function */
 export const startGoogleFlow = async ({ 
+  userId,
   email, 
   grantScopeGmail, 
   open 
@@ -46,6 +49,7 @@ export const startGoogleFlow = async ({
   const scopes = [];
   if (grantScopeGmail) scopes.push("https://www.googleapis.com/auth/gmail.send");
   else scopes.push("https://www.googleapis.com/auth/calendar");
+
 
   /** @description Configure the Google OAuth flow */
   const googleConfig = {
@@ -78,12 +82,11 @@ export const startGoogleFlow = async ({
         id: res.user.id,
         email: res.user.email,
       },
-      userId: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">,
+      userId,
       grantScopeGmail: grantScopeGmail,
     }),
   });
 
-  console.log("a:", await a.json());
 };
 
 /**
@@ -113,9 +116,8 @@ export const unlinkGoogleAccount = async ({
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      userId: "j97bzw0450931g8rfqmmx38xh57vnhhz" as Id<"users">,
+      userId,
       providerId
     }),
   });
-  console.log("a:", a);
 };

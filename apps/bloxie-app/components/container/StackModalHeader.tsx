@@ -52,7 +52,7 @@ const StackModalHeader = ({
         text={description} 
         numberOfLines={3}
         ellipsizeMode={"tail"}
-        style={[GlobalTypographyStyle.labelText]} />}
+        style={[GlobalTypographyStyle.standardText]} />}
     </View>
   )
 }

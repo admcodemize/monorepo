@@ -21,6 +21,8 @@ import {
 } from "../../../Types";
 import { convertEventGoogleToConvex, convertToCleanObjectForUpdate } from "../../../Convert";
 
+const PROVIDER = "oauth_google";
+
 /**
  * @public
  * @since 0.0.9
@@ -66,7 +68,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
   const { serverAuthCode, googleUser, userId, grantScopeGmail }: HttpActionLinkGoogleProps = await req.json();
 
   /** @description Check if the account is already linked */
-  let linkedAccount = await runQuery(internal.sync.integrations.query.linkedByProviderId, { userId, provider: "google", providerId: googleUser.id });
+  let linkedAccount = await runQuery(internal.sync.integrations.query.linkedByProviderId, { userId, provider: PROVIDER, providerId: googleUser.id });
 
   /** 
    * @description Check if the grant scope gmail is not allowed for a new linked account
@@ -213,7 +215,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
     /** @description Link the provider to the user and process and carry out further configurations for the google provider */
     await runMutation(internal.sync.integrations.mutation.createLinked, {
       userId,
-      provider: "google",
+      provider: PROVIDER,
       providerId: googleUser.id,
       calendarsId: calendarsId,
       email: googleUser.email,
@@ -263,7 +265,7 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
   const { userId, providerId } = await req.json();
 
   /** @description Get the linked account for the user and provider */
-  const linkedAccount: ConvexLinkedAPIProps|null = await runQuery(internal.sync.integrations.query.linkedByProviderId, { userId, provider: "google", providerId });
+  const linkedAccount: ConvexLinkedAPIProps|null = await runQuery(internal.sync.integrations.query.linkedByProviderId,{ userId, provider: PROVIDER, providerId });
   if (!linkedAccount) return new Response(JSON.stringify({
     hasErr: true,
     data: null,
@@ -274,15 +276,12 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
   }));
 
   /** @description Stop the channel watch for the calendar lists so that the calendar events can not be fetched or updated incrementally anymore */
+  // @ts-expect-error Convex generated types might not yet expose stopChannelWatch
   const { hasErr, data, message } = await runAction(internal.sync.integrations.google.action.stopChannelWatch, { 
     channelId: linkedAccount.watch.id, 
     resourceId: linkedAccount.watch.resourceId, 
     refreshToken: linkedAccount.refreshToken 
   });
-
-  console.log("hasErr:", hasErr);
-  console.log("data:", data);
-  console.log("message:", message);
 
   /** 
    * @description Collect all the events for a given provider and calendarid and remove them all from the database
@@ -392,9 +391,6 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
 
  //console.log("tokenPayload:", tokenPayload);
 
- console.log("calendar:", calendar);
-
- console.log(req.headers);
 
 
   const linkedAccounts = await runQuery(internal.sync.integrations.query.linkedByUser, { userId: tokenPayload.userId as Id<"users"> });
@@ -440,8 +436,6 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
 
   const expiration = req.headers.get("x-goog-channel-expiration");
   const expirationMs = new Date(expiration).getTime();
-
-  console.log("data:", data);
 
     await runMutation(internal.sync.integrations.mutation.updateCalendar, {
       _id: tokenPayload.convexCalendarId as Id<"calendar">,

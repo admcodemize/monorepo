@@ -16,7 +16,9 @@ export const stackConfigs = {
     enableSwipeToClose: true,
     horizontalSpacing: 10,
     backdropStyles: { backgroundColor: "#00000030" },
+
     trayStyles: { 
+      bottom: 38,
       paddingHorizontal: 6,
       borderRadius: 20,
       borderWidth: 0,

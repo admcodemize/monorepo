@@ -1,10 +1,8 @@
-import React, { PropsWithChildren } from "react";
-import { createContext, useContext, useState } from "react";
+import * as React from "react";
+import { createContext, useContext } from "react";
 import { createStore, useStore, StoreApi } from "zustand";
 
 import { ConvexSettingsAPIProps, ConvexTimesAPIProps } from "@codemize/backend/Types";
-import { ProviderIntegrationEnum } from "@/constants/Provider";
-import { Id } from "../../../packages/backend/convex/_generated/dataModel";
 
 /**
  * @public
@@ -24,7 +22,7 @@ export type UserContextProps = {
  * @since 0.0.2
  * @version 0.0.1
  * @type */
-export type UserProviderProps = PropsWithChildren & {
+export type UserProviderProps = React.PropsWithChildren & {
   settings: ConvexSettingsAPIProps;
   times: ConvexTimesAPIProps[];
 }

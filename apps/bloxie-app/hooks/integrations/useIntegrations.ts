@@ -15,7 +15,7 @@ import { useIntegrationContextStore } from "@/context/IntegrationContext";
  * @version 0.0.2
  * @type */
 type UseIntegrationsProps = {
-  convexUser: ConvexUsersAPIProps|undefined;
+  convexUser?: ConvexUsersAPIProps;
   onFetchFinished: () => void;
 }
 
@@ -37,9 +37,10 @@ export function useIntegrations({
   /**
   * @description Get integrations based on currently signed in user id
   * @see {@link convex/sync/events/query/get}*/
-  const queriedIntegrations = useQuery(api.sync.integrations.query.get, { 
-    userId: convexUser?._id as Id<"users">,
-  });
+  const queriedIntegrations = useQuery(
+    api.sync.integrations.query.get,
+    convexUser?._id ? { userId: convexUser._id as Id<"users"> } : "skip"
+  );
 
   const isReady = queriedIntegrations !== undefined && queriedIntegrations !== null;
   const integrations: ConvexCalendarQueryAPIProps[] = Array.isArray(queriedIntegrations) ? queriedIntegrations : [];

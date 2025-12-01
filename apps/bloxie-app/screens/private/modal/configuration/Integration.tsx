@@ -5,7 +5,7 @@ import { faArrowUpRightFromSquare } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { STYLES } from "@codemize/constants/Styles";
-import { View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { SVG_ASSETS } from "@/assets/svg";
 import { PNG_ASSETS } from "@/assets/png";
 import ListItemGroup from "@/components/container/ListItemGroup";
@@ -17,8 +17,6 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { faAlarmClock, faHourglass, faHourglassHalf, faLink, faPaperPlane } from "@fortawesome/duotone-thin-svg-icons";
 import { faLinkSlash } from "@fortawesome/duotone-thin-svg-icons";
-import HorizontalNavigation from "@/components/container/HorizontalNavigation";
-import { SceneMap } from "react-native-tab-view";
 import ViewBase from "@/components/container/View";
 import React from "react";
 import Divider from "@/components/container/Divider";
@@ -34,9 +32,11 @@ import TouchableCheckbox from "@/components/button/TouchableCheckbox";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import TouchableHapticGmail from "@/components/button/oauth/TouchableHapticGmail.tsx";
 import { unlinkGoogleAccount } from "@/helpers/Provider";
+import { useConvexUser } from "@/hooks/auth/useConvexUser";
 import { Image } from "react-native";
 import { useToastStore } from "@/context/ToastContext";
 import ScreenConfigurationIntegrationProvider from "./integration/Provider";
+import TabsWithSwipe from "@/components/container/HorizontalNavigation";
 
 const ScreenConfigurationIntegration = () => {
 
@@ -45,12 +45,14 @@ const ScreenConfigurationIntegration = () => {
   const integrations = useIntegrationContextStore((state) => state.integrations);
 
   const { open, close } = useToastStore((state) => state);
+  const { convexUser } = useConvexUser();
 
   const hContentRight = () => 
+
   
   
   
-<View style={{ paddingHorizontal: STYLES.paddingHorizontal, paddingVertical: STYLES.paddingVertical + 4, gap: STYLES.sizeGap }}>
+<View style={{ paddingHorizontal: STYLES.paddingHorizontal, paddingVertical: STYLES.paddingVertical + 4, gap: STYLES.sizeGap, width: Dimensions.get("window").width}}>
 
 <ListItemGroup 
   title={"i18n.screens.trayAction.items.integration.connections.group1.title"}
@@ -63,27 +65,28 @@ const ScreenConfigurationIntegration = () => {
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
           <Image source={PNG_ASSETS.googleCalendar} style={{ height: STYLES.sizeFaIcon + 18, width: STYLES.sizeFaIcon + 16 }} resizeMode="cover"/>
           <View style={{ gap: 1 }}>
-            <TextBase text={integration.email} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
-            <TextBase text="Letzte Synchronisation vor 5 Minuten" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+            <TextBase text={integration.email} type="label" style={[GlobalTypographyStyle.textSubtitle, { color: infoColor }]} />
+            <TextBase text="Letzte Synchronisation vor 5 Minuten" type="label" style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3) }]} />
           </View>
         </View>
             <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
     
               <TouchableHaptic
               onPress={async () => { 
-                await unlinkGoogleAccount({ providerId: integration.providerId, open });
+                if (!convexUser?._id) return;
+                await unlinkGoogleAccount({ userId: convexUser._id as Id<"users">, providerId: integration.providerId, open });
                 close();
                 
               }}>
               <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor(errorColor, 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
                 <FontAwesomeIcon icon={faLinkSlash as IconProp} size={11} color={shadeColor(errorColor, -0.1)} />
-                <TextBase text="Trennen" i18nTranslation={false} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(errorColor, -0.1) }]} />
+                <TextBase text="Trennen" i18nTranslation={false} style={[GlobalTypographyStyle.labelText, { color: shadeColor(errorColor, -0.1) }]} />
               </View>
               </TouchableHaptic>
             </View>
         </View>
 
-        <View style={{ backgroundColor: tertiaryBgColor, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
+        <View style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.8), paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, borderWidth: 0.5, borderColor: primaryBorderColor,
           borderTopRightRadius: 8,
           borderTopLeftRadius: 8,
         }}>
@@ -94,18 +97,18 @@ const ScreenConfigurationIntegration = () => {
                 
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap", maxWidth: "80%" }]}>
                   {integration.calendars?.map((calendar) => (
-                    <View key={calendar._id} style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: shadeColor("#159F85", 0.8), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
-                      <FontAwesomeIcon icon={faLink as IconProp} size={12} color={shadeColor("#159F85", -0.1)} />
-                      <TextBase text={calendar.description} type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#159F85", -0.1) }]} />
+                    <View key={calendar._id} style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: focusedBgColor, padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                      <FontAwesomeIcon icon={faLink as IconProp} size={12} color={focusedContentColor} />
+                      <TextBase text={calendar.description} style={[GlobalTypographyStyle.labelText, { color: focusedContentColor }]} />
                     </View>
                   ))}
                 </View>
 
                 <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
                   <Divider vertical />
-                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: integration.hasMailPermission ? shadeColor("#159F85", 0.8) : shadeColor("#ababab", 0.7), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
-                    <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={integration.hasMailPermission ? shadeColor("#159F85", -0.1) : shadeColor("#ababab", -0.1)} />
-                    <TextBase text="Gmail" type="label" style={[{ fontSize: 10, color: integration.hasMailPermission ? shadeColor("#159F85", -0.1) : shadeColor("#ababab", -0.1) }]} />
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: integration.hasMailPermission ? focusedBgColor : shadeColor("#ababab", 0.7), padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
+                    <FontAwesomeIcon icon={faPaperPlane as IconProp} size={10} color={integration.hasMailPermission ? focusedContentColor : shadeColor("#ababab", -0.1)} />
+                    <TextBase text="Gmail" style={[{ color: integration.hasMailPermission ? focusedContentColor : shadeColor("#ababab", -0.1) }]} />
                   </View>
                 </View>
 
@@ -140,7 +143,10 @@ const ScreenConfigurationIntegration = () => {
               iconColor={linkColor}
               hideBorder={true}
               hasViewCustomStyle={true}
-              onPress={() => { unlinkGoogleAccount({ providerId: integration.providerId }); }}
+              onPress={() => { 
+                if (!convexUser?._id) return;
+                unlinkGoogleAccount({ userId: convexUser._id as Id<"users">, providerId: integration.providerId });
+              }}
             />
           </View>
         </View>
@@ -180,26 +186,27 @@ const ScreenConfigurationIntegration = () => {
    * @description The scene renderer for the horizontal navigation
    * -> Handles the rendering of the horizontal navigation content
    * @see {@link https://reactnavigation.org/docs/tab-based-navigation#scene-map} */
-   const renderScene = React.useMemo(() => SceneMap({
-    provider: ScreenConfigurationIntegrationProvider,
-    connections: hContentRight,
-    synchronization: hContentRight1
-  }), []);
+
 
   const navigationState = React.useMemo(() => ({
     index: 0,
     routes: [
-      { key: "provider", title: "Provider", index: 0 },
-      { key: "connections", title: "Verknüpfungen", index: 1 },
-      { key: "synchronization", title: "Synchronisation", index: 2 },
+      { key: "provider", title: "Provider", index: 0},
+      { key: "connections", title: "Verknüpfungen", index: 1},
+      { key: "synchronization", title: "Synchronisation", index: 2},
     ],
-  }), []);
+  }), [])
 
   return (
     <ViewBase style={{  }}>
-      <HorizontalNavigation 
+      {/*<HorizontalNavigation 
         renderScene={renderScene}
-        navigationState={navigationState} />
+        navigationState={navigationState} />*/}
+        <TabsWithSwipe tabs={[
+          { title: "Provider", component: <ScreenConfigurationIntegrationProvider /> },
+          { title: "Verknüpfungen", component: <View>{hContentRight()}</View> },
+          { title: "Synchronisation", component: <View><TextBase text="Synchronisation" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 16, color: textColor }]} /></View> },
+        ]} />
     </ViewBase>
   )
 }

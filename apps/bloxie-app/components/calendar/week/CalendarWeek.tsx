@@ -225,7 +225,6 @@ const CalendarWeek = ({
     onScroll: (event, context) => {
       'worklet';
       if (isScrollingFromContent.value) return;
-      console.log("onScrollHorizontalList");
       
       // Berechne aktuellen Index basierend auf Scroll-Position
       const currentIndex = Math.round(event.contentOffset.x / TOTAL_GRID_WIDTH);

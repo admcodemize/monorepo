@@ -1,9 +1,3 @@
-import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
-import Animated, { Easing, FadeIn, FadeOut } from "react-native-reanimated";
-
-import { useDropdownContextStore } from "@/context/DropdownContext";
-
-import DropdownOverlayStyle from "@/styles/components/container/DropdownOverlay";
 import { useToastStore } from "@/context/ToastContext";
 import ToastRoot from "./ToastRoot";
 import React from "react";
@@ -27,10 +21,12 @@ const ToastOverlay = ({
 
 }: ToastOverlayProps) => {
   /** @see {@link context/ToastContext} */
-  const { isOpen, data, children, close } = useToastStore((state) => state);
+  const { data, children } = useToastStore((state) => state);
+  const hasChildren = typeof children === "function" || Boolean(children);
 
-  /** @description If the dropdown is not open or the children or position is not set, do not render anything */
-  if (!isOpen || !data || !children) return null;
+  /** @description If there is no content to show, do not render anything */
+  if (!data && !hasChildren) return null;
+  console.log("data", data);
 
   return (
     <ToastRoot />

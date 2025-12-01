@@ -2,9 +2,11 @@
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @type */
 type KeysProps = {
+  providerGroup: string;
+  providerGroupItem: string;
   screenContext: string;
   calendarEvent: string;
   calendarWeekHorizontal: string;
@@ -24,9 +26,11 @@ type KeysProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @constant */
 export const KEYS: KeysProps = {
+  providerGroup: "providerGroup",
+  providerGroupItem: "providerGroupItem",
   screenContext: "screenContext",
   calendarEvent: "calendarEvent",
   calendarWeekHorizontal: "calendarWeekHorizontal",

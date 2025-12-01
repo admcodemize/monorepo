@@ -15,7 +15,7 @@ import { ConvexSettingsAPIProps } from "@codemize/backend/Types";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useIntegrationContextStore } from "@/context/IntegrationContext";
-import { PROVIDER_ITEMS_GOOGLE, PROVIDER_ITEMS_MICROSOFT, PROVIDER_ITEMS_OTHERS, ProviderEnum, ProviderIntegrationEnum } from "@/constants/Provider";
+import { getProviderItemsGoogle, PROVIDER_ITEMS_GOOGLE, PROVIDER_ITEMS_MICROSOFT, PROVIDER_ITEMS_OTHERS, ProviderEnum, ProviderIntegrationEnum, ProviderItemProps } from "@/constants/Provider";
 import { useUserContextStore } from "@/context/UserContext";
 import { handleConvexError } from "@/helpers/Convex";
 
@@ -28,6 +28,7 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
 import { update } from "../../../../../../../packages/backend/convex/sync/settings/action";
 import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
+import { KEYS } from "@/constants/Keys";
 
 /**
  * @private
@@ -40,6 +41,17 @@ type ScreenConfigurationIntegrationProviderContextProps = {
   integrationSettings: ConvexSettingsAPIProps["integrations"];
   setIntegrationSettings: (integrationSettings: ConvexSettingsAPIProps["integrations"]) => void;
 }
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.17
+ * @version 0.0.1
+ * @type */
+type ProviderGroupItemsProps = {
+  title: string;
+  items: ProviderItemProps[];
+};
 
 /**
  * @private
@@ -100,47 +112,38 @@ const ScreenConfigurationIntegrationProvider = () => {
       ? integrations.some((integration) => integration.provider === ProviderEnum.GOOGLE && integration.hasMailPermission) 
       : false;
 
+  /** @description Handles the display of the individual provider groups with the corresponding integration items*/
+  const providerItems: ProviderGroupItemsProps[] = React.useMemo(() => [{
+    title: "i18n.screens.integrations.provider.google.title",
+    items: getProviderItemsGoogle(settings?.userId as Id<"users">),
+  }, {
+    title: "i18n.screens.integrations.provider.microsoft.title",
+    items: PROVIDER_ITEMS_MICROSOFT,
+  }, {
+    title: "i18n.screens.integrations.provider.others.title",
+    items: PROVIDER_ITEMS_OTHERS 
+  }], []);
+
   return (
     <ScrollView 
       showsVerticalScrollIndicator={false} 
       contentContainerStyle={ProviderStyle.view}>
-        <ListItemGroup 
-          title={"i18n.screens.integrations.provider.google.title"}
-          gap={STYLES.sizeGap}>
-            {PROVIDER_ITEMS_GOOGLE.map((item) => (
+        {providerItems.map((group) => ( 
+          <ListItemGroup 
+            key={`${KEYS.providerGroup}-${group.title}`}
+            title={group.title}
+            gap={STYLES.sizeGap}>
+            {group.items.map((item) => (
               <ScreenConfigurationIntegrationProviderItem
-                key={item.integrationKey}
+                key={`${KEYS.providerGroupItem}-${item.integrationKey}`}
                 {...item}
                 settings={settings}
                 integrationSettings={integrationSettings}
                 setIntegrationSettings={setIntegrationSettings}
                 hasConnections={hasGoogleConnections(item.integrationKey)}/>
             ))}
-        </ListItemGroup>
-        <ListItemGroup 
-          title={"i18n.screens.integrations.provider.microsoft.title"}
-          gap={STYLES.sizeGap}>
-            {PROVIDER_ITEMS_MICROSOFT.map((item) => (
-              <ScreenConfigurationIntegrationProviderItem
-                key={item.integrationKey}
-                {...item}
-                settings={settings}
-                integrationSettings={integrationSettings}
-                setIntegrationSettings={setIntegrationSettings} />
-            ))}
-        </ListItemGroup>
-        <ListItemGroup 
-          title={"i18n.screens.integrations.provider.others.title"}
-          gap={STYLES.sizeGap}>
-            {PROVIDER_ITEMS_OTHERS.map((item) => (
-              <ScreenConfigurationIntegrationProviderItem
-                key={item.integrationKey}
-                {...item}
-                settings={settings}
-                integrationSettings={integrationSettings}
-                setIntegrationSettings={setIntegrationSettings} />
-            ))}
-        </ListItemGroup>
+          </ListItemGroup>
+        ))}
     </ScrollView>
   );
 };
@@ -190,8 +193,6 @@ const ScreenConfigurationIntegrationProviderItem = ({
   const onStateChange = async (
     nextState: boolean
   ) => {
-    console.log("onStateChange", integrationKey, nextState);
-
     const updatedIntegrations = integrationSettings?.map((integration) => integration.integrationKey === integrationKey ? { ...integration, state: nextState } : integration) || integrationSettings || [];
 
     debugger;
@@ -215,22 +216,22 @@ const ScreenConfigurationIntegrationProviderItem = ({
             <TextBase 
               text={title} 
               type="label" 
-              style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: infoColor }]} />
+              style={[GlobalTypographyStyle.textSubtitle, { color: infoColor }]} />
             <TextBase 
               text={description} 
               type="label" 
               numberOfLines={1}
               ellipsizeMode="tail"
-              style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(infoColor, 0.3) }]} />
+              style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3) }]} />
           </View>
         </View>
         <TouchableHapticSwitch 
-          disabled={hasConnections}
+          disabled={isCommingSoon}
           state={getIntegrationState(integrationKey)} 
           onStateChange={onStateChange} />
       </View>
       <View style={[ProviderStyle.itemBottom, {
-        backgroundColor: tertiaryBgColor, 
+        backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
         borderColor: primaryBorderColor
       }]}>
         <View style={{ gap: 4 }}>
@@ -244,7 +245,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
                 <TextBase 
                   text={"i18n.screens.integrations.noConnections"} 
                   type="label" 
-                  style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor("#ababab", -0.1) }]} />
+                  style={[GlobalTypographyStyle.labelText, { color: shadeColor("#ababab", -0.1) }]} />
               </View>}
               {hasConnections && <View style={[GlobalContainerStyle.rowCenterStart, ProviderStyle.itemBottomContent, { backgroundColor: shadeColor(successColor, 0.8) }]}>
                 <FontAwesomeIcon 
@@ -254,7 +255,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
                 <TextBase 
                   text={"i18n.screens.integrations.activeConnections"} 
                   type="label" 
-                  style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(successColor, -0.1) }]} />
+                  style={[GlobalTypographyStyle.labelText, { color: shadeColor(successColor, -0.1) }]} />
               </View>}
               {isCommingSoon && <View style={[GlobalContainerStyle.rowCenterStart, ProviderStyle.itemBottomContent, { backgroundColor: shadeColor(errorColor, 0.8) }]}>
                 <FontAwesomeIcon
@@ -264,7 +265,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
                 <TextBase 
                   text={"i18n.global.comingSoon"} 
                   type="label" 
-                  style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: shadeColor(errorColor, -0.1) }]} />
+                  style={[GlobalTypographyStyle.labelText, { color: shadeColor(errorColor, -0.1) }]} />
               </View>}
             </View>
             {children && getIntegrationState(integrationKey) && children}
@@ -272,7 +273,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
           {info && <TextBase 
             text={info} 
             type="label" 
-            style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />}
+            style={[GlobalTypographyStyle.labelText]} />}
         </View>
       </View>
   </View>

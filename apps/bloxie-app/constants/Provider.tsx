@@ -1,5 +1,6 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, cloneElement, isValidElement } from "react";
 import { ImageSourcePropType } from "react-native";
+import { Id } from "../../../packages/backend/convex/_generated/dataModel";
 
 import { PNG_ASSETS } from "@/assets/png";
 
@@ -57,24 +58,24 @@ export type ProviderItemProps = PropsWithChildren & {
  * @version 0.0.3
  * @constant */
 export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
-    integrationKey: ProviderIntegrationEnum.GOOGLE_CALENDAR,
-    image: PNG_ASSETS.googleCalendar,
-    title: "i18n.screens.integrations.provider.google.calendar.title",
-    description: "i18n.screens.integrations.provider.google.calendar.description",
-    children: <TouchableHapticGoogle />
-  }, {
-    integrationKey: ProviderIntegrationEnum.GOOGLE_GMAIL,
-    image: PNG_ASSETS.googleMail,
-    title: "i18n.screens.integrations.provider.google.gmail.title",
-    description: "i18n.screens.integrations.provider.google.gmail.description",
-    info: "i18n.screens.integrations.provider.google.gmail.info",
-    children: <TouchableHapticGmail grantScopeGmail={true} />
-  }, {
-    integrationKey: ProviderIntegrationEnum.GOOGLE_MEET,
-    image: PNG_ASSETS.googleMeet,
-    title: "i18n.screens.integrations.provider.google.meet.title",
-    description: "i18n.screens.integrations.provider.google.meet.description",
-    info: "i18n.screens.integrations.provider.google.meet.info",
+  integrationKey: ProviderIntegrationEnum.GOOGLE_CALENDAR,
+  image: PNG_ASSETS.googleCalendar,
+  title: "i18n.screens.integrations.provider.google.calendar.title",
+  description: "i18n.screens.integrations.provider.google.calendar.description",
+  children: <TouchableHapticGoogle />
+}, {
+  integrationKey: ProviderIntegrationEnum.GOOGLE_GMAIL,
+  image: PNG_ASSETS.googleMail,
+  title: "i18n.screens.integrations.provider.google.gmail.title",
+  description: "i18n.screens.integrations.provider.google.gmail.description",
+  info: "i18n.screens.integrations.provider.google.gmail.info",
+  children: <TouchableHapticGmail grantScopeGmail={true} />
+}, {
+  integrationKey: ProviderIntegrationEnum.GOOGLE_MEET,
+  image: PNG_ASSETS.googleMeet,
+  title: "i18n.screens.integrations.provider.google.meet.title",
+  description: "i18n.screens.integrations.provider.google.meet.description",
+  info: "i18n.screens.integrations.provider.google.meet.info",
 }]
 
 /**
@@ -113,3 +114,29 @@ export const PROVIDER_ITEMS_OTHERS: ProviderItemProps[] = [{
   hasConnections: false,
   isCommingSoon: true,
 }]
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.17
+ * @version 0.0.1
+ * @param {Id<"users">} userId - The convex user id
+ * @constant */
+export const getProviderItemsGoogle = (
+  userId: Id<"users">
+) => {
+  return PROVIDER_ITEMS_GOOGLE.map((item) => {
+    const shouldInjectUserId = [
+      ProviderIntegrationEnum.GOOGLE_CALENDAR,
+      ProviderIntegrationEnum.GOOGLE_GMAIL,
+    ].includes(item.integrationKey);
+
+    /** 
+     * @description Inject the userId into the children if the integration key is Google Calendar or Google Gmail 
+     * -> Example: <TouchableHapticGoogle userId={userId} .... />
+     * -> The original props will be passed to the component with the additional userId prop */
+    if (shouldInjectUserId && isValidElement<{ userId?: Id<"users"> }>(item.children)) {
+      return { ...item, children: cloneElement(item.children, { userId }) };
+    } return item;
+  });
+}

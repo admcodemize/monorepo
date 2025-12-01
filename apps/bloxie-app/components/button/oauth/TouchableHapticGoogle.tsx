@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
-import { useTranslation } from "react-i18next";
+import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 
@@ -21,20 +21,23 @@ import TouchableHapticGoogleStyle from "@/styles/components/button/oauth/Touchab
 /** 
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.3
  * @type */
-export type TouchableHapticGoogleProps =  {};
+export type TouchableHapticGoogleProps = {
+  userId?: Id<"users">;
+};
 
 /** 
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.3
  * @param {StartGoogleFlowProps} param0 - The props for the Gmail OAuth flow
  * @param {string} param0.email - The email of the user
  * @param {boolean} param0.grantScopeGmail - Whether to grant the Gmail scope
  * @function */
 const TouchableHapticGoogle = ({
+  userId,
 }: TouchableHapticGoogleProps) => {
   const { focusedBgColor, focusedContentColor } = useThemeColors();
 
@@ -42,7 +45,7 @@ const TouchableHapticGoogle = ({
 
   /** @description Handles the onPress event for the calendar OAuth flow */
   const onPress = async () => {
-    await startGoogleFlow({ open });
+    await startGoogleFlow({ userId, grantScopeGmail: false, open });
     close();
   }
 
@@ -57,7 +60,7 @@ const TouchableHapticGoogle = ({
           <TextBase 
             text={"i18n.screens.integrations.connect"} 
             type="label" 
-            style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: focusedContentColor }]} />
+            style={[GlobalTypographyStyle.labelText, { color: focusedContentColor }]} />
         </View>
     </TouchableHaptic>
   );

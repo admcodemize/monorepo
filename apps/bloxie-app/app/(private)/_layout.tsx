@@ -32,27 +32,8 @@ type LoadedProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.3 */
+ * @version 0.0.4 */
 const PrivateLayout = () => { 
-  /** 
-   * @description Will be used to handle the visibility of the custom splashscreen which will be shown until
-   * all the ressources are loaded */
-  const loadedRef = React.useRef<LoadedProps>({
-    userSettingsFetchFinished: false,
-    eventsFetchFinished: false,
-    integrationsFetchFinished: false,
-  });
-
-  /**
-   * @description Marks the given key as loaded
-   * @param {keyof LoadedProps} key - The key to mark as loaded
-   * @see {@link LoadedProps} */
-  const setFetchFinished = (key: keyof LoadedProps) => {
-    if (loadedRef.current[key]) return;
-    loadedRef.current = { ...loadedRef.current, [key]: true };
-    setIsLoaded(loadedRef.current);
-  };
-
   /**
    * @description Handles the authentication state of the user
    * @see {@link @clerk/clerk-expo} */
@@ -65,24 +46,28 @@ const PrivateLayout = () => {
   /**
    * @description Will be used to handle the visibility of the custom splashscreen which will be shown until
    * all the ressources are loaded */
-  const [isLoaded, setIsLoaded] = React.useState<LoadedProps>(loadedRef.current);
+  const [isLoaded, setIsLoaded] = React.useState<LoadedProps>({ 
+    userSettingsFetchFinished: false, 
+    eventsFetchFinished: false,
+    integrationsFetchFinished: false 
+  });
 
   /**
    * @description Loads the user settings for the currently signed in user
    * @see {@link hooks/settings/useUserSettings} */
-  const { settings } = useUserSettings({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setFetchFinished("userSettingsFetchFinished") });
+  const { settings } = useUserSettings({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, userSettingsFetchFinished: true })) });
 
   /**
    * @description Loads the currently signed in and subscripted users events 
    * -> Handles the automatic refresh when a new custom event is added or some data in the database changes!
    * @see {@link hooks/calendar/useCalendarEvents} */
-  useCalendarEvents({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setFetchFinished("eventsFetchFinished") });
+  useCalendarEvents({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, eventsFetchFinished: true })) });
 
   /**
    * @description Loads the currently signed in and subscripted users integrations
    * -> Handles the automatic refresh when a new integration is added or some data in the database changes!
    * @see {@link hooks/integrations/useIntegrations} */
-  useIntegrations({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setFetchFinished("integrationsFetchFinished") });
+  useIntegrations({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, integrationsFetchFinished: true })) });
 
   /** @description If not all the data is loaded, show the loading screen */
   if (!isLoaded.userSettingsFetchFinished || !isLoaded.eventsFetchFinished || !isLoaded.integrationsFetchFinished) return <LoadingScreen />;
@@ -90,16 +75,7 @@ const PrivateLayout = () => {
   return (
     <UserProvider 
       settings={settings} 
-      times={[
-        { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T07:00:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-29T09:00:00.000Z", end: "2025-10-29T10:30:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 1, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T06:00:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 2, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T04:00:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 1, type: "weekdays", start: "2025-10-29T16:00:00.000Z", end: "2025-10-29T23:00:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 5, type: "weekdays", start: "2025-10-29T04:00:00.000Z", end: "2025-10-29T09:00:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 6, type: "weekdays", start: "2025-10-29T13:00:00.000Z", end: "2025-10-29T15:00:00.000Z", isBlocked: true },
-        { userId: "a" as Id<"users">, day: 4, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T05:00:00.000Z", isBlocked: true }
-      ]}>
+      times={[]}>
         <DateTimeProvider timeZone={getTimeZone()}>
           <Stack
             screenOptions={{ 
@@ -123,3 +99,16 @@ const PrivateLayout = () => {
 }
 
 export default PrivateLayout;
+
+/**
+ * 
+        { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T07:00:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 3, type: "weekdays", start: "2025-10-29T09:00:00.000Z", end: "2025-10-29T10:30:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 1, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T06:00:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 2, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T04:00:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 1, type: "weekdays", start: "2025-10-29T16:00:00.000Z", end: "2025-10-29T23:00:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 5, type: "weekdays", start: "2025-10-29T04:00:00.000Z", end: "2025-10-29T09:00:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 6, type: "weekdays", start: "2025-10-29T13:00:00.000Z", end: "2025-10-29T15:00:00.000Z", isBlocked: true },
+        { userId: "a" as Id<"users">, day: 4, type: "weekdays", start: "2025-10-28T23:00:00.000Z", end: "2025-10-29T05:00:00.000Z", isBlocked: true }
+      
+ */

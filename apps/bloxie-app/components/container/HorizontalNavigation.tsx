@@ -27,7 +27,7 @@ type TabItem = {
 };
 
 type Props = {
-  tabs: TabItem[];
+  horizontalNavigation: TabItem[];
 };
 
 type TabMetric = {
@@ -40,14 +40,14 @@ const TIMING_OPTIONS = {
   easing: Easing.out(Easing.cubic),
 };
 
-export default function TabsWithSwipe({ tabs }: Props) {
+export default function HorizontalNavigation({ horizontalNavigation }: Props) {
   const { linkColor, infoColor, primaryBorderColor } = useThemeColors();
   const indexRef = useSharedValue(0);
   const baseOffsetRef = useSharedValue(0);
   const translateXRef = useSharedValue(0);
   const gestureStartXRef = useSharedValue(0);
   const tabLayoutsRef = React.useRef<TabMetric[]>(
-    Array.from({ length: tabs.length }, () => ({ width: 0, x: 0 })),
+    Array.from({ length: horizontalNavigation.length }, () => ({ width: 0, x: 0 })),
   );
   const indicatorOffsetRef = useSharedValue(0);
   const indicatorWidthRef = useSharedValue(0);
@@ -63,27 +63,27 @@ export default function TabsWithSwipe({ tabs }: Props) {
   }, []);
 
   const updateIndex = React.useCallback((next: number, fromGesture = false) => {
-    const clamped = Math.max(0, Math.min(next, tabs.length - 1));
+    const clamped = Math.max(0, Math.min(next, horizontalNavigation.length - 1));
     indexRef.value = clamped;
     if (!fromGesture) {
       translateXRef.value = 0;
     }
     baseOffsetRef.value = withTiming(-clamped * width, TIMING_OPTIONS);
     setActiveIndex(clamped);
-  }, [animateIndicator, tabs.length]);
+  }, [animateIndicator, horizontalNavigation.length]);
 
   React.useEffect(() => {
-    const maxIndex = Math.max(0, tabs.length - 1);
+    const maxIndex = Math.max(0, horizontalNavigation.length - 1);
     const clamped = Math.min(indexRef.value, maxIndex);
     indexRef.value = clamped;
     setActiveIndex(clamped);
-    tabLayoutsRef.current = Array.from({ length: tabs.length }, () => ({ width: 0, x: 0 }));
+    tabLayoutsRef.current = Array.from({ length: horizontalNavigation.length }, () => ({ width: 0, x: 0 }));
     indicatorOffsetRef.value = 0;
     indicatorWidthRef.value = 0;
     baseOffsetRef.value = withTiming(-clamped * width, TIMING_OPTIONS);
     translateXRef.value = 0;
     animateIndicator(clamped);
-  }, [animateIndicator, tabs.length]);
+  }, [animateIndicator, horizontalNavigation.length]);
 
   React.useEffect(() => {
     animateIndicator(activeIndex);
@@ -98,7 +98,7 @@ export default function TabsWithSwipe({ tabs }: Props) {
   }, [activeIndex, animateIndicator]);
 
   // Gesture Handling
-  const tabsLength = tabs.length;
+  const tabsLength = horizontalNavigation.length;
 
   const panGesture = React.useMemo(
     () =>
@@ -151,7 +151,7 @@ export default function TabsWithSwipe({ tabs }: Props) {
     <View style={styles.container}>
       {/* TAB BAR */}
       <View style={[styles.tabBar, { borderColor: primaryBorderColor }]}>
-        {tabs.map((t, i) => (
+        {horizontalNavigation.map((t, i) => (
           <TouchableOpacity
             key={i}
             onLayout={(e) => onTabLayout(e, i)}
@@ -177,8 +177,8 @@ export default function TabsWithSwipe({ tabs }: Props) {
 
       {/* SWIPE AREA */}
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.slider, { width: width * tabs.length }, sliderStyle]}>
-          {tabs.map((t, i) => (
+        <Animated.View style={[styles.slider, { width: width * horizontalNavigation.length }, sliderStyle]}>
+          {horizontalNavigation.map((t, i) => (
             <View key={i} style={styles.page}>
               {t.component}
             </View>

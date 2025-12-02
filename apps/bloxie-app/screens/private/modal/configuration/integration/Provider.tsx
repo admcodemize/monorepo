@@ -29,6 +29,7 @@ import ProviderStyle from "@/styles/screens/private/modal/configuration/integrat
 import { update } from "../../../../../../../packages/backend/convex/sync/settings/action";
 import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
 import { KEYS } from "@/constants/Keys";
+import TouchableTag from "@/components/button/TouchableTag";
 
 /**
  * @private
@@ -202,10 +203,10 @@ const ScreenConfigurationIntegrationProviderItem = ({
       ...convertToCleanObjectForUpdate({ ...settings, integrations: updatedIntegrations }),
     });
 
-    if (hasErr) {
-      handleConvexError(err);
-    } else setIntegrationSettings(updatedIntegrations);
+    if (hasErr) handleConvexError(err);
+    else setIntegrationSettings(updatedIntegrations);
   };
+
 
   return (
     <View style={[ProviderStyle.item, { backgroundColor: secondaryBgColor }]}>
@@ -237,36 +238,18 @@ const ScreenConfigurationIntegrationProviderItem = ({
         <View style={{ gap: 4 }}>
           <View style={GlobalContainerStyle.rowCenterBetween}>
             <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
-              {!hasConnections && <View style={[GlobalContainerStyle.rowCenterStart, ProviderStyle.itemBottomContent, { backgroundColor: shadeColor("#ababab", 0.8) }]}>
-                <FontAwesomeIcon 
-                  icon={faLink as IconProp} 
-                  size={12} 
-                  color={shadeColor("#ababab", -0.1)} />
-                <TextBase 
-                  text={"i18n.screens.integrations.noConnections"} 
-                  type="label" 
-                  style={[GlobalTypographyStyle.labelText, { color: shadeColor("#ababab", -0.1) }]} />
-              </View>}
-              {hasConnections && <View style={[GlobalContainerStyle.rowCenterStart, ProviderStyle.itemBottomContent, { backgroundColor: shadeColor(successColor, 0.8) }]}>
-                <FontAwesomeIcon 
-                  icon={faLink as IconProp} 
-                  size={12} 
-                  color={shadeColor(successColor, -0.1)} />
-                <TextBase 
-                  text={"i18n.screens.integrations.activeConnections"} 
-                  type="label" 
-                  style={[GlobalTypographyStyle.labelText, { color: shadeColor(successColor, -0.1) }]} />
-              </View>}
-              {isCommingSoon && <View style={[GlobalContainerStyle.rowCenterStart, ProviderStyle.itemBottomContent, { backgroundColor: shadeColor(errorColor, 0.8) }]}>
-                <FontAwesomeIcon
-                  icon={faAlarmClock as IconProp} 
-                  size={10} 
-                  color={shadeColor(errorColor, -0.1)} />
-                <TextBase 
-                  text={"i18n.global.comingSoon"} 
-                  type="label" 
-                  style={[GlobalTypographyStyle.labelText, { color: shadeColor(errorColor, -0.1) }]} />
-              </View>}
+              <TouchableTag
+                icon={faLink as IconProp}
+                text={hasConnections ? "i18n.screens.integrations.activeConnections" : "i18n.screens.integrations.noConnections"}
+                isActive={hasConnections}
+                backgroundColor={hasConnections ? successColor : "#ababab"}
+                disabled={true}/>
+              {isCommingSoon && <TouchableTag
+                icon={faAlarmClock as IconProp}
+                text={"i18n.global.comingSoon"}
+                colorInactive={errorColor}
+                isActive={false}
+                disabled={true}/>}
             </View>
             {children && getIntegrationState(integrationKey) && children}
           </View>

@@ -24,7 +24,7 @@ type UseIntegrationsProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description - Sets the integrations stored in convex
  * @since 0.0.13
- * @version 0.0.1 */
+ * @version 0.0.2 */
 export function useIntegrations({
   convexUser,
   onFetchFinished = () => {},
@@ -46,14 +46,11 @@ export function useIntegrations({
   const integrations: ConvexCalendarQueryAPIProps[] = Array.isArray(queriedIntegrations) ? queriedIntegrations : [];
 
   React.useEffect(() => {
-    if (integrations instanceof Array && integrations.length > 0) {
-      integrations.forEach((integration) => {
-        setIntegrations([...integrations, integration]);
-      });
+    if (!isReady) return;
 
-      /**
-       * @description Update integrations based on convex selection */
-      setIntegrations(integrations);
-    } if (isReady) onFetchFinished();
+    /**
+     * @description Update integrations based on convex selection */
+    setIntegrations(integrations);
+    onFetchFinished();
   }, [integrations, isReady, setIntegrations, onFetchFinished]);
 }

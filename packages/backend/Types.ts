@@ -158,7 +158,7 @@ export type ConvexTimesAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexLinkedAPIProps = {
   _id?: Id<"linked">;
@@ -171,6 +171,7 @@ export type ConvexLinkedAPIProps = {
   refreshToken: EncryptedTokenProps;
   watch: ConvexCalendarWatchAPIProps;
   hasMailPermission?: boolean;
+  lastSync?: number;
 }
 
 /**
@@ -205,6 +206,7 @@ export type ConvexCalendarQueryAPIProps = {
   provider: string;
   providerId: string;
   hasMailPermission?: boolean;
+  lastSync?: number;
   calendars?: {
     _id?: Id<"calendar">;
     _creationTime?: number;

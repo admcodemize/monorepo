@@ -7,6 +7,8 @@
 type KeysProps = {
   providerGroup: string;
   providerGroupItem: string;
+  integrationConnection: string;
+  integrationConnectionCalendar: string;
   screenContext: string;
   calendarEvent: string;
   calendarWeekHorizontal: string;
@@ -31,6 +33,8 @@ type KeysProps = {
 export const KEYS: KeysProps = {
   providerGroup: "providerGroup",
   providerGroupItem: "providerGroupItem",
+  integrationConnection: "integrationConnection",
+  integrationConnectionCalendar: "integrationConnectionCalendar",
   screenContext: "screenContext",
   calendarEvent: "calendarEvent",
   calendarWeekHorizontal: "calendarWeekHorizontal",

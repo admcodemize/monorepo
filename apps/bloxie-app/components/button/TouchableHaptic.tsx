@@ -10,7 +10,7 @@ import NotificationBadge from "@/components/container/NotificationBadge";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TouchableHapticProps = React.PropsWithChildren & {
   onPress?: (e: GestureResponderEvent) => void;
@@ -18,6 +18,7 @@ export type TouchableHapticProps = React.PropsWithChildren & {
   onLayout?: (e: LayoutChangeEvent) => void;
   style?: ViewStyle|ViewStyle[];
   disabled?: boolean;
+  opacityDisabled?: number;
   visible?: boolean;
   hitSlop?: number|Insets|null|undefined;
   hideNotificationBadge?: boolean;
@@ -57,13 +58,14 @@ export const onLongPressHaptic =
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.1
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Object} param0 - Handles the touchable haptic events and styling
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @param {Function} param0.onLongPress - Callback function when user long presses the button
  * @param {Function} param0.onLayout - Callback function invoked on mount and layout changes 
  * @param {StyleProp<ViewStyle>} param0.style - Extended custom styling
  * @param {boolean} param0.disabled - Handles the inactivity of the rendered button
+ * @param {number} param0.opacityDisabled - Handles the opacity of the rendered button when disabled
  * @param {boolean} param0.visible - Handles the visibility of the rendered button
  * @param {number|Insets|null|undefined} param0.hitSlop - Handles the hit slop of the rendered button. 
  * -> A hit slop is a property that allows you to set the area around the button that will trigger the onPress event.
@@ -75,6 +77,7 @@ const TouchableHaptic = React.forwardRef<View, TouchableHapticProps>(({
   onLayout = () => {},
   style, 
   disabled, 
+  opacityDisabled = 0.5,
   visible = true,
   hitSlop = 10,
   hideNotificationBadge = true,
@@ -85,7 +88,7 @@ const TouchableHaptic = React.forwardRef<View, TouchableHapticProps>(({
     {visible && <NotificationBadge hide={hideNotificationBadge}>
       <Pressable 
         ref={ref}
-        style={[style, { opacity: disabled ? 0.5 : 1 }]} 
+        style={[style, { opacity: disabled ? opacityDisabled : 1 }]} 
         hitSlop={hitSlop}
         disabled={disabled}
         onLayout={onLayout}

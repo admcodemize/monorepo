@@ -1,4 +1,4 @@
-import { ConvexCalendarAPIProps, ConvexCalendarQueryAPIProps, ConvexEventsAPIProps, ConvexLinkedAPIProps, IntegrationAPICalendarAccessRoleEnum } from '../../../Types';
+import { ConvexCalendarAPIProps, ConvexCalendarQueryAPIProps, ConvexLinkedAPIProps, IntegrationAPICalendarAccessRoleEnum } from '../../../Types';
 import { Id } from '../../_generated/dataModel';
 import { internalQuery, query } from '../../_generated/server';
 import { v } from 'convex/values';
@@ -30,6 +30,7 @@ export const get = query({
         provider: linkedAccount.provider,
         providerId: linkedAccount.providerId,
         hasMailPermission: linkedAccount.hasMailPermission,
+        lastSync: linkedAccount.lastSync,
         calendars: []
       } as ConvexCalendarQueryAPIProps;
 

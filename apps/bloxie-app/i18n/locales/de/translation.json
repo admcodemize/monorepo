@@ -9,11 +9,6 @@
     "searchField": {
       "placeholder": "Suchen"
     },
-    "routes": {
-      "index": "Dashboard",
-      "calendar": "Kalender",
-      "team": "Team"
-    },
     "list": {
       "active": "Aktiv"
     },
@@ -59,6 +54,11 @@
         "connect": "Verknüpfen",
         "activeConnections": "Aktive Verknüpfungen",
         "noConnections": "Keine Verknüpfungen",
+        "horizontalNavigation": {
+          "provider": "Provider",
+          "connections": "Verknüpfungen",
+          "synchronization": "Synchronisation"
+        },
         "provider": {
           "google": {
             "title": "Google",
@@ -95,6 +95,12 @@
               "description": "Empfangen von Zahlungen für kostenpflichtige Termine"
             }
           }
+        },
+        "connection": {
+          "groupTitle": "Konten für Konfliktprüfungen",
+          "lastSync": "Letzte Synchronisation vor {{time}}",
+          "noSync": "Keine Synchronisation",
+          "disconnect": "Trennen"
         }
       },
       "trayAction": {

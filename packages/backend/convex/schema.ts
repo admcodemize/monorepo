@@ -140,7 +140,7 @@ export const eventSchema = {
 
 /**
  * @since 0.0.9
- * @version 0.0.2
+ * @version 0.0.3
  * @description Schema definition for table "events"
  * @interface */
 export const linkedSchema = {
@@ -152,7 +152,8 @@ export const linkedSchema = {
   scopes: v.optional(v.array(v.string())),
   refreshToken: v.object(encryptedTokenSchemaObj),
   watch: v.object(watchSchemaObj),
-  hasMailPermission: v.optional(v.boolean())
+  hasMailPermission: v.optional(v.boolean()),
+  lastSync: v.optional(v.number())
 }
 
 /**

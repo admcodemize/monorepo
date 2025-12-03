@@ -6,7 +6,7 @@ import { v } from 'convex/values';
 /**
  * @public
  * @since 0.0.13
- * @version 0.0.2
+ * @version 0.0.3
  * @description Returns all the integrations for the currently signed in user
  * @param {Object} param0
  * @param {string} param0.userId - User identification (Clerk)
@@ -48,7 +48,9 @@ export const get = query({
           description: calendar.description,
           foregroundColor: calendar.foregroundColor,
           primary: calendar.primary,
-          eventsCount: calendar.eventsCount
+          eventsCount: calendar.eventsCount,
+          isRelevantForConflictDetection: calendar.isRelevantForConflictDetection,
+          isRelevantForSynchronization: calendar.isRelevantForSynchronization
         });
       }));
 

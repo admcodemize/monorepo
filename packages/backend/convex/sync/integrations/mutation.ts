@@ -1,6 +1,25 @@
 import { v } from "convex/values";
-import { internalMutation } from "../../_generated/server";
+import { internalMutation, mutation } from "../../_generated/server";
 import { linkedSchema, calendarSchema, watchSchemaObj, encryptedTokenSchemaObj } from "../../schema";
+
+/**
+ * @public
+ * @since 0.0.19
+ * @version 0.0.1
+ * @description Handles the database mutation for updating a single property of a calendar
+ * -> Hint: Function can be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"calendar">} param0._id - The calendar id to update
+ * @param {string} param0.property - The property to update
+ * @param {boolean} param0.value - The value to update */
+export const updateCalendarProperty = mutation({
+  args: {
+    _id: v.id("calendar"),
+    property: v.string(),
+    value: v.boolean()
+  },
+  handler: async (ctx, { _id, property, value }) => await ctx.db.patch(_id, { [property]: value })
+});
 
 /**
  * @public
@@ -84,9 +103,10 @@ export const updateCalendar = internalMutation({
   args: { 
     _id: v.id("calendar"),
     watch: v.object(watchSchemaObj),
-    eventsCount: v.number()
+    eventsCount: v.number(),
+    isRelevantForConflictDetection: v.boolean()
   },
-  handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch, eventsCount: args.eventsCount })
+  handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch, eventsCount: args.eventsCount, isRelevantForConflictDetection: args.isRelevantForConflictDetection })
 });
 
 /**

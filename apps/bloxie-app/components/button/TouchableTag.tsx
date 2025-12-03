@@ -16,7 +16,7 @@ import TouchableTagStyle from "@/styles/components/button/TouchableTag";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.18
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TouchableTagProps = {
   icon: IconProp;
@@ -28,14 +28,14 @@ export type TouchableTagProps = {
   isActive?: boolean;
   disabled?: boolean;
   viewStyle?: ViewStyle|ViewStyle[];
-  onPress?: () => void;
+  onPress?: (isActive: boolean) => void;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.18
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableTagProps} param0 
  * @param {IconProp} param0.icon - The icon to display
  * @param {string} param0.text - The text to display
@@ -70,7 +70,7 @@ const TouchableTag = ({
   /** @description Handles the onPress event of the TouchableTag -> Changes the state and background color of the TouchableTag */
   const onPressInternal = React.useCallback(() => {
     onActiveChange(!_isActive);
-    onPress?.();
+    onPress?.(!_isActive);
   }, [_isActive, onActiveChange, onPress]);
 
   return (

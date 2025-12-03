@@ -178,7 +178,7 @@ export type ConvexLinkedAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexCalendarAPIProps = {
   _id?: Id<"calendar">;
@@ -191,13 +191,15 @@ export type ConvexCalendarAPIProps = {
   primary: boolean;
   watch?: ConvexCalendarWatchAPIProps;
   eventsCount?: number;
+  isRelevantForConflictDetection?: boolean;
+  isRelevantForSynchronization?: boolean;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexCalendarQueryAPIProps = {
   _id?: Id<"linked">;
@@ -216,6 +218,8 @@ export type ConvexCalendarQueryAPIProps = {
     foregroundColor: string;
     primary: boolean;
     eventsCount?: number;
+    isRelevantForConflictDetection?: boolean;
+    isRelevantForSynchronization?: boolean;
   }[];
 }
 

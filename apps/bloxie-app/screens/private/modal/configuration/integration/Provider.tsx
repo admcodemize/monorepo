@@ -78,6 +78,8 @@ type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegr
  * @version 0.0.2
  * @component */
 const ScreenConfigurationIntegrationProvider = () => {
+  const { infoColor } = useThemeColors();
+
   /**
    * @description Get the settings from the context for updating the integration state
    * @see {@link context/UserContext} */

@@ -208,7 +208,8 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
         _id, 
         /** @description Add the watch events to the linked data watch for further determing of the next sync token to check if a calendar events (created, updated, deleted) has been changed */
         watch: !hasErrWatch ? toWatch(watchEvents, events?.nextSyncToken, events?.nextSyncToken) : null,
-        eventsCount: events?.items?.length ?? 0
+        eventsCount: events?.items?.length ?? 0,
+        isRelevantForConflictDetection: true,
       });
     }
 
@@ -444,7 +445,8 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
         resourceId: resourceId,
         expiration: expirationMs,
       }, data.nextSyncToken, calendar.watch.nextSyncToken),
-      eventsCount: data.items?.length ?? 0
+      eventsCount: data.items?.length ?? 0,
+      isRelevantForConflictDetection: calendar?.isRelevantForConflictDetection || true
     });
 
   // neuer eintrag => "confirmed"

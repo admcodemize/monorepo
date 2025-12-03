@@ -170,7 +170,9 @@ export const calendarSchema = {
   foregroundColor: v.string(),
   primary: v.boolean(),
   watch: v.optional(v.object(watchSchemaObj)),
-  eventsCount: v.optional(v.number())
+  eventsCount: v.optional(v.number()),
+  isRelevantForConflictDetection: v.optional(v.boolean()),
+  isRelevantForSynchronization: v.optional(v.boolean()),
 }
 
 export default defineSchema({

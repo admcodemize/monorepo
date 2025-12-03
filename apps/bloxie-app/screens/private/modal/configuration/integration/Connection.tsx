@@ -24,27 +24,79 @@ import { formatDistanceToNow } from "date-fns";
 import { getLocalization } from "@/helpers/System";
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
+import { useMutation } from "convex/react";
+import { api } from "../../../../../../../packages/backend/convex/_generated/api";
+import { ConvexCalendarAPIProps, ConvexCalendarQueryAPIProps } from "@codemize/backend/Types";
+import React from "react";
 
 
 const DIM = Dimensions.get("window");
 
-const ScreenConfigurationIntegrationConnection = () => {
-  const integrations = useIntegrationContextStore((state) => state.integrations);
-  const { secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, focusedBgColor, focusedContentColor, errorColor, linkColor, successColor } = useThemeColors();
-  const { convexUser } = useConvexUser();
-  const { open, close } = useToastStore((state) => state);
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.19
+ * @version 0.0.1
+ * @description The screen for the integration connection
+ * @component */
+const ScreenConfigurationIntegrationConnection = (
+
+) => {
+  const { secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, focusedBgColor, focusedContentColor, linkColor, successColor } = useThemeColors();
   const { t } = useTranslation();
+
+  /**
+   * @description Get the integrations from the context for updating the UI/UX accordingly
+   * @see {@link context/IntegrationContext} */
+  const integrations = useIntegrationContextStore((state) => state.integrations);
+
+  /**
+   * @description Get the convex user from the context for unlinking an account
+   * @see {@link context/ConvexUserContext} */
+  const { convexUser } = useConvexUser();
+
+  /**
+   * @description Get the toast store from the context for displaying a progress toast during the unlinking of an account
+   * @see {@link context/ToastContext} */
+  const { open, close } = useToastStore((state) => state);
+
+  /**
+   * @description Get the mutation function for updating a calendar property such as the relevant for conflict detection
+   * @see {@link backend/convex/sync/integrations/mutation} */
+  const updateCalendarProperty = useMutation(api.sync.integrations.mutation.updateCalendarProperty);
+
+  /** @description Get the callback function for updating the relevant for conflict detection */
+  const update = React.useCallback( 
+    (calendarId: Id<"calendar">) => 
+    async(isActive: boolean) => {
+      await updateCalendarProperty({ 
+        _id: calendarId, 
+        property: "isRelevantForConflictDetection", 
+        value: isActive 
+      });
+  }, [updateCalendarProperty]);
+
+  /** @description Get the callback function for unlinking an account */
+  const unlink = React.useCallback(
+    (providerId: string) => 
+    async() => {
+      if (!convexUser?._id) return;
+      await unlinkGoogleAccount({ userId: convexUser._id as Id<"users">, providerId, open });
+      close();
+    }, [convexUser?._id, open, close]);
+
   return (
     <View style={{ 
       paddingHorizontal: STYLES.paddingHorizontal, 
       paddingVertical: STYLES.paddingVertical + 4, 
-      gap: STYLES.sizeGap, 
+      gap: STYLES.sizeGap + 4, 
       width: DIM.width
     }}>
+      <TextBase text="Aktiviere einen oder mehrere Kalender für das Durchführen von Konfliktprüfungen bei der Ermittlung von möglichen Zeitpaaren" type="label" style={[GlobalTypographyStyle.labelText, { fontSize: 10, color: infoColor }]} />
       <ListItemGroup 
         title={"i18n.screens.integrations.connection.groupTitle"}
         gap={STYLES.sizeGap}>   
-          {integrations.map((integration, index) => (
+          {integrations.map((integration) => (
             <View 
               key={`${KEYS.integrationConnection}-${integration._id}`}
               style={{ gap: STYLES.sizeGap }}>
@@ -70,11 +122,7 @@ const ScreenConfigurationIntegrationConnection = () => {
                       </View>
                     </View>
                     <TouchableHaptic
-                      onPress={async () => { 
-                        if (!convexUser?._id) return;
-                        await unlinkGoogleAccount({ userId: convexUser._id as Id<"users">, providerId: integration.providerId, open });
-                        close();
-                      }}>
+                      onPress={unlink(integration.providerId)}>
                         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, backgroundColor: focusedBgColor, padding: 6, paddingVertical: 4, borderRadius: 4 }]}>
                           <FontAwesomeIcon icon={faLinkSlash as IconProp} size={11} color={focusedContentColor} />
                           <TextBase text={"i18n.screens.integrations.connection.disconnect"} style={[GlobalTypographyStyle.labelText, { color: focusedContentColor }]} />
@@ -98,10 +146,8 @@ const ScreenConfigurationIntegrationConnection = () => {
                               icon={faLink as IconProp}
                               text={calendar.description}
                               colorActive={linkColor}
-                              isActive={true}
-                              onPress={() => {
-                                console.log("calendar", calendar);
-                              }} />
+                              isActive={calendar.isRelevantForConflictDetection}
+                              onPress={update(calendar._id as Id<"calendar">)} />
                           ))}
                         </View>
                         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>

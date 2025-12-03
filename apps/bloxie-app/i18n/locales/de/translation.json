@@ -57,7 +57,7 @@
         "horizontalNavigation": {
           "provider": "Provider",
           "connections": "Verknüpfungen",
-          "synchronization": "Synchronisation"
+          "synchronization": "Synchronisierungen"
         },
         "provider": {
           "google": {
@@ -101,6 +101,9 @@
           "lastSync": "Letzte Synchronisation vor {{time}}",
           "noSync": "Keine Synchronisation",
           "disconnect": "Trennen"
+        },
+        "synchronization": {
+          "groupTitle": "Kalenderkonto für Synchronisation von Kalenderereignissen"
         }
       },
       "trayAction": {

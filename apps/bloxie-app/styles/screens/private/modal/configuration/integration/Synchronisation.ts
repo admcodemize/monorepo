@@ -7,9 +7,9 @@ const DIM = Dimensions.get("window");
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.18
- * @version 0.0.2 */
-const ScreenConfigurationIntegrationConnectionStyle = StyleSheet.create({
+ * @since 0.0.20
+ * @version 0.0.1 */
+const ScreenConfigurationIntegrationSynchronisationStyle = StyleSheet.create({
   view: {
     paddingHorizontal: STYLES.paddingHorizontal, 
     paddingVertical: STYLES.paddingVertical + 4, 
@@ -41,18 +41,7 @@ const ScreenConfigurationIntegrationConnectionStyle = StyleSheet.create({
     borderWidth: 0.5, 
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
-  },
-  scrollView: {
-    paddingTop: 4, 
-    marginHorizontal: 2,
-  },
-  scopeItem: {
-    gap: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    borderRadius: 6,
-    borderWidth: 0.5,
   }
 })
 
-export default ScreenConfigurationIntegrationConnectionStyle;
+export default ScreenConfigurationIntegrationSynchronisationStyle;

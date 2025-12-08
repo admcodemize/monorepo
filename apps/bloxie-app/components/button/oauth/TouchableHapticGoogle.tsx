@@ -55,7 +55,7 @@ const TouchableHapticGoogle = ({
         <View style={[GlobalContainerStyle.rowCenterStart, TouchableHapticGoogleStyle.view, { backgroundColor: shadeColor(focusedBgColor, 0) }]}>
           <FontAwesomeIcon 
             icon={faPlus as IconProp} 
-            size={10} 
+            size={12} 
             color={focusedContentColor} />
           <TextBase 
             text={"i18n.screens.integrations.connect"} 

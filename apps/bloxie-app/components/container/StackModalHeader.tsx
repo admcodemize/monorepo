@@ -9,6 +9,7 @@ import TextBase from "@/components/typography/Text";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import Divider from "./Divider";
+import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 /**
  * @public
@@ -25,7 +26,7 @@ export type StackModalHeaderProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @param {StackModalHeaderProps} param0
  * @param {string} param0.title - The title to display
  * @param {string} param0.description - The description to display
@@ -34,6 +35,8 @@ const StackModalHeader = ({
   title,
   description,
 }: StackModalHeaderProps) => {
+  const { infoColor } = useThemeColors();
+
   /**
    * @description Handles the on press event for the close/back button
    * @function */
@@ -51,8 +54,7 @@ const StackModalHeader = ({
         type="label" 
         text={description} 
         numberOfLines={3}
-        ellipsizeMode={"tail"}
-        style={[GlobalTypographyStyle.standardText]} />}
+        style={[GlobalTypographyStyle.labelText, { color: infoColor }]} />}
     </View>
   )
 }

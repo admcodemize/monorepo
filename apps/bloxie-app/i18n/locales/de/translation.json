@@ -1,16 +1,15 @@
 {
   "i18n": {
     "global": {
-      "comingSoon": "Bald verfügbar"
+      "comingSoon": "Bald verfügbar",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
     },
     "buttons": {
       "close": "Schliessen"
     },
     "searchField": {
       "placeholder": "Suchen"
-    },
-    "list": {
-      "active": "Aktiv"
     },
     "calendar": {
       "week": "KW"
@@ -98,12 +97,13 @@
         },
         "connection": {
           "groupTitle": "Konten für Konfliktprüfungen",
-          "lastSync": "Letzte Synchronisation vor {{time}}",
-          "noSync": "Keine Synchronisation",
-          "disconnect": "Trennen"
+          "events": "Ereignisse",
+          "permissions": "Berechtigungen"
         },
         "synchronization": {
-          "groupTitle": "Kalenderkonto für Synchronisation von Kalenderereignissen"
+          "groupTitle": "Konten für Kalender-Synchronisation",
+          "lastSync": "Letzte Synchronisation vor {{time}}",
+          "noSync": "Keine Synchronisation"
         }
       },
       "trayAction": {

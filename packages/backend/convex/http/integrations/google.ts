@@ -144,8 +144,11 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
     /** @description Start the channel watch for the calendar lists */
     const { data: watchLists }: ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps> = await runAction(internal.sync.integrations.google.action.startWatchCalendarLists, { 
       userId, 
+      providerId: googleUser.id,
       refreshToken: encryptedRefreshToken 
     });
+
+    console.log("watchLists:", watchLists);
 
     /** @description Fetch the specified colors for the calendar events and the calendar lists based on the colorId */
     const { data: colors }: ConvexActionReturnProps<IntegrationAPIGoogleCalendarColorsProps> = await runAction(internal.sync.integrations.google.action.fetchCalendarColors, { refreshToken: encryptedRefreshToken });
@@ -188,6 +191,8 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
         calendarId: calendar.id,
       });
 
+      // @todo do not add a recurring event 300x in the database, just add the first event and the rest of the recurring events will be added dynamically ..
+
       if (!hasErrEvents && events?.items) {
         /** @description Exclude birthday events from the creation of the events in the database because they are not relevant for the user */
         for (const event of events.items.filter(
@@ -207,7 +212,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
       if (_id) await runMutation(internal.sync.integrations.mutation.updateCalendar, {
         _id, 
         /** @description Add the watch events to the linked data watch for further determing of the next sync token to check if a calendar events (created, updated, deleted) has been changed */
-        watch: !hasErrWatch ? toWatch(watchEvents, events?.nextSyncToken, events?.nextSyncToken) : null,
+        watch: !hasErrWatch ? toWatch(watchEvents, events?.nextSyncToken, events?.nextSyncToken) : toWatch({ id: "", resourceId: "", expiration: 0 } as IntegrationAPIGoogleCalendarChannelWatchProps),
         eventsCount: events?.items?.length ?? 0,
         isRelevantForConflictDetection: true,
       });
@@ -277,7 +282,6 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
   }));
 
   /** @description Stop the channel watch for the calendar lists so that the calendar events can not be fetched or updated incrementally anymore */
-  // @ts-expect-error Convex generated types might not yet expose stopChannelWatch
   const { hasErr, data, message } = await runAction(internal.sync.integrations.google.action.stopChannelWatch, { 
     channelId: linkedAccount.watch.id, 
     resourceId: linkedAccount.watch.resourceId, 
@@ -407,7 +411,8 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
   const { data, hasErr, message } = await runAction(internal.sync.integrations.google.action.fetchCalendarEvents, { 
     refreshToken: linkedAccount.refreshToken, 
     calendarId: tokenPayload.calendarId, 
-    nextSyncToken: calendar.watch.nextSyncToken as string });
+    nextSyncToken: calendar.watch.nextSyncToken as string 
+  });
 
   for (const event of data.items) {
     if (event.status === IntegrationAPICalendarEventStatusEnum.CONFIRMED) {
@@ -462,8 +467,114 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
  * @version 0.0.1
  * @description Handles the http action for watching a google calendar
  * @function */
-export const httpActionGoogleWatchLists = httpAction(async ({ }, req) => {
+export const httpActionGoogleWatchLists = httpAction(async ({ runQuery, runAction }, req) => {
   //console.log("called httpActionGoogleWatchLists", req);
+  const channelToken = req.headers.get("x-goog-channel-token");
+  if (!channelToken) return new Response("i18n.convex.http.integrations.google.error.channelTokenNotFound", { status: 404 });
+
+  /** @todo: Verschlüssel / Entschlüsseln des tokenPayload!!!!! */
+  
+  let tokenPayload: { userId: string, providerId: string } | null = null;
+  try {
+     tokenPayload = JSON.parse(channelToken);
+    } catch (err) {
+     console.error("invalid channel token", channelToken, err);
+  }
+
+  const resourceId = req.headers.get("x-goog-resource-id");
+  const channelId = req.headers.get("x-goog-channel-id");
+
+  console.log("tokenPayload:", tokenPayload);
+
+  const linkedAccount = await runQuery(internal.sync.integrations.query.linkedByProviderId, { 
+    userId: tokenPayload.userId as Id<"users">,
+    provider: PROVIDER,
+    providerId: tokenPayload?.providerId || "105126457376485677523"
+  });
+  if (!linkedAccount) return new Response("i18n.convex.http.integrations.google.error.linkedAccountNotFound", { status: 404 });
+
+  console.log("linkedAccount:", linkedAccount);
+
+  if (!linkedAccount || !linkedAccount.watch) return new Response("i18n.convex.http.integrations.google.error.calendarNotFound", { status: 404 });
+  if (resourceId !== linkedAccount.watch.resourceId) return new Response("i18n.convex.http.integrations.google.error.resourceIdMismatch", { status: 404 });
+  if (channelId !== linkedAccount.watch.id) return new Response("i18n.convex.http.integrations.google.error.channelIdMismatch", { status: 404 });
+
+  const { data, hasErr, message } = await runAction(internal.sync.integrations.google.action.fetchCalendarList, { 
+    refreshToken: linkedAccount.refreshToken, 
+  });
+
+  console.log("data:", data);
+
+  // update, remove or insert calendars based on data.items.. 
+
+  /**
+   * items: [
+    {
+      accessRole: 'owner',
+      backgroundColor: '#9a9cff',
+      colorId: '17',
+      conferenceProperties: {
+        allowedConferenceSolutionTypes: [ 'hangoutsMeet' ]
+      },
+      defaultReminders: [
+        {
+          method: 'popup',
+          minutes: 30
+        }
+      ],
+      etag: '"1763932842331119"',
+      foregroundColor: '#000000',
+      id: 'stoecklim7@gmail.com',
+      kind: 'calendar#calendarListEntry',
+      notificationSettings: {
+        notifications: [ [Object], [Object], [Object], [Object] ]
+      },
+      primary: true,
+      selected: true,
+      summary: 'stoecklim7@gmail.com',
+      timeZone: 'Europe/Zurich'
+    },
+    {
+      accessRole: 'owner',
+      backgroundColor: '#cd74e6',
+      colorId: '23',
+      conferenceProperties: {
+        allowedConferenceSolutionTypes: [ 'hangoutsMeet' ]
+      },
+      dataOwner: 'stoecklim7@gmail.com',
+      defaultReminders: [],
+      etag: '"1763968081568831"',
+      foregroundColor: '#000000',
+      id: 'c0233a3dc36c960b63bff22ebabb70b83432fabc0cb0dd5356053ec19f353a76@group.calendar.google.com',
+      kind: 'calendar#calendarListEntry',
+      selected: true,
+      summary: 'Demo-Bloxie',
+      timeZone: 'Europe/Zurich'
+    },
+    {
+      accessRole: 'owner',
+      backgroundColor: '#cca6ac',
+      colorId: '21',
+      conferenceProperties: {
+        allowedConferenceSolutionTypes: [ 'hangoutsMeet' ]
+      },
+      dataOwner: 'stoecklim7@gmail.com',
+      defaultReminders: [],
+      etag: '"1765229569364895"',
+      foregroundColor: '#000000',
+      id: 'b8eafed530e3a4ed582fe50a4d18705abab8b001f062b9ffa8de5ae1abfccd0d@group.calendar.google.com',
+      kind: 'calendar#calendarListEntry',
+      selected: true,
+      summary: 'Demo-Bloxie 2',
+      timeZone: 'Europe/Zurich'
+    }
+  ],
+  kind: 'calendar#calendarList',
+  nextSyncToken: 'CJ-nt8v4rpEDEhRzdG9lY2tsaW03QGdtYWlsLmNvbQ=='
+   * 
+   */
+
+
   return new Response("i18n.convex.http.integrations.google.success.watch", { status: 200 });
 });
 
@@ -488,13 +599,10 @@ export const httpActionGoogleCallback = httpAction(async () => new Response("i18
    watch: IntegrationAPIGoogleCalendarChannelWatchProps|undefined,
    nextSyncToken?: string,
    lastSyncToken?: string
- ): ConvexCalendarWatchAPIProps|null => {
-   if (!watch?.id || !watch?.resourceId) return null;
-   return {
-     id: watch.id,
-     resourceId: watch.resourceId,
-     expiration: typeof watch.expiration === "string" ? Number(watch.expiration) : watch.expiration ?? 0,
-     nextSyncToken: nextSyncToken ?? "",
-     lastSyncToken: lastSyncToken ?? "",
-   };
- };
+ ): ConvexCalendarWatchAPIProps|null => ({
+    id: watch.id,
+    resourceId: watch.resourceId,
+    expiration: typeof watch.expiration === "string" ? Number(watch.expiration) : watch.expiration ?? 0,
+    nextSyncToken: nextSyncToken ?? "",
+    lastSyncToken: lastSyncToken ?? "",
+  });

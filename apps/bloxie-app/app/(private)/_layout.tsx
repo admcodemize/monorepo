@@ -1,7 +1,6 @@
 import React from "react";
 import { Stack } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
-import { Id } from "../../../../packages/backend/convex/_generated/dataModel";
 
 import { ConvexUsersAPIProps } from "@codemize/backend/Types";
 

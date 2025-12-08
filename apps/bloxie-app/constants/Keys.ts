@@ -2,13 +2,14 @@
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.4
+ * @version 0.0.5
  * @type */
 type KeysProps = {
   providerGroup: string;
   providerGroupItem: string;
   integrationConnection: string;
   integrationConnectionCalendar: string;
+  integrationConnectionScope: string;
   screenContext: string;
   calendarEvent: string;
   calendarWeekHorizontal: string;
@@ -28,13 +29,14 @@ type KeysProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.4
+ * @version 0.0.5
  * @constant */
 export const KEYS: KeysProps = {
   providerGroup: "providerGroup",
   providerGroupItem: "providerGroupItem",
   integrationConnection: "integrationConnection",
   integrationConnectionCalendar: "integrationConnectionCalendar",
+  integrationConnectionScope: "integrationConnectionScope",
   screenContext: "screenContext",
   calendarEvent: "calendarEvent",
   calendarWeekHorizontal: "calendarWeekHorizontal",

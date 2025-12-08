@@ -58,9 +58,10 @@ export const refreshAccessToken = internalAction({
 export const startWatchCalendarLists = internalAction({
   args: {
     userId: v.id('users'),
+    providerId: v.string(),
     refreshToken: v.object(encryptedTokenSchemaObj),
   },
-  handler: async ({ runAction, runQuery }, { userId, refreshToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>> => {
+  handler: async ({ runAction, runQuery }, { userId, providerId, refreshToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>> => {
     /** @description Refresh the access token for registering the channel watch */
     const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
     const channelId = crypto.randomUUID();
@@ -76,7 +77,7 @@ export const startWatchCalendarLists = internalAction({
         id: channelId,
         type: 'web_hook',
         address: `https://harmless-dodo-18.convex.site/integrations/google/lists/watch`,
-        token: JSON.stringify({ userId })
+        token: JSON.stringify({ userId, providerId })
       }),
     });
 
@@ -215,7 +216,7 @@ export const stopChannelWatch = internalAction({
 /**
  * @public
  * @since 0.0.9
- * @version 0.0.2
+ * @version 0.0.3
  * @description Fetches the calendar list from Google
  * @param {Object} param0
  * @param {string} param0.refreshToken - The refresh token to fetch the calendar list
@@ -249,10 +250,8 @@ export const fetchCalendarList = internalAction({
     const data: IntegrationAPIGoogleCalendarListProps = await res.json();
 
     /** @description Remove the default calendars "weeknum" and "holiday" from the calendar list */
-    ["#weeknum@group.v.calendar.google.com", "holiday@group.v.calendar.google.com"].forEach((calendarId) => {
-      const idx = data?.items.findIndex((item) => item.id.includes(calendarId));
-      if (idx >= 0) data.items.splice(idx, 1);
-    });
+    const blocklist = ["#weeknum@group.v.calendar.google.com", "#holiday@group.v.calendar.google.com"];
+    data.items = data.items.filter((item) => !blocklist.some((needle) => item.id.includes(needle)));
 
     return {
       hasErr: false,

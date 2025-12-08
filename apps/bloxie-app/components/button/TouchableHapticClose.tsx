@@ -22,7 +22,7 @@ export type TouchableHapticCloseProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1 
+ * @version 0.0.2
  * @component */
 const TouchableHapticClose = ({
   onPress,
@@ -42,7 +42,7 @@ const TouchableHapticClose = ({
         <TextBase
           text={t("i18n.buttons.close")}
           type="label"
-          style={[{ fontSize: 10, color: colors.linkColor }]} />
+          style={[{ color: colors.linkColor }]} />
     </TouchableHaptic>
   )
 }

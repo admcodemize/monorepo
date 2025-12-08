@@ -9,7 +9,7 @@ const TouchableTagStyle = StyleSheet.create({
   view: {
     gap: 4,
     padding: 6, 
-    paddingVertical: 4, 
+    paddingVertical: 6, 
     borderRadius: 4
   }
 })

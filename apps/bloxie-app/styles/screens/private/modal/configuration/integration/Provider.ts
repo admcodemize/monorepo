@@ -1,16 +1,19 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import { STYLES } from "@codemize/constants/Styles";
+
+const DIM = Dimensions.get("window");
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1 */
+ * @version 0.0.3 */
 const ProviderStyle = StyleSheet.create({
   view: {
     paddingHorizontal: STYLES.paddingHorizontal,
     paddingVertical: STYLES.paddingVertical + 4, 
-    gap: STYLES.sizeGap * 3
+    gap: STYLES.sizeGap * 2,
+    width: DIM.width
   },
   item: {
     borderRadius: 10, 

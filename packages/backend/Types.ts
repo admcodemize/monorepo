@@ -199,7 +199,7 @@ export type ConvexCalendarAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type ConvexCalendarQueryAPIProps = {
   _id?: Id<"linked">;
@@ -207,20 +207,10 @@ export type ConvexCalendarQueryAPIProps = {
   email: string;
   provider: string;
   providerId: string;
+  scopes?: string[];
   hasMailPermission?: boolean;
   lastSync?: number;
-  calendars?: {
-    _id?: Id<"calendar">;
-    _creationTime?: number;
-    accessRole: IntegrationAPICalendarAccessRoleEnum;
-    backgroundColor: string;
-    description: string;
-    foregroundColor: string;
-    primary: boolean;
-    eventsCount?: number;
-    isRelevantForConflictDetection?: boolean;
-    isRelevantForSynchronization?: boolean;
-  }[];
+  calendars?: ConvexCalendarAPIProps[];
 }
 
 /**

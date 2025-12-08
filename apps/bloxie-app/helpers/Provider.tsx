@@ -66,7 +66,7 @@ export const startGoogleFlow = async ({
   const res = await GoogleOneTapSignIn.presentExplicitSignIn(googleConfig);
 
   open?.({
-    children: <View style={{ height: 300 }}></View>,
+    children: <View style={{ height: 300 }}></View>,
     data: {
       title: "",
       icon: faInfoCircle as IconProp,
@@ -105,7 +105,7 @@ export const unlinkGoogleAccount = async ({
   open
 }: UnlinkGoogleAccountProps) => {
   open?.({
-    children: <View style={{ height: 300 }}></View>,
+    children: <View style={{ height: 300 }}></View>,
     data: {
       title: "",
       icon: faInfoCircle as IconProp,

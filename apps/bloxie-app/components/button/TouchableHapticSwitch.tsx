@@ -115,6 +115,7 @@ const TouchableHapticSwitch = ({
   return (
     <TouchableHaptic  
       disabled={disabled}
+      opacityDisabled={1}
       onPress={onPress}>
       <Animated.View style={[TouchableHapticSwitchStyle.container, backgroundColorContainerStyle]}>
         <Animated.View style={[TouchableHapticSwitchStyle.circle, backgroundColorCircleStyle, springStyle]} />

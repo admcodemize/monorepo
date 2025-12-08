@@ -92,7 +92,7 @@ export const createCalendar = internalMutation({
 /**
  * @public
  * @since 0.0.11
- * @version 0.0.1
+ * @version 0.0.2
  * @description Handles the internal database mutation for updating an existing calendar watch
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0
@@ -102,9 +102,9 @@ export const createCalendar = internalMutation({
 export const updateCalendar = internalMutation({
   args: { 
     _id: v.id("calendar"),
-    watch: v.object(watchSchemaObj),
-    eventsCount: v.number(),
-    isRelevantForConflictDetection: v.boolean()
+    watch: v.optional(v.object(watchSchemaObj)),
+    eventsCount: v.optional(v.number()),
+    isRelevantForConflictDetection: v.optional(v.boolean())
   },
   handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch, eventsCount: args.eventsCount, isRelevantForConflictDetection: args.isRelevantForConflictDetection })
 });

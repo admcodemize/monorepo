@@ -1,13 +1,12 @@
 import React from "react";
 import { Image, ImageSourcePropType, ScrollView, View } from "react-native"
-import { useTranslation } from "react-i18next";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faAlarmClock, faLink } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { ReactAction, useAction, useQuery } from "convex/react";
+import { ReactAction, useAction } from "convex/react";
 
 import { STYLES } from "@codemize/constants/Styles"
 import { shadeColor } from "@codemize/helpers/Colors";
+import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
 
 import { api } from "../../../../../../../packages/backend/convex/_generated/api";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
@@ -15,32 +14,29 @@ import { ConvexSettingsAPIProps } from "@codemize/backend/Types";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useIntegrationContextStore } from "@/context/IntegrationContext";
-import { getProviderItemsGoogle, PROVIDER_ITEMS_GOOGLE, PROVIDER_ITEMS_MICROSOFT, PROVIDER_ITEMS_OTHERS, ProviderEnum, ProviderIntegrationEnum, ProviderItemProps } from "@/constants/Provider";
+import { getProviderItemsGoogle, PROVIDER_ITEMS_MICROSOFT, PROVIDER_ITEMS_OTHERS, ProviderEnum, ProviderIntegrationEnum, ProviderItemProps } from "@/constants/Provider";
 import { useUserContextStore } from "@/context/UserContext";
 import { handleConvexError } from "@/helpers/Convex";
+import { KEYS } from "@/constants/Keys";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
 import TouchableHapticSwitch from "@/components/button/TouchableHapticSwitch";
 import TextBase from "@/components/typography/Text";
+import TouchableTag from "@/components/button/TouchableTag";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
-import { update } from "../../../../../../../packages/backend/convex/sync/settings/action";
-import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
-import { KEYS } from "@/constants/Keys";
-import TouchableTag from "@/components/button/TouchableTag";
+import { useTranslation } from "react-i18next";
 
 /**
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.16
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 type ScreenConfigurationIntegrationProviderContextProps = {
   settings: ConvexSettingsAPIProps;
-  integrationSettings: ConvexSettingsAPIProps["integrations"];
-  setIntegrationSettings: (integrationSettings: ConvexSettingsAPIProps["integrations"]) => void;
 }
 
 /**
@@ -58,7 +54,7 @@ type ProviderGroupItemsProps = {
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegrationProviderContextProps & {
   integrationKey: ProviderIntegrationEnum;
@@ -75,27 +71,13 @@ type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegr
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.2
+ * @version 0.0.4
  * @component */
 const ScreenConfigurationIntegrationProvider = () => {
-  const { infoColor } = useThemeColors();
-
   /**
    * @description Get the settings from the context for updating the integration state
    * @see {@link context/UserContext} */
   const settings = useUserContextStore((state) => state.settings);
-
-  /**
-   * @description Get the integration settings from the context for updating the integration state
-   * @see {@link context/UserContext} */
-  const [integrationSettings, setIntegrationSettings] = React.useState<ConvexSettingsAPIProps["integrations"]>([]);
-
-  React.useEffect(() => {
-    setIntegrationSettings(Object.values(ProviderIntegrationEnum).map((key) => ({
-      integrationKey: key as ProviderIntegrationEnum,
-      state: settings?.integrations?.find((integration) => integration.integrationKey === key as ProviderIntegrationEnum)?.state ?? false
-    })));
-  }, [settings]);
 
   /**
    * @description Get the integrations from the context for updating the UI/UX accordingly
@@ -141,8 +123,6 @@ const ScreenConfigurationIntegrationProvider = () => {
                 key={`${KEYS.providerGroupItem}-${item.integrationKey}`}
                 {...item}
                 settings={settings}
-                integrationSettings={integrationSettings}
-                setIntegrationSettings={setIntegrationSettings}
                 hasConnections={hasGoogleConnections(item.integrationKey)}/>
             ))}
           </ListItemGroup>
@@ -155,10 +135,10 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.1
+ * @version 0.0.3
  * @param {ScreenConfigurationIntegrationProviderItemProps} param0
  * @param {ConvexSettingsAPIProps} param0.settings - The settings of the currently signed in user.
- * @param {ConvexSettingsAPIProps["integrations"]} param0.integrationSettings - The integration settings of each item to update the state when user changes the usage of the integration.
+ * @param {(settings: ConvexSettingsAPIProps) => void} param0.setSettings - The function to update the settings of the currently signed in user in the context.
  * @param {ProviderIntegrationEnum} param0.integrationKey - The integration key of the item for updating the state and fetching the state from the context.
  * @param {ImageSourcePropType} param0.image - The image source of the item.
  * @param {string} param0.title - The title of the item.
@@ -170,8 +150,6 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @component */
 const ScreenConfigurationIntegrationProviderItem = ({
   settings,
-  integrationSettings,
-  setIntegrationSettings,
   integrationKey,
   image,
   title,
@@ -181,41 +159,52 @@ const ScreenConfigurationIntegrationProviderItem = ({
   isCommingSoon = false,
   children
 }: ScreenConfigurationIntegrationProviderItemProps) => {
-  const { secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, successColor, errorColor } = useThemeColors();
+  const { secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, successColor, errorColor, inactiveColor, focusedBgColor } = useThemeColors();
+  const { t } = useTranslation();
 
   /** @description Used for updating the integration state for the currently signed in user */
   const update: ReactAction<typeof api.sync.settings.action.update> = useAction(api.sync.settings.action.update);
 
+  /**
+   * @description Get the function to update the settings from the context for updating the integration state during the state change
+   * @see {@link context/UserContext} */
+  const setSettings = useUserContextStore((state) => state.setSettings);
 
+  /**
+   * @description Get the initial integration state for the given integration key
+   * @param {ProviderIntegrationEnum} integrationKey - The integration key to get the state for
+   * @function */
+  const getIntegrationState = (integrationKey: ProviderIntegrationEnum) => settings?.integrations?.find((integration) => integration.integrationKey === integrationKey)?.state ?? false;
 
-  const getIntegrationState = (integrationKey: ProviderIntegrationEnum) => integrationSettings?.find((integration) => integration.integrationKey === integrationKey)?.state ?? false;
-
-  //const [state, setState] = React.useState(getIntegrationState(integrationKey));
-
-
+  /**
+   * @description Handles the state change for the integration
+   * @param {boolean} nextState - The next state of the integration
+   * @function */
   const onStateChange = async (
     nextState: boolean
   ) => {
-    const updatedIntegrations = integrationSettings?.map((integration) => integration.integrationKey === integrationKey ? { ...integration, state: nextState } : integration) || integrationSettings || [];
+    const updatedIntegrations = settings?.integrations?.map((integration) => integration.integrationKey === integrationKey 
+      ? { ...integration, state: nextState } 
+      : integration) || settings?.integrations || [];
 
-    debugger;
-
+    /** 
+     * @description Update the integration settingsstate for the currently signed in user
+     * @see {@link backend/convex/sync/settings/action.ts} */
     const { hasErr, err } = await update({
       _id: settings?._id as Id<"settings">,
       ...convertToCleanObjectForUpdate({ ...settings, integrations: updatedIntegrations }),
     });
 
     if (hasErr) handleConvexError(err);
-    else setIntegrationSettings(updatedIntegrations);
+    else setSettings({ ...settings, integrations: updatedIntegrations });
   };
-
 
   return (
     <View style={[ProviderStyle.item, { backgroundColor: secondaryBgColor }]}>
       <View style={[GlobalContainerStyle.rowCenterBetween, ProviderStyle.itemHeader]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
           <Image source={image} style={ProviderStyle.itemImage} resizeMode="cover"/>
-          <View style={{ gap: 1 }}>
+          <View>
             <TextBase 
               text={title} 
               type="label" 
@@ -229,10 +218,16 @@ const ScreenConfigurationIntegrationProviderItem = ({
           </View>
         </View>
         <TouchableHapticSwitch 
-          disabled={isCommingSoon}
+          disabled={isCommingSoon || hasConnections}
           state={getIntegrationState(integrationKey)} 
           onStateChange={onStateChange} />
       </View>
+      {info && <TextBase 
+        text={info} 
+        type="label" 
+        preText={"Hinweis:"} 
+        preTextStyle={{ color: infoColor }}
+        style={[GlobalTypographyStyle.labelText, { paddingHorizontal: 8, paddingVertical: 4, color: shadeColor(infoColor, 0.3)}]} />}
       <View style={[ProviderStyle.itemBottom, {
         backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
         borderColor: primaryBorderColor
@@ -244,7 +239,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
                 icon={faLink as IconProp}
                 text={hasConnections ? "i18n.screens.integrations.activeConnections" : "i18n.screens.integrations.noConnections"}
                 isActive={hasConnections}
-                backgroundColor={hasConnections ? successColor : "#ababab"}
+                backgroundColor={hasConnections ? successColor : inactiveColor}
                 disabled={true}/>
               {isCommingSoon && <TouchableTag
                 icon={faAlarmClock as IconProp}
@@ -255,10 +250,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
             </View>
             {children && getIntegrationState(integrationKey) && children}
           </View>
-          {info && <TextBase 
-            text={info} 
-            type="label" 
-            style={[GlobalTypographyStyle.labelText]} />}
+
         </View>
       </View>
   </View>

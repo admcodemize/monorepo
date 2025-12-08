@@ -9,6 +9,7 @@
     "web": "expo start --web",
     "lint": "expo lint"
   },
+  "description": "moderat severity are based on the dependency 'react-native-remark'.",
   "dependencies": {
     "@codemize/backend": "*",
     "@codemize/helpers": "*",

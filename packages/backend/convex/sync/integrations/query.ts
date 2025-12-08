@@ -6,7 +6,7 @@ import { v } from 'convex/values';
 /**
  * @public
  * @since 0.0.13
- * @version 0.0.3
+ * @version 0.0.4
  * @description Returns all the integrations for the currently signed in user
  * @param {Object} param0
  * @param {string} param0.userId - User identification (Clerk)
@@ -24,13 +24,7 @@ export const get = query({
     /** @description 2. Get all the calendars for all the linked accounts */
     await Promise.all(linkedAccounts.map(async (linkedAccount): Promise<void> => {
       let calendarQuery: ConvexCalendarQueryAPIProps = {
-        _id: linkedAccount._id,
-        _creationTime: linkedAccount._creationTime,
-        email: linkedAccount.email,
-        provider: linkedAccount.provider,
-        providerId: linkedAccount.providerId,
-        hasMailPermission: linkedAccount.hasMailPermission,
-        lastSync: linkedAccount.lastSync,
+        ...linkedAccount,
         calendars: []
       } as ConvexCalendarQueryAPIProps;
 
@@ -39,19 +33,7 @@ export const get = query({
           .filter((q) => q.eq(q.field('_id'), calendarId))
           .unique() as ConvexCalendarAPIProps;
         if (!calendar) return;
-
-        calendarQuery.calendars.push({
-          _id: calendar._id,
-          _creationTime: calendar._creationTime,
-          accessRole: calendar.accessRole as IntegrationAPICalendarAccessRoleEnum,
-          backgroundColor: calendar.backgroundColor,
-          description: calendar.description,
-          foregroundColor: calendar.foregroundColor,
-          primary: calendar.primary,
-          eventsCount: calendar.eventsCount,
-          isRelevantForConflictDetection: calendar.isRelevantForConflictDetection,
-          isRelevantForSynchronization: calendar.isRelevantForSynchronization
-        });
+        calendarQuery.calendars.push({ ...calendar });
       }));
 
       calendars.push(calendarQuery);

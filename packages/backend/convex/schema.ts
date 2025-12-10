@@ -53,6 +53,30 @@ export const watchSchemaObj = {
 }
 
 /**
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description Schema definition for updating a linked account
+ * @interface */
+export const linkedSchemaUpdateObj = {
+  refreshToken: v.optional(v.object(encryptedTokenSchemaObj)),
+  scopes: v.optional(v.array(v.string())),
+  hasMailPermission: v.optional(v.boolean()),
+  calendarId: v.optional(v.array(v.id("calendar"))),
+  watch: v.optional(v.object(watchSchemaObj)),
+}
+
+/**
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description Schema definition for updating a calendar
+ * @interface */
+export const calendarSchemaUpdateObj = {
+  watch: v.optional(v.object(watchSchemaObj)),
+  eventsCount: v.optional(v.number()),
+  isRelevantForConflictDetection: v.optional(v.boolean()),
+}
+
+/**
  * @since 0.0.1
  * @version 0.0.1
  * @description Schema definition for table "users"
@@ -99,18 +123,57 @@ export const timesSchema = {
 }
 
 /**
+ * @since 0.0.9
+ * @version 0.0.3
+ * @description Schema definition for table "events"
+ * @interface */
+export const linkedSchema = {
+  userId: v.id("users"),
+  provider: v.string(),
+  providerId: v.string(),
+  calendarId: v.array(v.id("calendar")),
+  email: v.string(),
+  scopes: v.optional(v.array(v.string())),
+  refreshToken: v.object(encryptedTokenSchemaObj),
+  watch: v.object(watchSchemaObj),
+  hasMailPermission: v.optional(v.boolean()),
+  lastSync: v.optional(v.number())
+}
+
+/**
+ * @since 0.0.11
+ * @version 0.0.1
+ * @description Schema definition for additional information for the calendar(s) within an integrated provider account
+ * -> freeBusyReader: Sees only blocked out times and the status of the calendar without any other information
+ * @interface */
+export const calendarSchema = {
+  externalId: v.string(),
+  accessRole: v.union(v.literal("reader"), v.literal("writer"), v.literal("owner"), v.literal("freeBusyReader")),
+  backgroundColor: v.string(),
+  description: v.string(),
+  foregroundColor: v.string(),
+  primary: v.boolean(),
+  watch: v.optional(v.object(watchSchemaObj)), 
+  eventsCount: v.optional(v.number()),
+  isRelevantForConflictDetection: v.optional(v.boolean()),
+  isRelevantForSynchronization: v.optional(v.boolean()),
+}
+
+
+/**
  * @since 0.0.1
- * @version 0.0.2
+ * @version 0.0.3
  * @description Schema definition for table "events"
  * @interface */
 export const eventSchema = {
   userId: v.id("users"),
+  calendarId: v.id("calendar"), // -> Referenced to the calendar table
+  externalId: v.optional(v.string()), // -> Referenced to the external id of the calendar => Example: "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com"
+  externalEventId: v.optional(v.string()), // -> Referenced to the external id of the event => Example: "19847123541235412354123541235"
   end: v.string(),
   start: v.string(),
   title: v.string(),
   description: v.optional(v.string()),
-  calendarId: v.optional(v.string()),
-  eventProviderId: v.optional(v.string()),
   backgroundColor: v.optional(v.string()),
   htmlLink: v.optional(v.string()),
   visibility: v.optional(v.string()),
@@ -138,43 +201,6 @@ export const eventSchema = {
   })),
 }
 
-/**
- * @since 0.0.9
- * @version 0.0.3
- * @description Schema definition for table "events"
- * @interface */
-export const linkedSchema = {
-  userId: v.id("users"),
-  provider: v.string(),
-  providerId: v.string(),
-  calendarsId: v.array(v.id("calendar")),
-  email: v.string(),
-  scopes: v.optional(v.array(v.string())),
-  refreshToken: v.object(encryptedTokenSchemaObj),
-  watch: v.object(watchSchemaObj),
-  hasMailPermission: v.optional(v.boolean()),
-  lastSync: v.optional(v.number())
-}
-
-/**
- * @since 0.0.11
- * @version 0.0.1
- * @description Schema definition for additional information for the calendar(s) within an integrated provider account
- * -> freeBusyReader: Sees only blocked out times and the status of the calendar without any other information
- * @interface */
-export const calendarSchema = {
-  id: v.string(),
-  accessRole: v.union(v.literal("reader"), v.literal("writer"), v.literal("owner"), v.literal("freeBusyReader")),
-  backgroundColor: v.string(),
-  description: v.string(),
-  foregroundColor: v.string(),
-  primary: v.boolean(),
-  watch: v.optional(v.object(watchSchemaObj)), 
-  eventsCount: v.optional(v.number()),
-  isRelevantForConflictDetection: v.optional(v.boolean()),
-  isRelevantForSynchronization: v.optional(v.boolean()),
-}
-
 export default defineSchema({
   /**
    * @since 0.0.1
@@ -200,13 +226,14 @@ export default defineSchema({
 
   /**
    * @since 0.0.1
-   * @version 0.0.1
+   * @version 0.0.2
    * @description Schema definition for table "events"
    * @type */
   events: defineTable(eventSchema)
     .index("byUserId", ["userId"])
     .index("byCalendarId", ["calendarId"])
-    .index("byEventProviderId", ["eventProviderId"]),
+    .index("byExternalId", ["externalId"])
+    .index("byExternalEventId", ["externalEventId"]),
 
   /**
    * @since 0.0.9
@@ -219,8 +246,8 @@ export default defineSchema({
 
   /**
    * @since 0.0.11
-   * @version 0.0.1
+   * @version 0.0.2
    * @description Schema definition for table "calendar" -> Handles the additional information for each calendar whitin an integrated provider account
    * @type */
-  calendar: defineTable(calendarSchema).index("byIntegrationId", ["id"]),
+  calendar: defineTable(calendarSchema).index("byExternalId", ["externalId"]),
 });

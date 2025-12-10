@@ -8,7 +8,7 @@
     "./Convert": "./Convert.ts"
   },
   "dependencies": {
-    "convex": "^1.28.0",
+    "convex": "^1.30.0",
     "convex-helpers": "^0.1.104",
     "@clerk/clerk-expo": "^2.17.1",
     "@clerk/types": "^4.95.1",

@@ -1,5 +1,6 @@
 import { ProviderIntegrationEnum } from "../../apps/bloxie-app/constants/Provider";
 import { Id } from "./convex/_generated/dataModel";
+import { ConvexHandlerError } from "./Fetch";
 
 /**
  * @public
@@ -84,12 +85,13 @@ export type ConvexEventsAPIProps = {
   _id?: Id<"events">;
   _creationTime?: number;
   userId: Id<"users">;
+  calendarId: Id<"calendar">;
+  externalId?: string;
+  externalEventId?: string;
   start: string;
   end: string;
   title: string;
   description?: string;
-  calendarId?: string;
-  eventProviderId?: string;
   backgroundColor?: string;
   htmlLink?: string;
   visibility?: IntegrationAPICalendarVisibilityEnum;
@@ -158,14 +160,14 @@ export type ConvexTimesAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type ConvexLinkedAPIProps = {
   _id?: Id<"linked">;
   _creationTime?: number;
   provider: string;
   providerId: string;
-  calendarsId: Id<"calendar">[];
+  calendarId: Id<"calendar">[];
   email: string;
   scopes?: string[];
   refreshToken: EncryptedTokenProps;
@@ -178,12 +180,12 @@ export type ConvexLinkedAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type ConvexCalendarAPIProps = {
   _id?: Id<"calendar">;
   _creationTime?: number;
-  id: string;
+  externalId: string;
   accessRole: IntegrationAPICalendarAccessRoleEnum;
   backgroundColor: string;
   description: string;
@@ -231,17 +233,11 @@ export type ConvexCalendarWatchAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexActionReturnProps<T> = {
-  hasErr: boolean;
-  data: T;
-  message: {
-    statusCode: number;
-    info?: string;
-    severity: ConvexActionServerityEnum;
-    reason?: string;
-  };
+  data?: T;
+  convex?: ConvexHandlerError;
 }
 
 /**
@@ -414,32 +410,41 @@ export type IntegrationAPIGoogleCalendarChannelWatchProps = {
   nextSyncToken: 'CJ-Gl9rUhZEDEhRzdG9lY2tsaW03QGdtYWlsLmNvbQ==' } */
 export type IntegrationAPIGoogleCalendarListProps = {
   etag: string;
-  items: {
-    accessRole: string;
-    backgroundColor: string;
-    colorId: string;
-    conferenceProperties: {
-      allowedConferenceSolutionTypes: string[];
-    };
-    defaultReminders: {
-      method: string;
-      minutes: number;
-    }[];
-    etag: string;
-    description?: string;
-    foregroundColor: string;
-    id: string;
-    kind: string;
-    notificationSettings: {
-      notifications: {}[];
-    };
-    primary: boolean;
-    selected: boolean;
-    summary: string;
-    timeZone: string;
-  }[];
+  items: IntegrationAPIGoogleCalendarListItemProps[];
   kind: string;
   nextSyncToken: string;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.21
+ * @version 0.0.1
+ * @example @see IntegrationAPIGoogleCalendarListProps
+ * @type */
+export type IntegrationAPIGoogleCalendarListItemProps = {
+  accessRole: string;
+  backgroundColor: string;
+  colorId: string;
+  conferenceProperties: {
+    allowedConferenceSolutionTypes: string[];
+  };
+  defaultReminders: {
+    method: string;
+    minutes: number;
+  }[];
+  etag: string;
+  description?: string;
+  foregroundColor: string;
+  id: string;
+  kind: string;
+  notificationSettings: {
+    notifications: {}[];
+  };
+  primary: boolean;
+  selected: boolean;
+  summary: string;
+  timeZone: string;
 }
 
 /**

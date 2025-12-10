@@ -21,15 +21,17 @@ export const convertFromConvex = (now: string) => new Date(now);
  * @author Marc Stöckli - Codemize GmbH 
  * @description Converts a google calendar event to a convex event
  * @since 0.0.10
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Id<"users">} userId - The user id
- * @param {string} calendarId - The calendar id
+ * @param {Id<"calendar">} calendarId - The calendar id => Referenced to the calendar table
+ * @param {string} externalId - The external id of the calendar => Example: "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com"
  * @param {APIGoogleCalendarEventProps} event - The google calendar event
  * @param {string} backgroundColor - The background color of the calendar event based on the colorId
  * @function */
 export const convertEventGoogleToConvex = (
   userId: Id<"users">,
-  calendarId: string,
+  calendarId: Id<"calendar">,
+  externalId: string,
   event: IntegrationAPIGoogleCalendarEventProps,
   backgroundColor: string
 ): ConvexEventsAPIProps => {
@@ -46,7 +48,8 @@ export const convertEventGoogleToConvex = (
   return {
     userId,
     calendarId,
-    eventProviderId: event.id,
+    externalId,
+    externalEventId: event.id,
     title: event.summary,
     description: event?.description || "",
     start: event.start.dateTime || event.start.date,
@@ -80,9 +83,23 @@ export const convertEventGoogleToConvex = (
  * @param {T} convexObj - The convex schema object
  * @function */
 export const convertToCleanObjectForUpdate = <T extends object>(convexObj: T): T => {
+  if (!convexObj) return convexObj as T;
   const { _creationTime, ...cleanedObject } = convexObj as { _creationTime: number; [key: string]: any };
   return cleanedObject as T;
 };
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Safely parses a JSON string -> Used for parsing the encrypted payload
+ * @since 0.0.21
+ * @version 0.0.1
+ * @param {string} raw - The raw string to parse
+ * @function */
+export const safeParse = <T>(raw: string): T|null => {
+  try { return JSON.parse(raw) as T; } 
+  catch (err) { return null; }
+}
 
 /**
     start: string;

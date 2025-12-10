@@ -10,9 +10,9 @@
 
 import type * as auth_mutation from "../auth/mutation.js";
 import type * as auth_query from "../auth/query.js";
+import type * as http from "../http.js";
 import type * as http_auth_user from "../http/auth/user.js";
 import type * as http_integrations_google from "../http/integrations/google.js";
-import type * as http from "../http.js";
 import type * as sync_events_mutation from "../sync/events/mutation.js";
 import type * as sync_events_query from "../sync/events/query.js";
 import type * as sync_integrations_action from "../sync/integrations/action.js";
@@ -29,20 +29,12 @@ import type {
   FunctionReference,
 } from "convex/server";
 
-/**
- * A utility for referencing Convex functions in your app's API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = api.myModule.myFunction;
- * ```
- */
 declare const fullApi: ApiFromModules<{
   "auth/mutation": typeof auth_mutation;
   "auth/query": typeof auth_query;
+  http: typeof http;
   "http/auth/user": typeof http_auth_user;
   "http/integrations/google": typeof http_integrations_google;
-  http: typeof http;
   "sync/events/mutation": typeof sync_events_mutation;
   "sync/events/query": typeof sync_events_query;
   "sync/integrations/action": typeof sync_integrations_action;
@@ -53,14 +45,30 @@ declare const fullApi: ApiFromModules<{
   "sync/settings/mutation": typeof sync_settings_mutation;
   "sync/settings/query": typeof sync_settings_query;
 }>;
-declare const fullApiWithMounts: typeof fullApi;
 
+/**
+ * A utility for referencing Convex functions in your app's public API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = api.myModule.myFunction;
+ * ```
+ */
 export declare const api: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "public">
 >;
+
+/**
+ * A utility for referencing Convex functions in your app's internal API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = internal.myModule.myFunction;
+ * ```
+ */
 export declare const internal: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "internal">
 >;
 

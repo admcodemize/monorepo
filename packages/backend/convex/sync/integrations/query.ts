@@ -1,7 +1,8 @@
-import { ConvexCalendarAPIProps, ConvexCalendarQueryAPIProps, ConvexLinkedAPIProps, IntegrationAPICalendarAccessRoleEnum } from '../../../Types';
+import { convexError } from '../../../Fetch';
+import { ConvexActionServerityEnum, ConvexCalendarAPIProps, ConvexCalendarQueryAPIProps, ConvexLinkedAPIProps } from '../../../Types';
 import { Id } from '../../_generated/dataModel';
 import { internalQuery, query } from '../../_generated/server';
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 
 /**
  * @public
@@ -28,7 +29,7 @@ export const get = query({
         calendars: []
       } as ConvexCalendarQueryAPIProps;
 
-      await Promise.all(linkedAccount.calendarsId.map(async (calendarId: Id<"calendar">): Promise<void> => {
+      await Promise.all(linkedAccount.calendarId.map(async (calendarId: Id<"calendar">): Promise<void> => {
         const calendar = await db.query('calendar')
           .filter((q) => q.eq(q.field('_id'), calendarId))
           .unique() as ConvexCalendarAPIProps;
@@ -45,15 +46,31 @@ export const get = query({
 
 /**
  * @public
- * @since 0.0.10
+ * @since 0.0.21
  * @version 0.0.1
+ * @description Returns the calendars information for a given array of calendar ids which are linked to a linked account and a specific user
+ * @param {Object} param0
+ * @param {Id<"calendar">[]} param0.calendarId - Array of calendar ids
+ * @function */
+export const calendarsByIds = internalQuery({
+  args: { calendarId: v.array(v.id('calendar')) },
+  handler: async ({ db }, { calendarId }): Promise<ConvexCalendarAPIProps[]> => 
+    await Promise.all(calendarId.map(
+      async (calendarId: Id<"calendar">): Promise<ConvexCalendarAPIProps> => 
+        await db.get(calendarId) as ConvexCalendarAPIProps))
+});
+
+/**
+ * @public
+ * @since 0.0.10
+ * @version 0.0.2
  * @description Returns the linked account by id
  * @param {Object} param0
  * @param {string} param0._id - Linked account id
  * @function */
 export const linkedById = internalQuery({
   args: { _id: v.id('linked') },
-  handler: async ({ db }, { _id }) => db
+  handler: async ({ db }, { _id }): Promise<ConvexLinkedAPIProps|null> => await db
     .query('linked')
     .withIndex('by_id', (q) => q.eq('_id', _id))
     .unique()
@@ -62,7 +79,7 @@ export const linkedById = internalQuery({
 /**
  * @public
  * @since 0.0.9
- * @version 0.0.1
+ * @version 0.0.2
  * @description Returns the linked account by provider id
  * @param {Object} param0
  * @param {string} param0.userId - User identification
@@ -76,7 +93,8 @@ export const linkedByProviderId = internalQuery({
     provider: v.string(),
     providerId: v.string()
   },
-  handler: async ({ db }, args) => db
+  handler: async ({ db }, args): Promise<ConvexLinkedAPIProps|null> => 
+    await db
     .query('linked')
     .withIndex('byUserId', (q) => q.eq('userId', args.userId))
     .filter((q) =>
@@ -98,7 +116,8 @@ export const linkedByProviderId = internalQuery({
  * @function */
 export const linkedByUser = internalQuery({
   args: { userId: v.id('users') },
-  handler: async ({ db }, { userId }) => db
+  handler: async ({ db }, { userId }): Promise<ConvexLinkedAPIProps[]|null> => 
+    await db
     .query('linked')
     .withIndex('byUserId', (q) => q.eq('userId', userId))
     .collect()
@@ -107,12 +126,39 @@ export const linkedByUser = internalQuery({
 /**
  * @public
  * @since 0.0.11
- * @version 0.0.1
+ * @version 0.0.3
  * @description Returns the calendar by id
  * @param {Object} param0
  * @param {Id<"calendar">} param0._id - The convex calendar id to get
  * @function */
 export const calendarById = internalQuery({
   args: { _id: v.id('calendar') },
-  handler: async ({ db }, { _id }) => _id && await db.get(_id) as ConvexCalendarAPIProps
-})
+  handler: async ({ db }, { _id }): Promise<ConvexCalendarAPIProps> => {
+    try { return await db.get(_id) as ConvexCalendarAPIProps; } 
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.query.calendarById.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IQCB_C_E01",
+        _id: _id as Id<"calendar">,
+      }));
+    }
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description Returns the calendar by external id => Example: "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com"
+ * @param {Object} param0
+ * @param {string} param0.externalId - External calendar id
+ * @function */
+export const calendarByExternalId = internalQuery({
+  args: { externalId: v.string() },
+  handler: async ({ db }, { externalId }): Promise<ConvexCalendarAPIProps|null> => 
+    await db.query('calendar')
+      .filter((q) => q.eq(q.field('externalId'), externalId))
+      .unique() as ConvexCalendarAPIProps|null
+});

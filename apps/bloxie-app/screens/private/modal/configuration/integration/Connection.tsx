@@ -248,6 +248,8 @@ const IntegrationCalendar = ({
       });
   }, [updateCalendarProperty]);
 
+  console.log("calendars:", calendars.length);
+
   return (
     <View style={[ScreenConfigurationIntegrationConnectionStyle.viewBottom, { 
       backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
@@ -255,7 +257,7 @@ const IntegrationCalendar = ({
     }]}>
       <View style={{ gap: 4 }}>
         <View style={[GlobalContainerStyle.rowStartBetween]}>
-          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap" }]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap", width: "100%" }]}>
             {calendars?.map((calendar) => (
               <TouchableTag
                 key={`${KEYS.integrationConnectionCalendar}-${calendar._id}`}

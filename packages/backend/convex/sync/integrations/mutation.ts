@@ -1,25 +1,9 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internalMutation, mutation } from "../../_generated/server";
-import { linkedSchema, calendarSchema, watchSchemaObj, encryptedTokenSchemaObj } from "../../schema";
-
-/**
- * @public
- * @since 0.0.19
- * @version 0.0.1
- * @description Handles the database mutation for updating a single property of a calendar
- * -> Hint: Function can be called directly from the client!
- * @param {Object} param0
- * @param {Id<"calendar">} param0._id - The calendar id to update
- * @param {string} param0.property - The property to update
- * @param {boolean} param0.value - The value to update */
-export const updateCalendarProperty = mutation({
-  args: {
-    _id: v.id("calendar"),
-    property: v.string(),
-    value: v.boolean()
-  },
-  handler: async (ctx, { _id, property, value }) => await ctx.db.patch(_id, { [property]: value })
-});
+import { linkedSchema, calendarSchema, watchSchemaObj, encryptedTokenSchemaObj, linkedSchemaUpdateObj, calendarSchemaUpdateObj } from "../../schema";
+import { Id } from "../../_generated/dataModel";
+import { convexError } from "../../../Fetch";
+import { ConvexActionServerityEnum } from "../../../Types";
 
 /**
  * @public
@@ -40,40 +24,59 @@ export const createLinked = internalMutation({
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.3
  * @description Handles the internal database mutation for updating an existing linked account
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0
  * @param {Id<"linked">} param0._id - The linked id to update
- * @param {Object<encryptedTokenSchemaObj>} param0.refreshToken - The refresh token to update
- * @param {boolean} param0.hasMailPermission - The has mail permission to update which handles if the user has the permission to send emails via the google provider */
+ * @param {Object<linkedSchema>} param0...data - The linked account data to update */
 export const updateLinked = internalMutation({
   args: { 
     _id: v.id("linked"), 
-    refreshToken: v.object(encryptedTokenSchemaObj),
-    scopes: v.array(v.string()),
-    hasMailPermission: v.boolean()
+    ...linkedSchemaUpdateObj,
   },
-  handler: async (ctx, { _id, refreshToken, scopes, hasMailPermission }) => await ctx.db.patch(_id, { refreshToken, scopes, hasMailPermission })
+  handler: async (ctx, { _id, ...data }): Promise<void> => {
+    try { return await ctx.db.patch(_id, { ...data }); }
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.mutation.update.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IML_U_E01",
+        _id: _id as Id<"linked">,
+      }));
+    }
+  }
 });
 
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.2
  * @description Handles the internal database mutation for removing an existing linked account
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0
  * @param {Id<"linked">} param0._id - The linked id to remove */
 export const removeLinked = internalMutation({
   args: { _id: v.id("linked") },
-  handler: async (ctx, { _id }) => await ctx.db.delete(_id)
+  handler: async (ctx, { _id }): Promise<void> => {
+    try { return await ctx.db.delete(_id); }
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.mutation.remove.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IML_R_E01",
+        _id: _id as Id<"linked">,
+      }));
+    }
+  }
 });
 
 /**
  * @public
  * @since 0.0.11
- * @version 0.0.1
+ * @version 0.0.2
  * @description Handles the internal database mutation for creating a calendar info -> Additional information for the calendar(s) within an integrated provider account
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0
@@ -86,7 +89,18 @@ export const removeLinked = internalMutation({
  * @param {object} param0.watch - Contains all the channel watch informations which are importand for getting updates during changes within an integrated calendar */
 export const createCalendar = internalMutation({
   args: { ...calendarSchema },
-  handler: async (ctx, args) => await ctx.db.insert("calendar", { ...args })
+  handler: async (ctx, args): Promise<Id<"calendar">> => {
+    try { return await ctx.db.insert("calendar", { ...args }); }
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 500,
+        info: "i18n.convex.sync.integrations.mutation.create.internalError",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IMC_C_E01",
+        _id: args.externalId,
+      }));
+    }
+  }
 });
 
 /**
@@ -102,22 +116,72 @@ export const createCalendar = internalMutation({
 export const updateCalendar = internalMutation({
   args: { 
     _id: v.id("calendar"),
-    watch: v.optional(v.object(watchSchemaObj)),
-    eventsCount: v.optional(v.number()),
-    isRelevantForConflictDetection: v.optional(v.boolean())
+    ...calendarSchemaUpdateObj
   },
-  handler: async (ctx, args) => await ctx.db.patch(args._id, { watch: args.watch, eventsCount: args.eventsCount, isRelevantForConflictDetection: args.isRelevantForConflictDetection })
+  handler: async (ctx, { _id, ...data }) => {
+    try { await ctx.db.patch(_id, { ...data }); }
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.mutation.update.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IMC_U_E01",
+        _id: _id as Id<"calendar">,
+      }));
+    }
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.19
+ * @version 0.0.2
+ * @description Handles the database mutation for updating a single property of a calendar
+ * -> Hint: Function can be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"calendar">} param0._id - The calendar id to update
+ * @param {string} param0.property - The property to update
+ * @param {boolean} param0.value - The value to update */
+export const updateCalendarProperty = mutation({
+  args: {
+    _id: v.id("calendar"),
+    property: v.string(),
+    value: v.boolean()
+  },
+  handler: async (ctx, { _id, property, value }) => {
+    try { await ctx.db.patch(_id, { [property]: value }); }
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.mutation.update.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IMC_U_E02",
+        _id: _id as Id<"calendar">,
+      }));
+    }
+  }
 });
 
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.2
  * @description Handles the internal database mutation for removing an existing calendar for a linked account
  * -> Hint: Function can not be called directly from the client!
  * @param {Object} param0
  * @param {Id<"calendar">} param0._id - The calendar id to remove */
 export const removeCalendar = internalMutation({
   args: { _id: v.id("calendar") },
-  handler: async (ctx, { _id }) => await ctx.db.delete(_id)
+  handler: async (ctx, { _id }) => {
+    try { await ctx.db.delete(_id); } 
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.mutation.remove.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IMC_R_E01",
+        _id: _id as Id<"calendar">,
+      }));
+    }
+  }
 });

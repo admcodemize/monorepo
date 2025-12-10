@@ -77,19 +77,19 @@ export const byId = query({
 /**
  * @public
  * @since 0.0.11
- * @version 0.0.1
- * @description Returns the event with the given provider id based on the integrated provider id
+ * @version 0.0.2
+ * @description Returns the event with the given external event id based on the integrated external id
  * @param {Id<"users">} userId - The user id to get the event for
- * @param {string} providerId - The provider id to get
+ * @param {string} externalEventId - The external event id to get => Example: "19847123541235412354123541235"
  * @function */
-export const byProviderId = internalQuery({
+export const byExternalEventId = internalQuery({
   args: { 
     userId: v.id("users"),
-    providerId: v.string() 
+    externalEventId: v.string() 
   }, 
-  handler: async (ctx, { userId, providerId }): Promise<ConvexEventsAPIProps|null> => await ctx.db
+  handler: async (ctx, { userId, externalEventId }): Promise<ConvexEventsAPIProps|null> => await ctx.db
     .query("events")
-    .withIndex("byEventProviderId", (q) => q.eq("eventProviderId", providerId))
+    .withIndex("byExternalEventId", (q) => q.eq("externalEventId", externalEventId))
     .filter((q) => q.eq(q.field("userId"), userId))
     .unique() as ConvexEventsAPIProps
 })
@@ -97,20 +97,20 @@ export const byProviderId = internalQuery({
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.2
  * @description Returns all the events for the given provider id
  * -> Used for deleting all the events for a given provider id
  * @param {Id<"users">} userId - The user id to get the events for
- * @param {string} providerCalendarId - The provider calendar id to get
+ * @param {string} externalCalendarId - The external calendar id to get => Example: "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com"
  * @function */
-export const byProviderCalendarId = internalQuery({
+export const byExternalCalendarId = internalQuery({
   args: { 
     userId: v.id("users"),
-    providerCalendarId: v.string()
+    externalCalendarId: v.string()
   }, 
-  handler: async (ctx, { userId, providerCalendarId }): Promise<ConvexEventsAPIProps[]> => await ctx.db
+  handler: async (ctx, { userId, externalCalendarId }): Promise<ConvexEventsAPIProps[]> => await ctx.db
     .query("events")
-    .withIndex("byCalendarId", (q) => q.eq("calendarId", providerCalendarId))
+    .withIndex("byExternalId", (q) => q.eq("externalId", externalCalendarId))
     .filter((q) => q.eq(q.field("userId"), userId))
     .collect() as ConvexEventsAPIProps[]
 })

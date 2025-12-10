@@ -59,6 +59,7 @@ export function useCalendarEvents({
   const _getInitialAPIObj = React.useCallback((now: Date): ConvexEventsAPIProps => ({
     _id: `${KEYS.calendarEvent}-${componentId}-${now.toLocaleDateString()}` as Id<"events">,
     userId: convexUser?._id ?? ("" as Id<"users">),
+    calendarId: "#private@bloxie.com" as Id<"calendar">,
     title: String(),
     start: now.toDateString(),
     end: now.toDateString(),

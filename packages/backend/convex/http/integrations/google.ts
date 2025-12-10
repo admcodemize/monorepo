@@ -17,14 +17,80 @@ import {
   EncryptedTokenProps, 
   ConvexCalendarAPIProps,
   ConvexCalendarWatchAPIProps,
-  ConvexLinkedAPIProps
+  ConvexLinkedAPIProps,
+  IntegrationAPIGoogleCalendarListItemProps,
+  IntegrationAPICalendarVisibilityEnum,
 } from "../../../Types";
-import { convertEventGoogleToConvex, convertToCleanObjectForUpdate } from "../../../Convert";
+import { convertEventGoogleToConvex, convertToCleanObjectForUpdate, safeParse } from "../../../Convert";
+import { convexError, ConvexHandlerError, convexResponse, fetchTypedConvex
+ } from "../../../Fetch";
+import { ConvexError } from "convex/values";
 
 const PROVIDER = "oauth_google";
 
+/** 
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description The convex context for the http actions used for outsourced functions
+ * @type */
+type ConvexHttpCtx = Parameters<Parameters<typeof httpAction>[0]>[0];
+type ConvexCtx = Pick<ConvexHttpCtx, 'runAction' | 'runQuery' | 'runMutation'>;
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.21
+ * @version 0.0.1
+ * @type */
+type UnlinkCalendarProps = {
+  userId: Id<"users">;
+  calendar: ConvexCalendarAPIProps;
+  refreshToken: EncryptedTokenProps;
+  watch: ConvexCalendarWatchAPIProps;
+}
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH
+ * @since 0.0.21
+ * @version 0.0.1
+ * @type */
+type CreateCalendarProps = {
+  userId: Id<"users">;
+  calendar: IntegrationAPIGoogleCalendarListItemProps;
+  providerId: string;
+  refreshToken: EncryptedTokenProps;
+}
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH
+ * @since 0.0.21
+ * @version 0.0.1
+ * @type */
+type ChannelWatchListProps = {
+  userId: Id<"users">;
+  providerId: string;
+}
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description The naming of the properties needs to be shortend because of the maximal length of the channel token!
+ * @type */
+type ChannelWatchEventsProps = {
+  u: Id<"users">;
+  p: string;
+  c: Id<"calendar">;
+}
+
 /**
  * @public
+ * @author Marc Stöckli - Codemize GmbH
  * @since 0.0.9
  * @version 0.0.2
  * @description Handles the http action for linking a google account
@@ -38,6 +104,7 @@ export type HttpActionLinkGoogleProps = {
 
 /**
  * @public
+ * @author Marc Stöckli - Codemize GmbH
  * @since 0.0.9
  * @version 0.0.3
  * @description Handles the http action for linking a google account
@@ -139,7 +206,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
      * -> Start the channel watch for each calendar (events)
      * -> Create the calendar information object for each calendar within the integrated provider account
      * -> Create the linked data for the calendar (Overall main database object for integrations) */
-    const calendarsId: Id<"calendar">[] = [];
+    const calendarId: Id<"calendar">[] = [];
 
     /** @description Start the channel watch for the calendar lists */
     const { data: watchLists }: ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps> = await runAction(internal.sync.integrations.google.action.startWatchCalendarLists, { 
@@ -158,7 +225,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
     for (let calendar of calendars?.items) {
       /** @description Create the calendar information object for each calendar within the integrated provider account */
       const _id: Id<"calendar"> = await runMutation(internal.sync.integrations.mutation.createCalendar, {
-        id: calendar.id,
+        externalId: calendar.id,
         accessRole: calendar.accessRole as IntegrationAPICalendarAccessRoleEnum,
         backgroundColor: calendar.backgroundColor,
         description: calendar?.description || calendar?.summary,
@@ -166,7 +233,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
         primary: calendar?.primary || false,
       });
 
-      calendarsId.push(_id);
+      calendarId.push(_id);
 
       /** 
        * @description Start the channel watch for the calendar -> This is not needed for the first sync because the initial data is fetched with the fetchCalendarEvents action
@@ -193,12 +260,14 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
 
       // @todo do not add a recurring event 300x in the database, just add the first event and the rest of the recurring events will be added dynamically ..
 
+
       if (!hasErrEvents && events?.items) {
         /** @description Exclude birthday events from the creation of the events in the database because they are not relevant for the user */
         for (const event of events.items.filter(
           (item) => item.eventType !== IntegrationAPICalendarEventTypeEnum.BIRTHDAY
         )) await runMutation(internal.sync.events.mutation.create, convertEventGoogleToConvex(
            userId,
+           _id,
            calendar.id,
            event as IntegrationAPIGoogleCalendarEventProps,
            colors?.event?.[event.colorId]?.background || calendar.backgroundColor
@@ -223,7 +292,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
       userId,
       provider: PROVIDER,
       providerId: googleUser.id,
-      calendarsId: calendarsId,
+      calendarId: calendarId,
       email: googleUser.email,
       scopes: scope ? scope.split(" ") : [],
       refreshToken: encryptedRefreshToken,
@@ -233,7 +302,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
 
     return new Response(JSON.stringify({
       hasErr: false,
-      data: calendarsId,
+      data: calendarId,
       message: {
         statusCode: 200,
         info: "i18n.convex.http.integrations.google.success.linked",
@@ -246,6 +315,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
    * -> Is called when for example a google account has already been registered and the user additionally grants the permission to send emails via the google provider */
   await runMutation(internal.sync.integrations.mutation.updateLinked, {
     _id: linkedAccount._id,
+    calendarId: linkedAccount.calendarId,
     refreshToken: encryptedRefreshToken,
     scopes: scope ? scope.split(" ") : [],
     hasMailPermission: scope?.includes("https://www.googleapis.com/auth/gmail.send")
@@ -291,12 +361,12 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
   /** 
    * @description Collect all the events for a given provider and calendarid and remove them all from the database
    * -> Use case: After a user unlinks a google account, all the events for the linked account should be deleted so that no chunks of events are left over */
-  for (const calendarId of linkedAccount.calendarsId) {
+  for (const calendarId of linkedAccount.calendarId) {
     const calendar: ConvexCalendarAPIProps|null = await runQuery(internal.sync.integrations.query.calendarById, { _id: calendarId as Id<"calendar"> });
     if (!calendar) continue;
 
     /** @description Remove all the events for the given calendar id from the database */
-    const events: ConvexEventsAPIProps[] = await runQuery(internal.sync.events.query.byProviderCalendarId, { userId, providerCalendarId: calendar.id });
+    const events: ConvexEventsAPIProps[] = await runQuery(internal.sync.events.query.byExternalCalendarId, { userId, externalCalendarId: calendar.externalId });
     for (const event of events) await runMutation(internal.sync.events.mutation.remove, { _id: event._id });
 
     /** @description Remove the calendar information for the linked account from the database */
@@ -341,11 +411,16 @@ export const httpActionGoogleSend = httpAction(async ({ runAction }, req) => {
     hasErr: false,
     data: null,
     message: {
-      statusCode: 200,
       info: "i18n.convex.http.integrations.google.success.send",
     },
-  }));
+  }), { status: 200 });
 });
+
+
+
+
+
+
 
 /**
  * @public
@@ -366,216 +441,239 @@ export const httpActionGoogleSend = httpAction(async ({ runAction }, req) => {
    Kurz gesagt: Expiration abgelaufen → Watch neu starten → Vollabzug → neues nextSyncToken sichern → wieder auf Delta wechseln.
  * @function */
 export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQuery, runMutation }, req) => {
-
-
-
-  const channelToken = req.headers.get("x-goog-channel-token");
-  if (!channelToken) return new Response("i18n.convex.http.integrations.google.error.channelTokenNotFound", { status: 404 });
-
-  /** @todo: Verschlüssel / Entschlüsseln des tokenPayload!!!!! */
-  
-  let tokenPayload: { userId: string; providerId: string; convexCalendarId: Id<"calendar">; calendarId: string } | null = null;
-  try {
-     tokenPayload = JSON.parse(channelToken);
-   } catch (err) {
-     console.error("invalid channel token", channelToken, err);
-   }
-
-  if (!tokenPayload) return new Response("i18n.convex.http.integrations.google.error.tokenPayloadNotFound", { status: 404 });
-  if (!tokenPayload.convexCalendarId) return new Response("i18n.convex.http.integrations.google.error.tokenPayloadConvexCalendarIdNotFound", { status: 404 });
-  if (!tokenPayload.providerId) return new Response("i18n.convex.http.integrations.google.error.tokenPayloadProviderIdNotFound", { status: 404 });
-
-  const resourceId = req.headers.get("x-goog-resource-id");
-  const channelId = req.headers.get("x-goog-channel-id");
-
-  const calendar = convertToCleanObjectForUpdate(await runQuery(internal.sync.integrations.query.calendarById, { _id: tokenPayload.convexCalendarId as Id<"calendar"> }) as ConvexCalendarAPIProps);
-
-  if (!calendar || !calendar.watch) return new Response("i18n.convex.http.integrations.google.error.calendarNotFound", { status: 404 });
-  if (resourceId !== calendar.watch.resourceId) return new Response("i18n.convex.http.integrations.google.error.resourceIdMismatch", { status: 404 });
-  if (channelId !== calendar.watch.id) return new Response("i18n.convex.http.integrations.google.error.channelIdMismatch", { status: 404 });
-
- //console.log("tokenPayload:", tokenPayload);
-
-
-
-  const linkedAccounts = await runQuery(internal.sync.integrations.query.linkedByUser, { userId: tokenPayload.userId as Id<"users"> });
-  const linkedAccount = linkedAccounts.find((item) => item.providerId === tokenPayload.providerId);
-  if (!linkedAccount) return new Response("i18n.convex.http.integrations.google.error.linkedAccountNotFound", { status: 404 });
-
-
-  //await runAction(internal.sync.integrations.google.action.stopChannelWatch, { channelId, resourceId, refreshToken });
-
-  /** @description Fetch the specified colors for the calendar events and the calendar lists based on the colorId */
-  const { data: colors }: ConvexActionReturnProps<IntegrationAPIGoogleCalendarColorsProps> = await runAction(internal.sync.integrations.google.action.fetchCalendarColors, { refreshToken: linkedAccount.refreshToken });
-
-  const { data, hasErr, message } = await runAction(internal.sync.integrations.google.action.fetchCalendarEvents, { 
-    refreshToken: linkedAccount.refreshToken, 
-    calendarId: tokenPayload.calendarId, 
-    nextSyncToken: calendar.watch.nextSyncToken as string 
+  /** @description Get the x-goog-headers from the request for further processings of the google calendar api */
+  const { channelToken, resourceId, channelId, expiration } = getXGoogleHeaders(req);
+  if (!channelToken || !resourceId || !channelId) return convexResponse<null>({
+    convex: convexError({
+      code: 404,
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_GWE_E01",
+    }),
   });
 
-  for (const event of data.items) {
+  /** 
+   * @description Parse the channel token and retrieve the userId and providerId which are stored in the tokenPayload and are used for further queries and mutations
+   * -> Encryption takes place in the @see internal.sync.integrations.google.action.startWatchCalendarLists action */
+  const encryptedPayload = safeParse<EncryptedTokenProps>(channelToken);
+  let decryptedPayload: ChannelWatchEventsProps|null = null;
+  if (encryptedPayload) decryptedPayload = safeParse<ChannelWatchEventsProps>(await runAction(internal.sync.integrations.action.decryptedPayload, { encryptedPayload }));
+  
+  /** @description Get the calendar by the convex calendar id */
+  const calendar = convertToCleanObjectForUpdate(await runQuery(internal.sync.integrations.query.calendarById, { _id: decryptedPayload.c as Id<"calendar"> }) as ConvexCalendarAPIProps);
+
+  /** @description Get the linked account for the user and provider */
+  const linkedAccounts = await runQuery(internal.sync.integrations.query.linkedByUser, { userId: decryptedPayload.u as Id<"users"> });
+  const linkedAccount = linkedAccounts.find((item) => item.providerId === decryptedPayload.p);
+
+  if (!linkedAccount) return convexResponse<null>({
+    convex: convexError({
+      code: 404,
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_GWE_E02",
+    }),
+  });
+
+  /** @description Fetch the specified colors for the calendar events and the calendar lists based on the colorId */
+  const [errColors, { data: colors }] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarColors, { refreshToken: linkedAccount.refreshToken }));
+
+  /** @description Fetch the events for the calendar including the next sync token */
+  const [errEvents, { data: events }]: [ConvexError<ConvexHandlerError>, ConvexActionReturnProps<IntegrationAPIGoogleCalendarEventsProps>] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEvents, { 
+    refreshToken: linkedAccount.refreshToken, 
+    calendarId: calendar.externalId, 
+    nextSyncToken: calendar.watch.nextSyncToken as string 
+  }));
+
+  for (const event of events.items) {
+    /** @description Event has been newly created, deleted or has been updated -> Check if the event already exists in the database with the same eventProviderId */
+    const _event: ConvexEventsAPIProps|null = await runQuery(internal.sync.events.query.byExternalEventId, { 
+      userId: decryptedPayload.u as Id<"users">, 
+      externalEventId: event.id 
+    });
+
     if (event.status === IntegrationAPICalendarEventStatusEnum.CONFIRMED) {
-      /** @description Event has been newly created or has been updated -> Check if the event already exists in the database with the same eventProviderId */
-      const _event: ConvexEventsAPIProps|null = await runQuery(internal.sync.events.query.byProviderId, { 
-        userId: tokenPayload.userId as Id<"users">, 
-        providerId: event.id 
-      });
-
       if (_event) {
-
-        await runMutation(internal.sync.events.mutation.update, {
+        const [errUpdate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.update, {
           _id: _event._id,
           ...convertEventGoogleToConvex(
             _event.userId,
             _event.calendarId,
+            _event.externalId,
             event,
             colors?.event?.[event.colorId]?.background || calendar.backgroundColor
           ),
-        });
-
+        }));
+        
+        if (errUpdate) {
+          /** @todo Handle the error -> Mutation to notifications schema! */
+        }
+        continue;
       }
-      
+
+      /** @description Event has been newly created -> Create the event in the database */
+      const [errCreate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.create, {
+        userId: decryptedPayload.u as Id<"users">,
+        calendarId: calendar._id,
+        externalId: calendar.externalId,
+        externalEventId: event.id,
+        title: event.summary,
+        description: event?.description || "",
+        start: event.start.dateTime || event.start.date,
+        end: event.end.dateTime || event.end.date,
+        backgroundColor: colors?.event?.[event.colorId]?.background || calendar.backgroundColor,
+        htmlLink: event?.htmlLink || "",
+        visibility: event.visibility || IntegrationAPICalendarVisibilityEnum.PRIVATE,
+        type: event.eventType || IntegrationAPICalendarEventTypeEnum.DEFAULT,
+      }));
+
+      if (errCreate) {
+        /** @todo Handle the error -> Mutation to notifications schema! */
+      }
+      continue;
+    }
+
+    if (event.status === IntegrationAPICalendarEventStatusEnum.CANCELLED) {
+      /** @description Event has been cancelled -> Remove the event from the database */
+      const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: _event._id }));
+      if (errRemove) {
+        /** @todo Handle the error -> Mutation to notifications schema! */
+      }
     }
   }
 
+  /** @description Update the calendar watch information so that the next sync token can be fetched again with only the new or changed events */
+  const [errUpdate] = await fetchTypedConvex(runMutation(internal.sync.integrations.mutation.updateCalendar, {
+    _id: decryptedPayload.c as Id<"calendar">,
+    watch: toWatch({ 
+      id: channelId,
+      resourceId: resourceId,
+      expiration: new Date(expiration).getTime(),
+    }, events.nextSyncToken, calendar.watch.nextSyncToken),
+    eventsCount: events.items?.length || calendar.eventsCount
+  }));
 
-  const expiration = req.headers.get("x-goog-channel-expiration");
-  const expirationMs = new Date(expiration).getTime();
+  if (errUpdate) {
+    /** @todo Handle the error -> Mutation to notifications schema! */
+  }
 
-    await runMutation(internal.sync.integrations.mutation.updateCalendar, {
-      _id: tokenPayload.convexCalendarId as Id<"calendar">,
-      watch: toWatch({ 
-        id: channelId,
-        resourceId: resourceId,
-        expiration: expirationMs,
-      }, data.nextSyncToken, calendar.watch.nextSyncToken),
-      eventsCount: data.items?.length ?? 0,
-      isRelevantForConflictDetection: calendar?.isRelevantForConflictDetection || true
-    });
-
-  // neuer eintrag => "confirmed"
-  // eintrag bearbeitet => "confirmed"
-  // eintrag gelöscht => "cancelled"
-
-  return new Response("i18n.convex.http.integrations.google.success.watch", { status: 200 });
+  return convexResponse<null>({
+    convex: convexError({
+      code: 200,
+      severity: ConvexActionServerityEnum.SUCCESS,
+      name: "BLOXIE_HAR_GWE_S01",
+    })
+  });
 });
 
 /**
  * @public
  * @since 0.0.10
- * @version 0.0.1
+ * @version 0.0.2
  * @description Handles the http action for watching a google calendar
  * @function */
-export const httpActionGoogleWatchLists = httpAction(async ({ runQuery, runAction }, req) => {
-  //console.log("called httpActionGoogleWatchLists", req);
-  const channelToken = req.headers.get("x-goog-channel-token");
-  if (!channelToken) return new Response("i18n.convex.http.integrations.google.error.channelTokenNotFound", { status: 404 });
-
-  /** @todo: Verschlüssel / Entschlüsseln des tokenPayload!!!!! */
+export const httpActionGoogleWatchLists = httpAction(async ({ runQuery, runAction, runMutation }, req) => {
+  /** @description Get the x-goog-headers from the request for further processings of the google calendar api */
+  const { channelToken, resourceId, channelId } = getXGoogleHeaders(req);
+  if (!channelToken || !resourceId || !channelId) return convexResponse<null>({
+    convex: convexError({
+      code: 400,
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_GWL_E01",
+    }),
+  });
   
-  let tokenPayload: { userId: string, providerId: string } | null = null;
-  try {
-     tokenPayload = JSON.parse(channelToken);
-    } catch (err) {
-     console.error("invalid channel token", channelToken, err);
+  /** 
+   * @description Parse the channel token and retrieve the userId and providerId which are stored in the tokenPayload and are used for further queries and mutations
+   * -> Encryption takes place in the @see internal.sync.integrations.google.action.startWatchCalendarLists action */
+  const encryptedPayload = safeParse<EncryptedTokenProps>(channelToken);
+  let decryptedPayload: ChannelWatchListProps|null = null;
+  if (encryptedPayload) decryptedPayload = safeParse<ChannelWatchListProps>(await runAction(internal.sync.integrations.action.decryptedPayload, { encryptedPayload }));
+
+  /** @description Get the linked account for the user and provider */
+  const linkedAccount = await runQuery(internal.sync.integrations.query.linkedByProviderId, { 
+    provider: PROVIDER,
+    userId: decryptedPayload.userId,
+    providerId: decryptedPayload.providerId
+  });
+
+  if (!linkedAccount || !linkedAccount.watch || (resourceId !== linkedAccount.watch.resourceId) || (channelId !== linkedAccount.watch.id)) return convexResponse<null>({
+    convex: convexError({
+      code: 404,
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_GWL_E02",
+    }),
+  });
+
+  /** 
+   * @description Fetch the calendar list for the linked account and the next sync token
+   * -> Used for checking if the calendar has been deleted, updated or created */
+  const [errFetch, { data }] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarList, { refreshToken: linkedAccount.refreshToken }));
+  if (errFetch) return convexResponse<null>({ convex: errFetch.data });
+    
+  /** @description Get the calendars for the linked account which are used to check if the calendar has been deleted, updated or created */
+  const calendars: ConvexCalendarAPIProps[] = await runQuery(internal.sync.integrations.query.calendarsByIds, { calendarId: linkedAccount.calendarId });
+  for (const calendar of calendars) {
+    /**
+     *  @description If the calendar is not found in the data.items, it means that the calendar has been deleted
+     * -> Example: id => "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com" */
+    if (!data.items.find(({ id }) => id === calendar.externalId) && calendar._id) {
+      /** 
+       * @description Unlink the calendar from the google account and remove the events from the database 
+       * @todo Has to bee defined what should happen with the failed removes.. the process can not be stopped!! */
+      const { data: failedRemoves } = await unlinkCalendar(
+        { runAction, runQuery, runMutation }, 
+        { userId: decryptedPayload?.userId as Id<"users">, calendar, refreshToken: linkedAccount.refreshToken, watch: calendar.watch });
+      linkedAccount.calendarId = linkedAccount.calendarId.filter((id) => id !== calendar._id);
+    }
   }
 
-  const resourceId = req.headers.get("x-goog-resource-id");
-  const channelId = req.headers.get("x-goog-channel-id");
+  const calendarId: Id<"calendar">[] = [];
+  for (const calendar of data.items) {
+    /** 
+     * @description Get the calendar by the external id if available and create, update or remove it
+     * -> Example: "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com" */
+    const _calendar: ConvexCalendarAPIProps|null = await runQuery(internal.sync.integrations.query.calendarByExternalId, { externalId: calendar.id });
 
-  console.log("tokenPayload:", tokenPayload);
-
-  const linkedAccount = await runQuery(internal.sync.integrations.query.linkedByProviderId, { 
-    userId: tokenPayload.userId as Id<"users">,
-    provider: PROVIDER,
-    providerId: tokenPayload?.providerId || "105126457376485677523"
-  });
-  if (!linkedAccount) return new Response("i18n.convex.http.integrations.google.error.linkedAccountNotFound", { status: 404 });
-
-  console.log("linkedAccount:", linkedAccount);
-
-  if (!linkedAccount || !linkedAccount.watch) return new Response("i18n.convex.http.integrations.google.error.calendarNotFound", { status: 404 });
-  if (resourceId !== linkedAccount.watch.resourceId) return new Response("i18n.convex.http.integrations.google.error.resourceIdMismatch", { status: 404 });
-  if (channelId !== linkedAccount.watch.id) return new Response("i18n.convex.http.integrations.google.error.channelIdMismatch", { status: 404 });
-
-  const { data, hasErr, message } = await runAction(internal.sync.integrations.google.action.fetchCalendarList, { 
-    refreshToken: linkedAccount.refreshToken, 
-  });
-
-  console.log("data:", data);
-
-  // update, remove or insert calendars based on data.items.. 
-
-  /**
-   * items: [
-    {
-      accessRole: 'owner',
-      backgroundColor: '#9a9cff',
-      colorId: '17',
-      conferenceProperties: {
-        allowedConferenceSolutionTypes: [ 'hangoutsMeet' ]
-      },
-      defaultReminders: [
-        {
-          method: 'popup',
-          minutes: 30
-        }
-      ],
-      etag: '"1763932842331119"',
-      foregroundColor: '#000000',
-      id: 'stoecklim7@gmail.com',
-      kind: 'calendar#calendarListEntry',
-      notificationSettings: {
-        notifications: [ [Object], [Object], [Object], [Object] ]
-      },
-      primary: true,
-      selected: true,
-      summary: 'stoecklim7@gmail.com',
-      timeZone: 'Europe/Zurich'
-    },
-    {
-      accessRole: 'owner',
-      backgroundColor: '#cd74e6',
-      colorId: '23',
-      conferenceProperties: {
-        allowedConferenceSolutionTypes: [ 'hangoutsMeet' ]
-      },
-      dataOwner: 'stoecklim7@gmail.com',
-      defaultReminders: [],
-      etag: '"1763968081568831"',
-      foregroundColor: '#000000',
-      id: 'c0233a3dc36c960b63bff22ebabb70b83432fabc0cb0dd5356053ec19f353a76@group.calendar.google.com',
-      kind: 'calendar#calendarListEntry',
-      selected: true,
-      summary: 'Demo-Bloxie',
-      timeZone: 'Europe/Zurich'
-    },
-    {
-      accessRole: 'owner',
-      backgroundColor: '#cca6ac',
-      colorId: '21',
-      conferenceProperties: {
-        allowedConferenceSolutionTypes: [ 'hangoutsMeet' ]
-      },
-      dataOwner: 'stoecklim7@gmail.com',
-      defaultReminders: [],
-      etag: '"1765229569364895"',
-      foregroundColor: '#000000',
-      id: 'b8eafed530e3a4ed582fe50a4d18705abab8b001f062b9ffa8de5ae1abfccd0d@group.calendar.google.com',
-      kind: 'calendar#calendarListEntry',
-      selected: true,
-      summary: 'Demo-Bloxie 2',
-      timeZone: 'Europe/Zurich'
+    /** 
+     * @description Update the needed convex information for a calendar 
+     * @todo Has to bee defined what should happen with the failed updates.. the process can not be stopped!! */
+    if (_calendar) {
+      const [errUpdate] = await fetchTypedConvex(runMutation(internal.sync.integrations.mutation.updateCalendar, {
+        _id: _calendar._id,
+        watch: _calendar.watch,
+        eventsCount: _calendar.eventsCount,
+        isRelevantForConflictDetection: _calendar.isRelevantForConflictDetection
+      }));
+      continue;
     }
-  ],
-  kind: 'calendar#calendarList',
-  nextSyncToken: 'CJ-nt8v4rpEDEhRzdG9lY2tsaW03QGdtYWlsLmNvbQ=='
-   * 
-   */
 
+    /** @description Create the newly added calendar in the database, fetch all the events and start the linking afterwards */
+    const [errCreate, { data: _id }] = await fetchTypedConvex(createCalendar({ runAction, runMutation, runQuery },
+      { 
+        userId: decryptedPayload?.userId as Id<"users">, 
+        providerId: decryptedPayload?.providerId, 
+        calendar, 
+        refreshToken: linkedAccount.refreshToken 
+      }
+    ));
 
-  return new Response("i18n.convex.http.integrations.google.success.watch", { status: 200 });
+    if (errCreate) continue;
+    calendarId.push(_id);
+  }
+
+  /** @description Update the linked account with the new refresh token, scopes and has mail permission */
+  await runMutation(internal.sync.integrations.mutation.updateLinked, {
+    _id: linkedAccount._id,
+    calendarId: [...linkedAccount.calendarId, ...calendarId],
+    watch: toWatch(linkedAccount.watch, data?.nextSyncToken, linkedAccount.watch.nextSyncToken)
+  });
+
+  return convexResponse<null>({
+    convex: convexError({
+      code: 200,
+      severity: ConvexActionServerityEnum.SUCCESS,
+      name: "BLOXIE_HAR_GWL_S01",
+    })
+  });
 });
 
 /**
@@ -606,3 +704,146 @@ export const httpActionGoogleCallback = httpAction(async () => new Response("i18
     nextSyncToken: nextSyncToken ?? "",
     lastSyncToken: lastSyncToken ?? "",
   });
+
+
+/**
+ * @private
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description Handles the creation of a calendar in the database and starts the channel watch for the calendar events including the fetching of all the events
+ * @param {ConvexCtx} ctx - The convex context
+ * @param {CreateCalendarProps} param0
+ * @param {Id<"users">} param0.userId - The user id
+ * @param {IntegrationAPIGoogleCalendarListItemProps} param0.calendar - The calendar to create
+ * @param {string} param0.providerId - The provider id => "105126457376485677523" which is transferred from the google account
+ * @param {EncryptedTokenProps} param0.refreshToken - The refresh token for the google account => Encrypted
+ * @returns {ConvexActionReturnProps<Id<"calendar">>} - The id of the created calendar
+ * @function */
+const createCalendar = async (
+  { runAction, runMutation }: ConvexCtx,
+  { userId, calendar, providerId, refreshToken }: CreateCalendarProps
+): Promise<ConvexActionReturnProps<Id<"calendar">>> => {
+  /** @description Create the newly added calendar in the database and start the linking afterwards */
+  const [errCreate, _id] = await fetchTypedConvex(runMutation(internal.sync.integrations.mutation.createCalendar, {
+    externalId: calendar.id,
+    accessRole: calendar.accessRole as IntegrationAPICalendarAccessRoleEnum,
+    backgroundColor: calendar.backgroundColor,
+    description: calendar?.description || calendar?.summary,
+    foregroundColor: calendar.foregroundColor,
+    primary: calendar?.primary || false,
+  }));
+
+  if (errCreate) throw new ConvexError(errCreate.data);
+
+  /** @description Start the channel watch for the future modifications of the calendar events */
+  const [errWatch, { data: watch }]: [ConvexError<ConvexHandlerError>, ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.startWatchCalendarEvents, { 
+    userId, providerId, refreshToken, 
+    convexCalendarId: _id,
+    calendarId: calendar.id,
+  }));
+
+  if (errWatch) {
+    /** @todo Calendar watch could not be started -> Mutation to notifications schema! */
+  }
+
+  /** @description Fetch the events for the calendar including the next sync token */
+  const [errEvents, { data: events }]: [ConvexError<ConvexHandlerError>, ConvexActionReturnProps<IntegrationAPIGoogleCalendarEventsProps>] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEvents, { 
+    refreshToken,
+    calendarId: calendar.id,
+  }));
+
+  if (errEvents) {
+    /** @todo Calendar events could not be fetched -> Mutation to notifications schema! -> Make a notification with a refres button for retry */
+  }
+
+  /** 
+   * @description Update the calendar watch information
+   * -> The watch object is not written to the convex database at the beginning because 
+   * the generated convex ID is used for the registration of the calendar watch for the later process flow. */
+  if (_id) await runMutation(internal.sync.integrations.mutation.updateCalendar, {
+    _id, 
+    /** @description Add the watch events to the linked data watch for further determing of the next sync token to check if a calendar events (created, updated, deleted) has been changed */
+    watch: !errWatch ? toWatch(watch, events?.nextSyncToken, events?.nextSyncToken) : toWatch({ id: "", resourceId: "", expiration: 0 } as IntegrationAPIGoogleCalendarChannelWatchProps),
+    eventsCount: events?.items?.length ?? 0,
+    isRelevantForConflictDetection: true,
+  });
+
+  return {
+    data: _id,
+    convex: convexError({
+      code: 200,
+      severity: ConvexActionServerityEnum.SUCCESS,
+      name: "BLOXIE_HAR_CC_S01",
+    }),
+  };
+}
+
+/**
+ * @private
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description Handles the unlinking of a calendar from a google account
+ * @param {ConvexCtx} ctx - The convex context
+ * @param {UnlinkCalendarProps} param0
+ * @param {Id<"users">} param0.userId - The user id
+ * @param {ConvexCalendarAPIProps} param0.calendar - The calendar to unlink the events from
+ * @param {EncryptedTokenProps} param0.refreshToken - The refresh token for the google account
+ * @param {ConvexCalendarWatchAPIProps} param0.watch - The watch for the calendar witch is used for stopping the channel watch
+ * @function */
+const unlinkCalendar = async (
+  { runAction, runQuery, runMutation }: ConvexCtx, 
+  { userId, calendar, refreshToken, watch }: UnlinkCalendarProps): Promise<ConvexActionReturnProps<ConvexError<ConvexHandlerError>[]>> => {
+    if (watch) {
+      /** @description Stop the channel watch for the calendar lists so that the calendar events can not be fetched or updated incrementally anymore */
+      const [errStop] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.stopChannelWatch, { 
+        channelId: watch.id,
+        resourceId: watch.resourceId, 
+        refreshToken: refreshToken 
+      }));
+
+      if (errStop) throw new ConvexError(errStop.data);
+    }
+
+    /** @description Fetch all the events for the given calendar id from the database for removing them before removing the calendar */
+    const events: ConvexEventsAPIProps[] = await runQuery(internal.sync.events.query.byExternalCalendarId, { 
+      userId,
+      externalCalendarId: calendar.externalId 
+    });
+
+    /** @description Remove all the events for the given calendar id from the database before removing the calendar */
+    const failedRemoves: ConvexError<ConvexHandlerError>[] = [];
+    for (const event of events) {
+      const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: event._id }));
+      if (errRemove) failedRemoves.push(errRemove);
+    }
+
+    /** @description Remove the calendar from the database */
+    const [errRemoveCalendar] = await fetchTypedConvex(runMutation(internal.sync.integrations.mutation.removeCalendar, { _id: calendar._id }));
+    if (errRemoveCalendar) failedRemoves.push(errRemoveCalendar);
+
+    return {
+      data: failedRemoves,
+      convex: convexError({
+        code: 207,
+        severity: ConvexActionServerityEnum.SUCCESS,
+        name: "BLOXIE_HAR_UC_S01",
+      }),
+    };
+}
+
+/**
+ * @private
+ * @since 0.0.21
+ * @version 0.0.1
+ * @description Handles the x-goog-headers for the google calendar api
+ * @param {Request} req - The request object
+ * @function */
+const getXGoogleHeaders = (
+  req: Request
+) => ({
+  channelToken: req.headers.get("x-goog-channel-token"),
+  channelExpiration: req.headers.get("x-goog-channel-expiration"),
+  resourceId: req.headers.get("x-goog-resource-id"),
+  channelId: req.headers.get("x-goog-channel-id"),
+  expiration: req.headers.get("x-goog-channel-expiration"),
+});

@@ -52,12 +52,12 @@ type IntegrationCalendarProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.19
- * @version 0.0.2
+ * @version 0.0.3
  * @description The screen for the integration connection
  * @component */
 const ScreenConfigurationIntegrationSynchronisation = (
 ) => {
-  const { secondaryBgColor } = useThemeColors();
+  const { secondaryBgColor, primaryBorderColor } = useThemeColors();
 
   /**
    * @description Get the integrations from the context for updating the UI/UX accordingly
@@ -73,7 +73,8 @@ const ScreenConfigurationIntegrationSynchronisation = (
               key={`${KEYS.integrationConnection}-${integration._id}`}
               style={{ gap: STYLES.sizeGap }}>
                 <View style={[ScreenConfigurationIntegrationSynchronisationStyle.viewHeader, { 
-                  backgroundColor: secondaryBgColor 
+                  backgroundColor: shadeColor(secondaryBgColor, -0.01), 
+                  borderColor: primaryBorderColor
                 }]}>
                   <IntegrationHeader integration={integration} />
                   <IntegrationCalendar calendars={integration.calendars ?? []} />

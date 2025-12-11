@@ -18,8 +18,11 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import TextBase from "@/components/typography/Text";
+import { shadeColor } from "@codemize/helpers/Colors";
 
 const { width } = Dimensions.get("window");
+
+/** @todo REFACTORING REQUIRED! */
 
 type TabItem = {
   title: string;
@@ -41,7 +44,7 @@ const TIMING_OPTIONS = {
 };
 
 export default function HorizontalNavigation({ horizontalNavigation }: Props) {
-  const { linkColor, infoColor, primaryBorderColor } = useThemeColors();
+  const { linkColor, infoColor, primaryBorderColor, tertiaryBgColor, primaryBgColor } = useThemeColors();
   const indexRef = useSharedValue(0);
   const baseOffsetRef = useSharedValue(0);
   const translateXRef = useSharedValue(0);
@@ -148,9 +151,9 @@ export default function HorizontalNavigation({ horizontalNavigation }: Props) {
   }));
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: shadeColor(tertiaryBgColor, 0.1) }]}>
       {/* TAB BAR */}
-      <View style={[styles.tabBar, { borderColor: primaryBorderColor }]}>
+      <View style={[styles.tabBar, { borderColor: primaryBorderColor, backgroundColor: primaryBgColor }]}>
         {horizontalNavigation.map((t, i) => (
           <TouchableOpacity
             key={i}
@@ -179,7 +182,7 @@ export default function HorizontalNavigation({ horizontalNavigation }: Props) {
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.slider, { width: width * horizontalNavigation.length }, sliderStyle]}>
           {horizontalNavigation.map((t, i) => (
-            <View key={i} style={styles.page}>
+            <View key={i} style={[styles.page, {  }]}>
               {t.component}
             </View>
           ))}

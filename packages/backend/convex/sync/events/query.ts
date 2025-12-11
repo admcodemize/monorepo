@@ -6,7 +6,7 @@ import { ConvexEventsAPIProps } from "../../../Types";
 /**
  * @public
  * @since 0.0.9
- * @version 0.0.26
+ * @version 0.0.2
  * @description Returns all the events for currently signed in user and their subscriptions */
 export const get = query({
   args: {

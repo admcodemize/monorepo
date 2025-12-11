@@ -1,7 +1,8 @@
 "use node";
 import { ConvexError, v } from "convex/values";
+import { Id } from "../../../_generated/dataModel";
 import { internal } from "../../../_generated/api";
-import { internalAction } from "../../../_generated/server";
+import { httpAction, internalAction } from "../../../_generated/server";
 import { encryptedTokenSchemaObj } from "../../../schema";
 import { 
   IntegrationAPIGoogleCalendarChannelWatchProps, 
@@ -11,9 +12,9 @@ import {
   IntegrationAPIGoogleCalendarListProps, 
   ConvexActionReturnProps, 
   ConvexActionServerityEnum, 
-  IntegrationAPIGoogleCalendarTokenExchangeProps
+  IntegrationAPIGoogleCalendarTokenExchangeProps,
 } from "../../../../Types";
-import { convexError, ConvexHandlerError, fetchTyped, fetchTypedConvex } from "../../../../Fetch";
+import { convexError, fetchTypedConvex } from "../../../../Fetch";
 
 /**
  * @public
@@ -151,6 +152,15 @@ export const fetchCalendarEvents = internalAction({
       const [errFetch, res] = await fetchTypedConvex(fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`, {
         headers: bearerHeader(refresh.data?.access_token),
       }), "BLOXIE_HAR_FCE_E01");
+
+      /** @description If the watch has expired, return an error object without throwing an error! */
+      if (res.status === 410) return {
+        convex: convexError({
+          code: 410,
+          severity: ConvexActionServerityEnum.ERROR,
+          name: errFetch?.data?.name || "BLOXIE_HAR_FCE_E03",
+        }),
+      }
 
       if (errFetch || !res.ok) throw new ConvexError(errFetch ? errFetch.data : convexError({
         code: res.status,
@@ -331,45 +341,10 @@ export const startWatchCalendarEvents = internalAction({
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * @public
  * @since 0.0.10
- * @version 0.0.2
+ * @version 0.0.3
  * @description Starts a channel watch for the calendar list -> Used for adding/removing events in convex database!
  * @param {Object} param0
  * @param {string} param0.userId - The user id to register the channel watch for
@@ -383,20 +358,19 @@ export const startWatchCalendarLists = internalAction({
     refreshToken: v.object(encryptedTokenSchemaObj),
   },
   handler: async ({ runAction }, { userId, providerId, refreshToken }): Promise<ConvexActionReturnProps<IntegrationAPIGoogleCalendarChannelWatchProps>> => {
-    /** @description Refresh the access token for registering the channel watch */
-    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
+    /** @description Refresh the access token for fetching the calendar list */
+    const [errRefresh, refresh] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken }));
+    if (errRefresh) throw new ConvexError(errRefresh.data);
+
     const channelId = crypto.randomUUID();
 
     /** @description Encrypt the payload for the further process and transfering between the different actions */
     const encryptedPayload = await runAction(internal.sync.integrations.action.encryptedPayload, { payload: JSON.stringify({ userId, providerId }) });
 
     /** @description Register the channel watch for the calendar */
-    const res = await fetch(`https://www.googleapis.com/calendar/v3/users/me/calendarList/watch`, {
+    const [errWatch, response] = await fetchTypedConvex(fetch(`https://www.googleapis.com/calendar/v3/users/me/calendarList/watch`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        Accept: 'application/json',
-      },
+      headers: bearerHeader(refresh.data?.access_token),
       body: JSON.stringify({ 
         id: channelId,
         type: 'web_hook',
@@ -404,42 +378,31 @@ export const startWatchCalendarLists = internalAction({
         /** @desciption Has to be a stringified object. If not the fetch will fail and the response will be invalid!! */
         token: JSON.stringify(encryptedPayload)
       }),
-    });
+    }));
 
-    if (!res.ok) return {
-      hasErr: true,
-      data: {} as IntegrationAPIGoogleCalendarChannelWatchProps,
-      message: {
-        statusCode: 500,
-        info: await res.text(),
-        severity: ConvexActionServerityEnum.ERROR,
-        reason: "BLOXIE_HAR_E07",
-      },
-    };
+    if (errWatch || !response.ok) throw new ConvexError(errWatch ? errWatch.data : convexError({
+      code: response.status,
+      info: await response.text(),
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_WCL_E01",
+    }));
 
     return {
-      hasErr: false,
-      data: await res.json() as IntegrationAPIGoogleCalendarChannelWatchProps,
-      message: {
-        statusCode: 200,
+      data: await response.json() as IntegrationAPIGoogleCalendarChannelWatchProps,
+      convex: {
+        code: 200,
         info: "i18n.convex.http.integrations.google.success.watch",
-        severity: ConvexActionServerityEnum.SUCCESS
-      },
+        severity: ConvexActionServerityEnum.SUCCESS,
+        name: "BLOXIE_HAR_WCL_S01",
+      }
     };
   }
 });
 
-
-
-
-
-
-
-
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.2
  * @description Sends an email via Gmail
  * @param {Object} param0
  * @param {string} param0.refreshToken - The refresh token to send the email
@@ -457,8 +420,11 @@ export const sendGmail = internalAction({
     body: v.string(),  
   },
   handler: async ({ runAction }, { refreshToken, from, to, subject, body }) => {
-    const { access_token } = await runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken });
+    /** @description Refresh the access token for sending the email */
+    const [errRefresh, refresh] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken }));
+    if (errRefresh) throw new ConvexError(errRefresh.data);
 
+    /** @description Send the email via Gmail */
     async function sendGmail(access_token: string, message: string) {
       const raw = Buffer.from(message)
         .toString("base64")
@@ -466,23 +432,26 @@ export const sendGmail = internalAction({
         .replace(/\//g, "_")
         .replace(/=+$/, "");
     
-      const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+      const [errSend, response] = await fetchTypedConvex(fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          "Content-Type": "application/json",
-        },
+        headers: bearerHeader(access_token),
         body: JSON.stringify({ raw }),
-      });
-    
+      }));
+
+      if (errSend || !response.ok) throw new ConvexError(errSend ? errSend.data : convexError({
+        code: response.status,
+        info: await response.text(),
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_HAR_SG_E01",
+      }));
+
       return {
-        hasErr: !res.ok,
-        data: res.ok ? await res.json() : {} as IntegrationAPIGoogleCalendarColorsProps,
-        message: {
-          statusCode: res.ok ? 200 : 500,
-          info: res.ok ? "i18n.convex.http.integrations.google.success.send" : await res.text(),
-          severity: res.ok ? ConvexActionServerityEnum.SUCCESS : ConvexActionServerityEnum.ERROR,
-          reason: res.ok ? "BLOXIE_HAR_S02" : "BLOXIE_HAR_E09",
+        data: await response.json() as IntegrationAPIGoogleCalendarColorsProps,
+        convex: {
+          code: 200,
+          info: "i18n.convex.http.integrations.google.success.send",
+          severity: ConvexActionServerityEnum.SUCCESS,
+          name: "BLOXIE_HAR_SG_S01",
         }
       };
     }
@@ -496,7 +465,7 @@ export const sendGmail = internalAction({
       body,
     ].join("\r\n");
     
-    return await sendGmail(access_token, email);
+    return await sendGmail(refresh.data?.access_token, email);
   }
 });
 

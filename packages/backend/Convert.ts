@@ -3,7 +3,9 @@ import {
   IntegrationAPIGoogleCalendarEventProps, 
   IntegrationAPICalendarEventTypeEnum, 
   ConvexEventsAPIProps, 
-  IntegrationAPICalendarVisibilityEnum
+  IntegrationAPICalendarVisibilityEnum,
+  ConvexCalendarWatchAPIProps,
+  IntegrationAPIGoogleCalendarChannelWatchProps
 } from "./Types";
 
 /**
@@ -73,6 +75,27 @@ export const convertEventGoogleToConvex = (
   };
 };
 
+/**
+ * @private
+ * @since 0.0.22
+ * @version 0.0.1
+ * @description Handles the watch data for the linked data -> Creates a new watch object
+ * @param {IntegrationAPIGoogleCalendarChannelWatchProps|undefined} watch - The watch object from the google calendar api
+ * @param {string} nextSyncToken - The next sync token for the watch
+ * @param {string} lastSyncToken - The last sync token for the watch
+ * @function */
+export const toWatch = (
+  watch: IntegrationAPIGoogleCalendarChannelWatchProps|undefined,
+  nextSyncToken?: string,
+  lastSyncToken?: string
+): ConvexCalendarWatchAPIProps|null => ({
+   id: watch.id,
+   resourceId: watch.resourceId,
+   expiration: typeof watch.expiration === "string" ? Number(watch.expiration) : watch.expiration ?? 0,
+   nextSyncToken: nextSyncToken ?? "",
+   lastSyncToken: lastSyncToken ?? "",
+ });
+ 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 

@@ -54,7 +54,7 @@ export const watchSchemaObj = {
 
 /**
  * @since 0.0.21
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for updating a linked account
  * @interface */
 export const linkedSchemaUpdateObj = {
@@ -63,6 +63,7 @@ export const linkedSchemaUpdateObj = {
   hasMailPermission: v.optional(v.boolean()),
   calendarId: v.optional(v.array(v.id("calendar"))),
   watch: v.optional(v.object(watchSchemaObj)),
+  lastSync: v.optional(v.number()),
 }
 
 /**
@@ -71,6 +72,11 @@ export const linkedSchemaUpdateObj = {
  * @description Schema definition for updating a calendar
  * @interface */
 export const calendarSchemaUpdateObj = {
+  description: v.optional(v.string()),
+  foregroundColor: v.optional(v.string()),
+  backgroundColor: v.optional(v.string()),
+  primary: v.optional(v.boolean()),
+  accessRole: v.optional(v.union(v.literal("reader"), v.literal("writer"), v.literal("owner"), v.literal("freeBusyReader"))),
   watch: v.optional(v.object(watchSchemaObj)),
   eventsCount: v.optional(v.number()),
   isRelevantForConflictDetection: v.optional(v.boolean()),

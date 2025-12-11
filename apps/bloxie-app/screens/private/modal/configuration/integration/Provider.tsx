@@ -200,7 +200,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
   };
 
   return (
-    <View style={[ProviderStyle.item, { backgroundColor: secondaryBgColor }]}>
+    <View style={[ProviderStyle.item, { backgroundColor: shadeColor(secondaryBgColor, -0.01), borderColor: primaryBorderColor, borderWidth: 0.5 }]}>
       <View style={[GlobalContainerStyle.rowCenterBetween, ProviderStyle.itemHeader]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
           <Image source={image} style={ProviderStyle.itemImage} resizeMode="cover"/>

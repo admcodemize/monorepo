@@ -46,6 +46,7 @@
       ["expo-router", {
         "origin": "https://bloxie.ch/"
       }],
+      ["expo-notifications"],
       ["expo-splash-screen", {
         "image": "",
         "imageWidth": 200,
@@ -62,7 +63,7 @@
       }],
       ["@sentry/react-native/expo", {
         "url": "https://sentry.io/",
-        "project": "react-native",
+        "project": "bloxie",
         "organization": "codemize-gmbh"
       }],
       ["@react-native-google-signin/google-signin", {

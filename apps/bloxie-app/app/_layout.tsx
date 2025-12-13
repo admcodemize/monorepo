@@ -7,6 +7,7 @@ import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 
 import { initSentry } from "@codemize/helpers/Sentry";
+import { initNotification } from "@/helpers/Notification";
 
 import { Inter_100Thin, Inter_300Light, Inter_500Medium, Inter_600SemiBold, Inter_800ExtraBold, useFonts } from '@expo-google-fonts/inter';
 import { Slot, useRouter, useSegments } from 'expo-router';
@@ -88,6 +89,8 @@ const StartSlot = () => {
  * @version 0.0.2 */
 const RootLayout = () => {
   initSentry({ version: getVersion() || "0.0.1" });
+  initNotification();
+  
   const [isAppReady, setIsAppReady] = React.useState(false);
 
   /** @description Load custom fonts */

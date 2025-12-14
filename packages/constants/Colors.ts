@@ -3,7 +3,7 @@
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.1
- * @version 0.0.3
+ * @version 0.0.4
  * @constant */
 export const COLORS = {
   light: {
@@ -34,6 +34,7 @@ export const COLORS = {
     tertiaryBorder: "#D1D1D1",
     primaryIcon: "#303030",
     secondaryIcon: "#626D7B",
+    tertiaryIcon: "#fff",
     primaryIconBg: "#fff",
     weekendBg: "#626D7B",
     todayBg: "#497BCB",
@@ -68,6 +69,7 @@ export const COLORS = {
     tertiaryBorder: "#d1d1d1",
     primaryIcon: "#626D7B",
     secondaryIcon: "#fff",
+    tertiaryIcon: "#fff",
     primaryIconBg: "#1f2127",
     weekendBg: "#5E5E5E",
     todayBg: "#303030",

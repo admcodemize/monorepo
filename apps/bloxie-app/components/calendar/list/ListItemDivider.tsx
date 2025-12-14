@@ -24,7 +24,6 @@ const ListItemDivider = ({
   showBorder = true
 }: ListRenderItemDividerProps) => {
   const colors = useThemeColors();
-
   return (
     <View style={{ 
       top: STYLES.calendarHourBorderHeight,

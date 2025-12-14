@@ -1,29 +1,47 @@
 import { CalendarCachedWeeksHorizontalProps, CalendarContextProps, useCalendarContextStore } from "@/context/CalendarContext";
 import React from "react";
 import { getLocalization } from "@/helpers/System";
-import { isThisWeek } from "date-fns";
-import { Dimensions, View } from "react-native";
+import { addDays, differenceInCalendarDays, endOfDay, isAfter, isBefore, isThisWeek, startOfDay } from "date-fns";
+import { View } from "react-native";
 import { STYLES } from "@codemize/constants/Styles";
-import { getHours, HoursProps } from "@codemize/helpers/DateTime";
-const HOURS: HoursProps[] = getHours(24, getLocalization());
+import { convertFromConvex } from "@codemize/backend/Convert";
+import { ConvexCalendarAPIProps, ConvexEventsAPIProps, IntegrationAPICalendarVisibilityEnum } from "@codemize/backend/Types";
+import { getHours, getMinutesBetweenDates, getMinutesSinceMidnight, HoursProps, PIXELS_PER_MINUTE } from "@codemize/helpers/DateTime";
+import { GlobalLayoutProps } from "@/types/GlobalLayout";
 import CalendarHourGrid from "./CalendarHourGrid";
 import CalendarTimeIndicator from "./CalendarTimeIndicator";
-import TextBase from "../typography/Text";
+import ListItemEvent from "./list/ListItemEvent";
 import ListItemEventTentiative from "./list/ListItemEventTentiative";
 import ListItemEventAway from "./list/ListItemEventAway";
-import { shadeColor } from "@codemize/helpers/Colors";
-import ListItemEvent from "./list/ListItemEvent";
-import { Id } from "../../../../packages/backend/convex/_generated/dataModel";
-const DIM = Dimensions.get("window");
+import { useIntegrationContextStore } from "@/context/IntegrationContext";
+
+/** Pre-computed hour metadata used to derive grid height and tick labels. */
+const HOURS: HoursProps[] = getHours(24, getLocalization());
+/** Horizontal padding between day columns so overlapping events remain legible. */
+const COLUMN_PADDING = 1;
+/** Minimum logical duration we allow when projecting events (prevents zero-height items). */
+const MIN_EVENT_DURATION_MINUTES = 15;
+/** Minimum pixel height to ensure even very short events remain tappable. */
+const MIN_EVENT_HEIGHT = 16;
+/** Cached day height so we can clamp layouts and avoid rendering beyond the viewport. */
+const TOTAL_DAY_HEIGHT = HOURS.length * STYLES.calendarHourHeight;
+
+type EventWithLayout = {
+  event: ConvexEventsAPIProps;
+  layout: GlobalLayoutProps;
+  isAllDay: boolean;
+  isRelevantForConflictDetection: boolean;
+  key: string;
+};
 
 type CalendarWeekHorizontalGridListItemProps = CalendarCachedWeeksHorizontalProps & {
   shouldRenderEvents: boolean;
 }
 
 const selectConfig = (state: CalendarContextProps) => state.config;
+const selectEvents = (state: CalendarContextProps) => state.events;
 
 const CalendarWeekHorizontalGridListItem = ({
-  index,
   week,
   shouldRenderEvents
 }: CalendarWeekHorizontalGridListItemProps) => {
@@ -32,186 +50,175 @@ const CalendarWeekHorizontalGridListItem = ({
   const showTimeIndicator = isThisWeek(week.startOfWeek, { locale });
 
   const config = useCalendarContextStore(selectConfig);
+  const events = useCalendarContextStore(selectEvents);
+
+  const integrations = useIntegrationContextStore((state) => state.integrations);
+
+
+  /**
+   * @private
+   * @description Computes the event layouts (width, height, top, left) for the current week grid.
+   *
+   * <p>Why we need to split events into segments:</p>
+   * <ul>
+   *   <li>Calendar events can span multiple days (e.g. from Friday evening into Saturday morning).</li>
+   *   <li>The weekly grid displays one column per day. When a single event overlaps multiple days we need to render that event in each affected column.</li>
+   *   <li>We therefore slice the event into <em>segments</em> – one segment per day – so that each piece is rendered in the correct column with the correct height/top offsets.</li>
+   * </ul>
+   *
+   * <p>How the layout is calculated:</p>
+   * <ol>
+   *   <li>Clamp the event start/end to the visible week. This prevents drawing segments outside the current week.</li>
+   *   <li>Walk day-by-day across the clamped range, generating a segment for each day that the event touches.</li>
+   *   <li>For each segment:
+   *     <ul>
+   *       <li><strong>Column:</strong> Calculated from the difference between the segment’s day and the start of the week.</li>
+   *       <li><strong>Top offset:</strong> Minutes since midnight multiplied by PIXELS_PER_MINUTE. All-day events are pinned to the top.</li>
+   *       <li><strong>Height:</strong> Duration (in minutes) mapped to pixels. Ensures a minimum height so events are always visible.</li>
+   *       <li><strong>Width:</strong> Bound to the column width minus a small padding so adjacent columns have a visual gap.</li>
+   *     </ul>
+   *   </li>
+   *   <li>Return all segments so they can be rendered with `ListItemEvent`.</li>
+   * </ol>
+   *
+   * <p>Memoization and dependencies:</p>
+   * <ul>
+   *   <li>The computation is wrapped in `React.useMemo` to avoid recalculating layouts while the user scrolls.</li>
+   *   <li>The memo re-runs whenever the visible week (start/end), the column layout (number of days/width), or the event list changes.</li>
+   *   <li>We also guard against placeholder entries (events without a title or external ID) so only real data is rendered.</li>
+   * </ul>
+   *
+   * @returns A flat list of event segments with layout metadata for the current week.
+   * @see ListItemEvent for how the layout data is consumed.
+   */
+  const weekEvents = React.useMemo<EventWithLayout[]>(() => {
+    if (!shouldRenderEvents || !config.numberOfDays || config.width <= 0) return [];
+
+    const startOfWeekDate = week.startOfWeek;
+    const endOfWeekDate = week.endOfWeek;
+    const numberOfDays = config.numberOfDays;
+    const columnWidth = config.width;
+
+    let aCalendars: ConvexCalendarAPIProps[] = [];
+    integrations?.forEach((integration) => {
+      integration?.calendars?.forEach((calendar) => {
+        aCalendars.push(calendar);
+      });
+    });
+
+
+    console.log("called");
+
+    return events.flatMap((event) => {
+      if (!event?.start || !event?.end) return [];
+      if (!event?.title && !event?.externalEventId) return [];
+
+
+      const calendar = aCalendars.find((calendar) => calendar._id === event?.calendarId);
+
+      const eventStart = convertFromConvex(event.start);
+      const eventEnd = convertFromConvex(event.end);
+
+      if (isAfter(eventStart, endOfWeekDate) || isBefore(eventEnd, startOfWeekDate)) return [];
+
+      const clampedStart = isBefore(eventStart, startOfWeekDate) ? startOfWeekDate : eventStart;
+      const clampedEnd = isAfter(eventEnd, endOfWeekDate) ? endOfWeekDate : eventEnd;
+
+      const isAllDay = Boolean(event.isAllDay);
+      const segments: EventWithLayout[] = [];
+
+      let segmentStart = clampedStart;
+      // Slice the event into day-sized pieces so multi-day appointments render in each affected column.
+      while (segmentStart.getTime() < clampedEnd.getTime()) {
+        const dayStart = startOfDay(segmentStart);
+        const dayIndex = differenceInCalendarDays(dayStart, startOfWeekDate);
+        const dayEnd = endOfDay(segmentStart);
+        const nextSegmentStart = startOfDay(addDays(dayStart, 1));
+        const segmentEnd = isAfter(clampedEnd, dayEnd) ? dayEnd : clampedEnd;
+
+        if (dayIndex >= 0 && dayIndex < numberOfDays && segmentEnd.getTime() > segmentStart.getTime()) {
+          const minutesFromMidnight = isAllDay ? 0 : getMinutesSinceMidnight(segmentStart);
+          // For timed events we scale height by actual duration; all-day events receive a fixed banner-style size.
+          const durationMinutes = isAllDay
+            ? STYLES.calendarHourHeight
+            : Math.max(getMinutesBetweenDates(segmentStart, segmentEnd), MIN_EVENT_DURATION_MINUTES);
+
+          const rawHeight = isAllDay
+            ? Math.max(STYLES.calendarHourHeight * 0.6, MIN_EVENT_HEIGHT)
+            : Math.max(durationMinutes * PIXELS_PER_MINUTE, MIN_EVENT_HEIGHT);
+
+          const height = Math.min(rawHeight, TOTAL_DAY_HEIGHT);
+          const rawTop = isAllDay ? 2 : minutesFromMidnight * PIXELS_PER_MINUTE;
+          const top = Math.max(0, Math.min(rawTop, TOTAL_DAY_HEIGHT - height));
+
+          const baseLeft = columnWidth * dayIndex;
+          const left = baseLeft + COLUMN_PADDING / 2;
+          const width = Math.max(columnWidth - COLUMN_PADDING, 0);
+
+          const key = `${event._id ?? event.externalEventId ?? `${event.title}-${event.start}`}-${dayIndex}-${Math.round(top)}-${Math.round(height)}`;
+
+          segments.push({
+            event,
+            isAllDay,
+            isRelevantForConflictDetection: calendar?.isRelevantForConflictDetection ?? true,
+            key,
+            layout: {
+              width,
+              height,
+              top,
+              left,
+            },
+          });
+        }
+
+        if (segmentEnd.getTime() >= clampedEnd.getTime()) break;
+        segmentStart = nextSegmentStart;
+      }
+
+      return segments;
+    });
+  }, [config.numberOfDays, config.width, events, shouldRenderEvents, week.endOfWeek, week.startOfWeek, integrations]);
+
   return (
     <View style={{ 
       width: config.totalWidth,
-      height: HOURS.length * STYLES.calendarHourHeight,
+      height: TOTAL_DAY_HEIGHT,
     }}>
-      <CalendarHourGrid numberOfDays={7} />
-      {/*<CalendarBlockedScope layout={{ top: 0, left: 0, width: config.width * 3, height: HOURS.length * STYLES.calendarHourHeight }} />
-      <CalendarBlockedScope layout={{ top: 0, left:  (config.width * 3) - 3, width: config.width + 3, height: 660 }} />*/}
-      {/*<ListItemEventTentiative width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={180} height={30}>
-      
-        <View>
-        <TextBase type="label" text={"Bloxie: Layout-Entwicklungen"} style={{ fontSize: 9, color: shadeColor("#40b2a7", -0.5) }} />
-          </View>
-      </ListItemEventTentiative>
-      <ListItemEventTentiative width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 3 + 3} top={60} height={60}>
-      
-        <View>
-        <TextBase type="label" text={"Bloxie: Layout-Entwicklungen"} style={{ fontSize: 9, color: shadeColor("#40b2a7", -0.5) }} />
-          </View>
-      </ListItemEventTentiative>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={60} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={0}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={30} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={60}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={30} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={90}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={60} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={120}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={90} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={210}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={180} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4} top={300}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={180} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 3 + 3} top={120}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventAway width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={60} left={((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1} top={120}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventAway>
-      <ListItemEventTentiative width={((DIM.width - STYLES.calendarHourWidth - 7) / 7)} height={30} left={0} top={(4*60) + 90}> 
-        <View>
-        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
-          </View>
-      </ListItemEventTentiative>
-      <ListItemEvent 
-        layout={{
-          width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
-          height: 180,
-          top: 3 * 60,
-          left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1,
-        }}
-        event={{
-          userId: "1" as Id<"users">,
-          title: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          start: new Date().toISOString(),
-          end: new Date().toISOString(),
-          descr: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          participants: ["1" as Id<"users">],
-          bgColorEvent: "#ff606a",
-        }}
-      />
-      <ListItemEvent 
-        layout={{
-          width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
-          height: 90,
-          top: 6 * 60,
-          left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1,
-        }}
-        event={{
-          userId: "1" as Id<"users">,
-          title: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          start: new Date().toISOString(),
-          end: new Date().toISOString(),
-          descr: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          participants: ["1" as Id<"users">],
-          bgColorEvent: "#40b2a7",
-        }}
-      />
-      <ListItemEvent 
-        layout={{
-          width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
-          height: 90,
-          top: 4 * 60,
-          left: 0,
-        }}
-        event={{
-          userId: "1" as Id<"users">,
-          title: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          start: new Date().toISOString(),
-          end: new Date().toISOString(),
-          descr: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          participants: ["1" as Id<"users">],
-          bgColorEvent: "#60cfff",
-        }}
-      />
-      <ListItemEvent
-        layout={{
-          width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
-          height: 180,
-          top: 360,
-          left: 0,
-        }}
-        event={{
-          userId: "1" as Id<"users">,
-          title: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          start: new Date().toISOString(),
-          end: new Date().toISOString(),
-          descr: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten",
-          participants: ["1" as Id<"users">],
-          bgColorEvent: "#ffd739",
-        }}
-      />*/}
-      {/* Zeige TimeIndicator NUR in der aktuellen Woche */}
-      {showTimeIndicator && <CalendarTimeIndicator />}
-      {/* HIER kommen später deine Events/Termine pro Woche */}
-      {/* Für jetzt: Debug-Text */}
-      {/*[{id: "1", title: "EQUANS: SAPCR-1172: Aktivitäten/Leistungsarten", time: new Date(), left: 0, height: 180, top: 360}, 
-      { id: "6", title: "Bloxie", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1, height: 60, top: 420 },
-      { id: "2", title: "Lighthouse Caliqua - Integrationstest 2", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 2 + 2, height: 180, top: 420 },
-      { id: "3", title: "stürmSFS - Lohnausweis", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 2 + 2, height: 30, top: 330 },
-      { id: "4", title: "A4S: Webinar", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 3 + 3, height: 30, top: 330 },
-      { id: "5", title: "METAS: Nacharbeiten Mandantenkopie Q01", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 3 + 3, height: 270, top: 390 },
-      { id: "7", title: "A4S: Quartalsmeeting", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4, height: 210 * 2, top: 480 },
-      { id: "8", title: "A4S: Ressourcenplanung", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4, height: 60, top: 420 },
-      { id: "9", title: "A4S: ProTime-Erfassung", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 4 + 4, height: 30, top: 390 },
-      { id: "10", title: "A4S: ProTime-Erfassung",time: new Date(), left: 0, height: 345, top: 555},
-      { id: "11", title: "Bloxie: Layout-Entwicklungen", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1, height: 180, top: 510 },
-      { id: "12", title: "Bloxie: Test-Flight", time: new Date(), left: ((DIM.width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1, height: 210, top: 720 },
-    ].map((event) => {
-        //const topPosition = calculateEventPosition(event.time);
-        //const eventHeight = calculateEventHeight(event.duration);
-        
-        return (
-          <View 
-            key={`event-${event.id}`}
-            style={{
-              position: 'absolute',
-              top: event.top,
-              height: event.height - 1,
-              left: event.left,
-              padding: 4,
-              width: ((DIM.width - STYLES.calendarHourWidth - 7) / 7),
-              backgroundColor: event.id === "1" ? shadeColor("#60cfff", 0.6) : event.id === "2" ? shadeColor("#ff606a", 0.6): event.id === "3" ? shadeColor("#ffda60", 0.6) : event.id === "4" ? shadeColor("#40b2a7", 0.6) : event.id === "5" ? shadeColor("#ffda60", 0.6) : shadeColor("#40b2a7", 0.6),
-              borderLeftWidth: 3,
-              borderLeftColor: event.id === "1" ? "#60cfff" : event.id === "2" ? "#ff606a" : event.id === "3" ? "#ffda60" : event.id === "4" ? "#40b2a7" : event.id === "5" ? "#ffda60" : "#40b2a7",
-              // ...
-            }}>
-            <TextBase type="label" text={event.title} style={{ fontSize: 9, color: event.id === "1" ? shadeColor("#60cfff", -0.5) : event.id === "2" ? shadeColor("#ff606a", -0.5) : event.id === "3" ? shadeColor("#ffda60", -0.5) : event.id === "4" ? shadeColor("#40b2a7", -0.5) : event.id === "5" ? shadeColor("#ffda60", -0.5) : shadeColor("#40b2a7", -0.5) }} />
-          </View>
+      <CalendarHourGrid numberOfDays={config.numberOfDays} />
+
+      {weekEvents.map(({ event, layout, isAllDay, isRelevantForConflictDetection, key }) => {
+        const normalizedEvent = {
+          ...event,
+          bgColorEvent: event.backgroundColor,
+          descr: event.description ?? "",
+        } as ConvexEventsAPIProps;
+
+        return event?.visibility === IntegrationAPICalendarVisibilityEnum.PRIVATE && (
+          <ListItemEvent
+            key={key}
+            layout={layout}
+            event={normalizedEvent}
+            isAllDayEvent={isAllDay}
+            isRelevantForConflictDetection={isRelevantForConflictDetection}
+          />
         );
-      })*/}
+      })}
+
+      {showTimeIndicator && <CalendarTimeIndicator />}
     </View>
   );
 };
 
+/**
+ * Ensure memoized list items rerender whenever the visible week window changes while still skipping
+ * unnecessary redraws during horizontal scrolling.
+ */
 const areEqual = (
   prev: Readonly<CalendarWeekHorizontalGridListItemProps>,
   next: Readonly<CalendarWeekHorizontalGridListItemProps>
 ) =>
-  prev.shouldRenderEvents === next.shouldRenderEvents;
+  prev.shouldRenderEvents === next.shouldRenderEvents &&
+  prev.week.startOfWeek.getTime() === next.week.startOfWeek.getTime() &&
+  prev.week.endOfWeek.getTime() === next.week.endOfWeek.getTime();
 
 export default React.memo(CalendarWeekHorizontalGridListItem, areEqual);

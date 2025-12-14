@@ -69,7 +69,7 @@ const StartSlot = () => {
   }, [isSignedIn, isLoaded]);
 
   return (
-    <SafeAreaContextViewBase>
+    <SafeAreaContextViewBase schemeProperty="tertiaryBg">
       <DropdownProvider>
         <TrayProvider 
           stackConfigs={stackConfigs}
@@ -125,7 +125,7 @@ const RootLayout = () => {
   return (
     <SafeAreaProvider
       onLayout={onLayoutRootView}>
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
         <GestureHandlerRootView>
           <ClerkProvider
             tokenCache={tokenCache}
@@ -135,11 +135,11 @@ const RootLayout = () => {
                   client={convex} 
                   useAuth={useAuth}>
                 <IntegrationProvider>
-                <ToastProvider>
-                <CalendarProvider now={new Date()}>
-                  <StartSlot />
-                </CalendarProvider>
-                </ToastProvider>
+                  <ToastProvider>
+                    <CalendarProvider now={new Date()}>
+                      <StartSlot />
+                    </CalendarProvider>
+                  </ToastProvider>
                 </IntegrationProvider>
                 </ConvexProviderWithClerk>
               </ClerkLoaded>

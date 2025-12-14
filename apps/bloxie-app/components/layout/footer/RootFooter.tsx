@@ -24,7 +24,7 @@ type RootFooterProps = {}
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.17
- * @version 0.0.2
+ * @version 0.0.3
  * @param {RootHeaderProps} param0
  * @component */
 const RootFooter = ({
@@ -47,11 +47,11 @@ const RootFooter = ({
       <View style={[GlobalContainerStyle.rowCenterEnd, RootFooterStyle.content]}>
       <TouchableHaptic
           onPress={onPressDashboard}>
-            <FontAwesomeIcon icon={faChartCandlestick as IconProp} size={20} color={colors.secondaryIconColor} />
+            <FontAwesomeIcon icon={faChartCandlestick as IconProp} size={22} color={colors.tertiaryIconColor} />
         </TouchableHaptic>
         <TouchableHaptic
           onPress={onPressAction}>
-            <FontAwesomeIcon icon={faGrid2Plus as IconProp} size={20} color={colors.secondaryIconColor} />
+            <FontAwesomeIcon icon={faGrid2Plus as IconProp} size={22} color={colors.tertiaryIconColor} />
         </TouchableHaptic>
       </View>
     </View>

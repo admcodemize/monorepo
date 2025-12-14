@@ -14,10 +14,10 @@ import DropdownOverlay from "@/components/container/DropdownOverlay";
  * @version 0.0.4 */
 const TabLayout = () => {
   return (
-    <ViewBase style={{ position: "relative" }}>
+    <ViewBase style={{ position: "relative" }} >
       <RootFooter />
       <View style={{ zIndex: 1, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, height: Dimensions.get("window").height - 120, overflow: "hidden" }}>
-        <RootHeader />
+        {/*<RootHeader />*/}
         <Calendar />
         <DropdownOverlay />
       </View>

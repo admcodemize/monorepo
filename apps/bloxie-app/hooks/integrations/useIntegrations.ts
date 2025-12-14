@@ -48,6 +48,9 @@ export function useIntegrations({
   React.useEffect(() => {
     if (!isReady) return;
 
+
+    console.log("integrations", integrations);
+
     /**
      * @description Update integrations based on convex selection */
     setIntegrations(integrations);

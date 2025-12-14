@@ -21,8 +21,8 @@ type FontProps = {
 export const SIZES = <FontProps>{
   label: 10,
   text: 11,
-  subtitle: 11,
-  title: 11,
+  subtitle: 12,
+  title: 12,
   header: 12
 }
 

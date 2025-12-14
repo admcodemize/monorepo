@@ -168,7 +168,7 @@ export const calendarSchema = {
 
 /**
  * @since 0.0.1
- * @version 0.0.3
+ * @version 0.0.4
  * @description Schema definition for table "events"
  * @interface */
 export const eventSchema = {
@@ -192,19 +192,15 @@ export const eventSchema = {
     _id: v.optional(v.id("users")),
   }))),
   type: v.optional(v.union(v.literal("default"), v.literal("focusTime"), v.literal("workingLocation"), v.literal("outOfOffice"), v.literal("task"), v.literal("birthday"), v.literal("fromGmail"))),
-  recurring: v.optional(v.object({
-    eventId: v.optional(v.string()),
-    isRecurring: v.optional(v.boolean()),
+  recurringEventId: v.optional(v.string()), // -> Referenced to the recurring event id => Example: "19847123541235412354123541235"
+  recurrence: v.optional(v.array(v.string())), // -> ['RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20260228T225959Z;BYDAY=WE]
+  originalStartTime: v.optional(v.object({
+    date: v.optional(v.string()),
+    dateTime: v.optional(v.string()),
+    timeZone: v.optional(v.string()),
   })),
-  location: v.optional(v.object({
-    name: v.string(),
-    conferenceData: v.optional(v.object({
-      id: v.string(),
-      link: v.string(),
-    })),
-    isAddress: v.boolean(),
-    isConference: v.boolean(),
-  })),
+  location: v.optional(v.string()),
+  isAllDay: v.optional(v.boolean()),
 }
 
 export default defineSchema({

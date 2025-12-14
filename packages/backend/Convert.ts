@@ -5,8 +5,79 @@ import {
   ConvexEventsAPIProps, 
   IntegrationAPICalendarVisibilityEnum,
   ConvexCalendarWatchAPIProps,
-  IntegrationAPIGoogleCalendarChannelWatchProps
+  IntegrationAPIGoogleCalendarChannelWatchProps,
+  IntegrationAPICalendarEventStartEndProps
 } from "./Types";
+
+const MINUTES_IN_MILLISECONDS = 60 * 1000;
+
+/**
+ * @private
+ * @since 0.0.1
+ * @version 0.0.1
+ * @description Returns the time zone offset in minutes
+ * @param {string} timeZone - The time zone
+ * @param {Date} date - The date
+ * @todo Refactor
+ * @function */
+const getTimeZoneOffsetMinutes = (timeZone: string, date: Date): number => {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  const formattedParts = formatter.formatToParts(date);
+  const dateParts = formattedParts.reduce<Record<string, number>>((acc, part) => {
+    if (part.type !== "literal") acc[part.type] = Number(part.value);
+    return acc;
+  }, {});
+
+  const utcTime = Date.UTC(
+    dateParts.year ?? date.getUTCFullYear(),
+    (dateParts.month ?? (date.getUTCMonth() + 1)) - 1,
+    dateParts.day ?? date.getUTCDate(),
+    dateParts.hour ?? 0,
+    dateParts.minute ?? 0,
+    dateParts.second ?? 0
+  );
+
+  return (utcTime - date.getTime()) / MINUTES_IN_MILLISECONDS;
+};
+
+/**
+ * @private
+ * @since 0.0.1
+ * @version 0.0.1
+ * @description Converts a google date to an iso string
+ * @param {IntegrationAPICalendarEventStartEndProps} value - The value to convert
+ * @param {string} fallbackTimeZone - The fallback time zone
+ * @todo Refactor
+ * @function */
+const convertGoogleDateToIso = (
+  value: IntegrationAPICalendarEventStartEndProps,
+  fallbackTimeZone?: string
+): string => {
+  if (value?.dateTime) return new Date(value.dateTime).toISOString();
+
+  if (value?.date) {
+    const zone = value.timeZone || fallbackTimeZone;
+    if (zone) {
+      const [year, month, day] = value.date.split("-").map(Number);
+      const referenceDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      const offsetMinutes = getTimeZoneOffsetMinutes(zone, referenceDate);
+      const midnightUtc = Date.UTC(year, month - 1, day, 0, 0, 0) - (offsetMinutes * MINUTES_IN_MILLISECONDS);
+      return new Date(midnightUtc).toISOString();
+    }
+    return `${value.date}T00:00:00Z`;
+  }
+  return new Date().toISOString();
+};
 
 /**
  * @public
@@ -23,7 +94,7 @@ export const convertFromConvex = (now: string) => new Date(now);
  * @author Marc Stöckli - Codemize GmbH 
  * @description Converts a google calendar event to a convex event
  * @since 0.0.10
- * @version 0.0.3
+ * @version 0.0.4
  * @param {Id<"users">} userId - The user id
  * @param {Id<"calendar">} calendarId - The calendar id => Referenced to the calendar table
  * @param {string} externalId - The external id of the calendar => Example: "4c641189a6c3af7d4633b0b5efbfcd806f71b6daf10475c4fe351373a575e53e@group.calendar.google.com"
@@ -35,18 +106,10 @@ export const convertEventGoogleToConvex = (
   calendarId: Id<"calendar">,
   externalId: string,
   event: IntegrationAPIGoogleCalendarEventProps,
-  backgroundColor: string
+  backgroundColor: string,
+  calendarTimeZone?: string
 ): ConvexEventsAPIProps => {
-  /** 
-   * @todo Find userId by email when organizer is also an registered bloxie user
-   * 
-   * title => OK
-   * description => OK
-   * backgroundColor => OK
-   * htmlLink => OK
-   * visibility => OK
-   * type => OK
-   */
+  /** @todo Find userId by email when organizer is also an registered bloxie user */
   return {
     userId,
     calendarId,
@@ -54,8 +117,8 @@ export const convertEventGoogleToConvex = (
     externalEventId: event.id,
     title: event.summary,
     description: event?.description || "",
-    start: event.start.dateTime || event.start.date,
-    end: event.end.dateTime || event.end.date,
+    start: convertGoogleDateToIso(event.start, event.start?.timeZone || calendarTimeZone),
+    end: convertGoogleDateToIso(event.end, event.end?.timeZone || event.start?.timeZone || calendarTimeZone),
     backgroundColor: backgroundColor,
     htmlLink: event?.htmlLink || "",
     visibility: event?.visibility || IntegrationAPICalendarVisibilityEnum.PRIVATE,
@@ -71,7 +134,12 @@ export const convertEventGoogleToConvex = (
       displayName: event.organizer?.displayName || "",
       //_id: "" as Id<"users">
     },
+    location: event?.location || "",
     type: event.eventType || IntegrationAPICalendarEventTypeEnum.DEFAULT,
+    recurringEventId: event.recurringEventId || "",
+    originalStartTime: event?.originalStartTime,
+    recurrence: event?.recurrence || [],
+    isAllDay: Boolean(event.start?.date && !event.start?.dateTime), // -> If the start date time is set, the event is not all day
   };
 };
 
@@ -123,52 +191,3 @@ export const safeParse = <T>(raw: string): T|null => {
   try { return JSON.parse(raw) as T; } 
   catch (err) { return null; }
 }
-
-/**
-    start: string;
-    end: string;
-    attendees?: ConvexEventsAPIAttendeesProps[];
-    type?: IntegrationAPICalendarEventTypeEnum;
-    recurring?: ConvexEventsAPIRecurringProps;
-    location?: ConvexEventsAPILocationProps;
- */
-/**
- *   kind: string;
-  etag: string;
-  id: string;
-  colorId: string;
-  status: IntegrationAPICalendarEventStatusEnum;
-  htmlLink?: string;
-  created?: string;
-  updated?: string;
-  summary?: string;
-  description?: string;
-  location?: string;
-  creator?: {
-    email: string;
-    self: boolean;
-  };
-  organizer?: {
-    email: string;
-    displayName: string;
-  };
-  start: IntegrationAPICalendarEventStartEndProps;
-  end: IntegrationAPICalendarEventStartEndProps;
-  iCalUID?: string;
-  sequence?: number;
-  attendees?: {
-    email: string;
-    self: boolean;
-    responseStatus: IntegrationAPICalendarEventResponseStatusEnum;
-    organizer: boolean;
-  }[];
-  attachments?: {
-    fileUrl: string;
-    title: string;
-    iconLink: string;
-  }[];
-  guestsCanInviteOthers?: boolean;
-  privateCopy?: boolean;
-  visibility?: IntegrationAPICalendarVisibilityEnum;
-  eventType?: IntegrationAPICalendarEventTypeEnum;
- */

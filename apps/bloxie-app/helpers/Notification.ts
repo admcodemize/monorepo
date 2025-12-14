@@ -39,7 +39,7 @@ async function sendPushNotification(expoPushToken: string) {
 
 
 function handleRegistrationError(errorMessage: string) {
-  alert(errorMessage);
+  //alert(errorMessage);
   throw new Error(errorMessage);
 }
 

@@ -13,6 +13,9 @@ import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import { shadeColor } from "@codemize/helpers/Colors";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faArrowsRotate } from "@fortawesome/pro-solid-svg-icons";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 /**
  * @public
@@ -25,6 +28,7 @@ export type ListRenderItemEventProps = {
   layout: GlobalLayoutProps;
   isNewEvent?: boolean;
   isAllDayEvent?: boolean;
+  isRelevantForConflictDetection?: boolean;
 }
 
 /**
@@ -39,12 +43,14 @@ export type ListRenderItemEventProps = {
  * @param {boolean} param0.isNewEvent - Whether the event is new.
  * @param {boolean} param0.isAllDayEvent - Whether the event is all day.
  * @param {ConvexTimesAPIProps[]} param0.notAllowed - The times in which the user is not allowed to create an event.
+ * @todo Refactor!!
  * @component */
 const ListRenderItemEvent = ({
   event,
   layout,
   isNewEvent = false,
   isAllDayEvent = false,
+  isRelevantForConflictDetection = true,
 }: ListRenderItemEventProps) => {  
 
   /**
@@ -233,9 +239,10 @@ const ListRenderItemEvent = ({
             //height: height.value, // Used when the user is resizing the event 
             width: layout.width - 1,
             left: layout.left + 0.5,
-            backgroundColor: shadeColor(event.bgColorEvent || "#fbf1c6", 0.6),
-            borderLeftColor: event.bgColorEvent || "#ffd739",
-            borderLeftWidth: 3
+            backgroundColor: shadeColor(event.backgroundColor || "#fbf1c6", 0.6),
+            borderLeftColor: event.backgroundColor || "#ffd739",
+            borderLeftWidth: 3,
+            opacity: isRelevantForConflictDetection ? 1 : 0.5,
 
             /**
              * 
@@ -249,22 +256,27 @@ const ListRenderItemEvent = ({
               <View style={{ 
                 flex: 1,     
                 paddingHorizontal: 4,
-                paddingVertical: layout.height <= 15 ? 1 : isAllDayEvent ? 3 : 2
+                paddingVertical: layout.height <= 15 ? 2 : isAllDayEvent ? 3 : 2,
+                paddingBottom: 4,
+                gap: 2
                 }}>
                   <View style={[GlobalContainerStyle.rowStartStart, { gap: 6 }]}>
                     <TextBase style={{ 
                       flex: 1,
                       fontSize: 9, //Number(SIZES.label) - 2,
                       fontFamily: String(FAMILIY.subtitle),
-                      color: shadeColor(event.bgColorEvent || "#fbf1c6", -0.5),
+                      color: shadeColor(event.backgroundColor || "#fbf1c6", -0.5),
                     }} numberOfLines={3} text={event.title} />
                   </View>
                   <TextBase style={{ 
                     flex: 1,
                     fontSize: 9,//Number(SIZES.label),
-                    fontFamily: String(FAMILIY.text),
-                    color: shadeColor(event.bgColorEvent || "#fbf1c6", -0.3),
-                  }} numberOfLines={3} text={isNewEvent && labelLiveTime ? labelLiveTime : event.descr || ""} />
+                    fontFamily: String(FAMILIY.label),
+                    color: shadeColor(event.backgroundColor || "#fbf1c6", -0.3),
+                  }} numberOfLines={3} text={isNewEvent && labelLiveTime ? labelLiveTime : event.location || ""} />
+                  {layout.height >= 60 && <View style={[GlobalContainerStyle.rowCenterStart, { gap: 2 }]}>
+                    {event?.recurringEventId && <FontAwesomeIcon icon={faArrowsRotate as IconProp} size={10} color={shadeColor(event.backgroundColor || "#fbf1c6", -0.3)} />}
+                  </View>}
               </View>
         </Animated.View>   
     </>

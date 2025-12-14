@@ -273,19 +273,33 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
         calendarId: calendar.id,
       }));
 
-      /** @todo do not add a recurring event 300x in the database, just add the first event and the rest of the recurring events will be added dynamically .. */
+      /** @description Get the unique events for the calendar -> Only keep the first event of a recurring event */
+      const uniqueEvents = filterUniqueEvents(events);
 
-      if (!errEvents && events?.items) {
+      if (!errEvents && uniqueEvents) {
         /** @description Exclude birthday events from the creation of the events in the database because they are not relevant for the user */
-        for (const event of events.items.filter(
-          (item) => item.eventType !== IntegrationAPICalendarEventTypeEnum.BIRTHDAY
-        )) await runMutation(internal.sync.events.mutation.create, convertEventGoogleToConvex(
-           userId,
-           _id,
-           calendar.id,
-           event as IntegrationAPIGoogleCalendarEventProps,
-           colors?.event?.[event.colorId]?.background || calendar.backgroundColor
-        ));
+        for (const event of uniqueEvents) {
+          if (event.recurringEventId) {
+            /** @description Fetch the recurrence rules for the recurring event */
+            const [errFetchEvent, { data: eventData }] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEvent, {
+              refreshToken: encryptedRefreshToken,
+              calendarId: calendar.id,
+              eventId: event.recurringEventId,
+            }));
+            
+            if (!errFetchEvent) event["recurrence"] = eventData?.recurrence || [];
+          }
+
+          /** @description Create the event in the database */
+          await runMutation(internal.sync.events.mutation.create, convertEventGoogleToConvex(
+            userId,
+            _id,
+            calendar.id,
+            event as IntegrationAPIGoogleCalendarEventProps,
+            colors?.event?.[event.colorId]?.background || calendar.backgroundColor,
+            events?.timeZone
+          ));
+        }
       }
 
       /** 
@@ -445,7 +459,7 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.2
+ * @version 0.0.3 
  * @description Handles the http action for watching a google calendar
  * @todo 
  * Wenn x-goog-channel-expiration überschritten ist oder Google deinen syncToken mit 410 (Gone) ablehnt, musst du den Watch komplett neu aufsetzen. Es gibt keinen versteckten „Refresh“, du wiederholst simpel den ursprünglichen Flow:
@@ -525,7 +539,9 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
       console.log("410 Gone ->", watch);
   } else watch = toWatch({ id: channelId, resourceId: resourceId, expiration: new Date(expiration).getTime() }, events.nextSyncToken, calendar.watch.nextSyncToken);
 
-  for (const event of events?.items) {
+  /** @description Get the unique events for the calendar -> Only keep the first event of a recurring event */
+  const uniqueEvents = filterUniqueEvents(events);
+  for (const event of uniqueEvents) {
     /** @description Event has been newly created, deleted or has been updated -> Check if the event already exists in the database with the same eventProviderId */
     const _event: ConvexEventsAPIProps|null = await runQuery(internal.sync.events.query.byExternalEventId, { 
       userId: decryptedPayload.u as Id<"users">, 
@@ -533,6 +549,14 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
     });
 
     if (event.status === IntegrationAPICalendarEventStatusEnum.CONFIRMED) {
+      const integegrationEvent = { 
+        ...event, 
+        recurringEventId: event.recurringEventId || (event.recurrence && event.recurrence.length >= 0 ? event.id : ""),
+        originalStartTime: event?.originalStartTime || event?.start
+      }
+
+      /** @todo logic for detecting the changes for a recurring events or event!!  */
+
       if (_event) {
         const [errUpdate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.update, {
           _id: _event._id,
@@ -540,8 +564,9 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
             _event.userId,
             _event.calendarId,
             _event.externalId,
-            event,
-            colors?.event?.[event.colorId]?.background || calendar.backgroundColor
+            integegrationEvent,
+            colors?.event?.[event.colorId]?.background || calendar.backgroundColor,
+            events?.timeZone
           ),
         }));
         
@@ -552,21 +577,16 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
       }
 
       /** @description Event has been newly created -> Create the event in the database */
-      const [errCreate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.create, {
-        userId: decryptedPayload.u as Id<"users">,
-        calendarId: calendar._id,
-        externalId: calendar.externalId,
-        externalEventId: event.id,
-        title: event.summary,
-        description: event?.description || "",
-        start: event.start.dateTime || event.start.date,
-        end: event.end.dateTime || event.end.date,
-        backgroundColor: colors?.event?.[event.colorId]?.background || calendar.backgroundColor,
-        htmlLink: event?.htmlLink || "",
-        visibility: event.visibility || IntegrationAPICalendarVisibilityEnum.PRIVATE,
-        type: event.eventType || IntegrationAPICalendarEventTypeEnum.DEFAULT,
-      }));
+      const payload = convertEventGoogleToConvex(
+        decryptedPayload.u as Id<"users">,
+        calendar._id,
+        calendar.externalId,
+        integegrationEvent,
+        colors?.event?.[event.colorId]?.background || calendar.backgroundColor,
+        events?.timeZone
+      );
 
+      const [errCreate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.create, payload));
       if (errCreate) {
         /** @todo Handle the error -> Mutation to notifications schema! */
       }
@@ -809,6 +829,24 @@ const createCalendar = async (
     }),
   };
 }
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.24
+ * @version 0.0.1
+ * @description Filters the unique events for the calendar -> Only keep the first event of a recurring event
+ * @param {IntegrationAPIGoogleCalendarEventsProps} events - The events to filter */
+const filterUniqueEvents = (events: IntegrationAPIGoogleCalendarEventsProps) => Array.from(
+  events.items.reduce(
+    (acc, event) => {
+      const key = event.recurringEventId ?? event.id;
+      if (!acc.has(key)) acc.set(key, event); // -> Only set the event for the first time
+      return acc;
+    },
+    new Map<string, IntegrationAPIGoogleCalendarEventProps>()
+  ).values()
+).filter((event) => event.eventType !== IntegrationAPICalendarEventTypeEnum.BIRTHDAY);
 
 /**
  * @private

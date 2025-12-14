@@ -50,7 +50,7 @@ const CalendarHeaderLeft = ({
           text={`${week.startOfWeek.getDate()} - ${week.endOfWeek.getDate()} ${getMonthWide({ number: week.month, locale })} ${week.year.toString().substring(2)}`}
           backgroundColor={colors.tertiaryBgColor}
           hasViewCustomStyle={true}
-          viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4}}
+          viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
           hasAngleChange={true}
           onPress={onPress} />
     </View>

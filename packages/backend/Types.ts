@@ -51,33 +51,6 @@ export type ConvexEventsAPIAttendeesProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.11
- * @version 0.0.1
- * @type */
-export type ConvexEventsAPIRecurringProps = {
-  eventId: string;
-  isRecurring: boolean;
-}
-
-/**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.11
- * @version 0.0.1
- * @type */
-export type ConvexEventsAPILocationProps = {
-  name: string;
-  conferenceData?: {
-    id: string;
-    link: string;
-  };
-  isAddress: boolean;
-  isConference: boolean;
-}
-
-/**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
  * @version 0.0.3
  * @type */
@@ -99,8 +72,11 @@ export type ConvexEventsAPIProps = {
   organizer?: ConvexEventsAPIUserInformationProps;
   attendees?: ConvexEventsAPIAttendeesProps[];
   type?: IntegrationAPICalendarEventTypeEnum;
-  recurring?: ConvexEventsAPIRecurringProps;
-  location?: ConvexEventsAPILocationProps
+  recurringEventId?: string;
+  recurrence?: string[];
+  originalStartTime?: IntegrationAPICalendarEventStartEndProps;
+  location?: string;
+  isAllDay?: boolean;
 }
 
 /**
@@ -257,7 +233,7 @@ export enum ConvexActionServerityEnum {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type IntegrationAPIGoogleCalendarEventUserInformationProps = {
   email: string;
@@ -269,7 +245,7 @@ export type IntegrationAPIGoogleCalendarEventUserInformationProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type IntegrationAPIGoogleCalendarEventProps = {
   kind: string;
@@ -283,6 +259,9 @@ export type IntegrationAPIGoogleCalendarEventProps = {
   summary: string;
   description?: string;
   location?: string;
+  recurringEventId?: string;
+  recurrence?: string[];
+  originalStartTime?: IntegrationAPICalendarEventStartEndProps;
   creator: IntegrationAPIGoogleCalendarEventUserInformationProps;
   organizer?: IntegrationAPIGoogleCalendarEventUserInformationProps;
   start: IntegrationAPICalendarEventStartEndProps;

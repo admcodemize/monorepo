@@ -1,5 +1,5 @@
 import React from "react";
-import { Dimensions, GestureResponderEvent, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, FlatList, GestureResponderEvent, ScrollView, StyleSheet, Text, View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faAngleLeft, faAngleRight, faAngleUp, faCalendarDays, faCalendarRange, faCaretLeft, faCaretRight, faChevronLeft, faChevronRight, faCircleChevronLeft, faCircleChevronRight, faGlobe, faRectangleHistory, faSparkles, faStopwatch, faUserSecret } from "@fortawesome/duotone-thin-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -45,6 +45,7 @@ import CalendarMonthHeaderYear from "./month/CalendarMonthHeaderYear";
 import CalendarHeaderLeft from "./CalendarHeaderLeft";
 import CalendarMonthHeader from "./month/CalendarMonthHeader";
 import CalendarMonth from "./month/CalendarMonth";
+import { SIZES } from "@codemize/constants/Fonts";
 
 /** @description Height constants for expand/collapse */
 const COLLAPSED_HEIGHT = 75;
@@ -57,6 +58,17 @@ const MAX_HEIGHT = 300;
 const DIM = Dimensions.get("window");
 const MONTH_WIDTH = DIM.width; // Full screen width for proper snapping
 const MONTH_CONTENT_WIDTH = MONTH_WIDTH; // Content width with padding
+
+const CALENDAR_CARDS = [
+  {
+    title: "Private Kalender",
+    subtitle: "Persönliche Termine"
+  },
+  {
+    title: "Codemize GmbH",
+    subtitle: "Bloxie Termine"
+  }
+];
 
 /**
  * @private
@@ -88,7 +100,8 @@ const Calendar = ({
   const locale = getLocalization();
 
   const setIsTodayPressed = useCalendarContextStore((state) => state.setIsTodayPressed);
-  
+  const [carouselWidth, setCarouselWidth] = React.useState(DIM.width);
+
   //const isMonthCalendarOpen = React.useRef(false);
 
 
@@ -164,22 +177,39 @@ const Calendar = ({
         height: 36,
         paddingHorizontal: 14
       }]}>
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 6 }]}>
-        <View style={{ }}>
-          <FontAwesomeIcon
-            icon={faUserSecret as IconProp}
-            size={STYLES.sizeFaIcon + 2}
-            color={colors.primaryIconColor} />
-        </View>
-        <View>
-          <TextBase
-            text="Private Kalender"
-            style={[GlobalTypographyStyle.headerSubtitle, { color: colors.infoColor, fontSize: 10 }]}/>
-          <TextBase
-            text="Persönliche Termine"
-            style={[GlobalTypographyStyle.labelText, { fontSize: 9, color: colors.infoColor }]} />
-        </View>
+      <View style={{ flex: 1 }} onLayout={({ nativeEvent }) => setCarouselWidth(nativeEvent.layout.width)}>
+        <FlatList
+          data={CALENDAR_CARDS}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item, index) => `${item.title}-${index}`}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          snapToInterval={carouselWidth}
+          disableIntervalMomentum
+          renderItem={({ item }) => (
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 6, width: carouselWidth }]}>
+              <View>
+                <FontAwesomeIcon
+                  icon={faUserSecret as IconProp}
+                  size={STYLES.sizeFaIcon + 2}
+                  color={colors.primaryIconColor} />
+              </View>
+              <View>
+                <TextBase
+                  text={item.title}
+                  style={[GlobalTypographyStyle.headerSubtitle, { color: colors.infoColor, fontSize: Number(SIZES.text)}]}/>
+                <TextBase
+                  text={item.subtitle}
+                  style={[GlobalTypographyStyle.labelText, { color: colors.infoColor }]} />
+              </View>
+            </View>
+          )}
+        />
+      </View>
 
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
         <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
           <View style={{ 
 
@@ -189,7 +219,7 @@ const Calendar = ({
             size={STYLES.sizeFaIcon}
             color={colors.primaryIconColor} />
           </View>
-          <Divider vertical />
+
           <View style={{ 
 
             }}>
@@ -199,11 +229,8 @@ const Calendar = ({
               color={colors.primaryIconColor} />
             </View>
         </View>
-
-      </View>
-
-      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 6 }]}>
-      <TouchableHapticText text="Heute" onPress={() => setIsTodayPressed(true)} hasViewCustomStyle={true} viewCustomStyle={{}} />
+        <Divider vertical />
+        <TouchableHapticText text="Heute" onPress={() => setIsTodayPressed(true)} hasViewCustomStyle={true} viewCustomStyle={{}} />
         <Divider vertical />
         <TouchableHapticDropdown
           text="AI"

@@ -1,8 +1,7 @@
 "use node";
 import { ConvexError, v } from "convex/values";
-import { Id } from "../../../_generated/dataModel";
 import { internal } from "../../../_generated/api";
-import { httpAction, internalAction } from "../../../_generated/server";
+import { internalAction } from "../../../_generated/server";
 import { encryptedTokenSchemaObj } from "../../../schema";
 import { 
   IntegrationAPIGoogleCalendarChannelWatchProps, 
@@ -106,7 +105,6 @@ export const fetchCalendarList = internalAction({
   }
 });
 
-
 /**
  * @public
  * @since 0.0.9
@@ -184,6 +182,50 @@ export const fetchCalendarEvents = internalAction({
         code: 200,
         severity: ConvexActionServerityEnum.SUCCESS,
         name: "BLOXIE_HAR_FCE_S01",
+      }
+    };
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.23
+ * @version 0.0.1
+ * @description Fetches a singlecalendar event from Google
+ * @param {Object} param0
+ * @param {string} param0.calendarId - The calendar id 
+ * @param {string} param0.eventId - The event id to fetch the calendar event for further informations such as recurrence rules
+ * @param {string} param0.refreshToken - The refresh token to fetch the calendar event
+ * @function */
+export const fetchCalendarEvent = internalAction({
+  args: {
+    calendarId: v.string(),
+    eventId: v.string(),
+    refreshToken: v.object(encryptedTokenSchemaObj),
+  },
+  handler: async ({ runAction }, { refreshToken, calendarId, eventId }): Promise<ConvexActionReturnProps<any>> => {
+    /** @description Refresh the access token for fetching the calendar list */
+    const [errRefresh, refresh] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken }));
+    if (errRefresh) throw new ConvexError(errRefresh.data);
+
+    /** @description Build the query parameters for the calendar events fetch */
+    let params = new URLSearchParams({
+      showDeleted: "true",        
+      singleEvents: "true",      
+      alwaysIncludeEmail: "true"
+    } as Record<string, string>);
+
+    const [errFetch, res] = await fetchTypedConvex(fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}?${params}`, { 
+      headers: bearerHeader(refresh.data?.access_token) 
+    }), "BLOXIE_HAR_FCSE_E02");
+
+    if (errFetch) throw new ConvexError(errFetch.data);
+    return { 
+      data: await res.json(),
+      convex: {
+        code: 200,
+        severity: ConvexActionServerityEnum.SUCCESS,
+        name: "BLOXIE_HAR_FCSE_S01",
       }
     };
   }

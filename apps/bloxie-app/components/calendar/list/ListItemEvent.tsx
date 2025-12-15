@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { Easing, FadeIn, FadeOut, runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 import { ConvexEventsAPIProps } from "@codemize/backend/Types";
@@ -235,6 +235,8 @@ const ListRenderItemEvent = ({
   return (
     <>
         <Animated.View
+          //entering={FadeIn.duration(200).easing(Easing.out(Easing.ease))}
+          exiting={FadeOut.duration(200).easing(Easing.out(Easing.ease))}
           style={[ListRenderItemEventStyle.animated, animatedStyle, {
             //height: height.value, // Used when the user is resizing the event 
             width: layout.width - 1,

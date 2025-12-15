@@ -114,3 +114,23 @@ export const byExternalCalendarId = internalQuery({
     .filter((q) => q.eq(q.field("userId"), userId))
     .collect() as ConvexEventsAPIProps[]
 })
+
+/**
+ * @public
+ * @since 0.0.25
+ * @version 0.0.1
+ * @description Returns all the events for the given recurring event id
+ * @param {Id<"users">} userId - The user id to get the events for
+ * @param {string} recurringEventId - The recurring event id to get => Example: "4bfoi2k9j8o0imdccbrm8aul3f_R20251218T150000" or "4bfoi2k9j8o0imdccbrm8aul3f"
+ * @function */
+export const byRecurringEventId = internalQuery({
+  args: {
+    userId: v.id("users"),
+    recurringEventId: v.string()
+  },
+  handler: async (ctx, { userId, recurringEventId }): Promise<ConvexEventsAPIProps[]> => await ctx.db
+    .query("events")
+    .withIndex("byRecurringEventId", (q) => q.eq("recurringEventId", recurringEventId))
+    .filter((q) => q.eq(q.field("userId"), userId))
+    .collect() as ConvexEventsAPIProps[]
+})

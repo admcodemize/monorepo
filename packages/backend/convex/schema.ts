@@ -32,8 +32,8 @@ export const googleSchemaObj = {
  * @description Schema definition for additional information for the event user such as creator, organizer and more
  * @interface */
 export const eventUserInformationSchemaObj = {
-  email: v.string(),
-  self: v.boolean(),
+  email: v.optional(v.string()),
+  self: v.optional(v.boolean()),
   displayName: v.optional(v.string()),
   _id: v.optional(v.id("users"))
 }
@@ -168,7 +168,7 @@ export const calendarSchema = {
 
 /**
  * @since 0.0.1
- * @version 0.0.4
+ * @version 0.0.5
  * @description Schema definition for table "events"
  * @interface */
 export const eventSchema = {
@@ -186,12 +186,12 @@ export const eventSchema = {
   creator: v.optional(v.object(eventUserInformationSchemaObj)),
   organizer: v.optional(v.object(eventUserInformationSchemaObj)),
   attendees: v.optional(v.array(v.object({
-    email: v.string(),
-    name: v.string(),
-    responseStatus: v.union(v.literal("accepted"), v.literal("declined"), v.literal("tentative"), v.literal("needsAction")),
-    _id: v.optional(v.id("users")),
+    ...eventUserInformationSchemaObj,
+    responseStatus: v.optional(v.union(v.literal("accepted"), v.literal("declined"), v.literal("tentative"), v.literal("needsAction"))),
+    organizer: v.optional(v.boolean()),
   }))),
   type: v.optional(v.union(v.literal("default"), v.literal("focusTime"), v.literal("workingLocation"), v.literal("outOfOffice"), v.literal("task"), v.literal("birthday"), v.literal("fromGmail"))),
+  recurringRootId: v.optional(v.string()), // -> Referenced to the recurring root event id => Example: "19847123541235412354123541235"
   recurringEventId: v.optional(v.string()), // -> Referenced to the recurring event id => Example: "19847123541235412354123541235"
   recurrence: v.optional(v.array(v.string())), // -> ['RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20260228T225959Z;BYDAY=WE]
   originalStartTime: v.optional(v.object({
@@ -228,14 +228,15 @@ export default defineSchema({
 
   /**
    * @since 0.0.1
-   * @version 0.0.2
+   * @version 0.0.3
    * @description Schema definition for table "events"
    * @type */
   events: defineTable(eventSchema)
     .index("byUserId", ["userId"])
     .index("byCalendarId", ["calendarId"])
     .index("byExternalId", ["externalId"])
-    .index("byExternalEventId", ["externalEventId"]),
+    .index("byExternalEventId", ["externalEventId"])
+    .index("byRecurringEventId", ["recurringEventId"]),
 
   /**
    * @since 0.0.9

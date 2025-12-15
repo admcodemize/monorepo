@@ -58,7 +58,7 @@ export const STYLES = <StylesProps>{
   paddingVertical: 10,
   marginHorizontal: 20,
   layoutFooterHeight: 50,
-  calendarHourHeight: 60,
+  calendarHourHeight: 46,
   calendarHourWidth: 45,
   calendarHourBorderHeight: 1,
   calendarHeaderHeight: 50

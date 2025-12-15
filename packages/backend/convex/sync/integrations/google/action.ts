@@ -191,6 +191,84 @@ export const fetchCalendarEvents = internalAction({
  * @public
  * @since 0.0.23
  * @version 0.0.1
+ * @description Fetches the calendar events instances from Google based on a recurring event id
+ * @param {Object} param0
+ * @param {string} param0.calendarId - The calendar id to fetch the calendar events instances
+ * @param {string} param0.eventId - The event id to fetch the calendar events instances
+ * @param {string} param0.refreshToken - The refresh token to fetch the calendar events instances
+ * @function */
+export const fetchCalendarEventsInstances = internalAction({
+  args: {
+    calendarId: v.string(),
+    eventId: v.string(),
+    refreshToken: v.object(encryptedTokenSchemaObj),
+  },
+  handler: async ({ runAction }, { refreshToken, calendarId, eventId }): Promise<ConvexActionReturnProps<any>> => {
+    let data: IntegrationAPIGoogleCalendarEventsProps;
+    let items: IntegrationAPIGoogleCalendarEventProps[] = [];
+    let nextPageToken: string|undefined;
+
+    /** @description Refresh the access token for fetching the calendar list */
+    const [errRefresh, refresh] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken }));
+    if (errRefresh) throw new ConvexError(errRefresh.data);
+
+    /** @description Build the query parameters for the calendar events fetch */
+    const now: Date = new Date();
+    let params = new URLSearchParams({
+      showDeleted: 'false', 
+      singleEvents: 'true',
+      timeMin: new Date(now.setFullYear(now.getFullYear() - 2)).toISOString(), // 2 years in the past
+    } as Record<string, string>);
+
+    do {
+      /** @description The page token is needed for fetching the next page of calendar events when not all events have been fetched in one request */
+      if (nextPageToken) params.set('pageToken', nextPageToken);
+
+      /** @description Fetch the calendar events for the current calendar */
+      const [errFetch, res] = await fetchTypedConvex(fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}/instances?${params}`, {
+        headers: bearerHeader(refresh.data?.access_token),
+      }), "BLOXIE_HAR_FCEI_E01");
+
+      /** @description If the watch has expired, return an error object without throwing an error! */
+      if (res.status === 410) return {
+        convex: convexError({
+          code: 410,
+          severity: ConvexActionServerityEnum.ERROR,
+          name: errFetch?.data?.name || "BLOXIE_HAR_FCEI_E03",
+        }),
+      }
+
+      if (errFetch || !res.ok) throw new ConvexError(errFetch ? errFetch.data : convexError({
+        code: res.status,
+        info: await res.text(),
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_HAR_FCEI_E02",
+      }));
+
+      /** @description Get the calendar events and store them in the database inclusive next sync token */
+      data = await res.json();
+      items = [...items, ...data.items];
+
+      nextPageToken = data?.nextPageToken;
+    } while (nextPageToken);
+
+    data.items = items;
+
+    return { 
+      data,
+      convex: {
+        code: 200,
+        severity: ConvexActionServerityEnum.SUCCESS,
+        name: "BLOXIE_HAR_FCEI_S01",
+      }
+    };
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.23
+ * @version 0.0.1
  * @description Fetches a singlecalendar event from Google
  * @param {Object} param0
  * @param {string} param0.calendarId - The calendar id 

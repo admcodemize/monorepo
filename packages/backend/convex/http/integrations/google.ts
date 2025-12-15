@@ -25,6 +25,7 @@ import { convertEventGoogleToConvex, convertToCleanObjectForUpdate, safeParse, t
 import { convexError, ConvexHandlerError, convexResponse, fetchTypedConvex
  } from "../../../Fetch";
 import { ConvexError } from "convex/values";
+import { RRule } from "rrule";
 
 const PROVIDER = "oauth_google";
 
@@ -275,10 +276,10 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
 
       /** @description Get the unique events for the calendar -> Only keep the first event of a recurring event */
       const uniqueEvents = filterUniqueEvents(events);
-
       if (!errEvents && uniqueEvents) {
         /** @description Exclude birthday events from the creation of the events in the database because they are not relevant for the user */
         for (const event of uniqueEvents) {
+          /** @description Used for writing the recurrence rules for the recurring event to the database */
           if (event.recurringEventId) {
             /** @description Fetch the recurrence rules for the recurring event */
             const [errFetchEvent, { data: eventData }] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEvent, {
@@ -459,9 +460,10 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.3 
+ * @version 0.0.4
  * @description Handles the http action for watching a google calendar
  * @todo 
+ * Wiederkehrende Ereignisse werden nicht korrekt gelöscht..!!!
  * Wenn x-goog-channel-expiration überschritten ist oder Google deinen syncToken mit 410 (Gone) ablehnt, musst du den Watch komplett neu aufsetzen. Es gibt keinen versteckten „Refresh“, du wiederholst simpel den ursprünglichen Flow:
    -Alten Watch sauber stoppen
    POST https://www.googleapis.com/calendar/v3/channels/stop mit dem letzten channelId/resourceId und demselben OAuth-Token, das ihn angelegt hat. 
@@ -485,13 +487,24 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
     }),
   });
 
-  /** 
-   * @description Parse the channel token and retrieve the userId and providerId which are stored in the tokenPayload and are used for further queries and mutations
-   * -> Encryption takes place in the @see internal.sync.integrations.google.action.startWatchCalendarLists action */
-  const encryptedPayload = safeParse<EncryptedTokenProps>(channelToken);
-
   let decryptedPayload: ChannelWatchEventsProps|null = null;
-  if (encryptedPayload) decryptedPayload = safeParse<ChannelWatchEventsProps>(await runAction(internal.sync.integrations.action.decryptedPayload, { encryptedPayload }));
+
+  try {
+    /** 
+     * @description Parse the channel token and retrieve the userId and providerId which are stored in the tokenPayload and are used for further queries and mutations
+     * -> Encryption takes place in the @see internal.sync.integrations.google.action.startWatchCalendarLists action */
+    const encryptedPayload = safeParse<EncryptedTokenProps>(channelToken);
+    if (encryptedPayload) decryptedPayload = safeParse<ChannelWatchEventsProps>(await runAction(internal.sync.integrations.action.decryptedPayload, { encryptedPayload }));  
+  } catch (error) {
+    console.log("error", error, decryptedPayload);
+    return convexResponse<null>({
+      convex: convexError({
+        code: 500,
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_HAR_GWE_E04",
+      }),
+    });
+  }
   
   /** @description Get the calendar by the convex calendar id */
   const calendar = convertToCleanObjectForUpdate(await runQuery(internal.sync.integrations.query.calendarById, { _id: decryptedPayload.c as Id<"calendar"> }) as ConvexCalendarAPIProps);
@@ -527,6 +540,8 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
   let events: IntegrationAPIGoogleCalendarEventsProps = dataEvents?.data;
   let watch: ConvexCalendarWatchAPIProps = calendar.watch;
 
+  console.log("events", events);
+
   if (dataEvents?.convex?.code === 410) {
     /** 
      * @description If the error is a 410 Gone, it means that the channel watch has expired -> Stop the channel watch and start a new one
@@ -540,8 +555,122 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
   } else watch = toWatch({ id: channelId, resourceId: resourceId, expiration: new Date(expiration).getTime() }, events.nextSyncToken, calendar.watch.nextSyncToken);
 
   /** @description Get the unique events for the calendar -> Only keep the first event of a recurring event */
-  const uniqueEvents = filterUniqueEvents(events);
+  let uniqueEvents = filterUniqueEvents(events);
+
+  /** 
+   * @description Read new events of an recurring event!! the newly created events will not be fetched with the channel watch!!
+   * -> Execute instance full sync for the recurring event for fetching all the relevant events
+   * -> During the watch process there is no "recurringEventId" available!  */
+
+
   for (const event of uniqueEvents) {
+    /** @description If the event is a recurring event and has no recurring event id, fetch the instances of the recurring event -> First time the recurring event is created, the recurring event id is not available yet!! */
+    if (event?.recurrence && event?.recurrence?.length > 0 && !event?.recurringEventId) {
+      /** @description If the recurrence contains a UNTIL parameter, it means that the series is not infinite and has a end date */
+      if (event.recurrence.find((r) => r.includes("UNTIL="))) {
+        const rule = event.recurrence.find((r) => r.startsWith("RRULE:")) ?? event.recurrence[0];
+        const rrule = RRule.fromString(rule); // -> Parse FREQ, BYDAY, UNTIL etc.
+
+        /** @description Get all the events from the database to check if they should be removed, because the occurrence has been deleted or replaced by a new occurrence with a new recurringRootId */
+        const persistedEvents = await runQuery(internal.sync.events.query.byRecurringEventId, { userId: decryptedPayload.u as Id<"users">, recurringEventId: event.id });
+        for (const persistedEvent of persistedEvents) {
+          const startDate = new Date(persistedEvent.start);
+          console.log("startDate", startDate);
+          console.log("rrule.options?.until", rrule.options?.until);
+          if (rrule.options?.until ? startDate > rrule.options?.until : false) {
+            console.log("persistedEvent removed", persistedEvent);
+            /** @description Remove the event from the database -> Will be replaced by a new occurrence with a new recurringRootId */
+            const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: persistedEvent._id }));
+            if (errRemove) {
+              /** @todo Handle the error -> Mutation to notifications schema! */
+            } 
+            
+            //uniqueEvents = uniqueEvents.filter((e) => e.id !== persistedEvent.externalEventId);
+          }
+        }
+      }
+
+      const rootEvents: IntegrationAPIGoogleCalendarEventProps[] = [];
+
+      /** 
+       * @description Called when a root series event has been created, changed or any occurrence has been changed for all occurrences!
+       * -> Will be also called when any occurence of the series has been changed or newly created. -> dataInstance will contain the root event and all the occurrences */
+      const [errFetchInstances, dataInstances] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEventsInstances, {
+        refreshToken: linkedAccount.refreshToken,
+        calendarId: calendar.externalId,
+        eventId: event.id
+      }));
+
+      //uniqueEvents = uniqueEvents.filter((e) => e.id !== event.id);
+      
+      if (!errFetchInstances && dataInstances?.data?.items?.length) for (const item of dataInstances.data.items) {
+        /** @description If the item is not already in the uniqueEvents array, add it -> Could be already available when an occurrence has been created or changed */
+        if (!uniqueEvents.find((e) => e.id === item.id)) uniqueEvents.push(item);
+      }
+
+      console.log("event12", event);
+    }
+
+
+
+
+    /*const masterId = event.recurringEventId ?? (event.recurrence?.length ? event.id : null);
+    const isSeriesMaster = !event.recurringEventId && event.recurrence?.length;
+
+    if (!isSeriesMaster) {
+      dedupe.set(event.id, event);       // nur echte Instanzen behalten
+    } else {
+      seriesMasters.push(event);
+    }
+
+    if (masterId) dirtySeries.add(masterId); // Master merken, um Instanzen nachzuladen
+  }
+
+  for (const masterId of dirtySeries) {
+    const [errFetchInstances, dataInstances] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEventsInstances, {
+      refreshToken: linkedAccount.refreshToken,
+      calendarId: calendar.externalId,
+      eventId: masterId
+    }));
+    
+    if (!errFetchInstances && dataInstances?.data?.items?.length) {
+      dedupe.delete(masterId); // -> Do not store the series master
+      for (const item of dataInstances.data.items) {
+        dedupe.set(item.id, item); // -> Keep only the true occurrences
+      }
+    }
+  }
+  uniqueEvents = [...Array.from(dedupe.values()), ...seriesMasters];
+  for (const event of uniqueEvents) {
+    const isSeriesMaster = !event.recurringEventId && event.recurrence?.length;
+
+    /** @description Series master cancelled (delete this and all following occurrences) *
+    const seriesRef = event.recurringEventId ?? event.id ?? event.iCalUID?.split("@")[0];
+    if (event.status === IntegrationAPICalendarEventStatusEnum.CANCELLED && seriesRef) {
+      const root = seriesRef.split("_R")[0]; // `_R…` abtrennen
+      const seriesIds = Array.from(new Set([seriesRef, root].filter(Boolean)));
+      for (const seriesId of seriesIds) {
+        const affected = await runQuery(internal.sync.events.query.byRecurringEventId, {
+          userId: decryptedPayload.u,
+          recurringEventId: seriesId,
+        });
+
+        for (const instance of affected) {
+          const [errRemoveRecurring] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: instance._id }));
+          if (errRemoveRecurring) { /** @todo … * }
+        }
+      }
+      continue;
+    }
+
+    /** @description Skip non-cancelled series masters (handled via occurrences) *
+    if (isSeriesMaster) continue;*/
+
+
+
+
+
+
     /** @description Event has been newly created, deleted or has been updated -> Check if the event already exists in the database with the same eventProviderId */
     const _event: ConvexEventsAPIProps|null = await runQuery(internal.sync.events.query.byExternalEventId, { 
       userId: decryptedPayload.u as Id<"users">, 
@@ -554,8 +683,6 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
         recurringEventId: event.recurringEventId || (event.recurrence && event.recurrence.length >= 0 ? event.id : ""),
         originalStartTime: event?.originalStartTime || event?.start
       }
-
-      /** @todo logic for detecting the changes for a recurring events or event!!  */
 
       if (_event) {
         const [errUpdate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.update, {
@@ -572,8 +699,7 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
         
         if (errUpdate) {
           /** @todo Handle the error -> Mutation to notifications schema! */
-        }
-        continue;
+        } continue;
       }
 
       /** @description Event has been newly created -> Create the event in the database */
@@ -589,11 +715,23 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
       const [errCreate] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.create, payload));
       if (errCreate) {
         /** @todo Handle the error -> Mutation to notifications schema! */
-      }
-      continue;
+      } continue;
     }
 
-    if (event.status === IntegrationAPICalendarEventStatusEnum.CANCELLED) {
+    if (event.status === IntegrationAPICalendarEventStatusEnum.CANCELLED && _event) {
+      /**
+       *  @description If the event is a recurring event and the recurring root id is the same as the recurring event id and the event id, it means that the event is the root event
+       * -> Fetch all the occurrences of the recurring event and remove them from the database */
+      if (_event.recurringRootId === _event.recurringEventId && _event.recurringRootId === _event.externalEventId) {
+        const recurringEvents = await runQuery(internal.sync.events.query.byRecurringEventId, { userId: decryptedPayload.u as Id<"users">, recurringEventId: _event.recurringEventId });
+        for (const recurringEvent of recurringEvents) {
+          const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: recurringEvent._id }));
+          if (errRemove) {
+            /** @todo Handle the error -> Mutation to notifications schema! */
+          }
+        }
+      }
+
       /** @description Event has been cancelled -> Remove the event from the database */
       const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: _event._id }));
       if (errRemove) {
@@ -834,18 +972,18 @@ const createCalendar = async (
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.24
- * @version 0.0.1
+ * @version 0.0.2
  * @description Filters the unique events for the calendar -> Only keep the first event of a recurring event
  * @param {IntegrationAPIGoogleCalendarEventsProps} events - The events to filter */
 const filterUniqueEvents = (events: IntegrationAPIGoogleCalendarEventsProps) => Array.from(
-  events.items.reduce(
+  events.items/*.reduce(
     (acc, event) => {
       const key = event.recurringEventId ?? event.id;
       if (!acc.has(key)) acc.set(key, event); // -> Only set the event for the first time
       return acc;
     },
     new Map<string, IntegrationAPIGoogleCalendarEventProps>()
-  ).values()
+  ).values()*/
 ).filter((event) => event.eventType !== IntegrationAPICalendarEventTypeEnum.BIRTHDAY);
 
 /**
@@ -932,6 +1070,7 @@ const unlinkCalendar = async (
         refreshToken: refreshToken 
       }));
 
+      console.log("errStop", errStop);
       if (errStop) throw new ConvexError(errStop.data);
     }
 

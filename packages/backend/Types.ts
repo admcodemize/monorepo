@@ -39,13 +39,15 @@ export type ConvexEventsAPIUserInformationProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexEventsAPIAttendeesProps = {
-  email: string;
-  name: string;
-  responseStatus: IntegrationAPICalendarEventResponseStatusEnum;
-  _id?: Id<"users">;
+  email?: string;
+  name?: string;
+  self?: boolean;
+  responseStatus?: IntegrationAPICalendarEventResponseStatusEnum;
+  organizer?: boolean;
+  //_id?: Id<"users">;
 }
 
 /**
@@ -72,6 +74,7 @@ export type ConvexEventsAPIProps = {
   organizer?: ConvexEventsAPIUserInformationProps;
   attendees?: ConvexEventsAPIAttendeesProps[];
   type?: IntegrationAPICalendarEventTypeEnum;
+  recurringRootId?: string;
   recurringEventId?: string;
   recurrence?: string[];
   originalStartTime?: IntegrationAPICalendarEventStartEndProps;
@@ -269,15 +272,16 @@ export type IntegrationAPIGoogleCalendarEventProps = {
   iCalUID?: string;
   sequence?: number;
   attendees?: {
-    email: string;
-    self: boolean;
-    responseStatus: IntegrationAPICalendarEventResponseStatusEnum;
-    organizer: boolean;
+    email?: string;
+    name?: string;
+    self?: boolean;
+    responseStatus?: IntegrationAPICalendarEventResponseStatusEnum;
+    organizer?: boolean;
   }[];
   attachments?: {
-    fileUrl: string;
-    title: string;
-    iconLink: string;
+    fileUrl?: string;
+    title?: string;
+    iconLink?: string;
   }[];
   guestsCanInviteOthers?: boolean;
   privateCopy?: boolean;

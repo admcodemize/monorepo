@@ -123,21 +123,19 @@ export const convertEventGoogleToConvex = (
     htmlLink: event?.htmlLink || "",
     visibility: event?.visibility || IntegrationAPICalendarVisibilityEnum.PRIVATE,
     creator: {
-      email: event.creator.email,
-      self: event.creator?.self || true,
-      displayName: event.creator?.displayName || "",
+      ...event.creator,
       //_id: "" as Id<"users">
     },
     organizer: {
-      email: event.organizer?.email || "",
-      self: event.organizer?.self || false,
-      displayName: event.organizer?.displayName || "",
+      ...event.organizer,
       //_id: "" as Id<"users">
     },
+    attendees: event?.attendees || [],
     location: event?.location || "",
     type: event.eventType || IntegrationAPICalendarEventTypeEnum.DEFAULT,
+    recurringRootId: (event.recurringEventId)?.split("_R")[0],
     recurringEventId: event.recurringEventId || "",
-    originalStartTime: event?.originalStartTime,
+    originalStartTime: event?.originalStartTime || event?.start,
     recurrence: event?.recurrence || [],
     isAllDay: Boolean(event.start?.date && !event.start?.dateTime), // -> If the start date time is set, the event is not all day
   };

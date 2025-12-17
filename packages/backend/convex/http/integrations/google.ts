@@ -460,7 +460,7 @@ export const httpActionGoogleUnlink = httpAction(async ({ runMutation, runAction
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.10
- * @version 0.0.4
+ * @version 0.0.5
  * @description Handles the http action for watching a google calendar
  * @todo 
  * Wiederkehrende Ereignisse werden nicht korrekt gelöscht..!!!
@@ -563,109 +563,50 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
    * -> During the watch process there is no "recurringEventId" available!  */
 
 
+
   for (const event of uniqueEvents) {
     /** @description If the event is a recurring event and has no recurring event id, fetch the instances of the recurring event -> First time the recurring event is created, the recurring event id is not available yet!! */
     if (event?.recurrence && event?.recurrence?.length > 0 && !event?.recurringEventId) {
-      /** @description If the recurrence contains a UNTIL parameter, it means that the series is not infinite and has a end date */
-      if (event.recurrence.find((r) => r.includes("UNTIL="))) {
-        const rule = event.recurrence.find((r) => r.startsWith("RRULE:")) ?? event.recurrence[0];
-        const rrule = RRule.fromString(rule); // -> Parse FREQ, BYDAY, UNTIL etc.
-
-        /** @description Get all the events from the database to check if they should be removed, because the occurrence has been deleted or replaced by a new occurrence with a new recurringRootId */
-        const persistedEvents = await runQuery(internal.sync.events.query.byRecurringEventId, { userId: decryptedPayload.u as Id<"users">, recurringEventId: event.id });
-        for (const persistedEvent of persistedEvents) {
-          const startDate = new Date(persistedEvent.start);
-          console.log("startDate", startDate);
-          console.log("rrule.options?.until", rrule.options?.until);
-          if (rrule.options?.until ? startDate > rrule.options?.until : false) {
-            console.log("persistedEvent removed", persistedEvent);
-            /** @description Remove the event from the database -> Will be replaced by a new occurrence with a new recurringRootId */
-            const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: persistedEvent._id }));
-            if (errRemove) {
-              /** @todo Handle the error -> Mutation to notifications schema! */
-            } 
-            
-            //uniqueEvents = uniqueEvents.filter((e) => e.id !== persistedEvent.externalEventId);
-          }
-        }
-      }
-
-      const rootEvents: IntegrationAPIGoogleCalendarEventProps[] = [];
-
       /** 
-       * @description Called when a root series event has been created, changed or any occurrence has been changed for all occurrences!
-       * -> Will be also called when any occurence of the series has been changed or newly created. -> dataInstance will contain the root event and all the occurrences */
+       * @description Called when a root series event has been created, changed or any occurrence has been changed for all occurrences! 
+       * -> Fetching all the future occurrences of the recurring event. Returns the event itself and all the occurrence! */
       const [errFetchInstances, dataInstances] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEventsInstances, {
         refreshToken: linkedAccount.refreshToken,
         calendarId: calendar.externalId,
-        eventId: event.id
+        eventId: event.recurringEventId || event.id
       }));
 
-      //uniqueEvents = uniqueEvents.filter((e) => e.id !== event.id);
-      
+      console.log("dataInstances", dataInstances);
+
       if (!errFetchInstances && dataInstances?.data?.items?.length) for (const item of dataInstances.data.items) {
         /** @description If the item is not already in the uniqueEvents array, add it -> Could be already available when an occurrence has been created or changed */
         if (!uniqueEvents.find((e) => e.id === item.id)) uniqueEvents.push(item);
       }
 
-      console.log("event12", event);
-    }
+      /** 
+       * @description If the recurrence contains a UNTIL parameter, it means that the series is not infinite and has a end date
+       * => Example: [ 'RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20251216T225959Z;BYDAY=TU,WE,TH' ] */
+      const rule = event.recurrence.find((r) => r.startsWith("RRULE:")) || "";
+      const rrule = RRule.fromString(rule); // -> Parse FREQ, BYDAY, UNTIL etc.
 
+      if (event.recurrence.find((r) => r.includes("UNTIL=")) || (event.recurrence.find((r) => r.includes("COUNT=")) && rrule.options?.count > 1)) {
+        /** @description Get all the events from the database to check if they should be removed, because the occurrence has been deleted or replaced by a new occurrence with a new recurringRootId */
+        const persistedEvents = await runQuery(internal.sync.events.query.byRecurringEventId, { userId: decryptedPayload.u as Id<"users">, recurringEventId: event.id });
+        console.log("persistedEvents", persistedEvents);
+        for (const persistedEvent of persistedEvents) {
+          const startDate = new Date(persistedEvent.start);
+          if (rrule.options?.until ? startDate > rrule.options?.until : false || rrule.options?.count > 1) {
+            console.log("persistedEvent removed", persistedEvent);
+            /** @description Remove the event from the database -> Will be replaced by a new occurrence with a new recurringRootId */
+            const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: persistedEvent._id }));
+            if (errRemove) { /** @todo Handle the error -> Mutation to notifications schema! */ }
 
-
-
-    /*const masterId = event.recurringEventId ?? (event.recurrence?.length ? event.id : null);
-    const isSeriesMaster = !event.recurringEventId && event.recurrence?.length;
-
-    if (!isSeriesMaster) {
-      dedupe.set(event.id, event);       // nur echte Instanzen behalten
-    } else {
-      seriesMasters.push(event);
-    }
-
-    if (masterId) dirtySeries.add(masterId); // Master merken, um Instanzen nachzuladen
-  }
-
-  for (const masterId of dirtySeries) {
-    const [errFetchInstances, dataInstances] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.fetchCalendarEventsInstances, {
-      refreshToken: linkedAccount.refreshToken,
-      calendarId: calendar.externalId,
-      eventId: masterId
-    }));
-    
-    if (!errFetchInstances && dataInstances?.data?.items?.length) {
-      dedupe.delete(masterId); // -> Do not store the series master
-      for (const item of dataInstances.data.items) {
-        dedupe.set(item.id, item); // -> Keep only the true occurrences
-      }
-    }
-  }
-  uniqueEvents = [...Array.from(dedupe.values()), ...seriesMasters];
-  for (const event of uniqueEvents) {
-    const isSeriesMaster = !event.recurringEventId && event.recurrence?.length;
-
-    /** @description Series master cancelled (delete this and all following occurrences) *
-    const seriesRef = event.recurringEventId ?? event.id ?? event.iCalUID?.split("@")[0];
-    if (event.status === IntegrationAPICalendarEventStatusEnum.CANCELLED && seriesRef) {
-      const root = seriesRef.split("_R")[0]; // `_R…` abtrennen
-      const seriesIds = Array.from(new Set([seriesRef, root].filter(Boolean)));
-      for (const seriesId of seriesIds) {
-        const affected = await runQuery(internal.sync.events.query.byRecurringEventId, {
-          userId: decryptedPayload.u,
-          recurringEventId: seriesId,
-        });
-
-        for (const instance of affected) {
-          const [errRemoveRecurring] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: instance._id }));
-          if (errRemoveRecurring) { /** @todo … * }
+          }
         }
       }
-      continue;
+
+
     }
-
-    /** @description Skip non-cancelled series masters (handled via occurrences) *
-    if (isSeriesMaster) continue;*/
-
 
 
 
@@ -719,17 +660,18 @@ export const httpActionGoogleWatchEvents = httpAction(async ({ runAction, runQue
     }
 
     if (event.status === IntegrationAPICalendarEventStatusEnum.CANCELLED && _event) {
+      console.log("event cancelled 1", _event);
       /**
        *  @description If the event is a recurring event and the recurring root id is the same as the recurring event id and the event id, it means that the event is the root event
        * -> Fetch all the occurrences of the recurring event and remove them from the database */
-      if (_event.recurringRootId === _event.recurringEventId && _event.recurringRootId === _event.externalEventId) {
+      if (_event.recurringEventId) {
         const recurringEvents = await runQuery(internal.sync.events.query.byRecurringEventId, { userId: decryptedPayload.u as Id<"users">, recurringEventId: _event.recurringEventId });
         for (const recurringEvent of recurringEvents) {
           const [errRemove] = await fetchTypedConvex(runMutation(internal.sync.events.mutation.remove, { _id: recurringEvent._id }));
-          if (errRemove) {
-            /** @todo Handle the error -> Mutation to notifications schema! */
-          }
+          if (errRemove) { /** @todo Handle the error -> Mutation to notifications schema! */ }
         }
+
+        console.log("recurringEvents removed 1", recurringEvents);
       }
 
       /** @description Event has been cancelled -> Remove the event from the database */

@@ -6,7 +6,7 @@ import { ConvexEventsAPIProps } from "../../../Types";
 /**
  * @public
  * @since 0.0.9
- * @version 0.0.2
+ * @version 0.0.3
  * @description Returns all the events for currently signed in user and their subscriptions */
 export const get = query({
   args: {
@@ -48,6 +48,7 @@ export const get = query({
     return events
       .flat()
       .filter((event, index, self) => index === self.findIndex(e => e._id === event._id))
+      .filter((event) => event.externalEventId !== event.recurringEventId) // -> Remove the recurring master event from the list
       .sort((a, b) => Date.parse(a.start) - Date.parse(b.start))
       /** 
        * @description Add private title and description for events created by members 

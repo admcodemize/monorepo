@@ -16,7 +16,7 @@ const ProviderStyle = StyleSheet.create({
     width: DIM.width
   },
   item: {
-    borderRadius: 10, 
+    borderRadius: 6, 
     padding: 2 
   },
   itemHeader: {
@@ -29,7 +29,7 @@ const ProviderStyle = StyleSheet.create({
   itemBottom: {
     paddingVertical: 6, 
     paddingHorizontal: 8, 
-    borderRadius: 8, 
+    borderRadius: 4, 
     borderWidth: 0.5
   },
   itemBottomContent: {

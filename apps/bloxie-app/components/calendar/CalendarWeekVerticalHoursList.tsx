@@ -1,6 +1,8 @@
 import React from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, View } from "react-native";
 import Animated from "react-native-reanimated";
+import { LegendListRenderItemProps, LegendListRef } from "@legendapp/list";
+import { AnimatedLegendList } from "@legendapp/list/reanimated";
 
 import { STYLES } from "@codemize/constants/Styles";
 import { getHours, HoursProps } from "@codemize/helpers/DateTime";
@@ -35,11 +37,34 @@ export type CalendarWeekVerticalHoursListProps = {
  * @param {CalendarWeekVerticalHoursListProps} param0
  * @param {NativeSyntheticEvent<NativeScrollEvent>} param0.onScroll - Callback function to handle the scroll event
  * @component */
+const INITIAL_SCROLL_INDEX = 6;
+const INITIAL_SCROLL_OFFSET = INITIAL_SCROLL_INDEX * STYLES.calendarHourHeight;
+
 const CalendarWeekVerticalHoursList = React.forwardRef<Animated.ScrollView, CalendarWeekVerticalHoursListProps>(({
   onScroll,
 }, ref) => { 
   const colors = useThemeColors();
   const hours: HoursProps[] = React.useMemo(() => getHours(24, getLocalization()), []);
+  const legendListRef = React.useRef<LegendListRef>(null);
+
+  const keyExtractor = React.useCallback((item: HoursProps, index: number) => `${KEYS.calendarHours}-${index}`, []);
+
+  const renderItem = React.useCallback(({ item }: LegendListRenderItemProps<HoursProps>) => (
+    <HourItem
+      idx={item.idx}
+      hour={item.hour}
+      now={item.now}
+    />
+  ), []);
+
+  React.useEffect(() => {
+    const listRef = legendListRef.current;
+    if (!listRef) return;
+
+    requestAnimationFrame(() => {
+      listRef.scrollToOffset({ offset: INITIAL_SCROLL_OFFSET, animated: false });
+    });
+  }, []);
 
   return (
     <View>
@@ -68,18 +93,26 @@ const CalendarWeekVerticalHoursList = React.forwardRef<Animated.ScrollView, Cale
       </View>*/}
 
 
-      <Animated.ScrollView
-        ref={ref}
+      <AnimatedLegendList
+        ref={legendListRef}
+        refScrollView={ref}
+        data={hours}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
         onScroll={onScroll}
-        scrollEventThrottle={16}
+        initialScrollIndex={INITIAL_SCROLL_INDEX}
+        initialScrollOffset={INITIAL_SCROLL_OFFSET}
         showsVerticalScrollIndicator={false}
         bounces={false}
         snapToInterval={STYLES.calendarHourHeight / 2}
-        style={{ width: STYLES.calendarHourWidth }}>
-        {hours.map((item, idx) => <HourItem 
-          key={`${KEYS.calendarHours}-${idx}`} 
-          {...item} />)}
-      </Animated.ScrollView>
+        scrollEventThrottle={16}
+        estimatedItemSize={STYLES.calendarHourHeight}
+        estimatedListSize={{
+          width: STYLES.calendarHourWidth,
+          height: hours.length * STYLES.calendarHourHeight,
+        }}
+        style={{ width: STYLES.calendarHourWidth }}
+      />
     </View>
   );
 });

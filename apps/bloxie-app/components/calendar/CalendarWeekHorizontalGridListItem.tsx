@@ -2,7 +2,7 @@ import { CalendarCachedWeeksHorizontalProps, CalendarContextProps, useCalendarCo
 import React from "react";
 import { getLocalization } from "@/helpers/System";
 import { addDays, differenceInCalendarDays, endOfDay, isAfter, isBefore, isThisWeek, startOfDay } from "date-fns";
-import { View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { STYLES } from "@codemize/constants/Styles";
 import { convertFromConvex } from "@codemize/backend/Convert";
 import { ConvexCalendarAPIProps, ConvexEventsAPIProps, IntegrationAPICalendarVisibilityEnum } from "@codemize/backend/Types";
@@ -14,6 +14,8 @@ import ListItemEvent from "./list/ListItemEvent";
 import ListItemEventTentiative from "./list/ListItemEventTentiative";
 import ListItemEventAway from "./list/ListItemEventAway";
 import { useIntegrationContextStore } from "@/context/IntegrationContext";
+import TextBase from "../typography/Text";
+import { shadeColor } from "@codemize/helpers/Colors";
 
 /** Pre-computed hour metadata used to derive grid height and tick labels. */
 const HOURS: HoursProps[] = getHours(24, getLocalization());
@@ -28,12 +30,11 @@ const TOTAL_DAY_HEIGHT = HOURS.length * STYLES.calendarHourHeight;
 
 type EventWithLayout = {
   event: ConvexEventsAPIProps;
+  calendar: ConvexCalendarAPIProps;
   layout: GlobalLayoutProps;
   isAllDay: boolean;
-  isRelevantForConflictDetection: boolean;
   key: string;
 };
-
 type CalendarWeekHorizontalGridListItemProps = CalendarCachedWeeksHorizontalProps & {
   shouldRenderEvents: boolean;
 }
@@ -160,7 +161,7 @@ const CalendarWeekHorizontalGridListItem = ({
           segments.push({
             event,
             isAllDay,
-            isRelevantForConflictDetection: calendar?.isRelevantForConflictDetection ?? true,
+            calendar: calendar ?? {} as ConvexCalendarAPIProps,
             key,
             layout: {
               width,
@@ -186,20 +187,31 @@ const CalendarWeekHorizontalGridListItem = ({
     }}>
       <CalendarHourGrid numberOfDays={config.numberOfDays} />
 
-      {weekEvents.map(({ event, layout, isAllDay, isRelevantForConflictDetection, key }) => {
+      <ListItemEventAway width={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7)} height={60} left={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1} top={120}> 
+        <View>
+        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
+          </View>
+      </ListItemEventAway>
+      <ListItemEventTentiative width={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7)} height={90} left={0} top={(120) + 90}> 
+        <View>
+        <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
+          </View>
+      </ListItemEventTentiative>
+
+      {weekEvents.map(({ event, layout, isAllDay, calendar, key }) => {
         const normalizedEvent = {
           ...event,
           bgColorEvent: event.backgroundColor,
           descr: event.description ?? "",
         } as ConvexEventsAPIProps;
 
-        return event?.visibility === IntegrationAPICalendarVisibilityEnum.PRIVATE && (
+        return (
           <ListItemEvent
             key={key}
             layout={layout}
             event={normalizedEvent}
             isAllDayEvent={isAllDay}
-            isRelevantForConflictDetection={isRelevantForConflictDetection}
+            calendar={calendar}
           />
         );
       })}

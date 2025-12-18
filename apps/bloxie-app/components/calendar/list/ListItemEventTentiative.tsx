@@ -82,8 +82,7 @@ const ListItemEventTentiative = ({
           y="0"
           width={width - borderWidth}
           height="100%"
-          fill={borderColor}
-          opacity={0.4}/>
+          fill={shadeColor(borderColor, 0.8)}/>
         {/* Hatch pattern */}
         <Rect
           x={borderWidth}

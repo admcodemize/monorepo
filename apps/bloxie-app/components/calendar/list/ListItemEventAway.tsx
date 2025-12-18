@@ -92,7 +92,7 @@ const ListItemEventAway = ({
           y="0"
           width={width - borderWidth}
           height="100%"
-          fill={shadeColor(borderColor, 0.6)}
+          fill={shadeColor(borderColor, 0.9)}
         />
         {/* Overlay with cross pattern */}
         <Rect

@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Animated, { Easing, FadeIn, FadeOut, runOnJS, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Gesture } from "react-native-gesture-handler";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
-import { ConvexEventsAPIProps } from "@codemize/backend/Types";
+import { ConvexCalendarAPIProps, ConvexEventsAPIProps } from "@codemize/backend/Types";
 import { LEVEL } from "@codemize/constants/Styles";
 
 import { useUserContextStore } from "@/context/UserContext";
@@ -25,10 +25,10 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
  * @type */
 export type ListRenderItemEventProps = {
   event: ConvexEventsAPIProps;
+  calendar: ConvexCalendarAPIProps;
   layout: GlobalLayoutProps;
   isNewEvent?: boolean;
   isAllDayEvent?: boolean;
-  isRelevantForConflictDetection?: boolean;
 }
 
 /**
@@ -47,10 +47,10 @@ export type ListRenderItemEventProps = {
  * @component */
 const ListRenderItemEvent = ({
   event,
+  calendar,
   layout,
   isNewEvent = false,
   isAllDayEvent = false,
-  isRelevantForConflictDetection = true,
 }: ListRenderItemEventProps) => {  
 
   /**
@@ -241,10 +241,10 @@ const ListRenderItemEvent = ({
             //height: height.value, // Used when the user is resizing the event 
             width: layout.width - 1,
             left: layout.left + 0.5,
-            backgroundColor: shadeColor(event.backgroundColor || "#fbf1c6", 0.6),
-            borderLeftColor: event.backgroundColor || "#ffd739",
+            backgroundColor: shadeColor(event.backgroundColor || "#fbf1c6", 0.7),
+            borderLeftColor: calendar?.backgroundColor || "#ffd739",
             borderLeftWidth: 3,
-            opacity: isRelevantForConflictDetection ? 1 : 0.5,
+           // opacity: isRelevantForConflictDetection ? 1 : 0.5,
 
             /**
              * 

@@ -234,7 +234,7 @@ const CalendarWeek = ({
       
       isScrollingFromHeader.value = true;
       horizontalScrollX.value = event.contentOffset.x;
-      scrollTo(contentScrollRef, event.contentOffset.x, 0, false);
+      contentScrollRef.current && scrollTo(contentScrollRef, event.contentOffset.x, 0, false);
     },
     /*onEndDrag: (event) => {
       'worklet';

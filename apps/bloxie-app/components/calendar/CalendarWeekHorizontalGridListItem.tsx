@@ -6,7 +6,7 @@ import { Dimensions, View } from "react-native";
 import { STYLES } from "@codemize/constants/Styles";
 import { convertFromConvex } from "@codemize/backend/Convert";
 import { ConvexCalendarAPIProps, ConvexEventsAPIProps, IntegrationAPICalendarVisibilityEnum } from "@codemize/backend/Types";
-import { getHours, getMinutesBetweenDates, getMinutesSinceMidnight, HoursProps, PIXELS_PER_MINUTE } from "@codemize/helpers/DateTime";
+import { getHours, getMinutesBetweenDates, getMinutesSinceMidnight, HoursProps, PIXELS_PER_MINUTE, TOTAL_MINUTES } from "@codemize/helpers/DateTime";
 import { GlobalLayoutProps } from "@/types/GlobalLayout";
 import CalendarHourGrid from "./CalendarHourGrid";
 import CalendarTimeIndicator from "./CalendarTimeIndicator";
@@ -34,6 +34,16 @@ type EventWithLayout = {
   layout: GlobalLayoutProps;
   isAllDay: boolean;
   key: string;
+  dayIndex: number;
+};
+type EventSegment = EventWithLayout & {
+  startMinutes: number;
+  endMinutes: number;
+  slot?: number;
+};
+type SegmentOverride = {
+  startMinutes: number;
+  endMinutes: number;
 };
 type CalendarWeekHorizontalGridListItemProps = CalendarCachedWeeksHorizontalProps & {
   shouldRenderEvents: boolean;
@@ -52,8 +62,13 @@ const CalendarWeekHorizontalGridListItem = ({
 
   const config = useCalendarContextStore(selectConfig);
   const events = useCalendarContextStore(selectEvents);
+  const [segmentOverrides, setSegmentOverrides] = React.useState<Record<string, SegmentOverride>>({});
 
   const integrations = useIntegrationContextStore((state) => state.integrations);
+
+  React.useEffect(() => {
+    setSegmentOverrides({});
+  }, [events]);
 
 
   /**
@@ -107,12 +122,12 @@ const CalendarWeekHorizontalGridListItem = ({
       });
     });
 
+    const segmentsByDay = new Map<number, EventSegment[]>();
+    const results: EventWithLayout[] = [];
 
-    console.log("called");
-
-    return events.flatMap((event) => {
-      if (!event?.start || !event?.end) return [];
-      if (!event?.title && !event?.externalEventId) return [];
+    for (const event of events) {
+      if (!event?.start || !event?.end) continue;
+      if (!event?.title && !event?.externalEventId) continue;
 
 
       const calendar = aCalendars.find((calendar) => calendar._id === event?.calendarId);
@@ -120,13 +135,12 @@ const CalendarWeekHorizontalGridListItem = ({
       const eventStart = convertFromConvex(event.start);
       const eventEnd = convertFromConvex(event.end);
 
-      if (isAfter(eventStart, endOfWeekDate) || isBefore(eventEnd, startOfWeekDate)) return [];
+      if (isAfter(eventStart, endOfWeekDate) || isBefore(eventEnd, startOfWeekDate)) continue;
 
       const clampedStart = isBefore(eventStart, startOfWeekDate) ? startOfWeekDate : eventStart;
       const clampedEnd = isAfter(eventEnd, endOfWeekDate) ? endOfWeekDate : eventEnd;
 
       const isAllDay = Boolean(event.isAllDay);
-      const segments: EventWithLayout[] = [];
 
       let segmentStart = clampedStart;
       // Slice the event into day-sized pieces so multi-day appointments render in each affected column.
@@ -139,30 +153,170 @@ const CalendarWeekHorizontalGridListItem = ({
 
         if (dayIndex >= 0 && dayIndex < numberOfDays && segmentEnd.getTime() > segmentStart.getTime()) {
           const minutesFromMidnight = isAllDay ? 0 : getMinutesSinceMidnight(segmentStart);
-          // For timed events we scale height by actual duration; all-day events receive a fixed banner-style size.
           const durationMinutes = isAllDay
-            ? STYLES.calendarHourHeight
+            ? TOTAL_MINUTES
             : Math.max(getMinutesBetweenDates(segmentStart, segmentEnd), MIN_EVENT_DURATION_MINUTES);
 
-          const rawHeight = isAllDay
-            ? Math.max(STYLES.calendarHourHeight * 0.6, MIN_EVENT_HEIGHT)
-            : Math.max(durationMinutes * PIXELS_PER_MINUTE, MIN_EVENT_HEIGHT);
+          if (isAllDay) {
+            const height = Math.max(STYLES.calendarHourHeight * 0.6, MIN_EVENT_HEIGHT);
+            const baseLeft = columnWidth * dayIndex;
+            const width = Math.max(columnWidth - COLUMN_PADDING, 0);
+            const left = baseLeft + COLUMN_PADDING / 2;
+            const top = 2;
+            const key = `${event._id ?? event.externalEventId ?? `${event.title}-${event.start}`}-${dayIndex}-allday`;
 
-          const height = Math.min(rawHeight, TOTAL_DAY_HEIGHT);
-          const rawTop = isAllDay ? 2 : minutesFromMidnight * PIXELS_PER_MINUTE;
-          const top = Math.max(0, Math.min(rawTop, TOTAL_DAY_HEIGHT - height));
+            results.push({
+              event,
+              calendar: calendar ?? {} as ConvexCalendarAPIProps,
+              isAllDay,
+              key,
+              dayIndex,
+              layout: {
+                width,
+                height,
+                top,
+                left,
+              },
+            });
+          } else {
+            const rawHeight = Math.max(durationMinutes * PIXELS_PER_MINUTE, MIN_EVENT_HEIGHT);
+            const height = Math.min(rawHeight, TOTAL_DAY_HEIGHT);
+            const rawTop = minutesFromMidnight * PIXELS_PER_MINUTE;
+            const top = Math.max(0, Math.min(rawTop, TOTAL_DAY_HEIGHT - height));
 
-          const baseLeft = columnWidth * dayIndex;
-          const left = baseLeft + COLUMN_PADDING / 2;
-          const width = Math.max(columnWidth - COLUMN_PADDING, 0);
+          const key = `${event._id ?? event.externalEventId ?? `${event.title}-${event.start}`}-${dayIndex}`;
 
-          const key = `${event._id ?? event.externalEventId ?? `${event.title}-${event.start}`}-${dayIndex}-${Math.round(top)}-${Math.round(height)}`;
+            const segment: EventSegment = {
+              event,
+              isAllDay,
+              calendar: calendar ?? {} as ConvexCalendarAPIProps,
+              key,
+              dayIndex,
+              startMinutes: minutesFromMidnight,
+              endMinutes: minutesFromMidnight + durationMinutes,
+              layout: {
+                width: 0,
+                height,
+                top,
+                left: 0,
+              },
+            };
 
-          segments.push({
-            event,
-            isAllDay,
-            calendar: calendar ?? {} as ConvexCalendarAPIProps,
-            key,
+          const override = segmentOverrides[key];
+          if (override) {
+            const clampedStart = Math.max(0, Math.min(override.startMinutes, TOTAL_MINUTES));
+            const clampedEnd = Math.max(clampedStart + MIN_EVENT_DURATION_MINUTES, Math.min(override.endMinutes, TOTAL_MINUTES));
+            segment.startMinutes = clampedStart;
+            segment.endMinutes = clampedEnd;
+            segment.layout.top = clampedStart * PIXELS_PER_MINUTE;
+            segment.layout.height = (clampedEnd - clampedStart) * PIXELS_PER_MINUTE;
+          }
+
+            const daySegments = segmentsByDay.get(dayIndex);
+            if (daySegments) daySegments.push(segment);
+            else segmentsByDay.set(dayIndex, [segment]);
+          }
+        }
+
+        if (segmentEnd.getTime() >= clampedEnd.getTime()) break;
+        segmentStart = nextSegmentStart;
+      }
+    }
+
+    const segmentsOverlap = (a: EventSegment, b: EventSegment) =>
+      a.startMinutes < b.endMinutes && b.startMinutes < a.endMinutes;
+
+    for (const [dayIndex, segments] of segmentsByDay.entries()) {
+      if (!segments.length) continue;
+
+      const baseLeft = columnWidth * dayIndex;
+
+      segments.sort((a, b) => {
+        if (a.startMinutes === b.startMinutes) {
+          return (b.endMinutes - b.startMinutes) - (a.endMinutes - a.startMinutes);
+        }
+        return a.startMinutes - b.startMinutes;
+      });
+
+      const adjacency: number[][] = segments.map(() => []);
+      for (let i = 0; i < segments.length; i++) {
+        for (let j = i + 1; j < segments.length; j++) {
+          if (!segmentsOverlap(segments[i], segments[j])) continue;
+          adjacency[i].push(j);
+          adjacency[j].push(i);
+        }
+      }
+
+      const visited = new Set<number>();
+      for (let i = 0; i < segments.length; i++) {
+        if (visited.has(i)) continue;
+
+        const componentIndices: number[] = [];
+        const queue: number[] = [i];
+        visited.add(i);
+
+        while (queue.length) {
+          const index = queue.pop()!;
+          componentIndices.push(index);
+          adjacency[index].forEach((neighbor) => {
+            if (visited.has(neighbor)) return;
+            visited.add(neighbor);
+            queue.push(neighbor);
+          });
+        }
+
+        const componentSegments = componentIndices.map((index) => segments[index]);
+        componentSegments.sort((a, b) => {
+          if (a.startMinutes === b.startMinutes) {
+            return a.endMinutes - b.endMinutes;
+          }
+          return a.startMinutes - b.startMinutes;
+        });
+
+        const slotEndTimes: number[] = [];
+        const slotEvents: EventSegment[][] = [];
+
+        componentSegments.forEach((segment) => {
+          let slot = -1;
+          for (let s = 0; s < slotEndTimes.length; s++) {
+            if (segment.startMinutes >= slotEndTimes[s]) {
+              slot = s;
+              break;
+            }
+          }
+          if (slot === -1) {
+            slot = slotEndTimes.length;
+            slotEndTimes.push(segment.endMinutes);
+            slotEvents.push([]);
+          } else {
+            slotEndTimes[slot] = segment.endMinutes;
+          }
+          segment.slot = slot;
+          slotEvents[slot].push(segment);
+        });
+
+        const slotsTotal = slotEvents.length || 1;
+
+        componentSegments.forEach((segment) => {
+          const slot = segment.slot ?? 0;
+          let span = 1;
+          for (let s = slot + 1; s < slotsTotal; s++) {
+            const hasOverlap = slotEvents[s].some((other) => segmentsOverlap(segment, other));
+            if (hasOverlap) break;
+            span++;
+          }
+
+          const width = Math.max(((span / slotsTotal) * columnWidth) - COLUMN_PADDING, 0);
+          const left = baseLeft + (slot / slotsTotal) * columnWidth + COLUMN_PADDING / 2;
+          const top = segment.startMinutes * PIXELS_PER_MINUTE;
+          const height = (segment.endMinutes - segment.startMinutes) * PIXELS_PER_MINUTE;
+
+          results.push({
+            event: segment.event,
+            calendar: segment.calendar,
+            isAllDay: false,
+            key: `${segment.event._id ?? segment.event.externalEventId}-${dayIndex}`,
+            dayIndex,
             layout: {
               width,
               height,
@@ -170,15 +324,31 @@ const CalendarWeekHorizontalGridListItem = ({
               left,
             },
           });
-        }
-
-        if (segmentEnd.getTime() >= clampedEnd.getTime()) break;
-        segmentStart = nextSegmentStart;
+        });
       }
+    }
 
-      return segments;
-    });
-  }, [config.numberOfDays, config.width, events, shouldRenderEvents, week.endOfWeek, week.startOfWeek, integrations]);
+    return results;
+  }, [config.numberOfDays, config.width, events, shouldRenderEvents, week.endOfWeek, week.startOfWeek, integrations, segmentOverrides]);
+
+  const handleSegmentResize = React.useCallback((payload: {
+    event: ConvexEventsAPIProps;
+    calendar: ConvexCalendarAPIProps;
+    direction: "top" | "bottom" | "move";
+    top: number;
+    height: number;
+    segmentKey: string;
+  }) => {
+    const startMinutes = Math.max(0, payload.top / PIXELS_PER_MINUTE);
+    const endMinutes = Math.min(TOTAL_MINUTES, startMinutes + payload.height / PIXELS_PER_MINUTE);
+    setSegmentOverrides((prev) => ({
+      ...prev,
+      [payload.segmentKey]: {
+        startMinutes,
+        endMinutes: Math.max(startMinutes + MIN_EVENT_DURATION_MINUTES, endMinutes),
+      },
+    }));
+  }, []);
 
   return (
     <View style={{ 
@@ -198,7 +368,7 @@ const CalendarWeekHorizontalGridListItem = ({
           </View>
       </ListItemEventTentiative>
 
-      {weekEvents.map(({ event, layout, isAllDay, calendar, key }) => {
+      {weekEvents.map(({ event, layout, isAllDay, calendar, key, dayIndex }) => {
         const normalizedEvent = {
           ...event,
           bgColorEvent: event.backgroundColor,
@@ -211,7 +381,9 @@ const CalendarWeekHorizontalGridListItem = ({
             layout={layout}
             event={normalizedEvent}
             isAllDayEvent={isAllDay}
+            segmentKey={key}
             calendar={calendar}
+            onResize={handleSegmentResize}
           />
         );
       })}

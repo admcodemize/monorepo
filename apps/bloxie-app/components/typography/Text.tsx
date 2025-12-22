@@ -1,13 +1,13 @@
-import { Text, TextProps, TextStyle } from "react-native";
+import { TextProps, TextStyle } from "react-native";
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction } from "react-native-reanimated";
 import { ReanimatedKeyframe } from "react-native-reanimated/lib/typescript/layoutReanimation/animationBuilder/Keyframe";
-
 import { useTranslation } from "react-i18next";
+import { COLORS } from "@codemize/constants/Colors";
+
 
 import { useThemeColor } from "@/hooks/theme/useThemeColor";
 import { useFontFamily, useFontSize } from "@/hooks/typography/useFont";
 
-import { COLORS } from "@codemize/constants/Colors";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 
 /**

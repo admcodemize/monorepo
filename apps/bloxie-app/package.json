@@ -40,6 +40,7 @@
     "convex": "^1.27.0",
     "convex-helpers": "^0.1.104",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.5",
     "expo": "~54.0.29",
     "expo-auth-session": "~7.0.10",

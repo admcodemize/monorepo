@@ -1,9 +1,12 @@
 "use node";
-import { v } from "convex/values";
-import { internalAction } from "../../_generated/server";
+import { ConvexError, v } from "convex/values";
+import { action, internalAction } from "../../_generated/server";
 import crypto from "node:crypto";
 
-import { EncryptedTokenProps } from "../../../Types";
+import { ConvexActionReturnProps, ConvexActionServerityEnum, EncryptedTokenProps } from "../../../Types";
+import { eventSchemaUpdateObj } from "../../schema";
+import { convexError, fetchTypedConvex } from "../../../Fetch";
+import { internal } from "../../_generated/api";
 
 const ALGO = "aes-256-gcm";
 
@@ -19,6 +22,57 @@ export type EncryptedToken = {
   value: string;
   tag: string;
 }
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Mutates an external event through there API
+ * @since 0.0.28
+ * @version 0.0.1
+ * @param {eventSchemaUpdateObj} event - The event to mutate */
+export const mutateExternalEvent = action({
+  args: {
+    event: v.object(eventSchemaUpdateObj),
+  },
+  handler: async ({ runAction, runQuery }, { event }): Promise<ConvexActionReturnProps<null>> => {
+    /** @description Get the linked account for the user and provider -> To fetch the refresh token for the further process */
+    const [errLinked, linked] = await fetchTypedConvex(runQuery(internal.sync.integrations.query.linkedByCalendarId, { userId: event.userId, calendarId: event.calendarId }))
+    if (errLinked) throw new ConvexError(errLinked.data);
+
+    /** @description Refresh the access token for fetching the calendar list */
+    const [errRefresh, refresh] = await fetchTypedConvex(runAction(internal.sync.integrations.google.action.refreshAccessToken, { refreshToken: linked.refreshToken }));
+    if (errRefresh) throw new ConvexError(errRefresh.data);
+
+    /** @description Mutate the external event through there API */
+    const [err, res] = await fetchTypedConvex(fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(event.externalId)}/events/${encodeURIComponent(event.externalEventId)}`, {
+      headers: { 
+        Authorization: `Bearer ${refresh.data?.access_token}`,
+        Accept: 'application/json', 
+        "Content-Type": "application/json" 
+      },
+      method: "PATCH",
+      body: JSON.stringify({
+        start: event.start,
+        end: event.end,
+      })
+    }), "BLOXIE_HAR_MEE_E01");
+
+    if (err || !res.ok) throw new ConvexError(err ? err.data : convexError({
+      code: res.status,
+      info: await res.text(),
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_MEE_E02",
+    }));
+
+    return {
+      convex: {
+        code: 200,
+        severity: ConvexActionServerityEnum.SUCCESS,
+        name: "BLOXIE_HAR_RAT_S01",
+      },
+    };
+  }
+});
 
 /**
  * @public

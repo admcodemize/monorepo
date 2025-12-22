@@ -158,7 +158,7 @@ const IntegrationCalendar = ({
       backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
       borderColor: primaryBorderColor 
     }]}>
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap" }]}>
+      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, flexWrap: "wrap", width: "100%" }]}>
         {calendars?.map((calendar) => (
           <TouchableTag
             key={`${KEYS.integrationConnectionCalendar}-${calendar._id}`}

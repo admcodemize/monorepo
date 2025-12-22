@@ -249,8 +249,6 @@ const IntegrationCalendar = ({
       });
   }, [updateCalendarProperty]);
 
-  console.log("calendars:", calendars.length);
-
   return (
     <View style={[ScreenConfigurationIntegrationConnectionStyle.viewBottom, { 
       backgroundColor: shadeColor(tertiaryBgColor, 0.8), 

@@ -2,6 +2,7 @@ import React from "react";
 import { View, ViewStyle } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faCheck, faXmark } from "@fortawesome/pro-solid-svg-icons";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 
@@ -11,7 +12,6 @@ import TouchableHaptic from "@/components/button/TouchableHaptic";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import TouchableTagStyle from "@/styles/components/button/TouchableTag";
-import { faCheck, faXmark } from "@fortawesome/pro-solid-svg-icons";
 
 /**
  * @public

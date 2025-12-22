@@ -79,7 +79,7 @@ export const linkedById = internalQuery({
 /**
  * @public
  * @since 0.0.9
- * @version 0.0.2
+ * @version 0.0.3
  * @description Returns the linked account by provider id
  * @param {Object} param0
  * @param {string} param0.userId - User identification
@@ -93,17 +93,60 @@ export const linkedByProviderId = internalQuery({
     provider: v.string(),
     providerId: v.string()
   },
-  handler: async ({ db }, args): Promise<ConvexLinkedAPIProps|null> => 
-    await db
-    .query('linked')
-    .withIndex('byUserId', (q) => q.eq('userId', args.userId))
-    .filter((q) =>
-      q.and(
-        q.eq(q.field('provider'), args.provider),
-        q.eq(q.field('providerId'), args.providerId)
-      )
-    )
-    .unique()
+  handler: async ({ db }, args): Promise<ConvexLinkedAPIProps|null> => {
+    try {
+      return await db
+      .query('linked')
+      .withIndex('byUserId', (q) => q.eq('userId', args.userId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field('provider'), args.provider),
+          q.eq(q.field('providerId'), args.providerId)
+        )
+      ).unique()
+    } catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.query.linkedByProviderId.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IQBP_C_E01",
+        _id: args.providerId,
+      }));
+    }
+  }
+});
+
+/**
+ * @public
+ * @since 0.0.28
+ * @version 0.0.1
+ * @description Returns the linked account by calendar id
+ * @param {Object} param0
+ * @param {Id<"users">} param0.userId - Internal convex user id
+ * @param {Id<"calendar">} param0.calendarId - Internal convex calendar id
+ * @function */
+export const linkedByCalendarId = internalQuery({
+  args: { 
+    userId: v.id('users'),
+    calendarId: v.id('calendar')
+  },
+  handler: async ({ db }, { userId, calendarId }): Promise<ConvexLinkedAPIProps|null> => {
+    try {
+      const linkedAccounts = await db
+        .query("linked")
+        .withIndex("byUserId", (q) => q.eq("userId", userId))
+        .collect();
+      return linkedAccounts.find((linkedAccount) => linkedAccount.calendarId.includes(calendarId));
+    } catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.integrations.query.linkedByCalendarId.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_IQBC_C_E01",
+        _id: calendarId as Id<"calendar">,
+      }));
+    }
+  }
 });
 
 /**

@@ -3,13 +3,13 @@ import React from "react";
 import { View } from "react-native";
 import { STYLES } from "@codemize/constants/Styles";
 
+import { useThemeColors } from "@/hooks/theme/useThemeColor";
+
 import TouchableHapticClose from "@/components/button/TouchableHapticClose";
 import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
-import Divider from "./Divider";
-import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 /**
  * @public

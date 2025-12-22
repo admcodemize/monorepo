@@ -30,7 +30,7 @@ export type TouchableHapticGmailProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.14
- * @version 0.0.3
+ * @version 0.0.4
  * @param {StartGoogleFlowProps} param0 - The props for the Gmail OAuth flow
  * @param {Id<"users">} param0.userId - The convex user id
  * @param {string} param0.email - The email of the user
@@ -52,7 +52,7 @@ const TouchableHapticGmail = ({
         <View style={[GlobalContainerStyle.rowCenterStart, TouchableHapticGmailStyle.view, { backgroundColor: shadeColor(focusedBgColor, 0) }]}>
           <FontAwesomeIcon 
             icon={faPlus as IconProp} 
-            size={10} 
+            size={12} 
             color={focusedContentColor} />
           <TextBase 
             text={"i18n.screens.integrations.connect"} 

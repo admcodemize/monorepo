@@ -1,5 +1,5 @@
 import { httpAction } from "../../_generated/server";
-import { api, internal } from "../../_generated/api";
+import { internal } from "../../_generated/api";
 import { Id } from "../../_generated/dataModel";
 import { 
   IntegrationAPICalendarAccessRoleEnum, 
@@ -27,7 +27,7 @@ import { convexError, ConvexHandlerError, convexResponse, fetchTypedConvex
 import { ConvexError } from "convex/values";
 import { RRule } from "rrule";
 
-const PROVIDER = "oauth_google";
+export const PROVIDER = "oauth_google";
 
 /** 
  * @private

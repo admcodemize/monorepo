@@ -12,7 +12,6 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import TouchableHaptic, { TouchableHapticProps } from "@/components/button/TouchableHaptic";
 import TextBase, { TextBaseTypes } from "@/components/typography/Text";
 
-
 import GlobalButtonStyle from "@/styles/GlobalButton";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";

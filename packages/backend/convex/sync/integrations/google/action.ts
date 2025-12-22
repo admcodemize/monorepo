@@ -1,8 +1,8 @@
 "use node";
 import { ConvexError, v } from "convex/values";
 import { internal } from "../../../_generated/api";
-import { internalAction } from "../../../_generated/server";
-import { encryptedTokenSchemaObj } from "../../../schema";
+import { action, internalAction } from "../../../_generated/server";
+import { encryptedTokenSchemaObj, eventSchema } from "../../../schema";
 import { 
   IntegrationAPIGoogleCalendarChannelWatchProps, 
   IntegrationAPIGoogleCalendarColorsProps, 

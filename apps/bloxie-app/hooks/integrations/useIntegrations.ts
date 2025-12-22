@@ -24,7 +24,7 @@ type UseIntegrationsProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description - Sets the integrations stored in convex
  * @since 0.0.13
- * @version 0.0.2 */
+ * @version 0.0.3 */
 export function useIntegrations({
   convexUser,
   onFetchFinished = () => {},
@@ -47,10 +47,6 @@ export function useIntegrations({
 
   React.useEffect(() => {
     if (!isReady) return;
-
-
-    console.log("integrations", integrations);
-
     /**
      * @description Update integrations based on convex selection */
     setIntegrations(integrations);

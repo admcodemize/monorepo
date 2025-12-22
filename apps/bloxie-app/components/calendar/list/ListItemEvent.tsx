@@ -3,6 +3,8 @@ import * as Haptics from "expo-haptics";
 import { StyleSheet, View } from "react-native";
 import Animated, { Easing, FadeOut, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { ReactAction, useAction } from "convex/react";
+
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 import { ConvexCalendarAPIProps, ConvexEventsAPIProps } from "@codemize/backend/Types";
 import { LEVEL } from "@codemize/constants/Styles";
@@ -19,6 +21,12 @@ import { faArrowsRotate } from "@fortawesome/pro-solid-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { GRID_MINUTES, MINUTES_IN_DAY, PIXELS_PER_MINUTE } from "@codemize/helpers/DateTime";
 import { isWeb } from "@/helpers/System";
+import { api } from "../../../../../packages/backend/convex/_generated/api";
+import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
+import { useConvexUser } from "@/hooks/auth/useConvexUser";
+import { convertEventGoogleToConvex, convertFromConvex, convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
+import { addMinutes, format, startOfDay } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 /**
  * @public
@@ -68,7 +76,53 @@ const ListRenderItemEvent = ({
   isAllDayEvent = false,
   onResize,
 }: ListRenderItemEventProps) => {  
+  const { convexUser } = useConvexUser();
+  /** @description Used for updating the external event */
+  const mutate: ReactAction<typeof api.sync.integrations.action.mutateExternalEvent> = useAction(api.sync.integrations.action.mutateExternalEvent);
 
+  const mutateOnJS = (payload: {
+    userId: Id<"users">;
+    event: ConvexEventsAPIProps;
+    topPx: number;
+    heightPx: number;
+  }) => {
+    const timeZone = payload.event.originalStartTime?.timeZone || String();
+
+    const baseDay = startOfDay(convertFromConvex(event.start));
+
+    const roundMinutesToGrid = (minutes: number) =>
+      Math.round(minutes / GRID_MINUTES) * GRID_MINUTES;
+  
+    const rawStartMinutes = payload.topPx / PIXELS_PER_MINUTE;
+    const rawEndMinutes = rawStartMinutes + payload.heightPx / PIXELS_PER_MINUTE;
+  
+    const startMinutes = roundMinutesToGrid(rawStartMinutes);
+    const endMinutes = Math.max(
+      startMinutes + GRID_MINUTES,
+      roundMinutesToGrid(rawEndMinutes)
+    );
+  
+    const startDate = addMinutes(baseDay, startMinutes);
+    const endDate = addMinutes(baseDay, endMinutes);
+  
+    const startISO = payload.event.isAllDay ? format(startDate, "yyyy-MM-dd") : formatInTimeZone(startDate, timeZone, "yyyy-MM-dd'T'HH:mm:ssXXX");
+    const endISO = payload.event.isAllDay ? format(endDate, "yyyy-MM-dd") : formatInTimeZone(endDate, timeZone, "yyyy-MM-dd'T'HH:mm:ssXXX");
+
+    console.log("startISO", startISO);
+    console.log("endISO", endISO);
+
+    mutate({
+      event: {
+        _id: payload.event._id as Id<"events">,
+        userId: payload.userId,
+        calendarId: payload.event.calendarId,
+        externalId: payload.event.externalId as string,
+        externalEventId: payload.event.externalEventId as string,
+        start: payload.event.isAllDay ? { date: startISO } : { dateTime: startISO, timeZone: timeZone },
+        end: payload.event.isAllDay ? { date: endISO } : { dateTime: endISO, timeZone: timeZone },
+      },
+    });
+  };
   /**
    * @desc Handles the user settings. Used for highlighting the members of the event
    * @see {@link context/UserContext} */
@@ -212,7 +266,7 @@ const ListRenderItemEvent = ({
   });
 
   const resizeTopGesture = Gesture.Pan()
-    .enabled(!isAllDayEvent)
+    .enabled(!isAllDayEvent && calendar?.isRelevantForSynchronization === true)
     .onStart(() => {
       startOffset.value = translateY.value - EVENT_OFFSET_Y;
       originalBottom.value = translateY.value + height.value;
@@ -240,10 +294,21 @@ const ListRenderItemEvent = ({
       originalBottom.value = snappedTopRaw + snappedHeightRaw;
       runOnJS(handleResizeEnd)("top", snappedTopRaw, snappedHeightRaw);
       runOnJS(setIsResizing)(false);
+    })
+    .onFinalize(() => {
+      const topPx = translateY.value - EVENT_OFFSET_Y;
+      const heightPx = height.value + EVENT_HEIGHT_ADJUST;
+    
+      runOnJS(mutateOnJS)({
+        userId: convexUser?._id as Id<"users">,
+        event: event,
+        topPx,
+        heightPx,
+      });
     });
 
   const resizeBottomGesture = Gesture.Pan()
-    .enabled(!isAllDayEvent)
+    .enabled(!isAllDayEvent || calendar?.isRelevantForSynchronization === true)
     .onStart(() => {
       startOffset.value = height.value + EVENT_HEIGHT_ADJUST;
       runOnJS(setIsResizing)(true);
@@ -267,10 +332,21 @@ const ListRenderItemEvent = ({
       originalBottom.value = snappedTopRaw + snappedHeightRaw;
       runOnJS(handleResizeEnd)("bottom", snappedTopRaw, snappedHeightRaw);
       runOnJS(setIsResizing)(false);
+    })
+    .onFinalize(() => {
+      const topPx = translateY.value - EVENT_OFFSET_Y;
+      const heightPx = height.value + EVENT_HEIGHT_ADJUST;
+    
+      runOnJS(mutateOnJS)({
+        userId: convexUser?._id as Id<"users">,
+        event: event,
+        topPx,
+        heightPx,
+      });
     });
 
   const dragGesture = Gesture.Pan()
-    .enabled(!isAllDayEvent && !isResizeActive)
+    .enabled(!isAllDayEvent && !isResizeActive && calendar?.isRelevantForSynchronization === true)
     .activateAfterLongPress(400)
     .onStart(() => {
       dragStartTop.value = translateY.value - EVENT_OFFSET_Y;
@@ -301,6 +377,16 @@ const ListRenderItemEvent = ({
     })
     .onFinalize(() => {
       runOnJS(setIsDragging)(false);
+
+      const topPx = translateY.value - EVENT_OFFSET_Y;
+      const heightPx = height.value + EVENT_HEIGHT_ADJUST;
+    
+      runOnJS(mutateOnJS)({
+        userId: convexUser?._id as Id<"users">,
+        event: event,
+        topPx,
+        heightPx,
+      });
     });
 
   const composedGesture = Gesture.Exclusive(dragGesture, tapGesture);
@@ -324,7 +410,7 @@ const ListRenderItemEvent = ({
               elevation: isResizeActive || isResizing || isDragging ? ACTIVE_Z_INDEX : LEVEL.level1,
             },
           ]}>
-              {!isAllDayEvent && (isResizeActive || isResizing) && (
+              {!isAllDayEvent && calendar?.isRelevantForSynchronization === true && (isResizeActive || isResizing) && (
                 <>
                   <GestureDetector gesture={resizeTopGesture}>
                     <Animated.View style={[ListRenderItemEventStyle.resizeOverlay, ListRenderItemEventStyle.overlayTop]}>

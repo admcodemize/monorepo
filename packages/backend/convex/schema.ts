@@ -13,6 +13,17 @@ export const encryptedTokenSchemaObj = {
 }
 
 /**
+ * @since 0.0.28
+ * @version 0.0.1
+ * @description Schema definition for the original start (end) time of an event
+ * @interface */
+export const originalStartTimeSchemaObj = {
+  date: v.optional(v.string()),
+  dateTime: v.optional(v.string()),
+  timeZone: v.optional(v.string()),
+}
+
+/**
  * @since 0.0.10
  * @version 0.0.1
  * @description Schema definition for additional information for the Google integration
@@ -80,6 +91,23 @@ export const calendarSchemaUpdateObj = {
   watch: v.optional(v.object(watchSchemaObj)),
   eventsCount: v.optional(v.number()),
   isRelevantForConflictDetection: v.optional(v.boolean()),
+}
+
+/**
+ * @since 0.0.28
+ * @version 0.0.1
+ * @description Schema definition for updating an event
+ * @interface */
+export const eventSchemaUpdateObj = {
+  _id: v.id("events"),
+  userId: v.id("users"),
+  calendarId: v.id("calendar"),
+  externalId: v.string(),
+  externalEventId: v.string(),
+  title: v.optional(v.string()),
+  description: v.optional(v.string()),
+  start: v.optional(v.object(originalStartTimeSchemaObj)),
+  end: v.optional(v.object(originalStartTimeSchemaObj))
 }
 
 /**
@@ -194,11 +222,7 @@ export const eventSchema = {
   recurringRootId: v.optional(v.string()), // -> Referenced to the recurring root event id => Example: "19847123541235412354123541235"
   recurringEventId: v.optional(v.string()), // -> Referenced to the recurring event id => Example: "19847123541235412354123541235"
   recurrence: v.optional(v.array(v.string())), // -> ['RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20260228T225959Z;BYDAY=WE]
-  originalStartTime: v.optional(v.object({
-    date: v.optional(v.string()),
-    dateTime: v.optional(v.string()),
-    timeZone: v.optional(v.string()),
-  })),
+  originalStartTime: v.optional(v.object(originalStartTimeSchemaObj)),
   location: v.optional(v.string()),
   isAllDay: v.optional(v.boolean()),
 }
@@ -240,12 +264,13 @@ export default defineSchema({
 
   /**
    * @since 0.0.9
-   * @version 0.0.1
+   * @version 0.0.2
    * @description Schema definition for table "linked"
    * @type */
   linked: defineTable(linkedSchema)
     .index("byUserId", ["userId"])
-    .index("byProviderId", ["providerId"]),
+    .index("byProviderId", ["providerId"])
+    .index("byCalendarId", ["calendarId"]),
 
   /**
    * @since 0.0.11

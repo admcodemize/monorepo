@@ -3,6 +3,8 @@ import * as React from 'react';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TrayProvider } from 'react-native-trays';
+import ToastifyProvider from 'toastify-react-native';
+
 import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 
@@ -126,6 +128,7 @@ const RootLayout = () => {
     <SafeAreaProvider
       onLayout={onLayoutRootView}>
         <StatusBar style="dark" />
+        <ToastifyProvider />
         <GestureHandlerRootView>
           <ClerkProvider
             tokenCache={tokenCache}

@@ -722,6 +722,7 @@ export const httpActionGoogleWatchLists = httpAction(async ({ runQuery, runActio
     convex: convexError({
       code: 400,
       severity: ConvexActionServerityEnum.ERROR,
+      info: "i18n.convex.http.integrations.google.error.missingXGoogleHeaders",
       name: "BLOXIE_HAR_GWL_E01",
     }),
   });

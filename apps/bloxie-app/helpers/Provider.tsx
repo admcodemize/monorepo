@@ -5,6 +5,7 @@ import { ToastContextOpenProps } from "@/context/ToastContext";
 import { faInfoCircle } from "@fortawesome/pro-solid-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { View } from "react-native";
+import { Toast } from "toastify-react-native";
 
 /**
  * @public
@@ -32,7 +33,7 @@ export type UnlinkGoogleAccountProps = {
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.2
+ * @version 0.0.3
  * @description Starts the Google OAuth flow
  * @param {StartGoogleFlowProps} param0 - The props for the Google OAuth flow
  * @param {Id<"users">} param0.userId - The convex user id
@@ -50,7 +51,6 @@ export const startGoogleFlow = async ({
   if (grantScopeGmail) scopes.push("https://www.googleapis.com/auth/gmail.send");
   else scopes.push("https://www.googleapis.com/auth/calendar");
 
-
   /** @description Configure the Google OAuth flow */
   const googleConfig = {
     webClientId: config.webClientId,
@@ -65,15 +65,15 @@ export const startGoogleFlow = async ({
   GoogleSignin.configure(googleConfig);
   const res = await GoogleOneTapSignIn.presentExplicitSignIn(googleConfig);
 
-  open?.({
+  /*open?.({
     children: <View style={{ height: 300 }}></View>,
     data: {
       title: "",
       icon: faInfoCircle as IconProp,
     }
-  });
+  });*/
   
-  const a = await fetch(`${process.env.EXPO_PUBLIC_CONVEX_SITE}/integrations/google/oauth/exchange`, {
+  const exchange = await fetch(`${process.env.EXPO_PUBLIC_CONVEX_SITE}/integrations/google/oauth/exchange`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -87,12 +87,30 @@ export const startGoogleFlow = async ({
     }),
   });
 
+  /** @example {"convex": {"code": 200, "info": "BLOXIE_E00", "name": "BLOXIE_HAR_GE_S01", "severity": "success"}, "data": null} */
+  const { convex } = await exchange.json();
+  if (convex.code !== 200) {
+
+  }
+
+  Toast.show({
+    type: 'success',
+    text1: convex.name,
+    text2: 'Secondary message',
+    position: 'bottom',
+    visibilityTime: 4000,
+    autoHide: true,
+    useModal: false,
+    onPress: () => console.log('Toast pressed'),
+    onShow: () => console.log('Toast shown'),
+    onHide: () => console.log('Toast hidden'),
+  })
 };
 
 /**
  * @public
  * @since 0.0.14
- * @version 0.0.1
+ * @version 0.0.2
  * @description Unlinks a Google account
  * -> 1. Stop the channel watch for the calendar lists so that the calendar events can not be fetched or updated incrementally anymore
  * -> 2. Collect all the events for a given provider id and remove them all from the database
@@ -104,15 +122,26 @@ export const unlinkGoogleAccount = async ({
   providerId,
   open
 }: UnlinkGoogleAccountProps) => {
-  open?.({
+  /*open?.({
     children: <View style={{ height: 300 }}></View>,
     data: {
       title: "",
       icon: faInfoCircle as IconProp,
     }
-  });
+  });*/
 
-  const a = await fetch(`${process.env.EXPO_PUBLIC_CONVEX_SITE}/integrations/google/oauth/unlink`, {
+  Toast.show({
+    type: 'success',
+    text2: 'Secondary message',
+    position: 'bottom',
+    autoHide: false,
+    useModal: false,
+    onPress: () => console.log('Toast pressed'),
+    onShow: () => console.log('Toast shown'),
+    onHide: () => console.log('Toast hidden'),
+  })
+
+  const res = await fetch(`${process.env.EXPO_PUBLIC_CONVEX_SITE}/integrations/google/oauth/unlink`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -120,4 +149,13 @@ export const unlinkGoogleAccount = async ({
       providerId
     }),
   });
+
+  /** @example {"convex": {"code": 200, "info": "BLOXIE_E00", "name": "BLOXIE_HAR_GUL_S01", "severity": "success"}, "data": null} */
+  const { convex } = await res.json();
+  if (convex.code !== 200) {
+
+  }
+
+  Toast.hide();
+
 };

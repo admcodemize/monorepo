@@ -1,11 +1,12 @@
 import React from "react";
-import { Dimensions, View } from "react-native";
+import { View } from "react-native";
 
-import RootHeader from "@/components/layout/header/private/RootHeader";
 import RootFooter from "@/components/layout/footer/RootFooter";
 import ViewBase from "@/components/container/View";
 import Calendar from "@/components/calendar/Calendar";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
+
+import TabsLayoutStyle from "@/styles/app/private/tabs/layout";
 
 /**
  * @public
@@ -14,14 +15,12 @@ import DropdownOverlay from "@/components/container/DropdownOverlay";
  * @version 0.0.4 */
 const TabLayout = () => {
   return (
-    <ViewBase style={{ position: "relative" }} >
+    <ViewBase style={TabsLayoutStyle.view} >
       <RootFooter />
-      <View style={{ zIndex: 1, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, height: Dimensions.get("window").height - 120, overflow: "hidden" }}>
-        {/*<RootHeader />*/}
+      <View style={TabsLayoutStyle.container}>
         <Calendar />
         <DropdownOverlay />
       </View>
-      {/*<TouchableFloatingAction />*/}
     </ViewBase>
   );
 }

@@ -12,11 +12,11 @@ import TabsLayoutStyle from "@/styles/app/private/tabs/layout";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.4 */
+ * @version 0.0.5 */
 const TabLayout = () => {
   return (
     <ViewBase style={TabsLayoutStyle.view} >
-      <RootFooter />
+      {/*<RootFooter />*/}
       <View style={TabsLayoutStyle.container}>
         <Calendar />
         <DropdownOverlay />

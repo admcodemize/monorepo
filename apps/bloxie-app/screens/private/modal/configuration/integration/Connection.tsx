@@ -162,8 +162,7 @@ const IntegrationHeader = ({
           colorActive={infoColor}
           colorInactive={infoColor}
           isActive={integration.hasMailPermission}
-          disabled={true}
-        />
+          disabled={true} />
         <Divider vertical />
         <TouchableHaptic
           onPress={unlink(integration.providerId)}>

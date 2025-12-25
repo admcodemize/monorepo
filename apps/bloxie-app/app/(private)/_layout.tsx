@@ -10,6 +10,7 @@ import { useCalendarEvents } from "@/hooks/calendar/useCalendarEvents";
 import { useIntegrations } from "@/hooks/integrations/useIntegrations";
 import { getTimeZone } from "@/helpers/System";
 
+import RootFooter from "@/components/layout/footer/RootFooter";
 import LoadingScreen from "@/screens/private/LoadingScreen";
 
 import DateTimeProvider from "@/context/DateTimeContext";
@@ -82,6 +83,7 @@ const PrivateLayout = () => {
             }}>
               <Stack.Protected guard={isSignedIn || false}>
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(modal)/create" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/action/booking" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/action/meeting" options={{ presentation: "fullScreenModal" }}  />
                 <Stack.Screen name="(modal)/action/type" options={{ presentation: "fullScreenModal" }} />
@@ -94,6 +96,7 @@ const PrivateLayout = () => {
               </Stack.Protected>
           </Stack>  
         </DateTimeProvider>
+       <RootFooter />
     </UserProvider>
   );
 }

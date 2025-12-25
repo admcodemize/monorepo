@@ -111,7 +111,8 @@
         "description": "Anlegen oder Verwalten",
         "groups": {
           "manage": "Allgemein",
-          "configuration": "Konfiguration"
+          "configuration": "Konfiguration",
+          "account": "Konto"
         },
         "items": {
           "booking": {
@@ -150,6 +151,14 @@
             "title": "Integrationen",
             "description": "Verbindungen zu externen Systemen und Diensten",
             "modal": "Das Verknüpfen von Diensten unterschiedlicher Provider ermöglicht eine Effizienzsteigerung in der Buchung von Terminen und verhindert Überbuchungen."
+          },
+          "settings": {
+            "title": "Einstellungen",
+            "description": "Persönliche Konfiguration der Anwendung"
+          },
+          "user": {
+            "title": "Benutzer",
+            "description": "Allgemeine Benutzereinstellungen"
           }
         }
       }

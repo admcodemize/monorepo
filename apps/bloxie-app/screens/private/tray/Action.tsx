@@ -5,7 +5,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faArrowUpRightFromSquare } from "@fortawesome/duotone-thin-svg-icons";
 import { STYLES } from "@codemize/constants/Styles";
 
-import { TRAY_ACTION_ITEMS, TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
+import { TRAY_ACCOUNT_ITEMS, TRAY_ACTION_ITEMS, TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import TouchableHaptic from "@/components/button/TouchableHaptic";
@@ -59,6 +59,22 @@ const ScreenTrayAction = () => {
               <ScreenTrayActionItemChildren 
                 key={item.key}
                 route={`/configuration/${item.route}`}
+                icon={item.icon} 
+                title={item.title} 
+                description={item.description}
+                right={item.key === "bookingPage" ? <FontAwesomeIcon
+                  icon={faArrowUpRightFromSquare as IconProp}
+                  size={STYLES.sizeFaIcon}
+                  color={colors.primaryIconColor} /> : undefined} />
+            ))}
+        </ListItemGroup>
+        <ListItemGroup 
+          title={"i18n.screens.trayAction.groups.account"}
+          gap={STYLES.sizeGap * 1.75}>
+            {TRAY_ACCOUNT_ITEMS.map((item) => (
+              <ScreenTrayActionItemChildren 
+                key={item.key}
+                route={`/account/${item.route}`}
                 icon={item.icon} 
                 title={item.title} 
                 description={item.description}

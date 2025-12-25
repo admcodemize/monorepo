@@ -13,7 +13,8 @@ import {
   faDistributeSpacingVertical,
   faUsersBetweenLines,
   faTrowelBricks,
-  faUsersViewfinder
+  faUserSecret,
+  faFlaskGear
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -193,4 +194,24 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   icon: faArrowProgress as IconProp,
   title: "i18n.screens.trayAction.items.workflow.title",
   description: "i18n.screens.trayAction.items.workflow.description",
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling generic data inside tray configuration component 
+ * @readonly
+ * @since 0.0.30
+ * @version 0.0.1
+ * @constant */
+export const TRAY_ACCOUNT_ITEMS: TrayActionItemProps[] = [{
+  key: "settings",
+  icon: faFlaskGear as IconProp,
+  title: "i18n.screens.trayAction.items.settings.title",
+  description: "i18n.screens.trayAction.items.settings.description",
+}, {
+  key: "user",
+  icon: faUserSecret as IconProp,
+  title: "i18n.screens.trayAction.items.user.title",
+  description: "i18n.screens.trayAction.items.user.description",
 }];

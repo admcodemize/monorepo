@@ -231,14 +231,6 @@ const Calendar = ({
         </View>
         <Divider vertical />
         <TouchableHapticText text="Heute" onPress={() => setIsTodayPressed(true)} hasViewCustomStyle={true} viewCustomStyle={{}} />
-        <Divider vertical />
-        <TouchableHapticDropdown
-          text="AI"
-          icon={faSparkles as IconProp}
-          onPress={() => {}}
-          hasViewCustomStyle={true}
-          viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-        />
       </View>
 
 

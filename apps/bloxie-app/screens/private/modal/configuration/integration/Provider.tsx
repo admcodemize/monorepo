@@ -135,7 +135,7 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.3
+ * @version 0.0.4
  * @param {ScreenConfigurationIntegrationProviderItemProps} param0
  * @param {ConvexSettingsAPIProps} param0.settings - The settings of the currently signed in user.
  * @param {(settings: ConvexSettingsAPIProps) => void} param0.setSettings - The function to update the settings of the currently signed in user in the context.
@@ -200,7 +200,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
   };
 
   return (
-    <View style={[ProviderStyle.item, { backgroundColor: shadeColor(secondaryBgColor, -0.01), borderColor: primaryBorderColor, borderWidth: 0.5 }]}>
+    <View style={[ProviderStyle.item, { backgroundColor: shadeColor(secondaryBgColor, 0.3), borderColor: primaryBorderColor, borderWidth: 0.5 }]}>
       <View style={[GlobalContainerStyle.rowCenterBetween, ProviderStyle.itemHeader]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
           <Image source={image} style={ProviderStyle.itemImage} resizeMode="cover"/>

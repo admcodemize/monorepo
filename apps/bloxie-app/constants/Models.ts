@@ -14,7 +14,8 @@ import {
   faUsersBetweenLines,
   faTrowelBricks,
   faUserSecret,
-  faFlaskGear
+  faFlaskGear,
+  faPaperPlane
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -71,6 +72,7 @@ export type TrayActionItemProps = {
   title: string;
   description: string;
   modal?: string;
+  isComingSoon?: boolean;
 }
 
 /**
@@ -156,7 +158,7 @@ export const TRAY_ACTION_ITEMS: TrayActionItemProps[] = [{
  * @description Used for handling generic data inside tray configuration component 
  * @readonly
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   key: "bookingPage",
@@ -176,12 +178,6 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   title: "i18n.screens.trayAction.items.type.title",
   description: "i18n.screens.trayAction.items.type.description",
 }, {
-  key: "team",
-  route: "team",
-  icon: faUsersBetweenLines as IconProp,
-  title: "i18n.screens.trayAction.items.team.title",
-  description: "i18n.screens.trayAction.items.team.description",
-}, {
   key: "integration",
   route: "integration",
   icon: faTrowelBricks as IconProp,
@@ -189,11 +185,19 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   description: "i18n.screens.trayAction.items.integration.description",
   modal: "i18n.screens.trayAction.items.integration.modal",
 }, {
+  key: "team",
+  route: "team",
+  icon: faUsersBetweenLines as IconProp,
+  title: "i18n.screens.trayAction.items.team.title",
+  description: "i18n.screens.trayAction.items.team.description",
+  isComingSoon: true,
+}, {
   key: "workflow",
   route: "workflow",
   icon: faArrowProgress as IconProp,
   title: "i18n.screens.trayAction.items.workflow.title",
   description: "i18n.screens.trayAction.items.workflow.description",
+  modal: "i18n.screens.trayAction.items.workflow.modal",
 }];
 
 /**

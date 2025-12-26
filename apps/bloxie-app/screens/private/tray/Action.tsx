@@ -16,6 +16,8 @@ import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import React from "react";
+import TextBase from "@/components/typography/Text";
+import GlobalTypographyStyle from "@/styles/GlobalTypography";
 
 /**
  * @public
@@ -62,6 +64,7 @@ const ScreenTrayAction = () => {
                 icon={item.icon} 
                 title={item.title} 
                 description={item.description}
+                isComingSoon={item.isComingSoon}
                 right={item.key === "bookingPage" ? <FontAwesomeIcon
                   icon={faArrowUpRightFromSquare as IconProp}
                   size={STYLES.sizeFaIcon}
@@ -101,6 +104,7 @@ type ScreenTrayActionItemChildrenProps = {
   title: string;
   description: string;
   right?: React.ReactNode;
+  isComingSoon?: boolean;
 }
 
 /**
@@ -120,8 +124,10 @@ const ScreenTrayActionItemChildren = ({
   icon,
   title,
   description,
-  right
+  right,
+  isComingSoon = false
 }: ScreenTrayActionItemChildrenProps) => {
+  const { primaryIconColor } = useThemeColors();
   /**
    * @description Handles the on press event for the list item
    * @function */
@@ -129,6 +135,7 @@ const ScreenTrayActionItemChildren = ({
 
   return (
     <TouchableHaptic
+      disabled={isComingSoon}
       onPress={onPress}>
         <View style={[GlobalContainerStyle.columnStartStart]}>
           <ListItemWithChildren
@@ -136,6 +143,7 @@ const ScreenTrayActionItemChildren = ({
             title={title} 
             description={description}
             type={ListItemWithChildrenTypeEnum.custom}
+            isComingSoon={isComingSoon}
             right={right} />
         </View>
     </TouchableHaptic>

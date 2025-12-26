@@ -2,11 +2,13 @@
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.5
+ * @version 0.0.6
  * @type */
 type KeysProps = {
   providerGroup: string;
   providerGroupItem: string;
+  workflowGroup: string;
+  workflowGroupItem: string;
   integrationConnection: string;
   integrationConnectionCalendar: string;
   integrationConnectionScope: string;
@@ -29,11 +31,13 @@ type KeysProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.5
+ * @version 0.0.6
  * @constant */
 export const KEYS: KeysProps = {
   providerGroup: "providerGroup",
   providerGroupItem: "providerGroupItem",
+  workflowGroup: "workflowGroup",
+  workflowGroupItem: "workflowGroupItem",
   integrationConnection: "integrationConnection",
   integrationConnectionCalendar: "integrationConnectionCalendar",
   integrationConnectionScope: "integrationConnectionScope",

@@ -4,16 +4,13 @@ import { Stack } from "expo-router";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.1
+ * @version 0.0.3
  * @component */
-const ConfigurationLayout = () => {
+const ModalConfigurationLayout = () => {
   return (
-    <Stack
-      screenOptions={{ 
-        headerShown: false, 
-        presentation: "fullScreenModal" 
-      }}>
-        <Stack.Screen name="integration" />
+    <Stack screenOptions={{ headerShown: false, presentation: "fullScreenModal" }}>
+      <Stack.Screen name="integration" />
+      <Stack.Screen name="workflow" />
     </Stack>
   );
 }
@@ -24,6 +21,6 @@ const ConfigurationLayout = () => {
  * @since 0.0.29
  * @version 0.0.1
  * @component */
-const RootLayout = () => <ConfigurationLayout />;
+const RootLayout = () => <ModalConfigurationLayout />;
 
 export default RootLayout;

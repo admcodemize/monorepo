@@ -88,7 +88,7 @@ const ScreenConfigurationIntegrationConnection = (
               key={`${KEYS.integrationConnection}-${integration._id}`}
               style={{ gap: STYLES.sizeGap }}>
                 <View style={[ScreenConfigurationIntegrationConnectionStyle.viewHeader, { 
-                  backgroundColor: shadeColor(secondaryBgColor, -0.01), 
+                  backgroundColor: shadeColor(secondaryBgColor, 0.3), 
                   borderColor: primaryBorderColor
                 }]}>
                   <IntegrationHeader integration={integration} />

@@ -49,6 +49,38 @@
           }
         }
       },
+      "workflow": {
+        "title": "Workflow",
+        "horizontalNavigation": {
+          "workProcess": "Arbeitsabläufe",
+          "active": "Aktive Workflows"
+        },
+        "workProcess": {
+          "emailOrSms": {
+            "title": "E-Mail/SMS",
+            "remember": {
+              "title": "Erinnerung per E-Mail/SMS",
+              "description": "E-Mail welche 24 Stunden vor einem Termin versendet wird, um den Teilnehmer daran zu erinnern."
+            },
+            "thanks": {
+              "title": "Dankeschön per E-Mail/SMS",
+              "description": "E-Mail welche nach einem Termin versendet wird, um den Teilnehmer für die Buchung zu bedanken."
+            },
+            "file": {
+              "title": "E-Mail mit Anhang",
+              "description": "E-Mail welche einen Anhang an den Teilnehmer versendet, welcher für den Termin relevant ist."
+            },
+            "survey": {
+              "title": "Umfrage per E-Mail/SMS",
+              "description": "E-Mail welche eine Umfrage an den Teilnehmer versendet, um die Zufriedenheit mit dem Termin zu messen."
+            },
+            "postProcessing": {
+              "title": "Nachbearbeitung per E-Mail/SMS",
+              "description": "E-Mail welche nach einem Termin versendet wird, um die Nachbearbeitung des Termins zu starten."
+            }
+          }
+        }
+      },
       "integrations": {
         "connect": "Verknüpfen",
         "activeConnections": "Aktive Verknüpfungen",
@@ -141,7 +173,8 @@
           },
           "workflow": {
             "title": "Workflow",
-            "description": "Automatisierte Prozesse für deine Buchungen"
+            "description": "Automatisierte Prozesse für deine Buchungen",
+            "modal": "Das Workflow System ermöglicht es dir, automatische Prozesse für deine Buchungen zu erstellen. Die Einrichtung spart Ihnen vor und nach den Terminen Zeit und Ressourcen.."
           },
           "availability": {
             "title": "Verfügbarkeiten",

@@ -5,7 +5,7 @@ import type { KeyboardEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faChartCandlestick, faGrid2Plus, faLink, faUpFromBracket, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { faArrowRight, faChartCandlestick, faGrid2Plus, faLink, faUpFromBracket, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
@@ -19,6 +19,9 @@ import { createMaterialTopTabNavigator, MaterialTopTabBar } from "@react-navigat
 import { useFontSize } from "@/hooks/typography/useFont";
 import { shadeColor } from "@codemize/helpers/Colors";
 import ViewBase from "@/components/container/View";
+import TouchableHapticText from "@/components/button/TouchableHapticText";
+import TextBase from "@/components/typography/Text";
+import { router } from "expo-router";
 
 const BASE_BAR_HEIGHT = 50;
 const CONTEXT_EXPANDED_HEIGHT = 140;
@@ -67,12 +70,8 @@ const RootFooter = ({
   const defaultAnimationDuration = React.useMemo(() => Platform.select({ ios: 250, android: 200 }) ?? 220, []);
   const isInputFocused = React.useRef(false);
 
-  const [isContextExpanded, setIsContextExpanded] = React.useState(false);
-  const [isFocused, setIsFocused] = React.useState(false);
-
   const openContext = React.useCallback(
     (duration: number = defaultAnimationDuration) => {
-      setIsContextExpanded(true);
       contextHeight.value = withTiming(CONTEXT_EXPANDED_HEIGHT, { duration });
     },
     [contextHeight, defaultAnimationDuration]
@@ -80,7 +79,6 @@ const RootFooter = ({
 
   const closeContext = React.useCallback(
     (duration: number = defaultAnimationDuration) => {
-      setIsContextExpanded(false);
       contextHeight.value = withTiming(0, { duration });
     },
     [contextHeight, defaultAnimationDuration]
@@ -110,26 +108,18 @@ const RootFooter = ({
 
   const handleInputFocus = React.useCallback(() => {
     isInputFocused.current = true;
-    setIsFocused(true);
     openContext();
   }, [openContext]);
 
   const handleInputBlur = React.useCallback(() => {
     isInputFocused.current = false;
-    setIsFocused(false);
     closeContext();
   }, [closeContext]);
 
   const handleContextToggle = React.useCallback(() => {
-    if (isContextExpanded) {
-      isInputFocused.current = false;
-      Keyboard.dismiss();
-      closeContext();
-      return;
-    }
-
-    openContext();
-  }, [closeContext, openContext, isContextExpanded]);
+    isInputFocused.current = false;
+    Keyboard.dismiss();
+  }, [closeContext]);
 
   React.useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -165,20 +155,8 @@ const RootFooter = ({
     transform: [{ translateY: translateY.value }],
   }));
 
-  const animatedContextStyle = useAnimatedStyle(() => {
-    const height = Math.max(contextHeight.value, 0);
-    const progress = Math.min(height / CONTEXT_EXPANDED_HEIGHT, 1);
-
-    return {
-      height,
-      opacity: progress,
-      transform: [{ translateY: (1 - progress) * 16 }],
-    };
-  });
-
   return (
     <>
-    {isContextExpanded && <BaseOverlay />}
     <Animated.View style={[
       {
         flexDirection: "column",
@@ -188,32 +166,38 @@ const RootFooter = ({
         right: 14,
         backgroundColor: "#fff",
         borderRadius: 20,
-        borderWidth: isContextExpanded ? 0 : 1,
+        borderWidth: 1,
         borderColor: "#dfdfdf",
         overflow: "hidden",
       },
       bottomBarAnimatedStyle
     ]}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 4, paddingRight: 12, backgroundColor: isContextExpanded ? "#F8F8F8" : "transparent" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, backgroundColor: isContextExpanded ? "transparent" : "#F8F8F8", borderRadius: 15, padding: 4, flex: 1, minHeight: BASE_BAR_HEIGHT - 8, paddingHorizontal: 12 }}>
-          <View style={[GlobalContainerStyle.rowCenterStart, { flex: 1 }]}>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 4, paddingRight: 12 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, backgroundColor: "#F8F8F8", borderRadius: 15, padding: 4, flex: 1, minHeight: BASE_BAR_HEIGHT - 8, paddingHorizontal: 12 }}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { flex: 1, gap: 6 }]}>
             <TextInput
               placeholder="Neues Ereignis"
               style={[GlobalTypographyStyle.titleSubtitle, { color: colors.infoColor, flex: 1, marginRight: 8 }]}
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}/>
-            <TouchableHapticDropdown
-              ref={refCalendar}
-              icon={faLink as IconProp}
-              text={`Bloxie 1.1`}
-              backgroundColor={colors.tertiaryBgColor}
-              hasViewCustomStyle={true}
-              viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4}}
-              onPress={() => {}} />
+            <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
+              <TouchableHapticText
+                text="12:15"
+                i18nTranslation={false}
+                hasViewCustomStyle={true}
+                onPress={() => { console.log("12:15") }} />
+              <FontAwesomeIcon icon={faArrowRight as IconProp} size={9} color={colors.primaryIconColor} />
+              <TouchableHapticText
+                text="12:45"
+                i18nTranslation={false}
+                hasViewCustomStyle={true}
+                onPress={() => { console.log("12:45") }} />
+            </View>
+            <TextBase text="30m" i18nTranslation={false} type="label" />
           </View>
           
-          {!isFocused && <Divider vertical style={{ height: 20 }} />}
-          {!isFocused && <View style={[GlobalContainerStyle.rowCenterStart, { gap: 18 }]}>
+          <Divider vertical style={{ height: 20 }} />
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 18 }]}>
             <TouchableHaptic
               onPress={onPressDashboard}>
                 <FontAwesomeIcon icon={faChartCandlestick as IconProp} size={18} color={colors.primaryIconColor} />
@@ -222,66 +206,16 @@ const RootFooter = ({
               onPress={onPressAction}>
                 <FontAwesomeIcon icon={faGrid2Plus as IconProp} size={18} color={colors.primaryIconColor} />
             </TouchableHaptic>
-          </View>}
+          </View>
         </View>
         <TouchableHaptic
-          onPress={handleContextToggle}>
-            <FontAwesomeIcon icon={!isContextExpanded ? faUpFromBracket as IconProp : faXmark as IconProp} size={22} color={!isContextExpanded ? "#047dd4" : colors.primaryIconColor} />
+          onPress={() => router.push("/(private)/(modal)/create")}>
+            <FontAwesomeIcon icon={faUpFromBracket as IconProp} size={22} color={colors.linkColor} />
         </TouchableHaptic>
       </View>
-
-      <Animated.View
-        style={[
-          {
-            overflow: "hidden",
-            flex: 1,
-          },
-          animatedContextStyle
-        ]}
-      >
-        <ViewBase>
-          <Divider />
-          <NavigationContainerBase />
-        </ViewBase>
-      </Animated.View>
     </Animated.View>
     </>
   );
-}
-
-const NavigationContainerBase = () => {
-  const colors = useThemeColors();
-  return (
-    <NavigationIndependentTree >
-      <NavigationContainer>
-        <Tabs.Navigator 
-
-          screenOptions={{
-            tabBarLabelStyle: { fontSize: useFontSize("text") },
-            tabBarItemStyle: { width: "auto" },
-            tabBarIndicatorStyle: { backgroundColor: colors.focusedBgColor },
-            tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: colors.primaryBorderColor,           paddingTop: 0,
-              marginTop: 0, },
-            tabBarContentContainerStyle: {
-              paddingTop: 0,
-            },
-            tabBarStyle: { 
-              height: 40,
-            }
-          }}
-          tabBar={(props) => (
-            <MaterialTopTabBar
-              {...props}
-
-            />
-          )}>
-
-            <Tabs.Screen key="TabA" name="TabA" component={TabAScreen} />
-            <Tabs.Screen key="TabB" name="TabB" component={TabBScreen} />
-        </Tabs.Navigator>
-      </NavigationContainer>
-    </NavigationIndependentTree>
-  )
 }
 
 export default RootFooter;

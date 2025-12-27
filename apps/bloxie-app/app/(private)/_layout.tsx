@@ -83,6 +83,7 @@ const PrivateLayout = () => {
             }}>
               <Stack.Protected guard={isSignedIn || false}>
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(modal)/create" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/action/booking" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/action/meeting" options={{ presentation: "fullScreenModal" }}  />
                 <Stack.Screen name="(modal)/action/type" options={{ presentation: "fullScreenModal" }} />

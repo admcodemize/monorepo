@@ -1,5 +1,7 @@
+import { WorkflowCanvas } from '@/components/container/WorkflowCanvas';
+import { faBrightnessLow, faCodeCommit } from '@fortawesome/duotone-thin-svg-icons';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
-import { View, Text } from 'react-native';
 
 export default function WorkflowProcessScreen() {
   const { key } = useLocalSearchParams<{ key: string }>();
@@ -7,9 +9,13 @@ export default function WorkflowProcessScreen() {
   console.log("[key]", key);
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text>Workflow: {key}</Text>
-      {/* Detail-UI hier */}
-    </View>
+<WorkflowCanvas
+  nodes={[
+    { id: 'start', type: 'start', icon: faBrightnessLow as IconProp },
+    { id: 'action1', type: 'action', title: 'HTTP API-Aktion', icon: faCodeCommit as IconProp },
+  ]}
+  onNodePress={(node) => {}}
+  onAddNode={(afterId) => console.log('Add after', afterId)}
+/>
   );
 }

@@ -14,9 +14,9 @@ import ScreenConfigurationWorkflowProvider from "@/screens/private/modal/configu
  * @version 0.0.1
  * @component */
 const ModalConfigurationWorkflowProvider = () => {
-  const { tertiaryBgColor } = useThemeColors();
+  const { secondaryBgColor } = useThemeColors();
   return (
-    <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.7) }}>
+    <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3) }}>
       <ScreenConfigurationWorkflowProvider />
       <ToastOverlay />
     </SafeAreaContextViewBase>

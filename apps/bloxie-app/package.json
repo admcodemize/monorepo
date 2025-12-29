@@ -9,7 +9,6 @@
     "web": "expo start --web",
     "lint": "expo lint"
   },
-  "description": "moderat severity are based on the dependency 'react-native-remark'.",
   "dependencies": {
     "@awesome.me/kit-bc3fbac47d": "^1.0.14",
     "@clerk/clerk-expo": "^2.19.2",

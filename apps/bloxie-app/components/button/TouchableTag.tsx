@@ -17,7 +17,7 @@ import TouchableTagStyle from "@/styles/components/button/TouchableTag";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.18
- * @version 0.0.3
+ * @version 0.0.4
  * @type */
 export type TouchableTagProps = {
   icon: IconProp;
@@ -29,6 +29,8 @@ export type TouchableTagProps = {
   isActive?: boolean;
   disabled?: boolean;
   showActivityIcon?: boolean;
+  activityIconActive?: IconProp;
+  activityIconInactive?: IconProp;
   viewStyle?: ViewStyle|ViewStyle[];
   onPress?: (isActive: boolean) => void;
 }
@@ -47,6 +49,8 @@ export type TouchableTagProps = {
  * @param {string} param0.colorInactive - The color of the TouchableTag when inactive
  * @param {boolean} param0.isActive - The active state of the TouchableTag
  * @param {boolean} param0.showActivityIcon - The visibility of the activity icon on the right side 
+ * @param {IconProp} param0.activityIconActive - The icon to display when the TouchableTag is active
+ * @param {IconProp} param0.activityIconInactive - The icon to display when the TouchableTag is inactive
  * @param {ViewStyle|ViewStyle[]} param0.viewStyle - The style to apply to the TouchableTag component
  * @param {boolean} param0.disabled - The disabled state of the TouchableTag
  * @param {Function} param0.onPress - The function to call when the TouchableTag is pressed
@@ -61,6 +65,8 @@ const TouchableTag = ({
   disabled = false,
   isActive = false,
   showActivityIcon = false,
+  activityIconActive = faXmark as IconProp,
+  activityIconInactive = faCheck as IconProp,
   viewStyle,
   onPress = () => {}
 }: TouchableTagProps) => {
@@ -95,7 +101,7 @@ const TouchableTag = ({
             style={[GlobalTypographyStyle.labelText, { color: shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1) }]} />
           {showActivityIcon && 
             <FontAwesomeIcon
-              icon={_isActive ? faXmark as IconProp : faCheck as IconProp}
+              icon={_isActive ? activityIconActive : activityIconInactive}
               size={10}
               color={shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1)} />}
         </View>

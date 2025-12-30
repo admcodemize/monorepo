@@ -75,7 +75,7 @@ const StartSlot = () => {
       <DropdownProvider>
         <TrayProvider 
           stackConfigs={stackConfigs}
-          trays={trays}>
+          trays={trays.main}>
             <Slot /> 
         </TrayProvider>
       </DropdownProvider>

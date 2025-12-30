@@ -46,6 +46,23 @@ export const get = query({
 
 /**
  * @public
+ * @since 0.0.34
+ * @version 0.0.1
+ * @description Returns all the linked accounts for the currently signed in user with mail permission
+ * @param {Object} param0
+ * @param {string} param0.userId - User identification (Clerk)
+ * @function */
+export const linkedWithMailPermission = query({
+  args: { userId: v.id('users') },
+  handler: async ({ db }, { userId }): Promise<ConvexLinkedAPIProps[]> => await db
+    .query('linked')
+    .withIndex('byUserId', (q) => q.eq('userId', userId))
+    .filter((q) => q.eq(q.field('hasMailPermission'), true))
+    .collect()
+});
+
+/**
+ * @public
  * @since 0.0.21
  * @version 0.0.1
  * @description Returns the calendars information for a given array of calendar ids which are linked to a linked account and a specific user

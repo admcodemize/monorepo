@@ -28,36 +28,9 @@ const CONTEXT_EXPANDED_HEIGHT = 140;
  * @type */
 type RootFooterProps = {}
 
-/**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.17
- * @version 0.0.4
- * @param {RootHeaderProps} param0
- * @component */
-const Tabs = createMaterialTopTabNavigator();
-
-const TabAScreen = () => (
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: "rgba(4, 125, 212, 0.15)",
-    }}
-  />
-);
-
-const TabBScreen = () => (
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: "rgba(37, 188, 115, 0.15)",
-    }}
-  />
-);
 
 const RootFooter = ({
 }: RootFooterProps) => {
-  const refCalendar = React.useRef<View|null>(null);
   const { bottom } = useSafeAreaInsets();
   const translateY = useSharedValue(0);
   const contextHeight = useSharedValue(0);
@@ -110,10 +83,6 @@ const RootFooter = ({
     closeContext();
   }, [closeContext]);
 
-  const handleContextToggle = React.useCallback(() => {
-    isInputFocused.current = false;
-    Keyboard.dismiss();
-  }, [closeContext]);
 
   React.useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";

@@ -15,6 +15,7 @@ import TextBase, { TextBaseTypes } from "@/components/typography/Text";
 import GlobalButtonStyle from "@/styles/GlobalButton";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
+import { shadeColor } from "@codemize/helpers/Colors";
 
 /**
  * @private
@@ -105,7 +106,7 @@ const TouchableHapticDropdown = React.forwardRef<View, TouchableHapticDropdownPr
           GlobalButtonStyle.border, {
             gap: STYLES.sizeGap - 2,
             height: STYLES.sizeTouchable,
-            backgroundColor: backgroundColor ? backgroundColor : colors.secondaryBgColor,
+            backgroundColor: backgroundColor ? backgroundColor : shadeColor(colors.secondaryBgColor, 0.3),
             borderColor: colors.primaryBorderColor
         }]}>
           <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap - 2 }]}>

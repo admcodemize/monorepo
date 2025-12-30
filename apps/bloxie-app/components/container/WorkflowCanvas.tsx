@@ -9,6 +9,7 @@ import {
   faAlarmClock,
   faAnglesDown,
   faAnglesUp,
+  faBellSlash,
   faBolt,
   faBoltSlash,
   faBrightnessLow,
@@ -27,6 +28,7 @@ import {
   faRepeat1,
   faStopwatch,
   faTrash,
+  faXmark,
 } from '@fortawesome/duotone-thin-svg-icons';
 import GlobalContainerStyle from '@/styles/GlobalContainer';
 import { shadeColor } from '@codemize/helpers/Colors';
@@ -39,6 +41,7 @@ import TextBase from '../typography/Text';
 import TouchableHapticSwitch from '../button/TouchableHapticSwitch';
 import TouchableHapticIcon from '../button/TouchableHaptichIcon';
 import Divider from './Divider';
+import { useTrays } from 'react-native-trays';
 
 export type WorkflowNodeType = 'start' | 'action' | 'decision' | 'end';
 
@@ -253,7 +256,7 @@ export function WorkflowCanvas({
                 key={connection.id}
                 d={path}
                 stroke="#000"
-                strokeWidth={1.5}
+                strokeWidth={1}
                 fill="none"
                 strokeLinecap="round"
               />
@@ -291,8 +294,9 @@ type WorkflowNodeProps = {
 };
 
 const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) => {
-  const { secondaryBgColor } = useThemeColors();
+  const { secondaryBgColor, errorColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
+  const [isVisible, setIsVisible] = React.useState<boolean>(true);
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
   const handleLayout = React.useCallback(
@@ -311,10 +315,10 @@ const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) =>
           icon={typeIcon[node.type]}
           text={typeLabel[node.type]}
           type="label"
-          colorInactive={shadeColor((node.type === "start" || node.type === "end") ? '#3F37A0' : node.type === "action" ? '#587E1F' : node.type === "decision" ? '#0783A1' : typeAccent[node.type], 0.4)}
-          colorActive={shadeColor((node.type === "start" || node.type === "end") ? '#3F37A0' : node.type === "action" ? '#587E1F' : node.type === "decision" ? '#0783A1' : typeAccent[node.type], 0)}
-          isActive={isActive}
-          onPress={setIsActive}
+          colorInactive={shadeColor((node.type === "start" || node.type === "end") ? '#3F37A0' : node.type === "action" ? '#587E1F' : node.type === "decision" ? '#e09100' : typeAccent[node.type], 0.4)}
+          colorActive={shadeColor((node.type === "start" || node.type === "end") ? '#3F37A0' : node.type === "action" ? '#587E1F' : node.type === "decision" ? '#e09100' : typeAccent[node.type], 0)}
+          isActive={isVisible}
+          onPress={setIsVisible}
           showActivityIcon={true}
           activityIconActive={faAnglesUp as IconProp}
           activityIconInactive={faAnglesDown as IconProp}
@@ -322,11 +326,16 @@ const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) =>
         />
       </View>
 
-      <View style={styles.node} pointerEvents="box-none">
+      <View style={[styles.node]} pointerEvents="box-none">
         {!isFirst && <WorkflowNodeConnector node={node} position="top" />}
 
         <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 4, gap: 18 }]}>
-          <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeader]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeader, { opacity: 1 }]}>
+            {!isActive && (node.type === 'action' || node.type === 'decision') && <TouchableTag
+              text={"Inaktiv"}
+              type="label"
+              colorInactive={errorColor}
+              viewStyle={{ paddingVertical: 3 }}/>}
             <FontAwesomeIcon icon={(node.icon as IconProp) ?? typeIcon[node.type]} size={16} color={accent} />
             <TextInput
               editable={node.type === 'start'}
@@ -342,15 +351,15 @@ const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) =>
           </View>
 
           
-            {(node.type === 'action' || node.type === 'decision') && (
-              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 14 }]}>
-                <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
-                <FontAwesomeIcon icon={faEllipsisStroke as IconProp} size={16} color={accent} />
-              </View>
-            )}
+          {(node.type === 'action' || node.type === 'decision') && (
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 14 }]}>
+              <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
+              <FontAwesomeIcon icon={faEllipsisStroke as IconProp} size={16} color={accent} />
+            </View>
+          )}
         </View>
 
-        {node.type === 'start' && isActive && (
+        {node.type === 'start' && isVisible && (
           <>
             <WorkflowNodeEventType node={node} />
             <WorkflowNodeCalendarGroup node={node} />
@@ -359,15 +368,22 @@ const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) =>
           </>
         )}
 
-        {node.type === 'end' && isActive && (
+        {node.type === 'end' && isVisible && (
           <>
             <WorkflowNodeConfirmation node={node} />
             <WorkflowNodeRepeat node={node} />
           </>
         )}
 
-        {node.type === 'action' && isActive && node.functions?.map((functionItem) => <WorkflowNodeAction key={functionItem.id} functionItem={functionItem} color={typeAccent[node.type]} />)}
-        {node.type === 'decision' && isActive && node.functions?.map((functionItem) => <WorkflowNodeDecision key={functionItem.id} {...functionItem} />)}
+        {node.type === 'action' && isVisible &&
+        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4 }}>
+          {node.functions?.map((functionItem) => <WorkflowNodeAction key={functionItem.id} functionItem={functionItem} color={typeAccent[node.type]} />)}
+        </View>}
+
+        {node.type === 'decision' && isVisible &&
+        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4 }}>
+          {node.functions?.map((functionItem) => <WorkflowNodeDecision key={functionItem.id} {...functionItem} />)}
+        </View>}
 
         {!isLast && node.type !== 'end' && <WorkflowNodeConnector node={node} position='bottom' />}
       </View>
@@ -460,9 +476,14 @@ const WorkflowNodeConfirmation = ({ node }: { node: WorkflowNode }) => {
         },
       ]}
     >
-      <TextBase text="Bestätigungs-E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
-      <TouchableHapticSwitch
-        state={false}/>
+      <TextBase text="Bestätigung" type="label" style={{ color: typeAccent[node.type] }} />
+      <TouchableHapticDropdown
+        icon={faBellSlash as IconProp}
+        text="Push-Benachrichtigung"
+        backgroundColor={tertiaryBgColor}
+        hasViewCustomStyle
+        textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
+        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}/>
     </View>
   );
 };
@@ -489,8 +510,7 @@ const WorkflowNodeTrigger = ({ node }: { node: WorkflowNode }) => {
         backgroundColor={tertiaryBgColor}
         hasViewCustomStyle
         textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-      />
+        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}/>
     </View>
   );
 };
@@ -553,6 +573,17 @@ const WorkflowNodeRepeat = ({ node }: { node: WorkflowNode }) => {
 
 const WorkflowNodeAction = ({ functionItem, color }: { functionItem: WorkflowNodeFunction, color: string }) => {
   const { secondaryBgColor, errorColor } = useThemeColors();
+
+
+  const { push, dismiss } = useTrays('modal');
+
+  const onPressEditAction = React.useCallback(() => {
+    push('WorkflowEditActionTray', { functionItem, onAfterSave: () => {
+      dismiss('WorkflowEditActionTray');
+    } });
+  }, [push, dismiss, functionItem]);
+
+
   return (
     <View
       style={[
@@ -571,7 +602,7 @@ const WorkflowNodeAction = ({ functionItem, color }: { functionItem: WorkflowNod
       <TextBase text={functionItem.name} type="label" style={{ color: color }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
-        <TouchableHaptic>
+        <TouchableHaptic onPress={onPressEditAction}>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
             {/* <FontAwesomeIcon icon={faPenNibSlash as IconProp} size={16} color={color} /> */}
             <TextBase text="Bearbeiten" type="label" style={{  }} />
@@ -579,9 +610,8 @@ const WorkflowNodeAction = ({ functionItem, color }: { functionItem: WorkflowNod
         </TouchableHaptic>
         <Divider vertical />
         <TouchableHapticIcon
-          icon={faTrash as IconProp}
-          iconSize={14}
-          iconColor={shadeColor(errorColor, 0.3)}
+          icon={faXmark as IconProp}
+          iconSize={12}
           hasViewCustomStyle={true}
           onPress={() => {}}/>
       </View>
@@ -611,12 +641,20 @@ const WorkflowNodeDecision = ({ name, icon }: WorkflowNodeFunction) => {
         hasViewCustomStyle
         textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
         viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}/>
-      <TouchableHapticIcon
-        icon={faTrash as IconProp}
-        iconSize={14}
-        iconColor={shadeColor(errorColor, 0.3)}
-        hasViewCustomStyle={true}
-        onPress={() => {}}/>
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
+        <TouchableHaptic>
+          <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
+            {/* <FontAwesomeIcon icon={faPenNibSlash as IconProp} size={16} color={color} /> */}
+            <TextBase text="Bearbeiten" type="label" style={{  }} />
+          </View>
+        </TouchableHaptic>
+        <Divider vertical />
+        <TouchableHapticIcon
+          icon={faXmark as IconProp}
+          iconSize={12}
+          hasViewCustomStyle={true}
+          onPress={() => {}}/>
+      </View>
     </View>
   );
 };

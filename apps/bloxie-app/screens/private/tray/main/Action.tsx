@@ -1,3 +1,4 @@
+import React from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -15,9 +16,6 @@ import TrayHeader from "@/components/container/TrayHeader";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
-import React from "react";
-import TextBase from "@/components/typography/Text";
-import GlobalTypographyStyle from "@/styles/GlobalTypography";
 
 /**
  * @public
@@ -111,7 +109,7 @@ type ScreenTrayActionItemChildrenProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @param {ScreenTrayActionItemChildrenProps} param0
  * @param {string} param0.route - The route to navigate to
  * @param {IconProp} param0.icon - The icon to display
@@ -127,7 +125,6 @@ const ScreenTrayActionItemChildren = ({
   right,
   isComingSoon = false
 }: ScreenTrayActionItemChildrenProps) => {
-  const { primaryIconColor } = useThemeColors();
   /**
    * @description Handles the on press event for the list item
    * @function */

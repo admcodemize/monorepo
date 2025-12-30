@@ -1,22 +1,19 @@
 import React from "react";
-import { Keyboard, Platform, TextInput, View } from "react-native";
+import { Keyboard, Platform, View } from "react-native";
 import type { KeyboardEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faArrowRight, faArrowsToCircle, faChartCandlestick, faFileDashedLine, faFlagCheckered, faFloppyDisk, faGrid2Plus, faLayerPlus, faMagnifyingGlass, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faObjectExclude, faPenRuler, faUpFromBracket } from "@fortawesome/duotone-thin-svg-icons";
+import { faDiagramProject, faFileDashedLine, faFlagCheckered, faFloppyDisk, faObjectExclude } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import Divider from "@/components/container/Divider";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { router } from "expo-router";
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
 import WorkflowFooterStyle from "@/styles/components/layout/footer/private/WorkflowFooter";
 import { useTrays } from "react-native-trays";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import TouchableHapticText from "@/components/button/TouchableHapticText";
-import TextBase from "@/components/typography/Text";
 
 const CONTEXT_EXPANDED_HEIGHT = 140;
 
@@ -27,10 +24,6 @@ const CONTEXT_EXPANDED_HEIGHT = 140;
  * @version 0.0.2
  * @type */
 type WorkflowFooterProps = {
-  onZoomIn?: () => void;
-  onZoomOut?: () => void;
-  onZoomReset?: () => void;
-  zoomScale?: number;
 }
 
 /**
@@ -40,12 +33,7 @@ type WorkflowFooterProps = {
  * @version 0.0.2
  * @component */
 const WorkflowFooter = ({
-  onZoomIn,
-  onZoomOut,
-  onZoomReset,
-  zoomScale,
 }: WorkflowFooterProps) => {
-  const refCalendar = React.useRef<View|null>(null);
   const { bottom } = useSafeAreaInsets();
   const translateY = useSharedValue(0);
   const contextHeight = useSharedValue(0);
@@ -68,15 +56,14 @@ const WorkflowFooter = ({
 
   /** @description Used to get the theme based colors */
   const colors = useThemeColors();
-  const zoomDisplay = React.useMemo(() => Math.round((zoomScale ?? 1) * 100), [zoomScale]);
 
-  const { push } = useTrays('main');
+  const { push } = useTrays('modal');
 
-  /** @description Handles the on press event for the action tray */
-  const onPressAction = () => push("ActionTray", {});
+  /** @description Handles the on press event for the templates tray */
+  const onPressTemplates = () => push("WorkflowTemplatesTray", {});
 
-  /** @description Handles the on press event for the dashboard tray */
-  const onPressDashboard = () => push("DashboardTray", {});
+  /** @description Handles the on press event for the workflows tray */
+  const onPressWorkflows = () => push("WorkflowListTray", {});
   
   const toMilliseconds = React.useCallback((event?: KeyboardEvent) => {
     if (!event?.duration || Number.isNaN(event.duration)) return defaultAnimationDuration;
@@ -88,21 +75,6 @@ const WorkflowFooter = ({
     const keyboardHeight = event.endCoordinates?.height ?? 0;
     return -Math.max(0, keyboardHeight - bottom + 12);
   }, [bottom]);
-
-  const handleInputFocus = React.useCallback(() => {
-    isInputFocused.current = true;
-    openContext();
-  }, [openContext]);
-
-  const handleInputBlur = React.useCallback(() => {
-    isInputFocused.current = false;
-    closeContext();
-  }, [closeContext]);
-
-  const handleContextToggle = React.useCallback(() => {
-    isInputFocused.current = false;
-    Keyboard.dismiss();
-  }, [closeContext]);
 
   React.useEffect(() => {
     const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -140,7 +112,7 @@ const WorkflowFooter = ({
 
   return (
     <Animated.View style={[WorkflowFooterStyle.animated, bottomBarAnimatedStyle, {
-      bottom,
+      bottom: bottom + 4, // -> The additional 4 is to compensate for the margin between keyboard and tray @see stackConfigs
       backgroundColor: "#fff",
       borderColor: "#dfdfdf",
     }]}>
@@ -155,14 +127,14 @@ const WorkflowFooter = ({
             type="label"
             hasViewCustomStyle={true}
             viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-            onPress={() => { console.log("Mehr") }} />
+            onPress={onPressTemplates} />
           <TouchableHapticDropdown
-            icon={faPenRuler as IconProp}
-            text="Entwürfe"
+            icon={faDiagramProject as IconProp}
+            text="Workflows"
             type="label"
             hasViewCustomStyle={true}
             viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-            onPress={() => { console.log("Mehr") }} />
+            onPress={onPressWorkflows} />
           </View>
           
           <Divider vertical style={{ height: 20 }} />
@@ -170,15 +142,13 @@ const WorkflowFooter = ({
             <TouchableHapticIcon
               icon={faFlagCheckered as IconProp}
               iconSize={18}
-              iconColor={"#0783A1"}
               hasViewCustomStyle={true}
-              onPress={onPressDashboard} />
+              onPress={() => {}} />
             <TouchableHapticIcon
               icon={faObjectExclude as IconProp}
               iconSize={18}
-              iconColor={"#587E1F"}
               hasViewCustomStyle={true}
-              onPress={onPressAction} />
+              onPress={() => {}} />
           </View>
         </View>
 

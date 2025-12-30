@@ -52,7 +52,7 @@
       "workflow": {
         "title": "Workflow",
         "horizontalNavigation": {
-          "workProcess": "Arbeitsabläufe",
+          "workProcess": "Workflow Builder",
           "active": "Aktive Workflows"
         },
         "workProcess": {
@@ -194,6 +194,14 @@
             "description": "Allgemeine Benutzereinstellungen"
           }
         }
+      },
+      "trayWorkflowTemplates": {
+        "title": "Vorlagen",
+        "description": "Verwalte deine Workflow Vorlagen"
+      },
+      "trayWorkflows": {
+        "title": "Workflows",
+        "description": "Verwalte deine Workflows"
       }
     },
     "convex": {

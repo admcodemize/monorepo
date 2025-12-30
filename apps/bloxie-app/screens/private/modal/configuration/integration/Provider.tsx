@@ -253,7 +253,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
 
         </View>
       </View>
-  </View>
+    </View>
   );
 };
 

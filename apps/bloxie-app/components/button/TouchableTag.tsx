@@ -20,7 +20,7 @@ import TouchableTagStyle from "@/styles/components/button/TouchableTag";
  * @version 0.0.4
  * @type */
 export type TouchableTagProps = {
-  icon: IconProp;
+  icon?: IconProp;
   text: string;
   type?: TextBaseTypes;
   backgroundColor?: string;
@@ -91,10 +91,10 @@ const TouchableTag = ({
         <View style={[GlobalContainerStyle.rowCenterStart, TouchableTagStyle.view, ...(viewStyle ? [viewStyle] : []), {
           backgroundColor: shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, 0.8),
         }]}>
-          <FontAwesomeIcon
+          {icon && <FontAwesomeIcon
             icon={icon} 
             size={12} 
-            color={shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1)} />
+            color={shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1)} />}
           <TextBase
             text={text} 
             type={type} 

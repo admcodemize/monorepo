@@ -1,5 +1,5 @@
 import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
-import { Image, TextInput, Touchable, View } from "react-native";
+import { Image, ScrollView, TextInput, Touchable, View } from "react-native";
 import TextBase from "@/components/typography/Text";
 import TrayHeader from "@/components/container/TrayHeader";
 import { STYLES } from "@codemize/constants/Styles";
@@ -25,16 +25,20 @@ import type {
   OnChangeStateEvent,
 } from 'react-native-enriched';
 import React from "react";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faAt, faHashtag, faLink } from "@fortawesome/pro-thin-svg-icons";
-import { faBracketsCurly, faFileDashedLine, faFloppyDisk, faH2, faH3, faKeyboard, faKeyboardDown, faPlus } from "@fortawesome/duotone-thin-svg-icons";
+import { faAlarmClock, faArrowRightToDottedLine, faBracketsCurly, faCalendarDay, faClone, faFileDashedLine, faFloppyDisk, faH2, faH3, faHeading, faKeyboard, faKeyboardDown, faLocationDot, faParagraph, faPlus, faRightFromBracket, faSquareRootVariable, faUsers } from "@fortawesome/duotone-thin-svg-icons";
 import { faBold, faItalic, faUnderline, faListOl, faListUl, faH1, faQuoteLeft } from "@fortawesome/pro-solid-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import WorkflowFooterStyle from "@/styles/components/layout/footer/private/WorkflowFooter";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 
 import TouchableHapticText from "@/components/button/TouchableHapticText";
+import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
+import ListItemGroup from "@/components/container/ListItemGroup";
+import ListItemWithChildrenRow from "@/components/lists/item/ListItemWithChildrenRow";
 
 /**
  * @public
@@ -94,6 +98,84 @@ const ScreenTrayEditAction = ({
       <p>6539 Musterhaften</p>
     </html>
     `));
+  const EDITOR_BASE_HEIGHT = 220;
+  const VARIABLES_HEIGHT = 140;
+  const TOOLBAR_HEIGHT = 40;
+
+  const [areVariablesVisible, setAreVariablesVisible] = React.useState(false);
+  const variablesHeight = useSharedValue(0);
+
+  const toggleVariables = React.useCallback(() => {
+    setAreVariablesVisible((prev) => {
+      const next = !prev;
+      variablesHeight.value = withTiming(next ? VARIABLES_HEIGHT : 0, { duration: 220 });
+      return next;
+    });
+  }, [variablesHeight]);
+
+  const editorAnimatedStyle = useAnimatedStyle(() => {
+    'worklet';
+    return {
+      height: EDITOR_BASE_HEIGHT + (VARIABLES_HEIGHT - variablesHeight.value - 10),
+    };
+  });
+
+  const variablesAnimatedStyle = useAnimatedStyle(() => {
+    'worklet';
+    return {
+      height: variablesHeight.value,
+      opacity: variablesHeight.value === 0 ? 0 : 1,
+    };
+  });
+
+    const collapseTrailingEmptyParagraphs = (html: string) =>
+      html.replace(/(<p><br><\/p>)+$/g, '');
+    
+    const collapseRedundantBreaks = (html: string) =>
+      html.replace(/(<br\s*\/?>\s*)+<\/p>/g, '</p>');
+
+    const plainToHtmlOffset = (html: string, plainIndex: number) => {
+      let plainPos = 0;
+      for (let htmlPos = 0; htmlPos < html.length; htmlPos += 1) {
+        const char = html[htmlPos];
+        if (char === '<') {
+          while (html[htmlPos] !== '>' && htmlPos < html.length) htmlPos += 1;
+        } else if (char === '&') {
+          const entityEnd = html.indexOf(';', htmlPos);
+          if (entityEnd !== -1) {
+            if (plainPos === plainIndex) return htmlPos;
+            plainPos += 1;
+            htmlPos = entityEnd;
+            continue;
+          }
+        } else {
+          if (plainPos === plainIndex) return htmlPos;
+          plainPos += 1;
+        }
+      }
+      return html.length;
+    };
+
+    const insertVariable = async (variable: string) => {
+        let currentHtml = await ref.current?.getHTML() ?? '';
+      const { start, end } = selectionRef.current;
+
+      const startIdx = plainToHtmlOffset(currentHtml, start);
+      const endIdx = plainToHtmlOffset(currentHtml, end);
+
+      let nextHtml = [
+        currentHtml.slice(0, startIdx + 1),
+        `<span>{{${variable}}}</span>`,
+        currentHtml.slice(endIdx + 1),
+      ].join('');
+
+      nextHtml = collapseTrailingEmptyParagraphs(
+        collapseRedundantBreaks(nextHtml)
+      );
+
+      ref.current?.setValue(nextHtml);
+      setHtml(nextHtml);
+    }
 
   return (
     <View style={{ 
@@ -128,18 +210,43 @@ const ScreenTrayEditAction = ({
             preText={"Hinweis:"} 
             preTextStyle={{ color: infoColor }}
             style={[GlobalTypographyStyle.labelText, { paddingHorizontal: 8, paddingVertical: 4, color: shadeColor(infoColor, 0.3)}]} />}*/}
-          <View style={[ProviderStyle.itemBottom, {
+          <View style={[{
+            position: "relative",
+            borderWidth: 1,
+            paddingVertical: 4,
             backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
             borderColor: primaryBorderColor,
-            height: 320,
-            borderRadius: 10
+            height: EDITOR_BASE_HEIGHT + VARIABLES_HEIGHT + TOOLBAR_HEIGHT,
+            borderRadius: 10,
+            paddingBottom: TOOLBAR_HEIGHT,
           }]}>
-            <View style={{ flex: 1, gap: 4 }}>
+          <Animated.View style={[editorAnimatedStyle, { gap: 4, paddingHorizontal: 8 }]}>
             <EnrichedTextInput
                 ref={ref}
                 placeholder="Betreff"
                 placeholderTextColor={infoColor}
+                onChangeMention={(event) => {
+                  console.log("onChangeMention");
+                  console.log(event.text);
+                  console.log(event.indicator);
+                }}
+                onEndMention={(event) => {
+                  console.log("onEndMention");
+                  console.log(event)
+                }}
+                mentionIndicators={["#"]}
+                onMentionDetected={(event) => {
+                  console.log("onMentionDetected");
+                  console.log(event.attributes);
+                  console.log(event.indicator);
+                  console.log(event.text);
+                }}
                 htmlStyle={{ 
+                  mention: {
+                    backgroundColor: "#000000",
+                    color: "#ffffff",
+                    textDecorationLine: "underline",
+                  },
                   /*h1: {
                     fontSize: 11,
                     bold: true,
@@ -161,12 +268,11 @@ const ScreenTrayEditAction = ({
                     gapWidth: 10,
                   }
                 }}
-                style={{    
+                style={{
                   fontStyle: "normal",
                   fontSize: Number(SIZES.text),
                   color: "#000",
                   padding: 4,
-                  height: "auto",
                   minHeight: 24,
                   borderBottomWidth: 1,
                   borderBottomColor: primaryBorderColor,
@@ -177,14 +283,12 @@ const ScreenTrayEditAction = ({
                 defaultValue={html}
                 placeholderTextColor={infoColor}
                 selectionColor={"#000"}
-
+                autoFocus={false}
+                autoCapitalize="none"
                 onLinkDetected={(event) => {
                   console.log(event.url, event.text);
                 }}
                 editable={true}
-                onChangeHtml={(event) => {
-                  console.log("change", event.nativeEvent.value);
-                }}
                 onChangeSelection={(event) => {
                   console.log(event.nativeEvent.start, event.nativeEvent.end, event.nativeEvent.text);
                   selectionRef.current = {
@@ -192,14 +296,19 @@ const ScreenTrayEditAction = ({
                     end: event.nativeEvent.end,
                   };
                 }}
+                
                 onChangeText={(event) => {
                   console.log(event.nativeEvent.value);
                 }}
                 onChangeState={(event) => {
                   console.log(event.nativeEvent.isBold);
                 }}
-
                 htmlStyle={{ 
+                  mention: {
+                    backgroundColor: "#000000",
+                    color: "#ffffff",
+                    textDecorationLine: "underline",
+                  },
                   /*h1: {
                     fontSize: 11,
                     bold: true,
@@ -221,38 +330,160 @@ const ScreenTrayEditAction = ({
                     gapWidth: 10,
                   }
                 }}
-                style={{    
+                style={{
+                  flex: 1,
                   fontStyle: "normal",
                   fontSize: Number(SIZES.text),
                   color: infoColor,
                   padding: 4,
-                  height: 260,
                 }}
               />
+            </Animated.View>
+
+            <Animated.View
+              pointerEvents={areVariablesVisible ? "auto" : "none"}
+              style={[
+                variablesAnimatedStyle,
+                {
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: TOOLBAR_HEIGHT,
+                  overflow: "hidden",
+                },
+              ]}
+            >
+              <View style={[{ gap: 4, maxHeight: VARIABLES_HEIGHT, paddingHorizontal: 14, paddingVertical: 4, paddingBottom: 10, backgroundColor: shadeColor(secondaryBgColor, 0.3),
+                borderTopWidth: 1, borderTopColor: primaryBorderColor, borderBottomWidth: 1, borderBottomColor: primaryBorderColor }]}>
+
+                    <ListItemGroup
+                      title="Variablen"
+                      gap={8}
+                      style={{ paddingVertical: 6 }} />
+                      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+                        <TouchableHaptic onPress={async () => insertVariable("EventTitle")}>
+                        <ListItemWithChildrenRow
+                          title="Titel des Ereignisses"
+                          description="{{EventTitle}}"
+                          icon={faHeading as IconProp}
+                          iconSize={12}
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faRightFromBracket as IconProp} size={12} color={infoColor} />}/>
+                        </TouchableHaptic>
+                        <TouchableHaptic onPress={async () => insertVariable("EventDescription")}>
+                        <ListItemWithChildrenRow
+                          title="Beschreibung des Ereignisses"
+                          description="{{EventDescription}}"
+                          icon={faParagraph as IconProp}
+                          iconSize={12}
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faRightFromBracket as IconProp} size={12} color={infoColor} />}/>
+                        </TouchableHaptic>
+                        <TouchableHaptic onPress={async () => insertVariable("EventDate")}>
+                        <ListItemWithChildrenRow
+                          title="Datum des Ereignisses"
+                          description="{{EventDate}}"
+                          icon={faCalendarDay as IconProp}
+                          iconSize={12}
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faRightFromBracket as IconProp} size={12} color={infoColor} />}/>
+                        </TouchableHaptic>
+                        <TouchableHaptic onPress={async () => insertVariable("EventStartTime")}>
+                        <ListItemWithChildrenRow
+                          title="Startuhrzeit des Ereignisses"
+                          description="{{EventStartTime}}"
+                          icon={faAlarmClock as IconProp}
+                          iconSize={12}
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faRightFromBracket as IconProp} size={12} color={infoColor} />}/>
+                        </TouchableHaptic>
+                        <TouchableHaptic onPress={async () => insertVariable("EventLocation")}>
+                        <ListItemWithChildrenRow
+                          title="Ort des Ereignisses"
+                          description="{{EventLocation}}"
+                          icon={faLocationDot as IconProp}
+                          iconSize={12}
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faRightFromBracket as IconProp} size={12} color={infoColor} />}/>
+                        </TouchableHaptic>
+                        <TouchableHaptic onPress={async () => insertVariable("EventOrganizer")}>
+                        <ListItemWithChildrenRow
+                          title="Organisator des Ereignisses"
+                          description="{{EventOrganizer}}"
+                          icon={faUsers as IconProp}
+                          iconSize={12}
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faRightFromBracket as IconProp} size={12} color={infoColor} />}/>
+                        </TouchableHaptic>
+                      </ScrollView>
+              </View>
+            </Animated.View>
+
+            <View style={[{ position: "absolute", bottom: 0, width: "100%", gap: 4, height: 40, alignItems: "flex-end", justifyContent: "center"  }]}>
+              {/*<TextBase text="Variablen" type="label" style={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.text), color: textColor, paddingHorizontal: 14 }} />
+              <View style={[{ gap: 4, height: 140, paddingHorizontal: 14, backgroundColor: shadeColor(secondaryBgColor, 0.3), paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: primaryBorderColor, borderTopWidth: 1, borderTopColor: primaryBorderColor }]}>
+                
+                      <ScrollView showsVerticalScrollIndicator={false}>
+                      <ListItemGroup
+                    title="Ereignis-Variablen"
+                    gap={8}
+                    style={{ paddingVertical: 6 }}>
+                        <ListItemWithChildrenRow
+                          title="Titel des Ereignisses"
+                          description="{{EventTitle}}"
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faClone as IconProp} size={12} color={infoColor} />}/>
+                        <ListItemWithChildrenRow
+                          title="Beschreibung des Ereignisses"
+                          description="{{EventDescription}}"
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faClone as IconProp} size={12} color={infoColor} />}/>
+                        <ListItemWithChildrenRow
+                          title="Datum des Ereignisses"
+                          description="{{EventDate}}"
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faClone as IconProp} size={12} color={infoColor} />}/>
+                        <ListItemWithChildrenRow
+                          title="Ort des Ereignisses"
+                          description="{{EventLocation}}"
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faClone as IconProp} size={12} color={infoColor} />}/>
+
+                        <ListItemWithChildrenRow
+                          title="Organisator des Ereignisses"
+                          description="{{EventOrganizer}}"
+                          type={ListItemWithChildrenTypeEnum.custom}
+                          right={<FontAwesomeIcon icon={faClone as IconProp} size={12} color={infoColor} />}/>
+
+                  </ListItemGroup>
+
+                      </ScrollView>
+              </View> */}
+              <View style={[GlobalContainerStyle.rowCenterEnd, { gap: 18, paddingRight: 12, flex: 1, width: "100%" }]}>
+                <TouchableHapticDropdown
+                  text="Vorlagen"
+                  icon={faFileDashedLine as IconProp}
+                  type="label"
+                  hasViewCustomStyle={true}
+                  viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
+                  textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
+                  onPress={() => { }} />
+                
+                <TouchableHapticDropdown
+                  text="Variabeln"
+                  icon={faSquareRootVariable as IconProp}
+                  type="label"
+                  hasViewCustomStyle={true}
+                  viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
+                  textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
+                  onPress={toggleVariables} />
+              </View>
             </View>
 
-            <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 24, position: "absolute", bottom: 0, right: 0, paddingVertical: 12, paddingHorizontal: 10 }]}>
-              <TouchableHaptic onPress={() => {
 
-              }}>
-                <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-                  <FontAwesomeIcon icon={faPlus as IconProp} size={14} color={infoColor} />
-                  <TextBase text="Variabeln" type="label" style={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.text), color: infoColor }} />
-                </View>
-              </TouchableHaptic>
-              <TouchableHaptic>
-                <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-                  <FontAwesomeIcon icon={faFileDashedLine as IconProp} size={14} color={infoColor} />
-                  <TextBase text="Vorlagen" type="label" style={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.text), color: infoColor }} />
-                </View>
-              </TouchableHaptic>
-            </View>
+
           </View>
-
-
-
-
-          <View style={[GlobalContainerStyle.rowCenterBetween, { height: 30, paddingRight: 12 }]}>
+          <View style={[GlobalContainerStyle.rowCenterBetween, { height: 30, paddingRight: 12 }]}>
           <View style={[GlobalContainerStyle.rowCenterCenter, {
                   //backgroundColor: shadeColor(secondaryBgColor, 0.3),
                   borderRadius: 6,

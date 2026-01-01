@@ -90,9 +90,6 @@ const PrivateLayout = () => {
                 <Stack.Screen name="(modal)/action/team" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/action/poll" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/configuration" options={{ presentation: "fullScreenModal" }} />
-                {/*<Stack.Screen name="(modal)/configuration/availability" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/configuration/workflow" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/configuration/integration" options={{ presentation: "fullScreenModal" }} />*/}
               </Stack.Protected>
           </Stack>  
         </DateTimeProvider>

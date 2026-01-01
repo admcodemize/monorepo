@@ -17,10 +17,29 @@ export type EncryptedTokenProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @description -> Has to defined as "type" because during the convex query the type is not automatically inferred
  * @since 0.0.2
  * @version 0.0.1
  * @type */
 export type ConvexTimesAPITypeEnum = "weekdays" | "dates";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description -> Has to defined as "type" because during the convex query the type is not automatically inferred
+ * @type */
+export type ConvexWorkflowAPIConfirmationEnum = "none" | "email" | "pushNotification";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description -> Has to defined as "type" because during the convex query the type is not automatically inferred
+ * @type */
+export type ConvexWorkflowNodeAPITypeEnum = "action" | "decision";
 
 /**
  * @public
@@ -80,6 +99,92 @@ export type ConvexEventsAPIProps = {
   originalStartTime?: IntegrationAPICalendarEventStartEndProps;
   location?: string;
   isAllDay?: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @type */
+export type ConvexRuntimeAPIProps = {
+  _id?: Id<"runtime">;
+  _creationTime?: number;
+  templateVariables?: string[];
+  onlyForPremiumUsers?: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @type */
+export type ConvexTemplateAPIProps = {
+  _id?: Id<"template">;
+  _creationTime?: number;
+  name?: string;
+  description?: string;
+  icon?: string;
+  isGlobal?: boolean;
+  type: string;
+  language: string;
+  content: string;
+  userId?: Id<"users">;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowNodeAPIProps = {
+  _id?: Id<"workflowNodes">;
+  _creationTime?: number;
+  workflowId: Id<"workflow">;
+  type: ConvexWorkflowNodeAPITypeEnum;
+  name?: string;
+  items?: {
+    key: string;
+    shouldBeExecuted: boolean;
+    templateId: Id<"template">;
+  }[];
+  sortOrder: number;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowAPIProps = {
+  _id?: Id<"workflow">;
+  _creationTime?: number;
+  userId: Id<"users">;
+  name: string;
+  icon?: string;
+  isActive: boolean;
+  start: {
+    eventTypes: Id<"eventType">[];
+    calendars: Id<"calendar">[];
+    trigger: string;
+    timePeriod: string;
+  };
+  end: {
+    confirmation: ConvexWorkflowAPIConfirmationEnum;
+  };
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowQueryAPIProps = ConvexWorkflowAPIProps & {
+  nodes: ConvexWorkflowNodeAPIProps[];
 }
 
 /**

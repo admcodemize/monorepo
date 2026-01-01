@@ -6,6 +6,8 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import ToastOverlay from "@/components/container/ToastOverlay";
 import ScreenConfigurationWorkflowProvider from "@/screens/private/modal/configuration/workflow/Provider";
+import { stackConfigs, trays } from "@/helpers/Trays";
+import { TrayProvider } from "react-native-trays";
 
 /** 
  * @public

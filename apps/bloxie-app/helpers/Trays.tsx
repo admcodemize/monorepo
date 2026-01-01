@@ -2,9 +2,8 @@ import ScreenTrayAction from "@/screens/private/tray/main/Action";
 import ScreenTrayCalendarDay from "@/screens/private/tray/main/CalendarDay";
 import ScreenTrayDashboard from "@/screens/private/tray/main/Dashboard";
 import ScreenTraySyncedCalendar from "@/screens/private/tray/main/SyncedCalendar";
-import ScreenTrayEditAction from "@/screens/private/tray/modal/workflow/EditAction";
-import ScreenTrayTemplates from "@/screens/private/tray/modal/workflow/Templates";
-import ScreenTrayWorkflows from "@/screens/private/tray/modal/workflow/Workflows";
+import ScreenTrayEditAction, { ScreenTrayEditActionProps } from "@/screens/private/tray/modal/workflow/EditAction";
+import ScreenTrayWorkflows, { ScreenTrayWorkflowsProps } from "@/screens/private/tray/modal/workflow/Workflows";
 import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
 
 /**
@@ -51,7 +50,7 @@ export const stackConfigs = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @object */
 export const trays = {
   main: {
@@ -59,10 +58,9 @@ export const trays = {
     SyncedCalendarTray: { component: ScreenTraySyncedCalendar },
     DashboardTray: { component: ScreenTrayDashboard },
     CalendarDayTray: { component: (dateInWeek: DatesInWeekInfoProps ) => <ScreenTrayCalendarDay {...dateInWeek} /> },
+    WorkflowListTray: { component: (props: ScreenTrayWorkflowsProps) => <ScreenTrayWorkflows {...props} /> },
   },
   modal: {
-    WorkflowEditActionTray: { component: ({ functionItem, onAfterSave }: { functionItem: any, onAfterSave: () => void }) => <ScreenTrayEditAction onAfterSave={onAfterSave} /> },
-    WorkflowTemplatesTray: { component: ScreenTrayTemplates },
-    WorkflowListTray: { component: ScreenTrayWorkflows },
+    WorkflowEditActionTray: { component: (props: ScreenTrayEditActionProps) => <ScreenTrayEditAction {...props} /> },
   },
 };

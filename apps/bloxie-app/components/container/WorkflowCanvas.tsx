@@ -22,7 +22,9 @@ import {
   faLink,
   faMessageSlash,
   faObjectExclude,
+  faPause,
   faPenNibSlash,
+  faPlay,
   faPlus,
   faRectangleHistoryCirclePlus,
   faRepeat1,
@@ -572,7 +574,7 @@ const WorkflowNodeRepeat = ({ node }: { node: WorkflowNode }) => {
 };
 
 const WorkflowNodeAction = ({ functionItem, color }: { functionItem: WorkflowNodeFunction, color: string }) => {
-  const { secondaryBgColor, errorColor } = useThemeColors();
+  const { secondaryBgColor, errorColor, successColor } = useThemeColors();
 
 
   const { push, dismiss } = useTrays('modal');
@@ -609,6 +611,12 @@ const WorkflowNodeAction = ({ functionItem, color }: { functionItem: WorkflowNod
           </View>
         </TouchableHaptic>
         <Divider vertical />
+        <TouchableHapticIcon
+          icon={faPlay as IconProp}
+          iconSize={12}
+          iconColor={successColor}
+          hasViewCustomStyle={true}
+          onPress={() => {}}/>
         <TouchableHapticIcon
           icon={faXmark as IconProp}
           iconSize={12}
@@ -650,10 +658,17 @@ const WorkflowNodeDecision = ({ name, icon }: WorkflowNodeFunction) => {
         </TouchableHaptic>
         <Divider vertical />
         <TouchableHapticIcon
+          icon={faPause as IconProp}
+          iconSize={12}
+          iconColor={errorColor}
+          hasViewCustomStyle={true}
+          onPress={() => {}}/>
+        <TouchableHapticIcon
           icon={faXmark as IconProp}
           iconSize={12}
           hasViewCustomStyle={true}
           onPress={() => {}}/>
+
       </View>
     </View>
   );

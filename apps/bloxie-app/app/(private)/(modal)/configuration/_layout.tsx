@@ -3,6 +3,8 @@ import { Stack } from "expo-router";
 
 import { stackConfigs, trays } from "@/helpers/Trays";
 
+import ConfigurationProvider from '@/context/ConfigurationContext';
+
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
@@ -11,14 +13,16 @@ import { stackConfigs, trays } from "@/helpers/Trays";
  * @component */
 const ModalConfigurationLayout = () => {
   return (
-    <TrayProvider 
-      stackConfigs={stackConfigs}
-      trays={trays.modal}>
-      <Stack screenOptions={{ headerShown: false, presentation: "fullScreenModal" }}>
-        <Stack.Screen name="integration" />
-        <Stack.Screen name="workflow" />
-      </Stack>
-    </TrayProvider>
+    <ConfigurationProvider>
+      <TrayProvider 
+        stackConfigs={stackConfigs}
+        trays={{ ...trays.main, ...trays.modal }}>
+        <Stack screenOptions={{ headerShown: false, presentation: "fullScreenModal" }}>
+          <Stack.Screen name="integration" />
+          <Stack.Screen name="workflow" />
+        </Stack>
+      </TrayProvider>
+    </ConfigurationProvider>
   );
 }
 

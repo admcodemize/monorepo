@@ -42,7 +42,7 @@ export type ListItemWithChildrenRowProps = PropsWithChildren & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description A list item with a title, description and children
  * @since 0.0.35
- * @version 0.0.1
+ * @version 0.0.3
  * @param {ListItemWithChildrenProps} param0
  * @param {IconProp} param0.icon - The icon to display
  * @param {number} param0.iconSize - The custom size of the icon
@@ -71,20 +71,20 @@ const ListItemWithChildrenRow = ({
   styleTextComponent,
   children,
 }: ListItemWithChildrenRowProps) => {
-  const { primaryIconColor, infoColor, textColor } = useThemeColors();
+  const { primaryIconColor, infoColor } = useThemeColors();
 
   return (
     <View style={{ gap: STYLES.sizeGap }}>
       <View style={[GlobalContainerStyle.rowStartStart, ListItemWithChildrenStyle.border]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
-          {icon && !image && <FontAwesomeIcon
+          {icon && <FontAwesomeIcon
             icon={icon}
             size={iconSize}
             color={primaryIconColor} />}
           <View style={[GlobalContainerStyle.rowCenterBetween, { flex: 1 }, styleTextComponent]}>
             <TextBase 
               text={title}
-              type="label"
+              type="text"
               i18nTranslation={titleI18nTranslation}
               style={[{ color: infoColor }]} />
             {showDescription && <TextBase 

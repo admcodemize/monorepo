@@ -1,26 +1,36 @@
-import { Dimensions, StyleSheet } from "react-native";
-
-const DIM = Dimensions.get("window");
+import { StyleSheet } from "react-native";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.2 */
+ * @version 0.0.3 */
 const RootFooterStyle = StyleSheet.create({
-  view: {
-    backgroundColor: "#000000",
-    height: DIM.height,
+  animated: {
+    flexDirection: "column",
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0
+    left: 14,
+    right: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    overflow: "hidden",
   },
-  content: {
-    top: DIM.height - 50,
-    paddingHorizontal: 34,
-    height: 40,
-    gap: 20
+  view: {
+    gap: 12, 
+    padding: 4, 
+    paddingRight: 12
+  },
+  viewButtons: {
+    gap: 12, 
+    borderRadius: 15, 
+    padding: 4, 
+    flex: 1, 
+    height: 42, 
+    paddingHorizontal: 12
+  },
+  input: {
+    flex: 1, 
+    marginRight: 8
   }
 })
 

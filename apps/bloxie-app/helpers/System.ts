@@ -1,5 +1,8 @@
 import Constants from 'expo-constants';
 import { Dimensions, Platform } from "react-native";
+import { IconDefinition, IconPack, IconPrefix } from '@fortawesome/fontawesome-svg-core';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import * as faDuotoneIcons from "@fortawesome/duotone-thin-svg-icons";
 
 import { PLATFORM } from "@/constants/System";
 
@@ -181,3 +184,28 @@ export const measureInWindowLeft = (
     x < componentWidth ? x : ((x + width) - componentWidth),
     (totalWidth || DIM.width) - componentWidth
   ));
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Resolves the runtime icon based on the icon key
+ * @since 0.0.37
+ * @version 0.0.1
+ * @function */
+export const resolveRuntimeIcon = (
+  icon: string
+): IconProp|undefined => {  
+  const _icon = faDuotoneIcons[icon as keyof typeof faDuotoneIcons];
+  return isFontAwesomeIcon(_icon) ? (_icon as IconProp) : undefined;
+  };
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Checks if the value is a FontAwesome icon
+ * @since 0.0.37
+ * @version 0.0.1
+ * @function */
+export const isFontAwesomeIcon = (
+  value: IconDefinition|IconPrefix|IconPack|unknown
+): value is IconDefinition => typeof value === "object" && value !== null && "iconName" in value && "prefix" in value;

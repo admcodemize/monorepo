@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import * as React from 'react';
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TrayProvider } from 'react-native-trays';
@@ -127,6 +128,7 @@ const RootLayout = () => {
   return (
     <SafeAreaProvider
       onLayout={onLayoutRootView}>
+        <KeyboardProvider>
         <StatusBar style="dark" />
         <ToastifyProvider />
         <GestureHandlerRootView>
@@ -148,6 +150,7 @@ const RootLayout = () => {
               </ClerkLoaded>
           </ClerkProvider>
         </GestureHandlerRootView>
+        </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

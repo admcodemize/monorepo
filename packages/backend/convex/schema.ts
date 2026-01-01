@@ -1,6 +1,8 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const languageSchema = v.union(v.literal("de"), v.literal("en"));
+
 /**
  * @since 0.0.9
  * @version 0.0.1
@@ -108,6 +110,18 @@ export const eventSchemaUpdateObj = {
   description: v.optional(v.string()),
   start: v.optional(v.object(originalStartTimeSchemaObj)),
   end: v.optional(v.object(originalStartTimeSchemaObj))
+}
+
+/**
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description Schema definition for table "runtime"
+ * -> Handles the runtime configuration for the overall application such as workflow templates and mention indicators
+ * @interface */
+export const runtimeSchema = {
+  languages: v.array(languageSchema),
+  templateVariables: v.optional(v.array(v.string())),
+  onlyForPremiumUsers: v.boolean(),
 }
 
 /**
@@ -227,6 +241,76 @@ export const eventSchema = {
   isAllDay: v.optional(v.boolean()),
 }
 
+/**
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description Schema definition for table "eventType"
+ * -> Handles the event types for the user which are used for booking an event
+ * @interface */
+export const eventTypeSchema = {
+  userId: v.id("users"),
+  name: v.string(),
+  description: v.optional(v.string()),
+}
+
+/**
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description Schema definition for table "workflow"
+ * -> Handles the workflow template configurations for the user
+ * @interface */
+export const workflowSchema = {
+  userId: v.id("users"),
+  name: v.string(),
+  icon: v.optional(v.string()),
+  isActive: v.boolean(),
+  start: v.object({
+    eventTypes: v.array(v.id("eventType")),
+    calendars: v.array(v.id("calendar")),
+    trigger: v.string(),
+    timePeriod: v.string()
+  }),
+  end: v.object({
+    confirmation: v.union(v.literal("none"), v.literal("email"), v.literal("pushNotification")),
+  }),
+}
+
+/**
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description Schema definition for table "workflowNodes"
+ * -> Handles the nodes in the workflow
+ * -> Used for the actions and decisions in the workflow
+ * @interface */
+export const workflowNodesSchema = {
+  workflowId: v.id("workflow"),
+  type: v.union(v.literal("action"), v.literal("decision")),
+  name: v.optional(v.string()),
+  items: v.optional(v.array(v.object({
+    key: v.string(), // -> Referenced to the execution key of the item which is defined in the frontend => Example Action: "E-Mail an alle Teilnehmer senden"
+    shouldBeExecuted: v.boolean(),
+    templateId: v.id("template"),
+  }))),
+  sortOrder: v.number(),
+}
+
+/**
+ * @since 0.0.37
+ * @version 0.0.1
+ * @description Schema definition for table "template"
+ * -> Handles the template configuration for the user
+ * @interface */
+export const templateSchema = {
+  name: v.optional(v.string()),
+  description: v.optional(v.string()),
+  icon: v.optional(v.string()),
+  type: v.union(v.literal("workflow")),
+  language: languageSchema,
+  content: v.string(),
+  userId: v.optional(v.id("users")),
+  isGlobal: v.optional(v.boolean()),
+}
+
 export default defineSchema({
   /**
    * @since 0.0.1
@@ -249,6 +333,13 @@ export default defineSchema({
    * @description Schema definition for table "times"
    * @type */
   times: defineTable(timesSchema).index("byUserId", ["userId"]),
+
+  /**
+   * @since 0.0.37
+   * @version 0.0.1
+   * @description Schema definition for table "eventType"
+   * @type */
+  eventType: defineTable(eventTypeSchema).index("byUserId", ["userId"]),
 
   /**
    * @since 0.0.1
@@ -278,4 +369,32 @@ export default defineSchema({
    * @description Schema definition for table "calendar" -> Handles the additional information for each calendar whitin an integrated provider account
    * @type */
   calendar: defineTable(calendarSchema).index("byExternalId", ["externalId"]),
+
+  /**
+   * @since 0.0.37
+   * @version 0.0.1
+   * @description Schema definition for table "workflow"
+   * @type */
+  workflow: defineTable(workflowSchema).index("byUserId", ["userId"]),
+
+  /**
+   * @since 0.0.37
+   * @version 0.0.1
+   * @description Schema definition for table "workflowNodes"
+   * @type */
+  workflowNodes: defineTable(workflowNodesSchema).index("byWorkflowId", ["workflowId"]),
+
+  /**
+   * @since 0.0.37
+   * @version 0.0.1
+   * @description Schema definition for table "template"
+   * @type */
+  template: defineTable(templateSchema).index("byUserId", ["userId"]),
+
+  /**
+   * @since 0.0.37
+   * @version 0.0.1
+   * @description Schema definition for table "runtime"
+   * @type */
+  runtime: defineTable(runtimeSchema),
 });

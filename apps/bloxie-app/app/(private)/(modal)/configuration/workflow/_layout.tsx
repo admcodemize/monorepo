@@ -12,6 +12,10 @@ import { config } from "@/helpers/Toastify";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useFontSize } from "@/hooks/typography/useFont";
+import { useConvexUser } from "@/hooks/auth/useConvexUser";
+import { useTemplates } from "@/hooks/configuration/useTemplate";
+import { useWorkflows } from "@/hooks/configuration/useWorkflows";
+import { ConvexUsersAPIProps } from "@codemize/backend/Types";
 import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
@@ -44,8 +48,19 @@ export const MaterialTopTabs = withLayoutContext<
 const ModalConfigurationWorkflowLayout = () => {
   const { tertiaryBgColor, primaryBorderColor, focusedBgColor } = useThemeColors();
   const { t } = useTranslation();
+  const { convexUser } = useConvexUser();
 
   const tray = TRAY_CONFIGURATION_ITEMS.find((item) => item.key === "workflow");
+
+  /**
+   * @description Loads the workflows for the currently signed in user
+   * @see {@link hooks/configuration/useWorkflows} */
+  useWorkflows({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => {}});
+
+  /**
+   * @description Loads the templates for the currently signed in user and also the global templates created by the system (bloxie)
+   * @see {@link hooks/configuration/useTemplates} */
+  useTemplates({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => {}});
 
   return (
     <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.1) }}>

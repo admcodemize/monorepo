@@ -201,7 +201,8 @@
       },
       "trayWorkflows": {
         "title": "Workflows",
-        "description": "Verwalte deine Workflows"
+        "description": "Verwalte deine Workflows",
+        "trigger": "Auslöser"
       }
     },
     "convex": {

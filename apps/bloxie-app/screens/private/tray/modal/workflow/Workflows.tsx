@@ -13,7 +13,6 @@ import { resolveRuntimeIcon } from "@/helpers/System";
 
 import TrayHeader from "@/components/container/TrayHeader";
 import Divider from "@/components/container/Divider";
-import ViewBase from "@/components/container/View";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 import TouchableTag from "@/components/button/TouchableTag";
 import TouchableHaptic from "@/components/button/TouchableHaptic";

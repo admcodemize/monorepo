@@ -13,6 +13,7 @@ import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useFontSize } from "@/hooks/typography/useFont";
 import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
+import { STYLES } from "@codemize/constants/Styles";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
@@ -39,7 +40,7 @@ export const MaterialTopTabs = withLayoutContext<
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const ModalConfigurationIntegrationLayout = () => {
   const { tertiaryBgColor, primaryBorderColor, focusedBgColor } = useThemeColors();
@@ -61,7 +62,7 @@ const ModalConfigurationIntegrationLayout = () => {
           tabBarIndicatorStyle: { backgroundColor: focusedBgColor },
           tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: primaryBorderColor },
           tabBarStyle: { 
-            height: 40,
+            height: STYLES.layoutTabBarHeight,
             backgroundColor: shadeColor(tertiaryBgColor, 0.1),
           } 
         }}>

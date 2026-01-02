@@ -15,15 +15,21 @@ import {
   faTrowelBricks,
   faUserSecret,
   faFlaskGear,
-  faPaperPlane
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
+  faBold,
   faCalendarDay as faCalendarDaySolid,
   faCalendarDays as faCalendarDaysSolid,
   faCalendar as faCalendarSolid,
   faCalendarWeek as faCalendarWeekSolid,
-  faDistributeSpacingVertical as faDistributeSpacingVerticalSolid
+  faDistributeSpacingVertical as faDistributeSpacingVerticalSolid,
+  faItalic,
+  faUnderline,
+  faListOl,
+  faListUl,
+  faBlockQuote,
+  faCode
 } from "@fortawesome/pro-solid-svg-icons";
 
 /**
@@ -73,6 +79,19 @@ export type TrayActionItemProps = {
   description: string;
   modal?: string;
   isComingSoon?: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.38
+ * @version 0.0.1
+ * @type */
+export type EditorStyleItemProps = {
+  key: string;
+  icon: IconProp;
+  state: string;
+  functionAsString: string;
 }
 
 /**
@@ -218,4 +237,49 @@ export const TRAY_ACCOUNT_ITEMS: TrayActionItemProps[] = [{
   icon: faUserSecret as IconProp,
   title: "i18n.screens.trayAction.items.user.title",
   description: "i18n.screens.trayAction.items.user.description",
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the editor style items 
+ * @readonly
+ * @since 0.0.38
+ * @version 0.0.1
+ * @constant */
+export const EDITOR_STYLE_ITEMS: EditorStyleItemProps[] = [{
+  key: "orderedList",
+  icon: faListOl as IconProp,
+  state: "isOrderedList",
+  functionAsString: "toggleOrderedList",
+}, {
+  key: "unorderedList",
+  icon: faListUl as IconProp,
+  state: "isUnorderedList",
+  functionAsString: "toggleUnorderedList",
+}, {
+  key: "bold",
+  icon: faBold as IconProp,
+  state: "isBold",
+  functionAsString: "toggleBold",
+}, {
+  key: "italic",
+  icon: faItalic as IconProp,
+  state: "isItalic",
+  functionAsString: "toggleItalic",
+}, {
+  key: "underline",
+  icon: faUnderline as IconProp,
+  state: "isUnderline",
+  functionAsString: "toggleUnderline",
+}, {
+  key: "blockQuote",
+  icon: faBlockQuote as IconProp,
+  state: "isBlockQuote",
+  functionAsString: "toggleBlockQuote",
+}, {
+  key: "codeBlock",
+  icon: faCode as IconProp,
+  state: "isCodeBlock",
+  functionAsString: "toggleCodeBlock",
 }];

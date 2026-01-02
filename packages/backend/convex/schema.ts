@@ -1,7 +1,8 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const languageSchema = v.union(v.literal("de"), v.literal("en"));
+export const languageSchema = v.union(v.literal("de" as const), v.literal("en" as const));
+export const licenseSchema = v.union(v.literal("freemium" as const), v.literal("premium" as const));
 
 /**
  * @since 0.0.9
@@ -113,18 +114,6 @@ export const eventSchemaUpdateObj = {
 }
 
 /**
- * @since 0.0.37
- * @version 0.0.1
- * @description Schema definition for table "runtime"
- * -> Handles the runtime configuration for the overall application such as workflow templates and mention indicators
- * @interface */
-export const runtimeSchema = {
-  languages: v.array(languageSchema),
-  templateVariables: v.optional(v.array(v.string())),
-  onlyForPremiumUsers: v.boolean(),
-}
-
-/**
  * @since 0.0.1
  * @version 0.0.1
  * @description Schema definition for table "users"
@@ -134,7 +123,8 @@ export const userSchema = {
   clerkId: v.string(),
   email: v.string(),
   provider: v.string(),
-  banned: v.boolean()
+  banned: v.boolean(),
+  license: licenseSchema,
 }
 
 /**
@@ -149,6 +139,7 @@ export const settingsSchema = {
   pushNotifications: v.optional(v.boolean()),
   durationMinute: v.optional(v.number()),
   breakingTimeBetweenEvents: v.optional(v.number()),
+  defaultMailAccount: v.optional(v.string()),
   integrations: v.optional(v.array(v.object({
     integrationKey: v.string(),
     state: v.boolean(),
@@ -277,7 +268,7 @@ export const workflowSchema = {
 
 /**
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for table "workflowNodes"
  * -> Handles the nodes in the workflow
  * -> Used for the actions and decisions in the workflow
@@ -291,12 +282,13 @@ export const workflowNodesSchema = {
     shouldBeExecuted: v.boolean(),
     templateId: v.id("template"),
   }))),
-  sortOrder: v.number(),
+  parentNodeId: v.optional(v.id("workflowNodes")),
+  childNodeIds: v.optional(v.array(v.id("workflowNodes"))),
 }
 
 /**
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2 
  * @description Schema definition for table "template"
  * -> Handles the template configuration for the user
  * @interface */
@@ -306,6 +298,7 @@ export const templateSchema = {
   icon: v.optional(v.string()),
   type: v.union(v.literal("workflow")),
   language: languageSchema,
+  subject: v.optional(v.string()),
   content: v.string(),
   userId: v.optional(v.id("users")),
   isGlobal: v.optional(v.boolean()),
@@ -390,11 +383,4 @@ export default defineSchema({
    * @description Schema definition for table "template"
    * @type */
   template: defineTable(templateSchema).index("byUserId", ["userId"]),
-
-  /**
-   * @since 0.0.37
-   * @version 0.0.1
-   * @description Schema definition for table "runtime"
-   * @type */
-  runtime: defineTable(runtimeSchema),
 });

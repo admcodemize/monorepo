@@ -3,7 +3,8 @@
     "global": {
       "comingSoon": "Bald verfügbar",
       "active": "Aktiv",
-      "inactive": "Inaktiv"
+      "inactive": "Inaktiv",
+      "hint": "Hinweis:"
     },
     "buttons": {
       "close": "Schliessen"
@@ -31,6 +32,11 @@
         }
       }
     },
+    "lists": {
+      "templatesWorkflowAction": {
+        "title": "Öffentliche Vorlagen"
+      }
+    },
     "screens": {
       "dashboard": {
         "analytics": {
@@ -54,31 +60,6 @@
         "horizontalNavigation": {
           "workProcess": "Workflow Builder",
           "active": "Aktive Workflows"
-        },
-        "workProcess": {
-          "emailOrSms": {
-            "title": "E-Mail/SMS",
-            "remember": {
-              "title": "Erinnerung per E-Mail/SMS",
-              "description": "E-Mail welche 24 Stunden vor einem Termin versendet wird, um den Teilnehmer daran zu erinnern."
-            },
-            "thanks": {
-              "title": "Dankeschön per E-Mail/SMS",
-              "description": "E-Mail welche nach einem Termin versendet wird, um den Teilnehmer für die Buchung zu bedanken."
-            },
-            "file": {
-              "title": "E-Mail mit Anhang",
-              "description": "E-Mail welche einen Anhang an den Teilnehmer versendet, welcher für den Termin relevant ist."
-            },
-            "survey": {
-              "title": "Umfrage per E-Mail/SMS",
-              "description": "E-Mail welche eine Umfrage an den Teilnehmer versendet, um die Zufriedenheit mit dem Termin zu messen."
-            },
-            "postProcessing": {
-              "title": "Nachbearbeitung per E-Mail/SMS",
-              "description": "E-Mail welche nach einem Termin versendet wird, um die Nachbearbeitung des Termins zu starten."
-            }
-          }
         }
       },
       "integrations": {
@@ -100,7 +81,8 @@
             },
             "calendar": {
               "title": "Google Kalender",
-              "description": "Synchronisierung von Google Kalendern"
+              "description": "Synchronisierung von Google Kalendern",
+              "info": "Upgrade auf Premium-Lizenz erforderlich für das Hinzufügen weiterer Kalender. "
             },
             "meet": {
               "title": "Google Meet",
@@ -151,10 +133,6 @@
             "title": "Buchung",
             "description": "Buchung von Terminen mittels Termintyp"
           },
-          "meeting": {
-            "title": "Termin",
-            "description": "Einmalige Termine ohne Wiederholung."
-          },
           "type": {
             "title": "Termintypen",
             "description": "Verwendung für neue Termine auf der öffentlichen Buchungsseite."
@@ -195,9 +173,9 @@
           }
         }
       },
-      "trayWorkflowTemplates": {
+      "trayWorkflowActionTemplates": {
         "title": "Vorlagen",
-        "description": "Verwalte deine Workflow Vorlagen"
+        "description": "Wähle eine Vorlage aus um deine Aktion zu personalisieren. Die Vorlage beinhaltet eine vordefinierte E-Mail-Nachricht, welche nachträglich auf die persönlichen Bedürfnissen angepasst werden kann."
       },
       "trayWorkflows": {
         "title": "Workflows",
@@ -218,6 +196,22 @@
               "linkOrUpdate": "Account erfolgreich verknüpft oder aktualisiert."
             }
           }
+        }
+      },
+      "runtime": {
+        "templateVariables": {
+          "eventTitle": "Titel",
+          "eventDate": "Datum",
+          "eventStartTime": "Startuhrzeit",
+          "eventEndTime": "Enduhrzeit",
+          "eventLocation": "Ort",
+          "eventDescription": "Beschreibung",
+          "eventOrganizer": "Organisator",
+          "eventParticipant": "Teilnehmer",
+          "eventParticipantMail": "Teilnehmer E-Mail",
+          "eventParticipantsCount": "Anzahl Teilnehmer",
+          "companyName": "Firmenname",
+          "companyAddress": "Firmenadresse"
         }
       }
     }

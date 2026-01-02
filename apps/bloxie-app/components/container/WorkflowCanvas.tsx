@@ -301,6 +301,9 @@ const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) =>
   const [isVisible, setIsVisible] = React.useState<boolean>(true);
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
+
+  const { push } = useTrays('main');
+
   const handleLayout = React.useCallback(
     (event: LayoutChangeEvent) => {
       onLayout(event.nativeEvent.layout);
@@ -355,7 +358,13 @@ const WorkflowNode = ({ node, isFirst, isLast, onLayout }: WorkflowNodeProps) =>
           
           {(node.type === 'action' || node.type === 'decision') && (
             <View style={[GlobalContainerStyle.rowCenterStart, { gap: 14 }]}>
-              <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
+              <TouchableHaptic
+                onPress={() => {
+                  push('WorkflowActionTemplateListTray', {  });
+                }}>
+                <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
+              </TouchableHaptic>
+
               <FontAwesomeIcon icon={faEllipsisStroke as IconProp} size={16} color={accent} />
             </View>
           )}

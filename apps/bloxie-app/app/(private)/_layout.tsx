@@ -5,8 +5,9 @@ import { useAuth } from "@clerk/clerk-expo";
 import { ConvexUsersAPIProps } from "@codemize/backend/Types";
 
 import { useConvexUser } from "@/hooks/auth/useConvexUser";
-import { useUserSettings } from "@/hooks/settings/useUserSettings";
+import { useUserSettings } from "@/hooks/user/useUserSettings";
 import { useCalendarEvents } from "@/hooks/calendar/useCalendarEvents";
+import { useRuntime } from "@/hooks/user/useRuntime";
 import { useIntegrations } from "@/hooks/integrations/useIntegrations";
 import { getTimeZone } from "@/helpers/System";
 
@@ -20,10 +21,11 @@ import UserProvider from "@/context/UserContext";
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.3
+ * @version 0.0.4
  * @type */
 type LoadedProps = {
   userSettingsFetchFinished: boolean;
+  runtimeFetchFinished: boolean;
   eventsFetchFinished: boolean;
   integrationsFetchFinished: boolean;
 }
@@ -48,6 +50,7 @@ const PrivateLayout = () => {
    * all the ressources are loaded */
   const [isLoaded, setIsLoaded] = React.useState<LoadedProps>({ 
     userSettingsFetchFinished: false, 
+    runtimeFetchFinished: false,
     eventsFetchFinished: false,
     integrationsFetchFinished: false 
   });
@@ -56,6 +59,12 @@ const PrivateLayout = () => {
    * @description Loads the user settings for the currently signed in user
    * @see {@link hooks/settings/useUserSettings} */
   const { settings } = useUserSettings({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, userSettingsFetchFinished: true })) });
+
+  /**
+   * @description Loads the runtime informations for the currently signed in user based on their license model
+   * -> The runtime informations contain the template variables and the license features and counter (how many linked providers and workflows are allowed/etc..)
+   * @see {@link hooks/user/useRuntime} */
+  const { runtime } = useRuntime({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, runtimeFetchFinished: true })) });
 
   /**
    * @description Loads the currently signed in and subscripted users events 
@@ -71,9 +80,10 @@ const PrivateLayout = () => {
 
   /** @description If not all the data is loaded, show the loading screen */
   if (!isLoaded.userSettingsFetchFinished || !isLoaded.eventsFetchFinished || !isLoaded.integrationsFetchFinished) return <LoadingScreen />;
-
+  
   return (
     <UserProvider 
+      runtime={runtime}
       settings={settings} 
       times={[]}>
         <DateTimeProvider timeZone={getTimeZone()}>

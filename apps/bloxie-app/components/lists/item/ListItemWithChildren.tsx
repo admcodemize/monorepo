@@ -40,7 +40,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
   iconSize?: number;
   image?: ImageSourcePropType;
   title: string;
-  description: string;
+  description?: string;
   titleI18nTranslation?: boolean;
   descriptionI18nTranslation?: boolean;
   type?: ListItemWithChildrenTypeEnum;
@@ -110,7 +110,7 @@ const ListItemWithChildren = ({
                 text={title}
                 i18nTranslation={titleI18nTranslation}
                 style={[GlobalTypographyStyle.textSubtitle, { color: infoColor }]} />
-              {showDescription && <TextBase 
+              {showDescription && description && <TextBase 
                 text={description}
                 type="label"
                 i18nTranslation={descriptionI18nTranslation}

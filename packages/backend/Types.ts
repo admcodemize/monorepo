@@ -44,6 +44,15 @@ export type ConvexWorkflowNodeAPITypeEnum = "action" | "decision";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.38
+ * @version 0.0.1
+ * @description The license type for the application
+ * @type */
+export type ConvexLicenseAPITypeEnum = "freemium" | "premium";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
  * @version 0.0.1
  * @type */
@@ -104,21 +113,40 @@ export type ConvexEventsAPIProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.37
+ * @since 0.0.38
  * @version 0.0.1
  * @type */
-export type ConvexRuntimeAPIProps = {
-  _id?: Id<"runtime">;
-  _creationTime?: number;
-  templateVariables?: string[];
-  onlyForPremiumUsers?: boolean;
+export type ConvexRumtimeAPILicenseProps = {
+  features: { key: string; }[];
+  counter: {
+    linkedProviderCount: number;
+    workflowCount: number;
+    activeEventTypesCount: number;
+  }
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
+ * @type */
+export type ConvexRuntimeAPIProps = {
+  templateVariables: {
+    sortOrder: number;
+    name: string;
+    pattern: string;
+    icon?: string;
+  }[];
+  hasPremiumLicense: boolean;
+  license: ConvexRumtimeAPILicenseProps
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.37
+ * @version 0.0.2
  * @type */
 export type ConvexTemplateAPIProps = {
   _id?: Id<"template">;
@@ -129,6 +157,7 @@ export type ConvexTemplateAPIProps = {
   isGlobal?: boolean;
   type: string;
   language: string;
+  subject?: string;
   content: string;
   userId?: Id<"users">;
 }
@@ -137,7 +166,7 @@ export type ConvexTemplateAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexWorkflowNodeAPIProps = {
   _id?: Id<"workflowNodes">;
@@ -150,7 +179,8 @@ export type ConvexWorkflowNodeAPIProps = {
     shouldBeExecuted: boolean;
     templateId: Id<"template">;
   }[];
-  sortOrder: number;
+  parentNodeId?: Id<"workflowNodes">;
+  childNodeIds?: Id<"workflowNodes">[];
 }
 
 /**
@@ -191,7 +221,7 @@ export type ConvexWorkflowQueryAPIProps = ConvexWorkflowAPIProps & {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexUsersAPIProps = {
   _id: Id<"users">;
@@ -201,6 +231,7 @@ export type ConvexUsersAPIProps = {
   provider: string;
   banned: boolean;
   members: Id<"users">[];
+  license: ConvexLicenseAPITypeEnum;
 }
 
 /**

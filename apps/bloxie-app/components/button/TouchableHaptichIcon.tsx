@@ -10,7 +10,6 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import TouchableHaptic, { TouchableHapticProps } from "@/components/button/TouchableHaptic";
 
-import RootHeaderStyle from "@/styles/components/layout/header/private/RootHeader";
 import GlobalButtonStyle from "@/styles/GlobalButton";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 
@@ -36,7 +35,7 @@ type TouchableHapticIconProps = TouchableHapticProps & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.1
- * @version 0.0.3
+ * @version 0.0.4
  * @param {Object} param0 - Handles the touchable haptic events and styling
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @param {Function} param0.onLongPress - Callback function when user long presses the button
@@ -83,10 +82,12 @@ const TouchableHapticIcon = React.forwardRef<View, TouchableHapticIconProps>(({
       disabled={disabled}
       hitSlop={hitSlop}
       hideNotificationBadge={hideNotificationBadge}>
-        <View style={hasViewCustomStyle ? viewCustomStyle : [GlobalButtonStyle.spacing, GlobalContainerStyle.columnCenterCenter, GlobalButtonStyle.border, RootHeaderStyle.router, {
+        <View style={hasViewCustomStyle ? viewCustomStyle : [GlobalButtonStyle.spacing, GlobalContainerStyle.columnCenterCenter, GlobalButtonStyle.border, {
           backgroundColor: backgroundColor ? backgroundColor : hideBorder ? colors.primaryBgColor : colors.secondaryBgColor,
           borderColor: colors.primaryBorderColor,
-          borderWidth: hideBorder ? 0 : 1
+          borderWidth: hideBorder ? 0 : 1,
+          height: STYLES.sizeTouchable,
+          minWidth: STYLES.sizeTouchable,
         }, styleView]}>
           <FontAwesomeIcon
             icon={icon}

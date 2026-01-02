@@ -1,5 +1,6 @@
 import React from "react";
 import { Image, ImageSourcePropType, ScrollView, View } from "react-native"
+import { useTranslation } from "react-i18next";
 import { faAlarmClock, faLink } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { ReactAction, useAction } from "convex/react";
@@ -10,7 +11,7 @@ import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
 
 import { api } from "../../../../../../../packages/backend/convex/_generated/api";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
-import { ConvexSettingsAPIProps } from "@codemize/backend/Types";
+import { ConvexCalendarQueryAPIProps, ConvexSettingsAPIProps } from "@codemize/backend/Types";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useIntegrationContextStore } from "@/context/IntegrationContext";
@@ -27,16 +28,16 @@ import TouchableTag from "@/components/button/TouchableTag";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
-import { useTranslation } from "react-i18next";
 
 /**
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.16
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 type ScreenConfigurationIntegrationProviderContextProps = {
   settings: ConvexSettingsAPIProps;
+  integrations: ConvexCalendarQueryAPIProps[];
 }
 
 /**
@@ -64,6 +65,7 @@ type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegr
   info?: string;
   hasConnections?: boolean;
   isCommingSoon?: boolean;
+  shouldBeCheckedForRuntime?: boolean;
   children?: React.ReactNode;
 }
 
@@ -123,6 +125,7 @@ const ScreenConfigurationIntegrationProvider = () => {
                 key={`${KEYS.providerGroupItem}-${item.integrationKey}`}
                 {...item}
                 settings={settings}
+                integrations={integrations}
                 hasConnections={hasGoogleConnections(item.integrationKey)}/>
             ))}
           </ListItemGroup>
@@ -138,6 +141,7 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @version 0.0.4
  * @param {ScreenConfigurationIntegrationProviderItemProps} param0
  * @param {ConvexSettingsAPIProps} param0.settings - The settings of the currently signed in user.
+ * @param {ConvexCalendarQueryAPIProps[]} param0.integrations - The cnnected provider integrations of the currently signed in user.
  * @param {(settings: ConvexSettingsAPIProps) => void} param0.setSettings - The function to update the settings of the currently signed in user in the context.
  * @param {ProviderIntegrationEnum} param0.integrationKey - The integration key of the item for updating the state and fetching the state from the context.
  * @param {ImageSourcePropType} param0.image - The image source of the item.
@@ -150,6 +154,7 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @component */
 const ScreenConfigurationIntegrationProviderItem = ({
   settings,
+  integrations,
   integrationKey,
   image,
   title,
@@ -157,6 +162,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
   info,
   hasConnections = false,
   isCommingSoon = false,
+  shouldBeCheckedForRuntime = false,
   children
 }: ScreenConfigurationIntegrationProviderItemProps) => {
   const { secondaryBgColor, infoColor, tertiaryBgColor, primaryBorderColor, successColor, errorColor, inactiveColor, focusedBgColor } = useThemeColors();
@@ -169,6 +175,11 @@ const ScreenConfigurationIntegrationProviderItem = ({
    * @description Get the function to update the settings from the context for updating the integration state during the state change
    * @see {@link context/UserContext} */
   const setSettings = useUserContextStore((state) => state.setSettings);
+
+  /**
+   * @description Get the runtime from the context for checking if the user has reached the limit of linked provider integrations
+   * @see {@link context/UserContext} */
+  const runtime = useUserContextStore((state) => state.runtime);
 
   /**
    * @description Get the initial integration state for the given integration key
@@ -222,10 +233,10 @@ const ScreenConfigurationIntegrationProviderItem = ({
           state={getIntegrationState(integrationKey)} 
           onStateChange={onStateChange} />
       </View>
-      {info && <TextBase 
+      {(info && ((shouldBeCheckedForRuntime && integrations.length >= runtime.license.counter.linkedProviderCount) || !shouldBeCheckedForRuntime)) && <TextBase 
         text={info} 
         type="label" 
-        preText={"Hinweis:"} 
+        preText={t("i18n.global.hint")} 
         preTextStyle={{ color: infoColor }}
         style={[GlobalTypographyStyle.labelText, { paddingHorizontal: 8, paddingVertical: 4, color: shadeColor(infoColor, 0.3)}]} />}
       <View style={[ProviderStyle.itemBottom, {
@@ -250,7 +261,6 @@ const ScreenConfigurationIntegrationProviderItem = ({
             </View>
             {children && getIntegrationState(integrationKey) && children}
           </View>
-
         </View>
       </View>
     </View>

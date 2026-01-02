@@ -1,4 +1,4 @@
-import { ConvexSettingsAPIProps } from "@codemize/backend/Types";
+import { ConvexLicenseAPITypeEnum, ConvexRumtimeAPILicenseProps, ConvexRuntimeAPIProps, ConvexSettingsAPIProps } from "@codemize/backend/Types";
 import { Id } from "../../../packages/backend/convex/_generated/dataModel";
 
 export const DEFAULT_DURATION_MINUTE = 30;
@@ -21,3 +21,13 @@ export const getDefaultSettingsObject = (
   pushNotifications: false,
   integrations: []
 }); 
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.38
+ * @version 0.0.1
+ * @description Checks if the license is a premium license
+ * @param {ConvexRuntimeAPIProps} runtime - The runtime to check
+ * @function */
+export const hasPremiumLicense = (runtime: ConvexRuntimeAPIProps) => runtime.hasPremiumLicense;

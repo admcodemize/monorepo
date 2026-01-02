@@ -93,6 +93,8 @@ export const startGoogleFlow = async ({
 
   }
 
+  console.log(convex);
+
   Toast.show({
     type: 'success',
     text1: convex.name,

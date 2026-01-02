@@ -20,7 +20,7 @@ type StylesProps = {
   sizeTouchable: number;
   sizeFaIcon: number;
   sizeGap: number;
-  layoutTabHeight: number;
+  layoutTabBarHeight: number;
   paddingHorizontal: number;
   paddingVertical: number;
   marginHorizontal: number;
@@ -53,7 +53,7 @@ export const STYLES = <StylesProps>{
   sizeTouchable: 28,
   sizeFaIcon: 14,
   sizeGap: 8,
-  layoutTabHeight: 50,
+  layoutTabBarHeight: 40,
   paddingHorizontal: 14,
   paddingVertical: 10,
   marginHorizontal: 20,

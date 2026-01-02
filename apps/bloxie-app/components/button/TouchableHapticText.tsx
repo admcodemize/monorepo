@@ -2,11 +2,11 @@ import React from "react";
 import { TextStyle, View, ViewStyle } from "react-native";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
+import { STYLES } from "@codemize/constants/Styles";
 
 import TouchableHaptic, { TouchableHapticProps } from "@/components/button/TouchableHaptic";
 import TextBase, { TextBaseTypes } from "@/components/typography/Text";
 
-import RootHeaderStyle from "@/styles/components/layout/header/private/RootHeader";
 import GlobalButtonStyle from "@/styles/GlobalButton";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
@@ -31,7 +31,7 @@ type TouchableHapticTextProps = TouchableHapticProps & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.1
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Object} param0 - Handles the touchable haptic events and styling
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @param {Function} param0.onLongPress - Callback function when user long presses the button
@@ -74,9 +74,11 @@ const TouchableHapticText = React.forwardRef<View, TouchableHapticTextProps>(({
       disabled={disabled}
       hitSlop={hitSlop}
       hideNotificationBadge={hideNotificationBadge}>
-        <View style={hasViewCustomStyle ? viewCustomStyle : [GlobalButtonStyle.spacing, GlobalContainerStyle.columnCenterCenter, GlobalButtonStyle.border, RootHeaderStyle.router, {
+        <View style={hasViewCustomStyle ? viewCustomStyle : [GlobalButtonStyle.spacing, GlobalContainerStyle.columnCenterCenter, GlobalButtonStyle.border, {
           backgroundColor: colors.secondaryBgColor,
-          borderColor: colors.primaryBorderColor
+          borderColor: colors.primaryBorderColor,
+          height: STYLES.sizeTouchable,
+          minWidth: STYLES.sizeTouchable,
         }]}>
           <TextBase 
             text={text}

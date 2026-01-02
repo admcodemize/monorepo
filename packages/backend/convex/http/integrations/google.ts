@@ -1,5 +1,5 @@
 import { httpAction } from "../../_generated/server";
-import { internal } from "../../_generated/api";
+import { api, internal } from "../../_generated/api";
 import { Id } from "../../_generated/dataModel";
 import { 
   IntegrationAPICalendarAccessRoleEnum, 
@@ -20,6 +20,7 @@ import {
   ConvexLinkedAPIProps,
   IntegrationAPIGoogleCalendarListItemProps,
   IntegrationAPICalendarVisibilityEnum,
+  ConvexUsersAPIProps,
 } from "../../../Types";
 import { convertEventGoogleToConvex, convertToCleanObjectForUpdate, safeParse, toWatch } from "../../../Convert";
 import { convexError, ConvexHandlerError, convexResponse, fetchTypedConvex
@@ -131,7 +132,7 @@ export type HttpActionLinkGoogleProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH
  * @since 0.0.9
- * @version 0.0.3
+ * @version 0.0.5
  * @description Handles the http action for linking a google account
  * @param {Object} param0
  * @param {string} param0.userId - User identification
@@ -157,8 +158,24 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
     }),
   });
 
+  /** @description Get all the linked accounts for the user */
+  const linkedAccounts = await runQuery(internal.sync.integrations.query.linkedByUserId, { userId });
+
+  /** @description Get the runtime from the context for checking if the user has reached the limit of linked provider integrations */
+  const [errUser, user] = await fetchTypedConvex(runQuery(internal.sync.users.query.get, { _id: userId }), "BLOXIE_HAR_GE_E08");
+  const [errRuntime, runtime] = await fetchTypedConvex(runQuery(api.sync.runtime.query.get, { license: user.license }), "BLOXIE_HAR_GE_E09");
+
+  if (linkedAccounts.length >= runtime.license.counter.linkedProviderCount) return convexResponse<null>({
+    convex: convexError({
+      code: 405,
+      info: "i18n.convex.http.integrations.google.error.linkedProviderLimitReached",
+      severity: ConvexActionServerityEnum.ERROR,
+      name: "BLOXIE_HAR_GE_E10",
+    }),
+  });
+
   /** @description Check if the account is already linked */
-  let linkedAccount = await runQuery(internal.sync.integrations.query.linkedByProviderId, { userId, provider: PROVIDER, providerId: googleUser.id });
+  let linkedAccount = linkedAccounts.find((linkedAccount) => linkedAccount.providerId === googleUser.id && linkedAccount.provider === PROVIDER);
 
   /** 
    * @description Check if the grant scope gmail is not allowed for a new linked account

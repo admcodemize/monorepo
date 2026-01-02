@@ -16,6 +16,7 @@ import { useConvexUser } from "@/hooks/auth/useConvexUser";
 import { useTemplates } from "@/hooks/configuration/useTemplate";
 import { useWorkflows } from "@/hooks/configuration/useWorkflows";
 import { ConvexUsersAPIProps } from "@codemize/backend/Types";
+import { STYLES } from "@codemize/constants/Styles";
 import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
@@ -43,7 +44,7 @@ export const MaterialTopTabs = withLayoutContext<
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.2
+ * @version 0.0.3
  * @component */
 const ModalConfigurationWorkflowLayout = () => {
   const { tertiaryBgColor, primaryBorderColor, focusedBgColor } = useThemeColors();
@@ -76,7 +77,7 @@ const ModalConfigurationWorkflowLayout = () => {
           tabBarIndicatorStyle: { backgroundColor: focusedBgColor },
           tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: primaryBorderColor },
           tabBarStyle: { 
-            height: 40,
+            height: STYLES.layoutTabBarHeight,
             backgroundColor: shadeColor(tertiaryBgColor, 0.1),
           } 
         }}>

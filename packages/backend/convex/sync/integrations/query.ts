@@ -95,6 +95,22 @@ export const linkedById = internalQuery({
 
 /**
  * @public
+ * @since 0.0.38
+ * @version 0.0.1
+ * @description Returns all the linked accounts for the currently signed in user
+ * @param {Object} param0
+ * @param {string} param0.userId - User identification (Clerk)
+ * @function */
+export const linkedByUserId = internalQuery({
+  args: { userId: v.id('users') },
+  handler: async ({ db }, { userId }): Promise<ConvexLinkedAPIProps[]> => await db
+    .query('linked')
+    .withIndex('byUserId', (q) => q.eq('userId', userId))
+    .collect()
+});
+
+/**
+ * @public
  * @since 0.0.9
  * @version 0.0.3
  * @description Returns the linked account by provider id

@@ -2,15 +2,16 @@ import * as React from "react";
 import { createContext, useContext } from "react";
 import { createStore, useStore, StoreApi } from "zustand";
 
-import { ConvexSettingsAPIProps, ConvexTimesAPIProps } from "@codemize/backend/Types";
+import { ConvexRuntimeAPIProps, ConvexSettingsAPIProps, ConvexTimesAPIProps } from "@codemize/backend/Types";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type UserContextProps = {
+  runtime: ConvexRuntimeAPIProps;
   settings: ConvexSettingsAPIProps;
   times: ConvexTimesAPIProps[];
   setSettings: (settings: ConvexSettingsAPIProps) => void;
@@ -20,9 +21,10 @@ export type UserContextProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type UserProviderProps = React.PropsWithChildren & {
+  runtime: ConvexRuntimeAPIProps;
   settings: ConvexSettingsAPIProps;
   times: ConvexTimesAPIProps[];
 }
@@ -33,15 +35,17 @@ const UserContext = createContext<StoreApi<UserContextProps>|undefined>(undefine
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.16
- * @version 0.0.1
+ * @version 0.0.2
  * @description Create the store and initialize the state
  * @param {ConvexSettingsAPIProps} settings - The settings of the currently signed in user.
  * @param {ConvexTimesAPIProps[]} times - The times of the currently signed in user.
  * @returns {StoreApi<UserContextProps>} - The store */
 export const store = (
+  runtime: ConvexRuntimeAPIProps,
   settings: ConvexSettingsAPIProps,
   times: ConvexTimesAPIProps[]
 ): StoreApi<UserContextProps> => createStore<UserContextProps>()((set, get) => ({
+  runtime,
   settings,
   times,
   setSettings: (settings: ConvexSettingsAPIProps) => set((state) => ({ ...state, settings })),
@@ -52,13 +56,14 @@ export const store = (
  * @author Marc Stöckli - Codemize GmbH 
  * @description 
  * @since 0.0.2
- * @version 0.0.3 */
+ * @version 0.0.4 */
 export default function UserProvider({ 
+  runtime,
   settings,
   times,
   children 
 }: UserProviderProps) {
-  const [storeInstance] = React.useState(() => store(settings, times));
+  const [storeInstance] = React.useState(() => store(runtime, settings, times));
   
   return (
     <UserContext.Provider 

@@ -39,7 +39,7 @@ export enum ProviderIntegrationEnum {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type ProviderItemProps = PropsWithChildren & {
   integrationKey: ProviderIntegrationEnum;
@@ -49,19 +49,22 @@ export type ProviderItemProps = PropsWithChildren & {
   info?: string;
   hasConnections?: boolean;
   isCommingSoon?: boolean;
+  shouldBeCheckedForRuntime?: boolean;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.3
+ * @version 0.0.4
  * @constant */
 export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
   integrationKey: ProviderIntegrationEnum.GOOGLE_CALENDAR,
   image: PNG_ASSETS.googleCalendar,
   title: "i18n.screens.integrations.provider.google.calendar.title",
   description: "i18n.screens.integrations.provider.google.calendar.description",
+  info: "i18n.screens.integrations.provider.google.calendar.info",
+  shouldBeCheckedForRuntime: true,
   children: <TouchableHapticGoogle />
 }, {
   integrationKey: ProviderIntegrationEnum.GOOGLE_GMAIL,
@@ -82,7 +85,7 @@ export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.2
+ * @version 0.0.3
  * @constant */
 export const PROVIDER_ITEMS_MICROSOFT: ProviderItemProps[] = [{
   integrationKey: ProviderIntegrationEnum.MICROSOFT_CALENDAR,
@@ -91,13 +94,14 @@ export const PROVIDER_ITEMS_MICROSOFT: ProviderItemProps[] = [{
   description: "i18n.screens.integrations.provider.microsoft.calendar.description",
   hasConnections: false,
   isCommingSoon: true,
+  shouldBeCheckedForRuntime: true,
 }]
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.2
+ * @version 0.0.3
  * @constant */
 export const PROVIDER_ITEMS_OTHERS: ProviderItemProps[] = [{
   integrationKey: ProviderIntegrationEnum.SLACK_CALENDAR,
@@ -106,6 +110,7 @@ export const PROVIDER_ITEMS_OTHERS: ProviderItemProps[] = [{
   description: "i18n.screens.integrations.provider.others.calendar.description",
   hasConnections: false,
   isCommingSoon: true,
+  shouldBeCheckedForRuntime: true,
 }, {
   integrationKey: ProviderIntegrationEnum.PAYPAL_PAYMENTS,
   image: PNG_ASSETS.paypalPayments,
@@ -113,6 +118,7 @@ export const PROVIDER_ITEMS_OTHERS: ProviderItemProps[] = [{
   description: "i18n.screens.integrations.provider.others.paypal.description",
   hasConnections: false,
   isCommingSoon: true,
+  shouldBeCheckedForRuntime: true,
 }]
 
 /**

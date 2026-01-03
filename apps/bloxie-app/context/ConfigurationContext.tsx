@@ -17,11 +17,9 @@ export type ConfigurationProviderProps = PropsWithChildren & {}
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConfigurationContextProps = {
-  variables: string[];
-  setVariables: (variables: string[]) => void;
   templates: ConvexTemplateAPIProps[];
   setTemplates: (templates: ConvexTemplateAPIProps[]) => void;
   workflows: ConvexWorkflowQueryAPIProps[];
@@ -33,13 +31,10 @@ export type ConfigurationContextProps = {
  * @returns {StoreApi<ConfigurationContextProps>} - The store */
 export const store = (
 ): StoreApi<ConfigurationContextProps> => createStore<ConfigurationContextProps>()((set, get) => ({
-  variables: [],
-  setVariables: (variables: string[]) => set((state) => ({ ...state, variables })),
   templates: [],
   setTemplates: (templates: ConvexTemplateAPIProps[]) => set((state) => ({ ...state, templates })),
   workflows: [],
   setWorkflows: (workflows: ConvexWorkflowQueryAPIProps[]) => set((state) => ({ ...state, workflows })),
-
 }));
 
 /**

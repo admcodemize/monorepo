@@ -128,16 +128,24 @@ export type ConvexRumtimeAPILicenseProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @type */
+export type ConvexRuntimeAPITemplateVariableProps = {
+  sortOrder: number;
+  name: string;
+  pattern: string;
+  icon?: string;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.37
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type ConvexRuntimeAPIProps = {
-  templateVariables: {
-    sortOrder: number;
-    name: string;
-    pattern: string;
-    icon?: string;
-  }[];
+  templateVariables: ConvexRuntimeAPITemplateVariableProps[];
   hasPremiumLicense: boolean;
   license: ConvexRumtimeAPILicenseProps
 }
@@ -158,7 +166,7 @@ export type ConvexTemplateAPIProps = {
   type: string;
   language: string;
   subject?: string;
-  content: string;
+  content?: string;
   userId?: Id<"users">;
 }
 

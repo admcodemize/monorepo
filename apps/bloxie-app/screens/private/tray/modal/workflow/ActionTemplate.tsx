@@ -44,7 +44,23 @@ import { useUserContextStore } from "@/context/UserContext";
 import { ConvexRuntimeAPIProps } from "@codemize/backend/Types";
 import ListTemplatesWorkflowAction from "@/components/lists/ListTemplatesWorkflowAction";
 import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
-import Editor, { createInitialStyleState, EditorStyleState } from "@/components/typography/Editor";
+import Editor, { createInitialStyleState, EditorStyleState, hydrateTemplate, insertPatternValue, normalizeHtml } from "@/components/typography/Editor";
+
+const EDITOR_BASE_HEIGHT = 360;
+const TOOLBAR_HEIGHT = 40;
+const SUBJECT_HEIGHT = 30;
+const ANIMATED_HEIGHT = EDITOR_BASE_HEIGHT - TOOLBAR_HEIGHT - SUBJECT_HEIGHT - 1; // -> 4 => padding, 1 => borderbottom of the subject editor
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @enum */
+export enum FocusedEditorTypeEnum {
+  BODY = "body",
+  SUBJECT = "subject",
+}
 
 /**
  * @public
@@ -60,7 +76,7 @@ export type ScreenTrayActionTemplateProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.34
- * @version 0.0.1
+ * @version 0.0.3
  * @param {ScreenTrayActionTemplateProps} param0
  * @component */
 const ScreenTrayActionTemplate = ({ 
@@ -68,27 +84,30 @@ const ScreenTrayActionTemplate = ({
 }: ScreenTrayActionTemplateProps) => {
   const refBody = React.useRef<EnrichedTextInputInstance>(null);
   const refSubject = React.useRef<EnrichedTextInputInstance>(null);
-  const selectionRef = React.useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+  const refFocused = React.useRef<EnrichedTextInputInstance|null>(null);
 
   /** @description Used to get the theme based colors */
-  const { secondaryBgColor, primaryBorderColor, infoColor, tertiaryBgColor, primaryBgColor, linkColor, textColor } = useThemeColors();
+  const { secondaryBgColor, primaryBorderColor, infoColor, tertiaryBgColor, primaryBgColor, linkColor } = useThemeColors();
 
   const { convexUser } = useConvexUser();
   const { templateVariables } = useUserContextStore((state) => state.runtime);
+  const templates = useConfigurationContextStore((state) => state.templates);
 
   /** @description Used to get all the linked mail accounts for the currently signed in user */
   const linkedMailAccounts = useQuery(api.sync.integrations.query.linkedWithMailPermission, {
     userId: convexUser?._id as Id<"users">
   });
 
+  /** @description Handles the style state of the editor content and the highlighting of the styling buttons */
   const [styleState, setStyleState] = React.useState<EditorStyleState>(createInitialStyleState());
 
+  /** @description Handles to change the focused ref of the editor content which is used for adding the dynamic content and templates */
+  const onIsFocused = React.useCallback(
+  (type: FocusedEditorTypeEnum) =>
+  (isFocused: boolean) => refFocused.current = type === FocusedEditorTypeEnum.BODY ? refBody.current : refSubject.current, [refBody, refSubject]);
 
-  const [html, setHtml] = React.useState('');
-  const [isFocused, setIsFocused] = React.useState(false);
 
-  const normalizeHtml = (value: string) =>
-    value.trim().replace(/>\s+</g, "><");
+
 
   const TEMPLATE_SUBJECT = normalizeHtml(`
     <html>
@@ -111,45 +130,12 @@ const ScreenTrayActionTemplate = ({
       <p>{{CompanyAddress}} </p>
     </html>
   `);
-  
-  const variableMentionMarkup = (name: string) => `<mention indicator="#" text="${name}" type="variable">${name}</mention>\u200B`;
-  
-  // Hilfsfunktion zum Ersetzen
-  const hydrateTemplate = (html: string) =>
-    templateVariables.map((variable) => variable.pattern).reduce(
-      (acc, variable) =>
-        acc.replaceAll(
-          `{{${variable}}}`,
-          variableMentionMarkup(variable)
-        ),
-      html
-    );
-  
-  const htmlSubject = React.useMemo(() => hydrateTemplate(TEMPLATE_SUBJECT), []);
-  const htmlBody = React.useMemo(() => hydrateTemplate(TEMPLATE_BODY), []);
-  
-  
-  React.useEffect(() => {
-    setHtml(htmlBody);
-    refBody.current?.setValue(htmlBody);
-  }, [htmlBody]);
-
-  React.useEffect(() => {
-    setHtml(htmlSubject);
-    refSubject.current?.setValue(htmlSubject);
-  }, [htmlSubject]);
-
-
-  /** @description Returns all the workflows stored in the context for the currently signed in user */
-  const templates = useConfigurationContextStore((state) => state.templates).filter((template) => template.isGlobal);
-  const memoizedTemplates = React.useMemo(() => templates.filter((template) => template.isGlobal), [templates]);
-
 
   
-  const EDITOR_BASE_HEIGHT = 360;
-  const TOOLBAR_HEIGHT = 40;
-  const SUBJECT_HEIGHT = 30;
-  const ANIMATED_HEIGHT = EDITOR_BASE_HEIGHT - TOOLBAR_HEIGHT - SUBJECT_HEIGHT - 1; // -> 4 => padding, 1 => borderbottom of the subject editor
+  const htmlSubject = React.useMemo(() => hydrateTemplate(TEMPLATE_SUBJECT, templateVariables), []);
+  const htmlBody = React.useMemo(() => hydrateTemplate(TEMPLATE_BODY, templateVariables), []);
+  
+
 
   const [areVariablesVisible, setAreVariablesVisible] = React.useState(false);
   const [areTemplatesVisible, setAreTemplatesVisible] = React.useState(false);
@@ -196,22 +182,6 @@ const ScreenTrayActionTemplate = ({
     };
   });
 
-    const insertVariable = async (variable: string) => {
-
-      // Auswahl wiederherstellen
-      refBody.current?.focus();
-
- 
-      const indicator = "#";
- 
-      // Mention einleiten
-      refBody.current?.startMention(indicator);
- 
-      // Mention setzen – Text und Meta-Info
-      refBody.current?.setMention(indicator, variable, { type: "variable" });
-
-    }
-
   return (
     <View style={{ 
       //padding: STYLES.paddingHorizontal, 
@@ -235,12 +205,6 @@ const ScreenTrayActionTemplate = ({
             </View>
 
           </View>
-          {/*info && <TextBase 
-            text={info} 
-            type="label" 
-            preText={"Hinweis:"} 
-            preTextStyle={{ color: infoColor }}
-            style={[GlobalTypographyStyle.labelText, { paddingHorizontal: 8, paddingVertical: 4, color: shadeColor(infoColor, 0.3)}]} />}*/}
           <View style={[{
             position: "relative",
             borderWidth: 1,
@@ -259,13 +223,13 @@ const ScreenTrayActionTemplate = ({
                 maxHeight={SUBJECT_HEIGHT - 4}
                 primaryTextColor={"#000"}
                 showBorderBottom={true}
-                onIsFocused={setIsFocused}
+                onIsFocused={onIsFocused(FocusedEditorTypeEnum.SUBJECT)}
                 onStyleStateChange={setStyleState} />
               <Editor
                 ref={refBody}
                 defaultValue={htmlBody}
                 maxHeight={EDITOR_BASE_HEIGHT - TOOLBAR_HEIGHT - SUBJECT_HEIGHT}
-                onIsFocused={setIsFocused}
+                onIsFocused={onIsFocused(FocusedEditorTypeEnum.BODY)}
                 onStyleStateChange={setStyleState} />
             </Animated.View>
 
@@ -297,7 +261,7 @@ const ScreenTrayActionTemplate = ({
                       <TouchableHaptic 
                         key={variable.pattern}
                         onPress={() => { 
-                          insertVariable(variable.pattern);
+                          insertPatternValue(refFocused, variable.pattern);
                           toggleVariables();
 
                         }}>
@@ -335,8 +299,7 @@ const ScreenTrayActionTemplate = ({
                     <ListTemplatesWorkflowAction
                       maxHeight={ANIMATED_HEIGHT - TOOLBAR_HEIGHT - 10}
                       onPress={({ content }) => { 
-                        const htmlWithMentions = hydrateTemplate(content);
-                        setHtml(htmlWithMentions);
+                        const htmlWithMentions = hydrateTemplate(content || "", templateVariables);
                         refBody.current?.setValue(htmlWithMentions);
                         toggleTemplates();
                       }} />
@@ -367,7 +330,6 @@ const ScreenTrayActionTemplate = ({
                 <TouchableHapticDropdown
                   text="Dynamische Inhalte"
                   icon={faSquareRootVariable as IconProp}
-                  disabled={!isFocused}
                   type="label"
                   hasViewCustomStyle={true}
                   viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}

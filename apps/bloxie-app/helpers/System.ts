@@ -15,6 +15,17 @@ const DIM = Dimensions.get("window");
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @enum */
+export enum LanguageEnumProps {
+  DE = "de",
+  EN = "en",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.1
  * @version 0.0.1

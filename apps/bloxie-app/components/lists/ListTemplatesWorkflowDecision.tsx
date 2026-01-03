@@ -19,7 +19,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @since 0.0.38
  * @version 0.0.1
  * @component */
-export type ListTemplatesWorkflowActionProps = {
+export type ListTemplatesWorkflowDecisionProps = {
   maxHeight?: DimensionValue;
   showListGroup?: boolean;
   onPress: (template: ConvexTemplateAPIProps) => void;
@@ -30,17 +30,16 @@ export type ListTemplatesWorkflowActionProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
  * @version 0.0.2
- * @param {ListTemplatesWorkflowActionProps} param0
+ * @param {ListTemplatesWorkflowDecisionProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
  * @param {(template: ConvexTemplateAPIProps) => void} param0.onPress - The function to call when a template is pressed
  * @component */
-const ListTemplatesWorkflowAction = ({
+const ListTemplatesWorkflowDecision = ({
   maxHeight = "100%",
   showListGroup = true,
   onPress,
-}: ListTemplatesWorkflowActionProps) => {
-  const { linkColor } = useThemeColors();
-  /** @description Returns all the workflows templates stored in the context for the currently signed in user */
+}: ListTemplatesWorkflowDecisionProps) => {
+  /** @description Returns all the workflow decisions stored in the context for the currently signed in user */
   const templates = useConfigurationContextStore((state) => state.templates).filter((template) => template.isGlobal);
   const memoizedTemplates = React.useMemo(() => templates.filter((template) => template.isGlobal), [templates]);
   
@@ -52,14 +51,14 @@ const ListTemplatesWorkflowAction = ({
   return (
     <>
     {showListGroup && <ListItemGroup
-      title={"i18n.lists.templatesWorkflowAction.title"}
+      title={"i18n.lists.templatesWorkflowDecision.title"}
       gap={STYLES.sizeGap}
       style={{ paddingVertical: 10 }} />}
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ gap: 10 }}
       style={{ maxHeight }}>
-      {memoizedTemplates.map((template) => (
+      {/*memoizedTemplates.map((template) => (
         <TouchableHaptic 
           key={template._id}
           onPress={onPressInternal(template)}>
@@ -69,19 +68,10 @@ const ListTemplatesWorkflowAction = ({
             type={ListItemWithChildrenTypeEnum.navigation}
             icon={resolveRuntimeIcon(template.icon || "faFileDashedLine")} />
         </TouchableHaptic>
-      ))}
+      ))*/}
     </ScrollView>
-    <View style={[GlobalContainerStyle.rowCenterBetween, { paddingVertical: 10 }]}>
-      <View />
-      <TouchableHaptic onPress={onPressInternal({ 
-        type: "workflow", 
-        language: getLocalization().code as LanguageEnumProps 
-      })}>
-        <TextBase text="Ohne Vorlage fortfahren" type="label" color={linkColor} />
-      </TouchableHaptic>
-    </View>
     </>
   );
 };
 
-export default ListTemplatesWorkflowAction;
+export default ListTemplatesWorkflowDecision;

@@ -177,6 +177,10 @@
         "title": "Vorlagen",
         "description": "Wähle eine Vorlage aus um deine Aktion zu personalisieren. Die Vorlage beinhaltet eine vordefinierte E-Mail-Nachricht, welche nachträglich auf die persönlichen Bedürfnissen angepasst werden kann."
       },
+      "trayWorkflowDecisionTemplates": {
+        "title": "Entscheidungsvorlagen",
+        "description": "Wähle eine Entscheidung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+      },
       "trayWorkflows": {
         "title": "Workflows",
         "description": "Verwalte deine Workflows",

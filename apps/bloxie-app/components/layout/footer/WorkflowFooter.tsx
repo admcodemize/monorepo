@@ -31,7 +31,7 @@ type WorkflowFooterProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.32
- * @version 0.0.2
+ * @version 0.0.3
  * @component */
 const WorkflowFooter = ({
 }: WorkflowFooterProps) => {
@@ -45,50 +45,34 @@ const WorkflowFooter = ({
   } });
 
   return (
-    <Animated.View style={[WorkflowFooterStyle.animated, {
+    <Animated.View style={[WorkflowFooterStyle.floating, {
       bottom: bottom + 4, // -> The additional 4 is to compensate for the margin between keyboard and tray @see stackConfigs
-      backgroundColor: primaryBgColor,
-      borderColor: primaryBorderColor,
     }]}>
-      <View style={[GlobalContainerStyle.rowCenterBetween, WorkflowFooterStyle.view]}>
-        <View style={[GlobalContainerStyle.rowCenterBetween, WorkflowFooterStyle.left, {
-          backgroundColor: shadeColor(secondaryBgColor, 0.2),  
+      <Animated.View
+        style={[WorkflowFooterStyle.bubble, {
+          backgroundColor: primaryBgColor,
+          borderColor: primaryBorderColor,
         }]}>
-          <View style={[GlobalContainerStyle.rowCenterStart, { flex: 1, gap: 16 }]}>
-          <TouchableHapticDropdown
-            icon={faDiagramProject as IconProp}
-            text="Workflows"
-            type="label"
-            hasViewCustomStyle={true}
-            viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-            onPress={onPressWorkflows} />
+        <View style={[GlobalContainerStyle.rowCenterBetween, WorkflowFooterStyle.view]}>
+          <View
+            style={[GlobalContainerStyle.rowCenterBetween, WorkflowFooterStyle.left, {
+              backgroundColor: shadeColor(secondaryBgColor, 0.2),
+            }]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 16 }]}>
+              <TouchableHapticDropdown
+                icon={faDiagramProject as IconProp}
+                text="Workflows"
+                type="label"
+                hasViewCustomStyle={true}
+                viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+                onPress={onPressWorkflows} />
+            </View>
           </View>
-          
-          <Divider vertical style={{ height: 20 }} />
-          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 18 }]}>
-            <TouchableHapticIcon
-              icon={faFlagCheckered as IconProp}
-              iconSize={18}
-              hasViewCustomStyle={true}
-              onPress={() => {}} />
-            <TouchableHapticIcon
-              icon={faObjectExclude as IconProp}
-              iconSize={18}
-              hasViewCustomStyle={true}
-              onPress={() => {}} />
-          </View>
-          <Divider vertical style={{ height: 20 }} />
-          <TouchableHapticIcon
-            icon={faLayerPlus as IconProp}
-            iconSize={18}
-            hasViewCustomStyle={true}
-            onPress={() => {}} />
-        </View>
-        <TouchableHaptic
-          onPress={() => { console.log("Dashboard") }}>
+          <TouchableHaptic onPress={() => { console.log("Dashboard"); }}>
             <FontAwesomeIcon icon={faFloppyDisk as IconProp} size={22} color={linkColor} />
-        </TouchableHaptic>
-      </View>
+          </TouchableHaptic>
+        </View>
+      </Animated.View>
     </Animated.View>
   );
 }

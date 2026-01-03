@@ -1,5 +1,6 @@
 import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
+import { ConvexRuntimeAPITemplateVariableProps } from "@codemize/backend/Types";
 import { SIZES } from "@codemize/constants/Fonts";
 import React, { RefObject } from "react";
 import { DimensionValue, NativeSyntheticEvent } from "react-native";
@@ -47,6 +48,71 @@ export const createInitialStyleState = (): EditorStyleState =>
     acc[item.state] = false;
     return acc;
   }, {} as EditorStyleState);
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @description Used to create the mention markup for the given indiciator
+ * -> # => variables / @ => mentions
+ * @param {string} name - The name of the variable
+ * @param {string} indicator - The indicator of the mention -> # => variables / @ => mentions -> default is #
+ * @function */
+export const createMentionMarkup = (
+  name: string,
+  indicator: string = "#"
+) => `<mention indicator="${indicator}" text="${name}" type="variable">${name}</mention>\u200B`;
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @description Used to normalize the html string -> remove extra spaces between tags
+ * @param {string} value - The value to normalize
+ * @function */
+export const normalizeHtml = (value: string) => value.trim().replace(/>\s+</g, "><");
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @description Used to hydrate the template with the given template variables
+ * @param {string} html - The html string to hydrate
+ * @param {ConvexRuntimeAPITemplateVariableProps[]} templateVariables - The template variables to hydrate the template with
+ * @function */
+export const hydrateTemplate = (
+  html: string,
+  templateVariables: ConvexRuntimeAPITemplateVariableProps[]
+) =>
+  templateVariables.map((variable) => variable.pattern).reduce(
+    (acc, variable) => acc.replaceAll(
+      `{{${variable}}}`,
+      createMentionMarkup(variable)), html);
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @description Used to insert the variable into the editor
+ * @param {RefObject<EnrichedTextInputInstance>} ref - The reference to the editor
+ * @param {string} variable - The variable to insert
+ * @param {string} indicator - The indicator of the mention -> # => variables / @ => mentions -> default is #
+ * @function */
+export const insertPatternValue = (
+  ref: RefObject<EnrichedTextInputInstance|null>, 
+  variable: string,
+  indicator: string = "#",
+  type: "variable" | "mention" = "variable"
+) => {
+  if (!ref.current) return;
+  ref.current?.focus();
+  ref.current?.startMention(indicator);
+  ref.current?.setMention(indicator, variable, { type });
+}
 
 /**
  * @public

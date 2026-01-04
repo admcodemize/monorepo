@@ -48,12 +48,25 @@ const TEMPLATE_VARIABLES: ConvexRuntimeAPIProps["templateVariables"] = [
   { sortOrder: 9, icon: "faCalculatorSimple", name: "i18n.convex.runtime.templateVariables.eventParticipantsCount", pattern: "EventParticipantsCount" },
   { sortOrder: 10, icon: "faBuildings", name: "i18n.convex.runtime.templateVariables.companyName", pattern: "CompanyName" },
   { sortOrder: 11, icon: "faLocationDot", name: "i18n.convex.runtime.templateVariables.companyAddress", pattern: "CompanyAddress" }
-]
+];
+
+/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.39
+ * @version 0.0.1
+ * @description The workflow decisions for the application
+ * -> Used to handle specific decisions in a workflow so the process can continue or not
+ * @constant */
+const WORKFLOW_DECISIONS: ConvexRuntimeAPIProps["workflowDecisions"] = [
+  { key: "decisionEventType", sortOrder: 1, name: "i18n.convex.runtime.workflowDecisions.eventType.title", description: "i18n.convex.runtime.workflowDecisions.eventType.description", icon: "faBolt" },
+  { key: "decisionCalendarConnection", sortOrder: 2, name: "i18n.convex.runtime.workflowDecisions.calendarConnection.title", description: "i18n.convex.runtime.workflowDecisions.calendarConnection.description", icon: "faCloud" },
+];
 
 /**
  * @public
  * @since 0.0.38
- * @version 0.0.1
+ * @version 0.0.2
  * @description Returns the runtime configuration for the application
  * -> The runtime configuration contains the languages and template variables for the application */
 export const get = query({
@@ -61,6 +74,7 @@ export const get = query({
   handler: async (ctx, { license }): Promise<ConvexRuntimeAPIProps> => {
     return {
       templateVariables: TEMPLATE_VARIABLES,
+      workflowDecisions: WORKFLOW_DECISIONS,
       hasPremiumLicense: license === "premium",
       license: license === "freemium"
         ? { features: FREEMIUM_FEATURES, counter: { linkedProviderCount: 1, workflowCount: 1, activeEventTypesCount: 1 } } 

@@ -5,13 +5,14 @@ import { getLocalization, LanguageEnumProps, resolveRuntimeIcon } from "@/helper
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useConfigurationContextStore } from "@/context/ConfigurationContext";
 import { STYLES } from "@codemize/constants/Styles";
-import { ConvexTemplateAPIProps } from "@codemize/backend/Types";
+import { ConvexRuntimeAPIWorkflowDecisionProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 import TextBase from "../typography/Text";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
+import { useUserContextStore } from "@/context/UserContext";
 
 /**
  * @public
@@ -22,7 +23,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
 export type ListTemplatesWorkflowDecisionProps = {
   maxHeight?: DimensionValue;
   showListGroup?: boolean;
-  onPress: (template: ConvexTemplateAPIProps) => void;
+  onPress: (decision: ConvexRuntimeAPIWorkflowDecisionProps) => void;
 }
 
 /**
@@ -32,7 +33,7 @@ export type ListTemplatesWorkflowDecisionProps = {
  * @version 0.0.2
  * @param {ListTemplatesWorkflowDecisionProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
- * @param {(template: ConvexTemplateAPIProps) => void} param0.onPress - The function to call when a template is pressed
+ * @param {(decision: ConvexRuntimeAPIWorkflowDecisionProps) => void} param0.onPress - The function to call when a decision is pressed
  * @component */
 const ListTemplatesWorkflowDecision = ({
   maxHeight = "100%",
@@ -40,13 +41,13 @@ const ListTemplatesWorkflowDecision = ({
   onPress,
 }: ListTemplatesWorkflowDecisionProps) => {
   /** @description Returns all the workflow decisions stored in the context for the currently signed in user */
-  const templates = useConfigurationContextStore((state) => state.templates).filter((template) => template.isGlobal);
-  const memoizedTemplates = React.useMemo(() => templates.filter((template) => template.isGlobal), [templates]);
+  const workflowDecisions = useUserContextStore((state) => state.runtime.workflowDecisions);
+  const memoizedDecisions = React.useMemo(() => workflowDecisions, [workflowDecisions]);
   
   /** @description Internal function to call the onPress function */
   const onPressInternal = React.useCallback(
-    (template: ConvexTemplateAPIProps) => 
-    (e: GestureResponderEvent) => onPress(template), [onPress]);
+    (decision: ConvexRuntimeAPIWorkflowDecisionProps) => 
+    (e: GestureResponderEvent) => onPress(decision), [onPress]);
 
   return (
     <>
@@ -58,17 +59,17 @@ const ListTemplatesWorkflowDecision = ({
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ gap: 10 }}
       style={{ maxHeight }}>
-      {/*memoizedTemplates.map((template) => (
+      {memoizedDecisions.map((decision) => (
         <TouchableHaptic 
-          key={template._id}
-          onPress={onPressInternal(template)}>
+          key={decision.key}
+          onPress={onPressInternal(decision)}>
           <ListItemWithChildren
-            title={template.name || ""}
-            description={template.description || ""}
+            title={decision.name}
+            description={decision.description}
             type={ListItemWithChildrenTypeEnum.navigation}
-            icon={resolveRuntimeIcon(template.icon || "faFileDashedLine")} />
+            icon={resolveRuntimeIcon(decision.icon || "faFlagCheckered")} />
         </TouchableHaptic>
-      ))*/}
+      ))}
     </ScrollView>
     </>
   );

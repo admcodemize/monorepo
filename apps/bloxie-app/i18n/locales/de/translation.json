@@ -4,10 +4,14 @@
       "comingSoon": "Bald verfügbar",
       "active": "Aktiv",
       "inactive": "Inaktiv",
-      "hint": "Hinweis:"
+      "hint": "Hinweis:",
+      "subject": "Betreff",
+      "templates": "Vorlagen",
+      "variables": "Dynamische Inhalte"
     },
     "buttons": {
-      "close": "Schliessen"
+      "close": "Schliessen",
+      "save": "Speichern"
     },
     "searchField": {
       "placeholder": "Suchen"
@@ -175,11 +179,19 @@
       },
       "trayWorkflowActionTemplates": {
         "title": "Vorlagen",
-        "description": "Wähle eine Vorlage aus um deine Aktion zu personalisieren. Die Vorlage beinhaltet eine vordefinierte E-Mail-Nachricht, welche nachträglich auf die persönlichen Bedürfnissen angepasst werden kann."
+        "description": "Wähle eine Vorlage aus um deine Aktion zu personalisieren. Eine vordefinierte E-Mail-Nachricht ist enthalten, welche nachträglich auf die persönlichen Bedürfnissen angepasst werden kann."
       },
-      "trayWorkflowDecisionTemplates": {
+      "trayWorkflowDecisions": {
         "title": "Entscheidungsvorlagen",
-        "description": "Wähle eine Entscheidung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+        "description": "Wähle eine Entscheidung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren.",
+        "eventType": {
+          "title": "Ereignistyp",
+          "description": "Wähle einen Ereignistyp aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+        },
+        "calendarConnection": {
+          "title": "Kalenderverbindung",
+          "description": "Wähle eine Kalenderverbindung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+        }
       },
       "trayWorkflows": {
         "title": "Workflows",
@@ -216,6 +228,16 @@
           "eventParticipantsCount": "Anzahl Teilnehmer",
           "companyName": "Firmenname",
           "companyAddress": "Firmenadresse"
+        },
+        "workflowDecisions": {
+          "eventType": {
+            "title": "Termintypen",
+            "description": "Der Termintyp definiert die unterschiedlichen Buchungsoptionen für den Termin."
+          },
+          "calendarConnection": {
+            "title": "Kalenderverbindung",
+            "description": "Die Kalenderverbindungen definiert die Quelle der Termine für die Buchung."
+          }
         }
       }
     }

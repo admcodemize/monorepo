@@ -4,7 +4,9 @@ import { faBrightnessLow, faCodeCommit, faEnvelope, faEnvelopeCircleCheck, faEnv
 
 import WorkflowFooter from "@/components/layout/footer/WorkflowFooter";
 import { WorkflowCanvas, WorkflowAdditionPayload, WorkflowNodeType } from "@/components/container/WorkflowCanvas";
+import type { WorkflowNode, WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
 import { ConvexTemplateAPIProps } from "@codemize/backend/Types";
+import DropdownOverlay from "@/components/container/DropdownOverlay";
 
 /**
  * @public
@@ -107,6 +109,37 @@ const ScreenConfigurationWorkflowProvider = () => {
             return next;
           });
           console.log("onAddNodeItem", _nodes);
+        }}
+        onRemoveNodeItem={(node: any, key: string) => {
+          console.log("onRemoveNodeItemProvider", key);
+          setNodes(prev => {
+            const next = prev.map(existing => {
+              if (existing.id !== node.id) {
+                return existing;
+              }
+              return {
+                ...existing,
+                items: (existing.items ?? []).filter((item: any) => item.id !== key),
+              };
+            });
+            return next;
+          });
+        }}
+        onChangeNodeItem={(node: WorkflowNode, item: WorkflowNodeItemProps) => {
+          setNodes(prev => prev.map(existing => {
+            if (existing.id !== node.id) {
+              return existing;
+            }
+
+            const items = (existing.items ?? []).map((existingItem: WorkflowNodeItemProps) =>
+              existingItem.id === item.id ? { ...existingItem, ...item } : existingItem,
+            );
+
+            return {
+              ...existing,
+              items,
+            };
+          }));
         }}
       />
       <WorkflowFooter />

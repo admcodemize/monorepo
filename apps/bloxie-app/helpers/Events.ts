@@ -2,6 +2,22 @@ import React from "react";
 import { ConvexEventsAPIProps } from "@codemize/backend/Types";
 
 import { ListRenderItemEventProps } from "@/components/calendar/day/CalendarDayList";
+import { PNG_ASSETS } from "@/assets/png";
+import { ImageSourcePropType } from "react-native";
+import { ProviderEnum } from "@/constants/Provider";
+
+/**
+ * @public
+ * @description Returns the image asset by provider
+ * @param {string} provider - Provider
+ * @function */
+export const getImageAssetByProvider = (provider: ProviderEnum): ImageSourcePropType => {
+  return provider === ProviderEnum.GOOGLE 
+    ? PNG_ASSETS.googleMail 
+    : provider === ProviderEnum.MICROSOFT 
+      ? PNG_ASSETS.outlookMail 
+      : PNG_ASSETS.slackCalendar;
+};
 
 /**
    * @private
@@ -152,3 +168,4 @@ export const prepareEvents = React.useMemo((): ListRenderItemEventProps[] => {
     items = [...items, ...calculateEventsLayout(group, columns, slots, columns.length)];
   } return items;
 }, [prepareConflictGroups]);
+

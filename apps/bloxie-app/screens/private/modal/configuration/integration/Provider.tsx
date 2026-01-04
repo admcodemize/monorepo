@@ -1,7 +1,7 @@
 import React from "react";
 import { Image, ImageSourcePropType, ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next";
-import { faAlarmClock, faLink } from "@fortawesome/duotone-thin-svg-icons";
+import { faAlarmClock, faCloud } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { ReactAction, useAction } from "convex/react";
 
@@ -247,7 +247,7 @@ const ScreenConfigurationIntegrationProviderItem = ({
           <View style={GlobalContainerStyle.rowCenterBetween}>
             <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
               <TouchableTag
-                icon={faLink as IconProp}
+                icon={faCloud as IconProp}
                 text={hasConnections ? "i18n.screens.integrations.activeConnections" : "i18n.screens.integrations.noConnections"}
                 isActive={hasConnections}
                 backgroundColor={hasConnections ? successColor : inactiveColor}

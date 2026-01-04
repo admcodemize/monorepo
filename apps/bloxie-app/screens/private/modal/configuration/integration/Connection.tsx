@@ -1,7 +1,7 @@
 import React from "react";
 import { Image, ScrollView, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { faLink, faLinkSlash, faPaperPlane } from "@fortawesome/duotone-thin-svg-icons";
+import { faCloud, faCloudSlash, faPaperPlane } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
@@ -170,7 +170,7 @@ const IntegrationHeader = ({
               backgroundColor: focusedBgColor 
             }]}>
               <FontAwesomeIcon 
-                icon={faLinkSlash as IconProp} 
+                icon={faCloudSlash as IconProp} 
                 size={12} 
                 color={focusedContentColor} />
             </View>
@@ -259,7 +259,7 @@ const IntegrationCalendar = ({
             {calendars?.map((calendar) => (
               <TouchableTag
                 key={`${KEYS.integrationConnectionCalendar}-${calendar._id}`}
-                icon={faLink as IconProp}
+                icon={faCloud as IconProp}
                 text={calendar.description}
                 colorActive={linkColor}
                 isActive={calendar.isRelevantForConflictDetection}

@@ -2,10 +2,10 @@ import ScreenTrayAction from "@/screens/private/tray/main/Action";
 import ScreenTrayCalendarDay from "@/screens/private/tray/main/CalendarDay";
 import ScreenTrayDashboard from "@/screens/private/tray/main/Dashboard";
 import ScreenTraySyncedCalendar from "@/screens/private/tray/main/SyncedCalendar";
-import ScreenTrayDecisionTemplateList, { ScreenTrayDecisionTemplateListProps } from "@/screens/private/tray/modal/workflow/ActionDecisionList";
+import ScreenTrayDecisionTemplateList, { ScreenTrayDecisionTemplateListProps } from "@/screens/private/tray/main/workflow/ActionDecisionList";
 import ScreenTrayActionTemplate, { ScreenTrayActionTemplateProps } from "@/screens/private/tray/modal/workflow/ActionTemplate";
-import ScreenTrayActionTemplateList, { ScreenTrayActionTemplateListProps } from "@/screens/private/tray/modal/workflow/ActionTemplateList";
-import ScreenTrayWorkflows, { ScreenTrayWorkflowsProps } from "@/screens/private/tray/modal/workflow/Workflows";
+import ScreenTrayActionTemplateList, { ScreenTrayActionTemplateListProps } from "@/screens/private/tray/main/workflow/ActionTemplateList";
+import ScreenTrayWorkflows, { ScreenTrayWorkflowsProps } from "@/screens/private/tray/main/workflow/Workflows";
 import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
 
 /**
@@ -52,7 +52,7 @@ export const stackConfigs = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.6
+ * @version 0.0.7
  * @object */
 export const trays = {
   main: {
@@ -65,6 +65,6 @@ export const trays = {
     WorkflowDecisionTemplateListTray: { component: (props: ScreenTrayDecisionTemplateListProps) => <ScreenTrayDecisionTemplateList {...props} /> },
   },
   modal: {
-    WorkflowEditActionTray: { component: (props: ScreenTrayActionTemplateProps) => <ScreenTrayActionTemplate {...props} /> },
+    WorkflowActionTemplateTray: { component: (props: ScreenTrayActionTemplateProps) => <ScreenTrayActionTemplate {...props} /> },
   },
 };

@@ -47,7 +47,6 @@ const TouchableDropdownItemBase = ({
   onPress
 }: TouchableDropdownItemBaseProps) => {
   const colors = useThemeColors();
-
   return (
     <TouchableDropdownItem
       itemKey={itemKey}
@@ -57,13 +56,10 @@ const TouchableDropdownItemBase = ({
           <FontAwesomeIcon
             icon={icon as IconProp}
             size={STYLES.sizeFaIcon}
-            color={!isSelected ? colors.primaryIconColor : colors.focusedContentColor} />
+            color={!isSelected ? colors.infoColor : colors.focusedContentColor} />
           <TextBase
             text={text}
-            style={[GlobalTypographyStyle.textSubtitle, { 
-              fontSize: 10, 
-              color: !isSelected ? colors.primaryIconColor : colors.focusedContentColor 
-            }]} />
+            style={[GlobalTypographyStyle.labelText, { color: !isSelected ? colors.infoColor : colors.focusedContentColor }]} />
         </View>
     </TouchableDropdownItem>
   )

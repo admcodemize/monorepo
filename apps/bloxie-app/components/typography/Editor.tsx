@@ -94,6 +94,19 @@ export const hydrateTemplate = (
 
 /**
  * @public
+ * Converts enriched HTML back into the template placeholder format.
+ * @since 0.0.39
+ * @version 0.0.1
+ * @description Replaces mention tags (inserted inside the editor) with the original {{variable}} pattern.
+ * @param {string} html - The html string to dehydrate
+ * @function */
+export const dehydrateTemplate = (html: string) =>
+  normalizeHtml(html)
+    .replace(/\u200B/g, '')
+    .replace(/<mention[^>]*text="([^"]+)"[^>]*>.*?<\/mention>/g, (_, pattern) => `{{${pattern}}}`);
+
+/**
+ * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.39
  * @version 0.0.1

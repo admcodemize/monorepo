@@ -8,6 +8,7 @@ import { measureInWindowLeft } from "@/helpers/System";
 import TouchableDropdownStyle from "@/styles/components/button/TouchableDropdown";
 
 const DIM = Dimensions.get("window");
+export const DEFAULT_DROPDOWN_WIDTH = 175;
 
 /**
  * @public
@@ -18,6 +19,7 @@ const DIM = Dimensions.get("window");
 export type TouchableDropdownProps = PropsWithChildren & ViewStyle & {
   style?: ViewStyle|ViewStyle[];
   gapBetweenItems?: number;
+  width?: number;
 }
 
 /**
@@ -38,9 +40,10 @@ export type OpenDropdownProps = PropsWithChildren & {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @param {OpenDropdownProps} param0 
  * @param {React.RefObject<View>} param0.refTouchable - The touchable ref
+ * @param {React.RefObject<View>} param0.relativeToRef - The relative to ref for calculating the position
  * @param {number} param0.containerWidth - The dropdown width
  * @param {string} param0.hostId - So that different overlay hosts can be controlled e.g. "tray" or "dashboard"
  * @param {Function} param0.open - The open function
@@ -49,7 +52,7 @@ export type OpenDropdownProps = PropsWithChildren & {
 export const open = ({
   refTouchable,
   relativeToRef,
-  containerWidth = 175,
+  containerWidth = DEFAULT_DROPDOWN_WIDTH,
   hostId,
   open,
   children,
@@ -83,7 +86,7 @@ export const open = ({
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a positioned dropdown based on parent component
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Object} param0 
  * @param {ViewStyle} param0.style - Custom dropdown style
  * @param {number} param0.gapBetweenItems - Gap between items */
@@ -91,6 +94,7 @@ const TouchableDropdown = ({
   style,
   gapBetweenItems = 4,
   children,
+  width = DEFAULT_DROPDOWN_WIDTH,
   ...props
 }: TouchableDropdownProps) => {  
   const colors = useThemeColors();
@@ -98,7 +102,8 @@ const TouchableDropdown = ({
     <View 
       style={[TouchableDropdownStyle.view, {
         backgroundColor: colors.primaryBgColor,
-        borderColor: colors.tertiaryBorderColor
+        borderColor: colors.tertiaryBorderColor,
+        width,
       }, style]}
       {...props}>
         <ScrollView

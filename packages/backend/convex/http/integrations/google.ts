@@ -165,7 +165,7 @@ export const httpActionGoogleExchange = httpAction(async ({ runMutation, runActi
   const [errUser, user] = await fetchTypedConvex(runQuery(internal.sync.users.query.get, { _id: userId }), "BLOXIE_HAR_GE_E08");
   const [errRuntime, runtime] = await fetchTypedConvex(runQuery(api.sync.runtime.query.get, { license: user.license }), "BLOXIE_HAR_GE_E09");
 
-  if (linkedAccounts.length >= runtime.license.counter.linkedProviderCount) return convexResponse<null>({
+  if (linkedAccounts.length >= runtime.license.counter.linkedProviderCount && !grantScopeGmail) return convexResponse<null>({
     convex: convexError({
       code: 405,
       info: "i18n.convex.http.integrations.google.error.linkedProviderLimitReached",

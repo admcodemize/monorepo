@@ -48,7 +48,8 @@ import Divider from './Divider';
 import { useTrays } from 'react-native-trays';
 import { ConvexTemplateAPIProps } from '@codemize/backend/Types';
 import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
-import { LanguageEnumProps } from '@/helpers/System';
+import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
+import DropdownOverlay from './DropdownOverlay';
 
 export type WorkflowNodeType = 'start' | 'action' | 'decision' | 'end';
 
@@ -60,6 +61,7 @@ export type WorkflowNodeItemProps = {
   language: LanguageEnumProps;
   subject: string;
   content: string;
+  isActive?: boolean;
   _id: Id<"template">;
 };
 
@@ -107,6 +109,8 @@ type WorkflowCanvasProps = {
   onNodePress?: (node: WorkflowNode) => void;
   onAddNode?: (connection: WorkflowAdditionPayload|null, type: WorkflowNodeType) => void;
   onAddNodeItem?: (node: WorkflowNode, item: ConvexTemplateAPIProps) => void;
+  onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
+  onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
   renderNode?: (node: WorkflowNode) => React.ReactNode;
   gesturesEnabled?: boolean;
   children?: React.ReactNode;
@@ -304,6 +308,8 @@ export function WorkflowCanvas({
   onNodePress,
   onAddNode,
   onAddNodeItem,
+  onRemoveNodeItem,
+  onChangeNodeItem,
   renderNode,
   gesturesEnabled = false,
   children,
@@ -504,6 +510,7 @@ export function WorkflowCanvas({
   }, []);
 
   return (
+    <>
     <GestureDetector gesture={gesture}>
       <View style={styles.container}>
       <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
@@ -514,7 +521,7 @@ export function WorkflowCanvas({
         </Defs>
         <Rect width="100%" height="100%" fill="url(#dots)" />
         </Svg>
-        <ScrollView>
+        <ScrollView style={{ maxHeight: "85%"}} showsVerticalScrollIndicator={false}>
           <Animated.View style={[styles.content, animatedStyle]}>
             <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
               {/*<Defs>
@@ -585,6 +592,8 @@ export function WorkflowCanvas({
                     isFirst={index === 0}
                     isLast={index === nodeList.length - 1}
                     onAddNodeItem={onAddNodeItem}
+                    onRemoveNodeItem={onRemoveNodeItem}
+                    onChangeNodeItem={onChangeNodeItem}
                     onLayout={layout => handleNodeLayout(node.id, layout)}
                   />
                 ))
@@ -595,6 +604,8 @@ export function WorkflowCanvas({
         </ScrollView>
       </View>
     </GestureDetector>
+    <DropdownOverlay />
+    </>
   );
 }
 
@@ -603,10 +614,12 @@ type WorkflowNodeProps = {
   isFirst: boolean;
   isLast: boolean;
   onAddNodeItem?: (node: WorkflowNode,item: ConvexTemplateAPIProps) => void;
+  onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
+  onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
   onLayout: (layout: LayoutRectangle) => void;
 };
 
-const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onLayout }: WorkflowNodeProps) => {
+const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, onChangeNodeItem, onLayout }: WorkflowNodeProps) => {
   const { secondaryBgColor, errorColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
@@ -731,12 +744,17 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onLayout }: Workfl
         )}
 
         {node.type === 'action' && isOpen &&
-        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4 }}>
-          {node.items?.map((item) => <WorkflowNodeAction key={item.id} item={item} color={typeAccent[node.type]} />)}
+        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
+          {node.items?.map((item) => <WorkflowNodeAction key={item.id} item={item} color={typeAccent[node.type]} onRemoveNodeItem={() => {
+            onRemoveNodeItem?.(node, item.id);
+            console.log("onRemoveNodeItem", node, item.id);
+          }} onChangeNodeItem={(item: WorkflowNodeItemProps) => {
+            onChangeNodeItem?.(node, item);
+          }} />)}
         </View>}
 
         {node.type === 'decision' &&
-        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4 }}>
+        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
           {node.items?.map((item) => <WorkflowNodeDecision key={item.id} {...item} />)}
         </View>}
 
@@ -902,18 +920,32 @@ const WorkflowNodeTriggerTime = ({ node }: { node: WorkflowNode }) => {
 };
 
 
-const WorkflowNodeAction = ({ item, color }: { item: WorkflowNodeItemProps, color: string }) => {
-  const { secondaryBgColor, errorColor, successColor } = useThemeColors();
-
+const WorkflowNodeAction = ({ item, color, onRemoveNodeItem, onChangeNodeItem }: { item: WorkflowNodeItemProps, color: string, onRemoveNodeItem?: () => void, onChangeNodeItem?: (item: WorkflowNodeItemProps) => void }) => {
+  const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
+  const [isActive, setIsActive] = React.useState<boolean>(item.isActive ?? true);
+  const [name, setName] = React.useState<string>(item.name);
 
   const { push, dismiss } = useTrays('modal');
 
+  React.useEffect(() => {
+    setIsActive(item.isActive ?? true);
+  }, [item.isActive]);
+
+  React.useEffect(() => {
+    setName(item.name);
+  }, [item.name]);
+
   const onPressEditAction = React.useCallback(() => {
-    console.log("item", item);
-    push('WorkflowEditActionTray', { item, onAfterSave: () => {
-      dismiss('WorkflowEditActionTray');
-    } });
-  }, [push, dismiss, item]);
+    push('WorkflowActionTemplateTray', {
+      item,
+      onAfterSave: (updated: WorkflowNodeItemProps) => {
+        onChangeNodeItem?.(updated);
+        setName(updated.name);
+        setIsActive(updated.isActive ?? true);
+        dismiss('WorkflowActionTemplateTray');
+      },
+    });
+  }, [push, dismiss, item, onChangeNodeItem]);
 
 
   return (
@@ -930,8 +962,24 @@ const WorkflowNodeAction = ({ item, color }: { item: WorkflowNodeItemProps, colo
       ]}
     >
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-      <FontAwesomeIcon icon={item.icon as IconProp} size={18} color={color} />
-      <TextBase text={item.name} type="label" style={{ color: color }} />
+      <FontAwesomeIcon icon={resolveRuntimeIcon(String(item?.icon || "faCodeCommit")) as IconProp} size={16} color={infoColor} />
+      <TextInput
+        value={name}
+        placeholder="Name der Aktion"
+        autoFocus={true}
+        style={{
+          color: color,
+          fontSize: Number(SIZES.label),
+          fontFamily: String(FAMILIY.subtitle),
+          maxWidth: 180
+        }}
+        onChangeText={(text) => {
+          setName(text);
+          onChangeNodeItem?.({
+            ...item,
+            name: text,
+          });
+        }}/>
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
         <TouchableHaptic onPress={onPressEditAction}>
@@ -942,23 +990,36 @@ const WorkflowNodeAction = ({ item, color }: { item: WorkflowNodeItemProps, colo
         </TouchableHaptic>
         <Divider vertical />
         <TouchableHapticIcon
-          icon={faPlay as IconProp}
+          icon={isActive ? faPlay as IconProp : faPause as IconProp}
           iconSize={12}
-          iconColor={successColor}
+          iconColor={isActive ? successColor : errorColor}
           hasViewCustomStyle={true}
-          onPress={() => {}}/>
+          onPress={() => {
+            setIsActive((prev) => {
+              const next = !prev;
+              onChangeNodeItem?.({
+                ...item,
+                isActive: next,
+              });
+              return next;
+            });
+          }}/>
         <TouchableHapticIcon
           icon={faXmark as IconProp}
           iconSize={12}
           hasViewCustomStyle={true}
-          onPress={() => {}}/>
+          onPress={() => {
+            onRemoveNodeItem?.();
+          }}/>
       </View>
     </View>
   );
 };
 
 const WorkflowNodeDecision = ({ name, icon }: WorkflowNodeItemProps) => {
-  const { secondaryBgColor, tertiaryBgColor, errorColor } = useThemeColors();
+  const { secondaryBgColor, tertiaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
+  const [isActive, setIsActive] = React.useState<boolean>(true);
+
   return (
     <View
       style={[
@@ -972,27 +1033,28 @@ const WorkflowNodeDecision = ({ name, icon }: WorkflowNodeItemProps) => {
         },
       ]}
     >
-      <TouchableHapticDropdown
-        icon={icon as IconProp}
+      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
+      <FontAwesomeIcon icon={resolveRuntimeIcon(String(icon || "faCodeCommit")) as IconProp} size={16} color={infoColor} />
+      <TextBase
         text={name}
-        backgroundColor={tertiaryBgColor}
-        hasViewCustomStyle
-        textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}/>
+        type="label"
+        style={{ color: infoColor, maxWidth: 180 }} />
+      </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
         <TouchableHaptic>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-            {/* <FontAwesomeIcon icon={faPenNibSlash as IconProp} size={16} color={color} /> */}
             <TextBase text="Bearbeiten" type="label" style={{  }} />
           </View>
         </TouchableHaptic>
         <Divider vertical />
         <TouchableHapticIcon
-          icon={faPause as IconProp}
+          icon={isActive ? faPlay as IconProp : faPause as IconProp}
           iconSize={12}
-          iconColor={errorColor}
+          iconColor={isActive ? successColor : errorColor}
           hasViewCustomStyle={true}
-          onPress={() => {}}/>
+          onPress={() => {
+            setIsActive((prev) => !prev);
+          }}/>
         <TouchableHapticIcon
           icon={faXmark as IconProp}
           iconSize={12}

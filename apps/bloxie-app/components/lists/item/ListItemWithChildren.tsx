@@ -39,10 +39,13 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
   icon?: IconProp;
   iconSize?: number;
   image?: ImageSourcePropType;
+  imageWidth?: number;
+  imageHeight?: number;
   title: string;
   description?: string;
   titleI18nTranslation?: boolean;
   descriptionI18nTranslation?: boolean;
+  gap?: number;
   type?: ListItemWithChildrenTypeEnum;
   showDescription?: boolean;
   top?: React.ReactNode;
@@ -62,12 +65,15 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
  * @param {IconProp} param0.icon - The icon to display
  * @param {number} param0.iconSize - The custom size of the icon
  * @param {ImageSourcePropType} param0.image - The image to display (SVG)
+ * @param {number} param0.imageWidth - The width of the image
+ * @param {number} param0.imageHeight - The height of the image
  * @param {string} param0.title - The title of the list item
  * @param {string} param0.description - The description of the list item
  * @param {boolean} param0.titleI18nTranslation - Should the title be translated
  * @param {boolean} param0.descriptionI18nTranslation - Should the description be translated
  * @param {ListItemWithChildrenTypeEnum} param0.type - The type of the list item which handles the visibility of different components
  * @param {boolean} param0.showDescription - Should the description be displayed
+ * @param {number} param0.gap - The gap between the items (icon or image and content)
  * @param {React.ReactNode} param0.top - The top component to display on the top side of the list item
  * @param {React.ReactNode} param0.right - The right component to display on the right side of the list item
  * @param {React.ReactNode} param0.bottom - The bottom component to display on the bottom side of the list item
@@ -79,12 +85,15 @@ const ListItemWithChildren = ({
   icon,
   iconSize = STYLES.sizeFaIcon + 6,
   image,
+  imageWidth = STYLES.sizeFaIcon + 18,
+  imageHeight = STYLES.sizeFaIcon + 24,
   title,
   description,
   titleI18nTranslation = true,
   descriptionI18nTranslation = true,
   type = ListItemWithChildrenTypeEnum.select,
   showDescription = true,
+  gap = STYLES.sizeGap,
   top,
   right,
   bottom,
@@ -93,22 +102,25 @@ const ListItemWithChildren = ({
   children,
 }: ListItemWithChildrenProps) => {
   const { primaryIconColor, infoColor, errorColor } = useThemeColors();
-
   return (
     <View style={{ gap: STYLES.sizeGap }}>
       {top}
       <View style={[GlobalContainerStyle.rowStartStart, ListItemWithChildrenStyle.border]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap + 4 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: gap || STYLES.sizeGap + 4 }]}>
           {icon && !image && <FontAwesomeIcon
             icon={icon}
             size={iconSize}
             color={primaryIconColor} />}
-          {image &&!icon && <Image source={image} style={{ height: STYLES.sizeFaIcon + 24, width: STYLES.sizeFaIcon + 18 }} resizeMode="cover"/>}
+          {image &&!icon && <Image 
+            source={image} 
+            style={{ height: imageHeight, width: imageWidth }} 
+            resizeMode="cover"/>}
           <View style={[GlobalContainerStyle.rowCenterBetween, { flex: 1 }]}>
             <View style={[{ flexShrink: 1, gap: showDescription ? 1 : 0 }, styleTextComponent]}>
               <TextBase 
                 text={title}
                 i18nTranslation={titleI18nTranslation}
+                numberOfLines={1}
                 style={[GlobalTypographyStyle.textSubtitle, { color: infoColor }]} />
               {showDescription && description && <TextBase 
                 text={description}

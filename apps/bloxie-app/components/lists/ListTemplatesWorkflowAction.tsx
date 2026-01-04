@@ -17,11 +17,12 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 export type ListTemplatesWorkflowActionProps = {
   maxHeight?: DimensionValue;
   showListGroup?: boolean;
+  showWithoutTemplateOption?: boolean;
   onPress: (template: ConvexTemplateAPIProps) => void;
 }
 
@@ -29,14 +30,17 @@ export type ListTemplatesWorkflowActionProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.2
+ * @version 0.0.3
  * @param {ListTemplatesWorkflowActionProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
+ * @param {boolean} param0.showListGroup - Whether to show the list group
+ * @param {boolean} param0.showWithoutTemplateOption - Whether to show the option to continue without a template
  * @param {(template: ConvexTemplateAPIProps) => void} param0.onPress - The function to call when a template is pressed
  * @component */
 const ListTemplatesWorkflowAction = ({
   maxHeight = "100%",
   showListGroup = true,
+  showWithoutTemplateOption = true,
   onPress,
 }: ListTemplatesWorkflowActionProps) => {
   const { linkColor } = useThemeColors();
@@ -71,15 +75,16 @@ const ListTemplatesWorkflowAction = ({
         </TouchableHaptic>
       ))}
     </ScrollView>
-    <View style={[GlobalContainerStyle.rowCenterBetween, { paddingVertical: 10 }]}>
+    {showWithoutTemplateOption && <View style={[GlobalContainerStyle.rowCenterBetween, { paddingVertical: 10 }]}>
       <View />
       <TouchableHaptic onPress={onPressInternal({ 
+        icon: "faCodeCommit",
         type: "workflow", 
         language: getLocalization().code as LanguageEnumProps 
       })}>
         <TextBase text="Ohne Vorlage fortfahren" type="label" color={linkColor} />
       </TouchableHaptic>
-    </View>
+    </View>}
     </>
   );
 };

@@ -26,7 +26,7 @@ type DropdownItemProps = PropsWithChildren & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a positioned dropdown based on parent component
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @param {Object} param0 
  * @param {string|number} param0.itemKey - The key of the dropdown item
  * @param {boolean} param0.isSelected - Handles the selected state of the dropdown item
@@ -63,7 +63,7 @@ const TouchableDropdownItem = ({
       style={[{
         padding: STYLES.paddingVertical - 2,
         backgroundColor: isSelected ? colors.focusedBgColor : undefined,
-        borderRadius: 6,
+        borderRadius: 4,
         ...style
       }]}>
         {children}

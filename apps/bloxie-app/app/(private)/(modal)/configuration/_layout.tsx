@@ -17,10 +17,10 @@ const ModalConfigurationLayout = () => {
       <TrayProvider 
         stackConfigs={stackConfigs}
         trays={{ ...trays.main, ...trays.modal }}>
-        <Stack screenOptions={{ headerShown: false, presentation: "fullScreenModal" }}>
-          <Stack.Screen name="integration" />
-          <Stack.Screen name="workflow" />
-        </Stack>
+          <Stack screenOptions={{ headerShown: false, presentation: "fullScreenModal" }}>
+            <Stack.Screen name="integration" />
+            <Stack.Screen name="workflow" />
+          </Stack>
       </TrayProvider>
     </ConfigurationProvider>
   );

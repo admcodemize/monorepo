@@ -13,7 +13,6 @@ const TouchableDropdownStyle = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 6,
-    width: "auto",
     zIndex: LEVEL.level3
   },
   header: {

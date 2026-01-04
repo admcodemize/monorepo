@@ -1,50 +1,48 @@
-import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
-import { Image, ScrollView, TextInput, Touchable, View } from "react-native";
-import TextBase from "@/components/typography/Text";
-import TrayHeader from "@/components/container/TrayHeader";
-import { STYLES } from "@codemize/constants/Styles";
-import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import Divider from "@/components/container/Divider";
-import { format } from "date-fns";
-import { getLocalization, resolveRuntimeIcon } from "@/helpers/System";
+import React, { Dispatch, SetStateAction } from "react";
+import { GestureResponderEvent, Image, ScrollView, View } from "react-native";
+import type { EnrichedTextInputInstance } from 'react-native-enriched';
+import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useTrays } from "react-native-trays";
+import { t } from "i18next";
+import { faFileDashedLine, faKeyboardDown, faLanguage, faSquareRootVariable, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../../packages/backend/convex/_generated/api";
-import { useAuth } from "@clerk/clerk-expo";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
-import { useConvexUser } from "@/hooks/auth/useConvexUser";
-import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
-import { faEnvelope, faStrikethrough } from "@fortawesome/pro-solid-svg-icons";
-import GlobalContainerStyle from "@/styles/GlobalContainer";
-import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
-import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
-import { shadeColor } from "@codemize/helpers/Colors";
-import { PNG_ASSETS } from "@/assets/png";
-import { EnrichedTextInput } from 'react-native-enriched';
-import type {
-  EnrichedTextInputInstance,
-  OnChangeStateEvent,
-} from 'react-native-enriched';
-import React from "react";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import TouchableHaptic from "@/components/button/TouchableHaptic";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faAt, faHashtag, faLink } from "@fortawesome/pro-thin-svg-icons";
-import { faAlarmClock, faArrowRightToDottedLine, faBracketsCurly, faBuilding, faBuildings, faCalendarDay, faClone, faFileDashedLine, faFloppyDisk, faH2, faH3, faHeading, faKeyboard, faKeyboardDown, faLanguage, faLocationDot, faParagraph, faPlus, faRightFromBracket, faSquareRootVariable, faUsers } from "@fortawesome/duotone-thin-svg-icons";
-import { faBold, faItalic, faUnderline, faListOl, faListUl, faH1, faQuoteLeft, faBlockQuote, faCode } from "@fortawesome/pro-solid-svg-icons";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import WorkflowFooterStyle from "@/styles/components/layout/footer/private/WorkflowFooter";
-import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 
+import { shadeColor } from "@codemize/helpers/Colors";
+import { ConvexLinkedAPIProps, ConvexRuntimeAPITemplateVariableProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
+import { getImageAssetByProvider } from "@/helpers/Events";
+import { ProviderEnum } from "@/constants/Provider";
+import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
+import { STYLES } from "@codemize/constants/Styles";
+
+import { useThemeColors } from "@/hooks/theme/useThemeColor";
+import { useConvexUser } from "@/hooks/auth/useConvexUser";
+import { useDropdown } from "@/hooks/button/useDropdown";
+import { useUserContextStore } from "@/context/UserContext";
+import { resolveRuntimeIcon } from "@/helpers/System";
+import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
+
+import TextBase from "@/components/typography/Text";
+import Divider from "@/components/container/Divider";
+import TouchableDropdown, { open as _open } from "@/components/button/TouchableDropdown";
+import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
+import TouchableHaptic from "@/components/button/TouchableHaptic";
+import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import TouchableHapticText from "@/components/button/TouchableHapticText";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 import ListItemGroup from "@/components/container/ListItemGroup";
-import ListItemWithChildrenRow from "@/components/lists/item/ListItemWithChildrenRow";
-import { useConfigurationContextStore } from "@/context/ConfigurationContext";
-import { useUserContextStore } from "@/context/UserContext";
-import { ConvexRuntimeAPIProps } from "@codemize/backend/Types";
 import ListTemplatesWorkflowAction from "@/components/lists/ListTemplatesWorkflowAction";
-import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
-import Editor, { createInitialStyleState, EditorStyleState, hydrateTemplate, insertPatternValue, normalizeHtml } from "@/components/typography/Editor";
+import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
+import type { WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
+import DropdownOverlay from "@/components/container/DropdownOverlay";
+
+import GlobalContainerStyle from "@/styles/GlobalContainer";
+import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/ActionTemplate";
+import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedAccount";
+import ListProviderMailAccounts from "@/components/lists/ListProviderMailAccounts";
 
 const EDITOR_BASE_HEIGHT = 360;
 const TOOLBAR_HEIGHT = 40;
@@ -65,11 +63,44 @@ export enum FocusedEditorTypeEnum {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.40
+ * @version 0.0.1
+ * @enum */
+export enum ActionTouchableTypeEnum {
+  VARIABLES = "variables",
+  TEMPLATES = "templates",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.40
+ * @version 0.0.1
+ * @type */
+export type ActionTouchableType = ActionTouchableTypeEnum.VARIABLES | ActionTouchableTypeEnum.TEMPLATES;
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.34
  * @version 0.0.1
  * @type */
 export type ScreenTrayActionTemplateProps = {
-  onAfterSave: () => void;
+  item: WorkflowNodeItemProps;
+  onAfterSave: (item: WorkflowNodeItemProps) => void;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.40
+ * @version 0.0.1
+ * @type */
+export type ScreenTrayActionTemplateHeaderProps = {
+  name: string;
+  onPressClose: () => void;
+  containerRef: React.RefObject<View|null>;
+  mailAccountRef: React.RefObject<View|null>;
 }
 
 /**
@@ -80,23 +111,21 @@ export type ScreenTrayActionTemplateProps = {
  * @param {ScreenTrayActionTemplateProps} param0
  * @component */
 const ScreenTrayActionTemplate = ({ 
+  item,
   onAfterSave
 }: ScreenTrayActionTemplateProps) => {
   const refBody = React.useRef<EnrichedTextInputInstance>(null);
   const refSubject = React.useRef<EnrichedTextInputInstance>(null);
   const refFocused = React.useRef<EnrichedTextInputInstance|null>(null);
+  const refIsFocused = React.useRef<boolean>(false);
+  const refMailAccount = React.useRef<View|null>(null);
+  const refContainer = React.useRef<View|null>(null);
 
   /** @description Used to get the theme based colors */
   const { secondaryBgColor, primaryBorderColor, infoColor, tertiaryBgColor, primaryBgColor, linkColor } = useThemeColors();
-
-  const { convexUser } = useConvexUser();
   const { templateVariables } = useUserContextStore((state) => state.runtime);
-  const templates = useConfigurationContextStore((state) => state.templates);
 
-  /** @description Used to get all the linked mail accounts for the currently signed in user */
-  const linkedMailAccounts = useQuery(api.sync.integrations.query.linkedWithMailPermission, {
-    userId: convexUser?._id as Id<"users">
-  });
+  const { dismiss } = useTrays('modal');
 
   /** @description Handles the style state of the editor content and the highlighting of the styling buttons */
   const [styleState, setStyleState] = React.useState<EditorStyleState>(createInitialStyleState());
@@ -104,60 +133,24 @@ const ScreenTrayActionTemplate = ({
   /** @description Handles to change the focused ref of the editor content which is used for adding the dynamic content and templates */
   const onIsFocused = React.useCallback(
   (type: FocusedEditorTypeEnum) =>
-  (isFocused: boolean) => refFocused.current = type === FocusedEditorTypeEnum.BODY ? refBody.current : refSubject.current, [refBody, refSubject]);
+  (isFocused: boolean) => {
+    refIsFocused.current = isFocused;
+    refFocused.current = type === FocusedEditorTypeEnum.BODY ? refBody.current : refSubject.current
+  }, [refBody, refSubject]);
 
+  /** @description Hydrates the subject and body templates with the dynamic subject/content based on the loaded template */
+  const htmlSubject = React.useMemo(() => hydrateTemplate(item.subject ?? "", templateVariables), [item.subject, templateVariables]);
+  const htmlBody = React.useMemo(() => hydrateTemplate(item.content ?? "", templateVariables), [item.content, templateVariables]);
 
+  /** @description Sets the value of the subject and body editors based on the loaded template */
+  React.useEffect(() => refSubject.current?.setValue(htmlSubject), [htmlSubject]);
+  React.useEffect(() => refBody.current?.setValue(htmlBody), [htmlBody]);
 
-
-  const TEMPLATE_SUBJECT = normalizeHtml(`
-    <html>
-      <p>{{CompanyName}} - Erinnerung an Ereignis "{{EventTitle}}" </p>
-    </html>
-  `);
-
-  const TEMPLATE_BODY = normalizeHtml(`
-    <html>
-      <p>Sehr geehrte/r {{EventParticipant}} </p>
-      <br>
-      <p>Hiermit erinnere ich Sie an das Ereignis <b>{{EventTitle}}</b> am <b>{{EventDate}}</b>/<b>{{EventStartTime}}</b>.</p>
-      <br>
-      <p>Weitere Informationen:</p>
-      <p>Ort: {{EventLocation}} </p>
-      <p>Beschreibung: {{EventDescription}} </p>
-      <br>
-      <p>Freundliche Grüsse</p>
-      <p><b>{{EventOrganizer}} </b></p>
-      <p>{{CompanyAddress}} </p>
-    </html>
-  `);
-
-  
-  const htmlSubject = React.useMemo(() => hydrateTemplate(TEMPLATE_SUBJECT, templateVariables), []);
-  const htmlBody = React.useMemo(() => hydrateTemplate(TEMPLATE_BODY, templateVariables), []);
-  
-
-
-  const [areVariablesVisible, setAreVariablesVisible] = React.useState(false);
-  const [areTemplatesVisible, setAreTemplatesVisible] = React.useState(false);
+  /** @description Handles the dynamic height of the variables and templates lists which are not always visible */
   const variablesHeight = useSharedValue(0);
   const templatesHeight = useSharedValue(0);
-
-  const toggleVariables = React.useCallback(() => {
-    setAreVariablesVisible((prev) => {
-      const next = !prev;
-      variablesHeight.value = withTiming(next ? ANIMATED_HEIGHT : 0, { duration: 220 });
-      return next;
-    });
-  }, [variablesHeight]);
-  
-  const toggleTemplates = React.useCallback(() => {
-    setAreTemplatesVisible((prev) => {
-      const next = !prev;
-      templatesHeight.value = withTiming(next ? ANIMATED_HEIGHT : 0, { duration: 220 });
-      return next;
-    });
-  }, [templatesHeight]);
-
+  const [areVariablesVisible, setAreVariablesVisible] = React.useState(false);
+  const [areTemplatesVisible, setAreTemplatesVisible] = React.useState(false);
 
   const editorAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
@@ -166,59 +159,176 @@ const ScreenTrayActionTemplate = ({
     };
   });
 
-  const variablesAnimatedStyle = useAnimatedStyle(() => {
+  /** @description Handles the animated style of the variables list */
+  const animatedStyleVariables = useAnimatedStyle(() => {
     'worklet';
-    return {
-      height: variablesHeight.value,
-      opacity: variablesHeight.value === 0 ? 0 : 1,
-    };
+    return ({ height: variablesHeight.value, opacity: variablesHeight.value === 0 ? 0 : 1 })
   });
 
-  const templatesAnimatedStyle = useAnimatedStyle(() => {
+  const animatedStyleTemplates = useAnimatedStyle(() => {
     'worklet';
-    return {
-      height: templatesHeight.value,
-      opacity: templatesHeight.value === 0 ? 0 : 1,
-    };
+    return ({ height: templatesHeight.value, opacity: templatesHeight.value === 0 ? 0 : 1 })
+  });
+
+  /** @description Handles the toggle visibility of the variables and templates lists */
+  const toggleVisibility = React.useCallback((
+    stateFunction: Dispatch<SetStateAction<boolean>>, 
+    height: SharedValue<number>
+  ) => stateFunction((prev) => {
+    const next = !prev;
+    height.value = withTiming(next ? ANIMATED_HEIGHT : 0, { duration: 220 });
+    return next;
+  }), [variablesHeight, templatesHeight]);
+
+  const toggleList = React.useCallback((type: "variables" | "templates") => {
+    if (type === "variables") toggleVisibility(setAreVariablesVisible, variablesHeight);
+    else toggleVisibility(setAreTemplatesVisible, templatesHeight);
+  }, [variablesHeight, templatesHeight]);
+
+  /** @description Handles the save action of the customized template */
+  const onPressSafe = React.useCallback(async () => {
+    const [subjectHtml, bodyHtml] = await Promise.all([
+      refSubject.current?.getHTML?.(),
+      refBody.current?.getHTML?.(),
+    ]);
+
+    onAfterSave({
+      ...item,
+      subject: dehydrateTemplate(subjectHtml ?? ""),
+      content: dehydrateTemplate(bodyHtml ?? ""),
+    });
+  }, [item, onAfterSave, refSubject, refBody]);
+
+  /** 
+   * @description Handles the close action of the tray
+   * -> Closes first the keyboard (when focused) and then the tray */
+  const onPressClose = React.useCallback(() => {
+    refBody.current?.blur();
+    setTimeout(() => {
+      dismiss('WorkflowActionTemplateTray');
+    }, refIsFocused.current ? 220 * 1.5 : 0);
+  }, [dismiss, refIsFocused]);
+
+  /** 
+   * @description Handles the press event of the variable
+   * -> Inserts the variable into the editor and toggles the variables list */
+  const onPressVariable = React.useCallback(
+    (variable: ConvexRuntimeAPITemplateVariableProps) => 
+    (e: GestureResponderEvent) => {
+      insertPatternValue(refFocused, variable.pattern);
+      toggleList("variables");
+  }, [refFocused, toggleList, insertPatternValue]);
+
+  /** 
+   * @description Handles the press event of the template
+   * -> Inserts the template into the editor and toggles the templates list */
+  const onPressTemplate = React.useCallback(
+    (template: ConvexTemplateAPIProps) => 
+    (e: GestureResponderEvent) => {
+      refBody.current?.setValue(hydrateTemplate(template.content || "", templateVariables));
+      toggleList("templates");
+    }, [refBody, templateVariables, hydrateTemplate, toggleList]);
+
+  /** @description Renders the dynamic variables component list */
+  const RenderVariables = React.memo(() => {
+    return (
+      <Animated.View
+        pointerEvents={areVariablesVisible ? "auto" : "none"}
+        style={[ActionTemplateStyle.animatedContainer, animatedStyleVariables, {
+          bottom: TOOLBAR_HEIGHT, // => 40
+        }]}>
+        <View style={[ActionTemplateStyle.animatedDynamic, { 
+          gap: 4, height: ANIMATED_HEIGHT, 
+          backgroundColor: shadeColor(secondaryBgColor, 0.3),
+          borderTopColor: primaryBorderColor, 
+          borderBottomColor: primaryBorderColor 
+        }]}>
+          <ListItemGroup 
+            title={t("i18n.global.variables")}
+            gap={STYLES.sizeGap}
+            style={{ paddingVertical: 10 }} />
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} style={{ maxHeight: ANIMATED_HEIGHT - TOOLBAR_HEIGHT - 10 }}>
+          {templateVariables.map((variable) => (
+            <TouchableHaptic 
+              key={variable.pattern}
+              onPress={onPressVariable(variable)}>
+              <ListItemWithChildren
+                title={variable.name}
+                description={"Keine aktive Verwendung"}
+                type={ListItemWithChildrenTypeEnum.custom}
+                right={<TextBase text={`{{${variable.pattern}}}`} type="label"/>}
+                icon={resolveRuntimeIcon(variable.icon || "") as IconProp}
+                iconSize={16} />
+            </TouchableHaptic>
+          ))}
+          </ScrollView>
+        </View>
+      </Animated.View>
+    )
+  });
+
+  /** @description Renders the templates component */
+  const RenderTemplates = React.memo(() => {
+    return (
+      <Animated.View
+        pointerEvents={areTemplatesVisible ? "auto" : "none"}
+        style={[ActionTemplateStyle.animatedContainer, animatedStyleTemplates, {
+          bottom: TOOLBAR_HEIGHT, // => 40
+        }]}>
+        <View style={[ActionTemplateStyle.animatedDynamic, { 
+          gap: 4, height: ANIMATED_HEIGHT, 
+          backgroundColor: shadeColor(secondaryBgColor, 0.3),
+          borderTopColor: primaryBorderColor, 
+          borderBottomColor: primaryBorderColor 
+        }]}>
+          <ListTemplatesWorkflowAction
+            maxHeight={ANIMATED_HEIGHT - TOOLBAR_HEIGHT - 10}
+            showWithoutTemplateOption={false}
+            onPress={onPressTemplate} />
+        </View>
+      </Animated.View>
+    )
+  });
+
+  /** @description Renders the action touchable component such as variables and templates */
+  const RenderActionTouchable = React.memo(({ type }: { type: ActionTouchableType }) => {
+    return (
+      <TouchableHapticDropdown
+        text={t(`i18n.global.${type}`)}
+        icon={type === "variables" ? faSquareRootVariable as IconProp : faFileDashedLine as IconProp}
+        type="label"
+        hasViewCustomStyle={true}
+        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
+        textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
+        onPress={() => toggleList(type)} />
+    )
   });
 
   return (
-    <View style={{ 
-      //padding: STYLES.paddingHorizontal, 
+    <View
+      ref={refContainer}
+      style={{ 
       backgroundColor: primaryBgColor, 
       borderColor: primaryBorderColor,
     }}>
       <View style={{ gap: STYLES.sizeGap }}>
-    
-
-        <View style={[ProviderStyle.item, { backgroundColor: shadeColor(secondaryBgColor, 0.3), borderRadius: 14, padding: 4 }]}>
-          <View style={[GlobalContainerStyle.rowCenterBetween, ProviderStyle.itemHeader]}>
-            <TextBase text="E-Mail an alle Teilnehmer senden" type="label" style={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }} />
-            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4, height: 28 }]}>
-              {linkedMailAccounts && linkedMailAccounts.length > 0 && <Image source={PNG_ASSETS.googleMail} style={{ height: 18, width: 18 }} resizeMode="cover"/>}
-              <TouchableHapticDropdown
-                text={linkedMailAccounts && linkedMailAccounts.length > 0 ? linkedMailAccounts[0].email : "notifications@bloxie.ch"}
-                hasViewCustomStyle
-                textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-                viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-                onPress={() => { }}/>
-            </View>
-
-          </View>
-          <View style={[{
-            position: "relative",
-            borderWidth: 1,
-            paddingVertical: 4,
-            backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
+        <View style={[ActionTemplateStyle.view, { backgroundColor: shadeColor(secondaryBgColor, 0.3) }]}>
+           <ScreenTrayActionTemplateHeader
+             name={item.name}
+             onPressClose={onPressClose}
+             containerRef={refContainer}
+             mailAccountRef={refMailAccount}
+           />
+          <View style={[ActionTemplateStyle.containerEditor, {
             borderColor: primaryBorderColor,
+            backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
             height: EDITOR_BASE_HEIGHT, // => 360
-            borderRadius: 10,
             paddingBottom: TOOLBAR_HEIGHT,
           }]}>
-            <Animated.View style={[editorAnimatedStyle, { gap: 4, paddingHorizontal: 8 }]}>
+            <Animated.View style={[ActionTemplateStyle.editor, editorAnimatedStyle]}>
               <Editor
                 ref={refSubject}
-                placeholder="Betreff"
+                placeholder={t("i18n.global.subject")}
                 defaultValue={htmlSubject}
                 maxHeight={SUBJECT_HEIGHT - 4}
                 primaryTextColor={"#000"}
@@ -232,189 +342,153 @@ const ScreenTrayActionTemplate = ({
                 onIsFocused={onIsFocused(FocusedEditorTypeEnum.BODY)}
                 onStyleStateChange={setStyleState} />
             </Animated.View>
+            <RenderVariables />
+            <RenderTemplates />
+            <View style={[GlobalContainerStyle.rowCenterEnd, ActionTemplateStyle.actions,{ height: TOOLBAR_HEIGHT }]}>
+              <TouchableHapticDropdown
+                text="DE"
+                icon={faLanguage as IconProp}
+                type="label"
+                hasViewCustomStyle={true}
+                viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
+                textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
+                onPress={() => { }} />
+              <RenderActionTouchable type={ActionTouchableTypeEnum.TEMPLATES} />
+              <RenderActionTouchable type={ActionTouchableTypeEnum.VARIABLES} />
+            </View>
+          </View>
 
-            <Animated.View
-              pointerEvents={areVariablesVisible ? "auto" : "none"}
-              style={[
-                variablesAnimatedStyle,
-                {
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  bottom: TOOLBAR_HEIGHT, // => 40
-                  overflow: "hidden",
-                },
-              ]}
-            >
-              <View style={[{ gap: 4, height: ANIMATED_HEIGHT, paddingHorizontal: 14, paddingVertical: 4, backgroundColor: shadeColor(secondaryBgColor, 0.3),
-                borderTopWidth: 1, borderTopColor: primaryBorderColor, borderBottomWidth: 1, borderBottomColor: primaryBorderColor }]}>
-
-
-
-                    <ListItemGroup 
-                      title="Dynamische Inhalte"
-                      gap={STYLES.sizeGap}
-                      style={{ paddingVertical: 10 }} />
-
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} style={{ maxHeight: ANIMATED_HEIGHT - TOOLBAR_HEIGHT - 10 }}>
-                    {templateVariables.map((variable) => (
-                      <TouchableHaptic 
-                        key={variable.pattern}
-                        onPress={() => { 
-                          insertPatternValue(refFocused, variable.pattern);
-                          toggleVariables();
-
-                        }}>
-                        <ListItemWithChildren
-                          title={variable.name}
-                          description={"Keine aktive Verwendung"}
-                          type={ListItemWithChildrenTypeEnum.custom}
-                          right={<TextBase text={`{{${variable.pattern}}}`} type="label"/>}
-                          icon={resolveRuntimeIcon(variable.icon || "") as IconProp}
-                          iconSize={16} />
-                      </TouchableHaptic>
-                    ))}
-                    </ScrollView>
-                    
+          <View style={[GlobalContainerStyle.rowCenterBetween, { 
+            height: TOOLBAR_HEIGHT, 
+            paddingRight: 12 
+          }]}>
+            <View style={[GlobalContainerStyle.rowCenterCenter, ActionTemplateStyle.footer]}>
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                {EDITOR_STYLE_ITEMS.map((item, idx) => {
+                  const isActive = styleState[item.state as keyof typeof styleState];
+                  const toggleFn = refBody.current?.[item.functionAsString as keyof EnrichedTextInputInstance] as (() => void)|undefined;
+                  return (
+                    <TouchableHapticIcon
+                      key={item.key}
+                      icon={item.icon as IconProp}
+                      iconSize={14}
+                      iconColor={isActive ? "#fff" : shadeColor(infoColor, 0.3)}
+                      hasViewCustomStyle={true}
+                      viewCustomStyle={{ 
+                        backgroundColor: isActive 
+                          ? idx % 2 == 0 ? shadeColor(infoColor, 0.5) : infoColor
+                          : "transparent", 
+                        padding: 6, 
+                        borderRadius: 6 
+                      }}
+                      onPress={() => toggleFn?.()} />
+                  );
+                })}
 
               </View>
-            </Animated.View>
-
-            <Animated.View
-              pointerEvents={areTemplatesVisible ? "auto" : "none"}
-              style={[
-                templatesAnimatedStyle,
-                {
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  bottom: TOOLBAR_HEIGHT,
-                  overflow: "hidden",
-                },
-              ]}
-            >
-              <View style={[{ gap: 4, height: ANIMATED_HEIGHT, paddingHorizontal: 14, paddingVertical: 4, backgroundColor: shadeColor(secondaryBgColor, 0.3),
-                borderTopWidth: 1, borderTopColor: primaryBorderColor, borderBottomWidth: 1, borderBottomColor: primaryBorderColor}]}>
-
-                    <ListTemplatesWorkflowAction
-                      maxHeight={ANIMATED_HEIGHT - TOOLBAR_HEIGHT - 10}
-                      onPress={({ content }) => { 
-                        const htmlWithMentions = hydrateTemplate(content || "", templateVariables);
-                        refBody.current?.setValue(htmlWithMentions);
-                        toggleTemplates();
-                      }} />
-                      
-              </View>
-            </Animated.View>
-
-            <View style={[{ position: "absolute", bottom: 0, width: "100%", gap: 4, height: TOOLBAR_HEIGHT, alignItems: "flex-end", justifyContent: "center"  }]}>
-
-              <View style={[GlobalContainerStyle.rowCenterEnd, { gap: 18, paddingRight: 12, flex: 1, width: "100%" }]}>
-                <TouchableHapticDropdown
-                  text="DE"
-                  icon={faLanguage as IconProp}
-                  type="label"
+              <Divider vertical style={{ height: 14 }} />
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 14 }]}>
+                <TouchableHapticIcon
+                  icon={faKeyboardDown as IconProp}
+                  iconSize={16}
                   hasViewCustomStyle={true}
-                  viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
-                  textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-                  onPress={() => { }} />
-                <TouchableHapticDropdown
-                  text="Vorlagen"
-                  icon={faFileDashedLine as IconProp}
-                  type="label"
-                  hasViewCustomStyle={true}
-                  viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
-                  textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-                  onPress={toggleTemplates} />
-                
-                <TouchableHapticDropdown
-                  text="Dynamische Inhalte"
-                  icon={faSquareRootVariable as IconProp}
-                  type="label"
-                  hasViewCustomStyle={true}
-                  viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
-                  textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-                  onPress={toggleVariables} />
+                  onPress={() => { refBody.current?.blur() }} />
               </View>
             </View>
-
-
-
+            <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
+              <TouchableHapticText
+                text={t("i18n.buttons.save")}
+                hasViewCustomStyle={true}
+                viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+                textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle), color: linkColor }}
+                onPress={onPressSafe} />
+            </View>
           </View>
-
-
-
-
-
-
-
-
-          <View style={[GlobalContainerStyle.rowCenterBetween, { height: TOOLBAR_HEIGHT, paddingRight: 12 }]}>
-                <View style={[GlobalContainerStyle.rowCenterCenter, {
-                  //backgroundColor: shadeColor(secondaryBgColor, 0.3),
-                  borderRadius: 6,
-                  height: "100%",
-                  gap: 14,
-                  paddingHorizontal: 10,
-                }]}>
-                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
-                     {EDITOR_STYLE_ITEMS.map((item, idx) => {
-                       const isActive = styleState[item.state as keyof typeof styleState];
-                       const toggleFn = refBody.current?.[item.functionAsString as keyof EnrichedTextInputInstance] as (() => void) | undefined;
-                       return (
-                        <TouchableHapticIcon
-                          icon={item.icon as IconProp}
-                          iconSize={14}
-                          iconColor={isActive ? "#fff" : shadeColor(infoColor, 0.3)}
-                          hasViewCustomStyle={true}
-                          viewCustomStyle={{ 
-                            backgroundColor: isActive 
-                              ? idx % 2 == 0 ? shadeColor(infoColor, 0.5) : infoColor
-                              : "transparent", 
-                            padding: 6, 
-                            borderRadius: 6 
-                          }}
-                          onPress={() => toggleFn?.()} />
-                       );
-                     })}
-
-                  </View>
-                  
-                  <Divider vertical style={{ height: 14 }} />
-
-                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 14 }]}>
-                  <TouchableHapticIcon
-                    icon={faKeyboardDown as IconProp}
-                    iconSize={16}
-                    hasViewCustomStyle={true}
-                    onPress={() => { refBody.current?.blur() }} />
-                  </View>
-                </View>
-
-                <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
-
-                  <TouchableHapticText
-                    text="Speichern"
-                    hasViewCustomStyle={true}
-                    viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-                    textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle), color: linkColor }}
-                    onPress={() => { onAfterSave() }} />
-                </View>
-          </View>
-
-
-
         </View>
-
-
       </View>
-
-
-
-
-      
+      <DropdownOverlay hostId="tray" />
     </View>
   );
 };
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.40
+ * @version 0.0.1
+ * @param {ScreenTrayActionTemplateHeaderProps} param0
+ * @param {string} param0.name - The name of the action template which is chosen by the user for the workflow action template
+ * @param {() => void} param0.onPressClose - The function to call when the close button is pressed on the top right corner
+ * @component */
+const ScreenTrayActionTemplateHeader = ({
+  name,
+  onPressClose,
+  containerRef,
+  mailAccountRef,
+}: ScreenTrayActionTemplateHeaderProps) => {
+  const { infoColor, secondaryBorderColor } = useThemeColors();
+
+  /** 
+   * @description Returns the linked mail account for the currently signed in user 
+   * @see {@link hooks/auth/useLinkedAccount} */
+  const { linkedMailAccount } = useLinkedMailAccounts();
+
+  /**
+   * @description Get the dropdown functions for displaying the mail accounts.
+   * @see {@link hooks/button/useDropdown} */
+  const { open } = useDropdown();
+
+  /**
+   * @description Used to open the dropdown component
+   * @function */
+  const onPressDropdown = () => {
+    /** 
+     * @description Open the dropdown component based on a calculated measurement template
+     * @see {@link components/button/TouchableDropdown} */
+    _open({
+      refTouchable: mailAccountRef,
+      relativeToRef: containerRef,
+      hostId: "tray",
+      open,
+      children: <View style={{ minWidth: 175, width: 200, backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
+        , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
+       }}><ListProviderMailAccounts showListGroup={false} onPress={() => {}}
+
+      /></View>,
+    });
+  };
+
+  return (
+    <View style={[GlobalContainerStyle.rowCenterBetween, ActionTemplateStyle.header]}>
+      <TextBase 
+        text={name} 
+        type="label" 
+        style={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }} />
+      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+        {linkedMailAccount() && <Image 
+          source={getImageAssetByProvider(linkedMailAccount()?.provider as ProviderEnum)} 
+          resizeMode="cover"
+          style={ActionTemplateStyle.image} />}
+        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
+          <TouchableHapticDropdown
+            ref={mailAccountRef}
+            text={linkedMailAccount()?.email ?? "notifications@bloxie.ch"}
+            disabled={!linkedMailAccount()}
+            hasViewCustomStyle
+            textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
+            viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+            onPress={onPressDropdown}/>
+          <Divider vertical />
+          <TouchableHapticIcon
+            icon={faXmark as IconProp}
+            iconSize={STYLES.sizeFaIcon}
+            hasViewCustomStyle={true}
+            iconColor={infoColor}
+            onPress={onPressClose}/>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 export default ScreenTrayActionTemplate;  

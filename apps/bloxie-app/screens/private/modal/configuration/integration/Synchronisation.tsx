@@ -1,7 +1,7 @@
 import React from "react";
 import { Image, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { faLink } from "@fortawesome/duotone-thin-svg-icons";
+import { faCloud } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { formatDistanceToNow } from "date-fns";
 
@@ -162,7 +162,7 @@ const IntegrationCalendar = ({
         {calendars?.map((calendar) => (
           <TouchableTag
             key={`${KEYS.integrationConnectionCalendar}-${calendar._id}`}
-            icon={faLink as IconProp}
+            icon={faCloud as IconProp}
             text={calendar.description}
             colorActive={linkColor}
             isActive={calendar.isRelevantForSynchronization}

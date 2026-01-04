@@ -9,7 +9,6 @@ import { useDropdown } from "@/hooks/button/useDropdown";
 import { DROPDOWN_CALENDAR_VIEWS } from "@/constants/Models";
 
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
-import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import TouchableDropdown, { open as _open } from "@/components/button/TouchableDropdown";
 import TouchableDropdownItemBase from "@/components/button/TouchableDropdownItemBase";
 import Divider from "@/components/container/Divider";
@@ -26,6 +25,9 @@ type TouchableDropdownBaseProps = {
   onPress: (itemKey: string|number) => void;
 }
 
+const refTimezone = React.useRef<View|null>(null);
+const refCalendar = React.useRef<View|null>(null);
+
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
@@ -39,9 +41,6 @@ const CalendarHeaderRight = () => {
    * @description Get the dropdown functions for displaying the calendar views such as week, month, year, etc.
    * @see {@link hooks/button/useDropdown} */
   const { open } = useDropdown();
-
-  const refTimezone = React.useRef<View|null>(null);
-  const refCalendar = React.useRef<View|null>(null);
 
   /**
    * @description Used to open the dropdown component

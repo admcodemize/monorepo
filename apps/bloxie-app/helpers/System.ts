@@ -187,14 +187,19 @@ export const measureInWindowLeft = (
   componentWidth: number,
   { x, width }: MeasureInWindowProps,
   totalWidth: number = DIM.width
-) => 
-  /** 
-   * @description Ensure the left position is within the screen width. Math.max prevents negative values. 
-   * Math.min prevents the component from being off the screen. */
-  Math.max(0, Math.min(
-    x < componentWidth ? x : ((x + width) - componentWidth),
-    (totalWidth || DIM.width) - componentWidth
-  ));
+) => {
+  const availableWidth = totalWidth || DIM.width;
+  const leftAligned = x;
+  const fitsWithoutOverflow = leftAligned + componentWidth <= availableWidth;
+  const candidate = fitsWithoutOverflow
+    ? leftAligned
+    : (x + width) - componentWidth;
+
+  return Math.max(
+    0,
+    Math.min(candidate, availableWidth - componentWidth),
+  );
+};
 
 /**
  * @public

@@ -20,10 +20,11 @@ export type DropdownContextProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type DropdownContextPositionProps = {
   top: number; 
+  bottom?: number;
   left?: number;
   right?: number;
 }

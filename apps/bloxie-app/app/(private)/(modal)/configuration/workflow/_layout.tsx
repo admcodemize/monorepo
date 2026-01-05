@@ -21,6 +21,7 @@ import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
+import DropdownOverlay from "@/components/container/DropdownOverlay";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -44,7 +45,7 @@ export const MaterialTopTabs = withLayoutContext<
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.3
+ * @version 0.0.4
  * @component */
 const ModalConfigurationWorkflowLayout = () => {
   const { tertiaryBgColor, primaryBorderColor, focusedBgColor } = useThemeColors();
@@ -84,6 +85,7 @@ const ModalConfigurationWorkflowLayout = () => {
           <MaterialTopTabs.Screen name="(wp)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.workProcess") }} />
           <MaterialTopTabs.Screen name="(act)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.active") }} />
       </MaterialTopTabs>
+      <DropdownOverlay />
     </SafeAreaContextViewBase>
   );
 }

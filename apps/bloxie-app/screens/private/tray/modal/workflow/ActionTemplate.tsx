@@ -1,25 +1,21 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { GestureResponderEvent, Image, ScrollView, View } from "react-native";
 import type { EnrichedTextInputInstance } from 'react-native-enriched';
-import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useTrays } from "react-native-trays";
 import { t } from "i18next";
 import { faFileDashedLine, faKeyboardDown, faLanguage, faSquareRootVariable, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
-import { useQuery } from "convex/react";
-import { api } from "../../../../../../../packages/backend/convex/_generated/api";
-import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
-
 import { shadeColor } from "@codemize/helpers/Colors";
-import { ConvexLinkedAPIProps, ConvexRuntimeAPITemplateVariableProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
+import { ConvexRuntimeAPITemplateVariableProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
 import { getImageAssetByProvider } from "@/helpers/Events";
 import { ProviderEnum } from "@/constants/Provider";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 import { STYLES } from "@codemize/constants/Styles";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { useConvexUser } from "@/hooks/auth/useConvexUser";
+import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedMailAccount";
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useUserContextStore } from "@/context/UserContext";
 import { resolveRuntimeIcon } from "@/helpers/System";
@@ -27,7 +23,7 @@ import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
 
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
-import TouchableDropdown, { open as _open } from "@/components/button/TouchableDropdown";
+import { open as _open } from "@/components/button/TouchableDropdown";
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
@@ -38,11 +34,10 @@ import ListTemplatesWorkflowAction from "@/components/lists/ListTemplatesWorkflo
 import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
 import type { WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
+import ListProviderMailAccounts from "@/components/lists/ListProviderMailAccounts";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/ActionTemplate";
-import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedAccount";
-import ListProviderMailAccounts from "@/components/lists/ListProviderMailAccounts";
 
 const EDITOR_BASE_HEIGHT = 360;
 const TOOLBAR_HEIGHT = 40;
@@ -152,6 +147,14 @@ const ScreenTrayActionTemplate = ({
   const [areVariablesVisible, setAreVariablesVisible] = React.useState(false);
   const [areTemplatesVisible, setAreTemplatesVisible] = React.useState(false);
 
+  React.useEffect(() => {
+    variablesHeight.value = withTiming(areVariablesVisible ? ANIMATED_HEIGHT : 0, { duration: 220 });
+  }, [areVariablesVisible, variablesHeight]);
+
+  React.useEffect(() => {
+    templatesHeight.value = withTiming(areTemplatesVisible ? ANIMATED_HEIGHT : 0, { duration: 220 });
+  }, [areTemplatesVisible, templatesHeight]);
+
   const editorAnimatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {
@@ -171,19 +174,14 @@ const ScreenTrayActionTemplate = ({
   });
 
   /** @description Handles the toggle visibility of the variables and templates lists */
-  const toggleVisibility = React.useCallback((
-    stateFunction: Dispatch<SetStateAction<boolean>>, 
-    height: SharedValue<number>
-  ) => stateFunction((prev) => {
-    const next = !prev;
-    height.value = withTiming(next ? ANIMATED_HEIGHT : 0, { duration: 220 });
-    return next;
-  }), [variablesHeight, templatesHeight]);
+  const toggleVisibility = React.useCallback((stateFunction: Dispatch<SetStateAction<boolean>>) => {
+    stateFunction((prev) => !prev);
+  }, []);
 
   const toggleList = React.useCallback((type: "variables" | "templates") => {
-    if (type === "variables") toggleVisibility(setAreVariablesVisible, variablesHeight);
-    else toggleVisibility(setAreTemplatesVisible, templatesHeight);
-  }, [variablesHeight, templatesHeight]);
+    if (type === "variables") toggleVisibility(setAreVariablesVisible);
+    else toggleVisibility(setAreTemplatesVisible);
+  }, [toggleVisibility]);
 
   /** @description Handles the save action of the customized template */
   const onPressSafe = React.useCallback(async () => {

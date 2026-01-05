@@ -53,6 +53,7 @@ const DropdownOverlay = ({
         <View style={{ 
           position: "absolute",  
           top: position.top, 
+          bottom: position.bottom,
           left: position.left,
           right: position.right
         }}>{children}</View>

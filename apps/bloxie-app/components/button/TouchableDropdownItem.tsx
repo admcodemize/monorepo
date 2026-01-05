@@ -5,6 +5,7 @@ import { STYLES } from "@codemize/constants/Styles";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
+import { shadeColor } from "@codemize/helpers/Colors";
 
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 
@@ -26,7 +27,7 @@ type DropdownItemProps = PropsWithChildren & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a positioned dropdown based on parent component
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @param {Object} param0 
  * @param {string|number} param0.itemKey - The key of the dropdown item
  * @param {boolean} param0.isSelected - Handles the selected state of the dropdown item
@@ -61,8 +62,9 @@ const TouchableDropdownItem = ({
     <TouchableHaptic
       onPress={onPressInternal(itemKey)}
       style={[{
-        padding: STYLES.paddingVertical - 2,
-        backgroundColor: isSelected ? colors.focusedBgColor : undefined,
+        padding: STYLES.paddingVertical - 6,
+        paddingHorizontal: STYLES.paddingHorizontal - 6,
+        backgroundColor: isSelected ? shadeColor(colors.secondaryBgColor, 0.1) : undefined,
         borderRadius: 4,
         ...style
       }]}>

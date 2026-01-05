@@ -8,6 +8,7 @@ import { measureInWindowLeft } from "@/helpers/System";
 import TouchableDropdownStyle from "@/styles/components/button/TouchableDropdown";
 
 const DIM = Dimensions.get("window");
+
 export const DEFAULT_DROPDOWN_WIDTH = 175;
 
 /**
@@ -33,6 +34,7 @@ export type OpenDropdownProps = PropsWithChildren & {
   relativeToRef?: React.RefObject<View|null>;
   containerWidth?: number;
   hostId?: string;
+  openOnTop?: boolean;
   open: (children: React.ReactNode, position: DropdownContextPositionProps|null, hostId?: string) => void;
 }
 
@@ -47,6 +49,7 @@ export type OpenDropdownProps = PropsWithChildren & {
  * @param {number} param0.containerWidth - The dropdown width
  * @param {string} param0.hostId - So that different overlay hosts can be controlled e.g. "tray" or "dashboard"
  * @param {Function} param0.open - The open function
+ * @param {boolean} param0.openOnTop - If true, the dropdown will be opened on the top of the relative to ref
  * @param {React.ReactNode} param0.children - The children (content of the dropdown)
  * @function */
 export const open = ({
@@ -55,29 +58,43 @@ export const open = ({
   containerWidth = DEFAULT_DROPDOWN_WIDTH,
   hostId,
   open,
+  openOnTop = false,
   children,
 }: OpenDropdownProps) => {
+  
   refTouchable?.current?.measureInWindow((touchX, touchY, touchWidth, touchHeight) => {
-    const applyPosition = (baseX: number, baseY: number, availableWidth: number) => {
+    const applyPosition = (baseX: number, baseY: number, width: number, height: number) => {
+
+
+
+      console.log("[touchX]", touchX);
+      console.log("[touchY]", touchY);
+      console.log("[touchWidth]", touchWidth);
+      console.log("[touchHeight]", touchHeight);
+
+      console.log("[Dimensions.get('window').height]", Dimensions.get("window").height - touchY);
+
+      //Dimensions.get("window").width - width + 6 + touchWidth 
       open(children, { 
-        top: baseY + touchHeight + 6,
-        left: measureInWindowLeft(
-          containerWidth,
-          { x: baseX, y: baseY, width: touchWidth, height: touchHeight },
-          availableWidth
-        ),
+        top: openOnTop ? Dimensions.get("window").height - touchY : baseY + touchHeight + 6,
+        left: baseX
       }, hostId)
     };
 
     if (relativeToRef?.current) {
-      relativeToRef.current.measureInWindow((containerX, containerY, containerWidthMeasured) => {
-        const availableWidth = containerWidthMeasured || DIM.width;
-        applyPosition(touchX - containerX, touchY - containerY, availableWidth);
+      relativeToRef.current.measureInWindow((containerX, containerY, width, height) => {
+
+        console.log("[->containerX]", containerX);
+        console.log("[->containerY]", containerY);
+        console.log("[->height]", height);
+        console.log("[->width]", width);
+
+        applyPosition(touchX, touchY, width || DIM.width, height);
       });
       return;
     }
 
-    applyPosition(touchX, touchY, DIM.width);
+    applyPosition(touchX, touchY, DIM.width, 0);
   });
 }
 
@@ -108,9 +125,7 @@ const TouchableDropdown = ({
       {...props}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[{ 
-            gap: gapBetweenItems 
-          }]}>
+          contentContainerStyle={[{ gap: gapBetweenItems }]}>
             {children}
         </ScrollView>
     </View>

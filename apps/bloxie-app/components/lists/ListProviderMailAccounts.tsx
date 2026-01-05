@@ -1,10 +1,10 @@
 import React from "react";
 import { DimensionValue, ScrollView } from "react-native";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faEnvelope, faEnvelopeCircleCheck } from "@fortawesome/duotone-thin-svg-icons";
 
-import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedAccount";
+import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedMailAccount";
+import { getImageAssetByProvider } from "@/helpers/Events";
 import { ConvexLinkedAPIProps } from "@codemize/backend/Types";
+import { ProviderEnum } from "@/constants/Provider";
 import { STYLES } from "@codemize/constants/Styles";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
@@ -26,7 +26,7 @@ export type ListProviderMailAccountsProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.3
+ * @version 0.0.4
  * @param {ListTemplatesWorkflowDecisionProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
  * @param {(decision: ConvexRuntimeAPIWorkflowDecisionProps) => void} param0.onPress - The function to call when a decision is pressed
@@ -63,7 +63,7 @@ const ListProviderMailAccounts = ({
       {linkedMailAccounts?.map((mailAccount, index) => (
         <TouchableDropdownItemBase
           itemKey={mailAccount._id as string}
-          icon={linkedMailAccount()?._id === mailAccount._id ? faEnvelopeCircleCheck as IconProp : faEnvelope as IconProp}
+          image={getImageAssetByProvider(mailAccount.provider as ProviderEnum)}
           text={mailAccount.email}
           isSelected={linkedMailAccount()?._id === mailAccount._id}
           onPress={onPressInternal(mailAccount)} />

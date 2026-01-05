@@ -50,6 +50,9 @@ import { ConvexTemplateAPIProps } from '@codemize/backend/Types';
 import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
 import DropdownOverlay from './DropdownOverlay';
+import ListProviderMailAccounts from '../lists/ListProviderMailAccounts';
+import { open as _open } from '@/components/button/TouchableDropdown';
+import { useDropdown } from '@/hooks/button/useDropdown';
 
 export type WorkflowNodeType = 'start' | 'action' | 'decision' | 'end';
 
@@ -314,6 +317,9 @@ export function WorkflowCanvas({
   gesturesEnabled = false,
   children,
 }: WorkflowCanvasProps) {
+  const colors = useThemeColors();
+  const refTrigger = React.useRef<View>(null);
+
   const scale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -524,13 +530,6 @@ export function WorkflowCanvas({
         <ScrollView style={{ maxHeight: "85%"}} showsVerticalScrollIndicator={false}>
           <Animated.View style={[styles.content, animatedStyle]}>
             <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
-              {/*<Defs>
-                <Pattern id="dots" patternUnits="userSpaceOnUse" width={22} height={22}>
-                  <Circle cx={1} cy={1} r={1} fill="#d0d0d0" />
-                </Pattern>
-              </Defs>
-              <Rect width="100%" height="100%" fill="url(#dots)" />*/}
-
               {renderedConnections.map(({ connection, path }) => (
                 <Path
                   key={connection.id}
@@ -604,7 +603,6 @@ export function WorkflowCanvas({
         </ScrollView>
       </View>
     </GestureDetector>
-    <DropdownOverlay />
     </>
   );
 }
@@ -623,6 +621,8 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
   const { secondaryBgColor, errorColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
+
+  const refTrigger = React.useRef<View>(null);
 
   const [isOpen, setIsOpen] = React.useState<boolean>(true);
 
@@ -657,7 +657,7 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
         />
       </View>
 
-        <View style={[styles.node]} pointerEvents="box-none">
+        <View style={[styles.node]} pointerEvents="box-none" ref={refTrigger}>
         {!isFirst && <WorkflowNodeConnector node={node} position="top" />}
 
         <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
@@ -731,15 +731,15 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
             <View style={{ gap: 4}}>
               {/*<WorkflowNodeEventType node={node} />
               <WorkflowNodeCalendarGroup node={node} />*/}
-              <WorkflowNodeTrigger node={node} />
-              <WorkflowNodeTriggerTime node={node} />
+              <WorkflowNodeTrigger node={node} containerRef={refTrigger} />
+              <WorkflowNodeTriggerTime node={node} containerRef={refTrigger} />
             </View>
           </>
         )}
 
         {node.type === 'end' && (
           <>
-            <WorkflowNodeConfirmation node={node} />
+            <WorkflowNodeConfirmation node={node} containerRef={refTrigger} />
           </>
         )}
 
@@ -778,66 +778,55 @@ const WorkflowNodeConnector = ({ node, position }: { node: WorkflowNode; positio
   />
 );
 
-const WorkflowNodeEventType = ({ node }: { node: WorkflowNode }) => {
-  const { secondaryBgColor, tertiaryBgColor } = useThemeColors();
-  return (
-    <View
-      style={[
-        GlobalContainerStyle.rowCenterBetween,
-        {
-          gap: 18,
-          backgroundColor: shadeColor(secondaryBgColor, 0.3),
-          height: 28,
-          paddingHorizontal: 10,
-          borderRadius: 8,
-          alignSelf: 'stretch',
-        },
-      ]}
-    >
-      <TextBase text="Termintypen" type="label" style={{ color: typeAccent[node.type] }} />
-      <TouchableHapticDropdown
-        icon={faBoltSlash as IconProp}
-        text="Alle Typen"
-        backgroundColor={tertiaryBgColor}
-        textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-        hasViewCustomStyle
-        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-      />
-    </View>
-  );
-};
+const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
+  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor } = useThemeColors();
 
-const WorkflowNodeCalendarGroup = ({ node }: { node: WorkflowNode }) => {
-  const { secondaryBgColor, tertiaryBgColor } = useThemeColors();
-  return (
-    <View
-      style={[
-        GlobalContainerStyle.rowCenterBetween,
-        {
-          gap: 18,
-          backgroundColor: shadeColor(secondaryBgColor, 0.3),
-          height: 28,
-          paddingHorizontal: 10,
-          borderRadius: 8,
-          alignSelf: 'stretch',
-        },
-      ]}
-    >
-      <TextBase text="Kalendergruppen" type="label" style={{ color: typeAccent[node.type] }} />
-      <TouchableHapticDropdown
-        icon={faLink as IconProp}
-        text="2 Gruppen"
-        backgroundColor={tertiaryBgColor}
-        textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-        hasViewCustomStyle
-        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-      />
-    </View>
-  );
-};
+  const refTrigger = React.useRef<View>(null);
 
-const WorkflowNodeConfirmation = ({ node }: { node: WorkflowNode }) => {
-  const { secondaryBgColor, tertiaryBgColor } = useThemeColors();
+
+  const children = () => {
+    return (
+    <View style={{ backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
+            , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
+            , gap: 8
+          }} 
+          
+          onLayout={(event) => {
+            console.log("[onLayout]", event.nativeEvent.layout);
+          }}>
+
+            <TextBase text="Push-Benachrichtigung" type="label" style={{ color: typeAccent[node.type] }} />
+            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
+            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
+            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
+            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
+            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
+          </View>
+    )
+  }
+
+  /**
+   * @description Get the dropdown functions for displaying the mail accounts.
+   * @see {@link hooks/button/useDropdown} */
+   const { open } = useDropdown();
+
+  /**
+   * @description Used to open the dropdown component
+   * @function */
+  const onPressDropdown = () => {
+    /** 
+     * @description Open the dropdown component based on a calculated measurement template
+     * @see {@link components/button/TouchableDropdown} */
+    _open({
+      refTouchable: refTrigger,
+      relativeToRef: containerRef,
+      //hostId: "tray",
+      open,
+      openOnTop: true,
+      children: children(),
+    });
+  };
+
   return (
     <View
       style={[
@@ -854,18 +843,51 @@ const WorkflowNodeConfirmation = ({ node }: { node: WorkflowNode }) => {
     >
       <TextBase text="Bestätigung" type="label" style={{ color: typeAccent[node.type] }} />
       <TouchableHapticDropdown
+        ref={refTrigger}
         icon={faBellSlash as IconProp}
         text="Push-Benachrichtigung"
         backgroundColor={tertiaryBgColor}
         hasViewCustomStyle
         textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}/>
+        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+        onPress={onPressDropdown}
+      />
     </View>
   );
 };
 
-const WorkflowNodeTrigger = ({ node }: { node: WorkflowNode }) => {
-  const { secondaryBgColor, tertiaryBgColor } = useThemeColors();
+const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
+  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor } = useThemeColors();
+
+
+  const refTrigger = React.useRef<View>(null);
+
+  /**
+   * @description Get the dropdown functions for displaying the mail accounts.
+   * @see {@link hooks/button/useDropdown} */
+   const { open } = useDropdown();
+
+  /**
+   * @description Used to open the dropdown component
+   * @function */
+  const onPressDropdown = () => {
+    /** 
+     * @description Open the dropdown component based on a calculated measurement template
+     * @see {@link components/button/TouchableDropdown} */
+    _open({
+      refTouchable: refTrigger,
+      relativeToRef: containerRef,
+      //hostId: "tray",
+      open,
+      children: <View style={{ backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
+        , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
+       }}>
+
+        <TextBase text="Vor Ereignisbeginn" type="label" style={{ color: typeAccent[node.type] }} />
+       </View>,
+    });
+  };
+
   return (
     <View
       style={[
@@ -881,18 +903,50 @@ const WorkflowNodeTrigger = ({ node }: { node: WorkflowNode }) => {
     >
       <TextBase text="Auslöser" type="label" style={{ color: typeAccent[node.type] }} />
       <TouchableHapticDropdown
+        ref={refTrigger}
         icon={faFunction as IconProp}
         text="Vor Ereignisbeginn"
         backgroundColor={tertiaryBgColor}
         hasViewCustomStyle
         textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}/>
+        viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+        onPress={onPressDropdown}/>
     </View>
   );
 };
 
-const WorkflowNodeTriggerTime = ({ node }: { node: WorkflowNode }) => {
-  const { secondaryBgColor, tertiaryBgColor } = useThemeColors();
+const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
+  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor } = useThemeColors();
+
+
+  const refTrigger = React.useRef<View>(null);
+
+  /**
+   * @description Get the dropdown functions for displaying the mail accounts.
+   * @see {@link hooks/button/useDropdown} */
+   const { open } = useDropdown();
+
+  /**
+   * @description Used to open the dropdown component
+   * @function */
+  const onPressDropdown = () => {
+    /** 
+     * @description Open the dropdown component based on a calculated measurement template
+     * @see {@link components/button/TouchableDropdown} */
+    _open({
+      refTouchable: refTrigger,
+      relativeToRef: containerRef,
+      //hostId: "tray",
+      open,
+      children: <View style={{ backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
+        , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
+       }}>
+
+        <TextBase text="24H" type="label" style={{ color: typeAccent[node.type] }} />
+       </View>,
+    });
+  };
+
   return (
     <View
       style={[
@@ -908,12 +962,14 @@ const WorkflowNodeTriggerTime = ({ node }: { node: WorkflowNode }) => {
     >
       <TextBase text="Zeitraum" type="label" style={{ color: typeAccent[node.type] }} />
       <TouchableHapticDropdown
+        ref={refTrigger}
         icon={faAlarmClock as IconProp}
         text="24h"
         backgroundColor={tertiaryBgColor}
         hasViewCustomStyle
         textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
         viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
+        onPress={onPressDropdown}
       />
     </View>
   );
@@ -966,7 +1022,6 @@ const WorkflowNodeAction = ({ item, color, onRemoveNodeItem, onChangeNodeItem }:
       <TextInput
         value={name}
         placeholder="Name der Aktion"
-        autoFocus={true}
         style={{
           color: color,
           fontSize: Number(SIZES.label),
@@ -995,13 +1050,11 @@ const WorkflowNodeAction = ({ item, color, onRemoveNodeItem, onChangeNodeItem }:
           iconColor={isActive ? successColor : errorColor}
           hasViewCustomStyle={true}
           onPress={() => {
-            setIsActive((prev) => {
-              const next = !prev;
-              onChangeNodeItem?.({
-                ...item,
-                isActive: next,
-              });
-              return next;
+            const next = !isActive;
+            setIsActive(next);
+            onChangeNodeItem?.({
+              ...item,
+              isActive: next,
             });
           }}/>
         <TouchableHapticIcon

@@ -25,9 +25,6 @@ type TouchableDropdownBaseProps = {
   onPress: (itemKey: string|number) => void;
 }
 
-const refTimezone = React.useRef<View|null>(null);
-const refCalendar = React.useRef<View|null>(null);
-
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
@@ -36,6 +33,9 @@ const refCalendar = React.useRef<View|null>(null);
  * @component */
 const CalendarHeaderRight = () => {
   const colors = useThemeColors();
+
+  const refTimezone = React.useRef<View|null>(null);
+  const refCalendar = React.useRef<View|null>(null);
 
   /**
    * @description Get the dropdown functions for displaying the calendar views such as week, month, year, etc.

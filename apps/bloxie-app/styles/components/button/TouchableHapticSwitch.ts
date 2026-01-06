@@ -4,18 +4,18 @@ import { StyleSheet } from "react-native"
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.1 */
+ * @version 0.0.2 */
 const TouchableHapticSwitchStyle = StyleSheet.create({
   container: {
     width: 40,
-    height: 22,
+    height: 20,
     borderWidth: 0.5,
     borderRadius: 24,
     justifyContent: "center",
   },
   circle: {
     width: 18,
-    height: 16,
+    height: 14,
     borderRadius: 24,
     elevation: 4,
     shadowColor: "#000",

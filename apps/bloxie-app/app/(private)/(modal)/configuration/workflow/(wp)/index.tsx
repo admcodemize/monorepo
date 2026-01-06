@@ -4,10 +4,7 @@ import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView"
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import ToastOverlay from "@/components/container/ToastOverlay";
 import ScreenConfigurationWorkflowProvider from "@/screens/private/modal/configuration/workflow/Provider";
-import { stackConfigs, trays } from "@/helpers/Trays";
-import { TrayProvider } from "react-native-trays";
 
 /** 
  * @public
@@ -20,7 +17,6 @@ const ModalConfigurationWorkflowProvider = () => {
   return (
     <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3) }}>
       <ScreenConfigurationWorkflowProvider />
-      <ToastOverlay />
     </SafeAreaContextViewBase>
   )
 }

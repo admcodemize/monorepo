@@ -21,7 +21,7 @@ export type TouchableHapticSwitchProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.13
- * @version 0.0.2
+ * @version 0.0.3
  * @param {TouchableHapticSwitchProps} param0
  * @param {boolean} param0.state - Activity state 
  * @param {Function} param0.onStateChange - Callback function to handle the state change

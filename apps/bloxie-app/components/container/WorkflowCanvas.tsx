@@ -14,14 +14,28 @@ import {
   faBellSlash,
   faBolt,
   faBoltSlash,
+  faBridgeCircleCheck,
   faBrightnessLow,
+  faCalendarCirclePlus,
+  faCalendarDay,
+  faCalendarPlus,
+  faCalendarWeek,
   faChevronDown,
   faChevronUp,
+  faClockEightThirty,
+  faClonePlus,
+  faEject,
   faEllipsisStroke,
+  faEnvelopeOpenText,
   faFileDashedLine,
   faFlagCheckered,
   faFunction,
+  faHourglassClock,
+  faHourglassEnd,
+  faHourglassStart,
   faLink,
+  faMessageBot,
+  faMessages,
   faMessageSlash,
   faObjectExclude,
   faPause,
@@ -32,6 +46,8 @@ import {
   faRepeat1,
   faStopwatch,
   faTrash,
+  faTrashCan,
+  faTrashCanSlash,
   faXmark,
 } from '@fortawesome/duotone-thin-svg-icons';
 import GlobalContainerStyle from '@/styles/GlobalContainer';
@@ -51,8 +67,11 @@ import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
 import DropdownOverlay from './DropdownOverlay';
 import ListProviderMailAccounts from '../lists/ListProviderMailAccounts';
-import { open as _open } from '@/components/button/TouchableDropdown';
+import { open as _open, TouchableDropdownFloat } from '@/components/button/TouchableDropdown';
 import { useDropdown } from '@/hooks/button/useDropdown';
+import GlobalTypographyStyle from '@/styles/GlobalTypography';
+import { STYLES } from '@codemize/constants/Styles';
+import ListItemGroup from './ListItemGroup';
 
 export type WorkflowNodeType = 'start' | 'action' | 'decision' | 'end';
 
@@ -618,7 +637,7 @@ type WorkflowNodeProps = {
 };
 
 const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, onChangeNodeItem, onLayout }: WorkflowNodeProps) => {
-  const { secondaryBgColor, errorColor } = useThemeColors();
+  const { secondaryBgColor, secondaryBorderColor, errorColor, infoColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
@@ -636,6 +655,66 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
   );
 
   const accent = typeAccent[node.type];
+
+
+  const refMenu = React.useRef<View>(null);
+
+  /**
+   * @description Get the dropdown functions for displaying the mail accounts.
+   * @see {@link hooks/button/useDropdown} */
+   const { open } = useDropdown();
+
+  /**
+   * @description Used to open the dropdown component
+   * @function */
+  const onPressDropdown = () => {
+    /** 
+     * @description Open the dropdown component based on a calculated measurement template
+     * @see {@link components/button/TouchableDropdown} */
+    _open({
+      refTouchable: refMenu,
+      relativeToRef: refTrigger,
+      //hostId: "tray",
+      paddingHorizontal: 12 - 2, // Padding aus refTrigger -> touchableHapticDropdown
+      open,
+      children: <View style={{ width: 260, backgroundColor: "#fff", borderRadius: 10, padding: 4, paddingHorizontal: 8, paddingVertical: 8
+        , borderColor: shadeColor(secondaryBorderColor, 0.3)
+       }}>
+
+        <ListItemGroup
+          title={"Aktionen"}
+          gap={STYLES.sizeGap * 1.75}
+          style={{ paddingVertical: 6 , paddingHorizontal: 6 }} />
+
+        <View style={{ gap: 4, borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterBetween,{ gap: 40 }]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+              <FontAwesomeIcon icon={faTrashCanSlash as IconProp} size={14} color="#202122" />
+              <TextBase text="Löschen der Aktion/Entscheidung" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+            </View>
+          </View>
+        </View>
+
+        <View style={{ gap: 4, borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterBetween,{ gap: 40 }]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+              <FontAwesomeIcon icon={faBridgeCircleCheck as IconProp} size={14} color="#202122" />
+              <TextBase text="Ausführungsstatus" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+            </View>
+            <TouchableHapticSwitch
+              state={isActive}
+              onStateChange={setIsActive}/>
+          </View>
+          <TextBase text="Der Ausführungsstatus bestimmt, ob die Aktion innerhalb der Synchronisationsschleife ausgeführt wird oder nicht." type="label" style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) }]} />
+        </View>
+
+
+       </View>,
+    });
+  };
+
+
+
 
   return (
     <Animated.View
@@ -709,12 +788,14 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
 
               <TouchableHaptic
                 onPress={() => {
-                  setIsActive((prev) => !prev);
+                  //setIsActive((prev) => !prev);
+                  onPressDropdown();
                 }}>
                 <FontAwesomeIcon icon={faEllipsisStroke as IconProp} size={16} color={typeAccent[node.type]} />
               </TouchableHaptic>
 
               <TouchableHaptic
+                ref={refMenu}
                 onPress={() => {
                   setIsOpen((prev) => !prev);
                 }}>
@@ -779,29 +860,34 @@ const WorkflowNodeConnector = ({ node, position }: { node: WorkflowNode; positio
 );
 
 const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
-  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor } = useThemeColors();
+  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor, infoColor } = useThemeColors();
 
   const refTrigger = React.useRef<View>(null);
 
 
   const children = () => {
     return (
-    <View style={{ backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
-            , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
-            , gap: 8
-          }} 
-          
-          onLayout={(event) => {
-            console.log("[onLayout]", event.nativeEvent.layout);
-          }}>
+      <View style={{ width: 240, backgroundColor: "#fff", borderRadius: 10, padding: 4, paddingHorizontal: 6, paddingVertical: 6
+        , borderWidth: 0, borderColor: shadeColor(secondaryBorderColor, 0.3), gap: 2
+       }}>
 
-            <TextBase text="Push-Benachrichtigung" type="label" style={{ color: typeAccent[node.type] }} />
-            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
-            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
-            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
-            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
-            <TextBase text="E-Mail" type="label" style={{ color: typeAccent[node.type] }} />
+        <ListItemGroup
+          title={"Bestätigung"}
+          gap={STYLES.sizeGap * 1.75}
+          style={{ paddingVertical: 6 , paddingHorizontal: 6 }} />
+        <View style={{ gap: 4, backgroundColor: shadeColor(secondaryBgColor, 0.1), borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+            <FontAwesomeIcon icon={faMessages as IconProp} size={14} color="#202122" />
+            <TextBase text="Push-Benachrichtigung" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
           </View>
+          <TextBase text="Lorem ipsum dolor sit amet, consectetur adipiscing elit." type="label" style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) }]} />
+        </View>
+
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12, padding: 6, paddingHorizontal: 10 }]}>
+          <FontAwesomeIcon icon={faEnvelopeOpenText as IconProp} size={14} color="#202122" />
+          <TextBase text="E-Mail-Benachrichtigung" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+        </View>     
+       </View>
     )
   }
 
@@ -821,6 +907,7 @@ const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, 
       refTouchable: refTrigger,
       relativeToRef: containerRef,
       //hostId: "tray",
+      paddingHorizontal: 8, // Padding aus übergeordneter View 
       open,
       openOnTop: true,
       children: children(),
@@ -857,7 +944,7 @@ const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, 
 };
 
 const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
-  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor } = useThemeColors();
+  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor, infoColor } = useThemeColors();
 
 
   const refTrigger = React.useRef<View>(null);
@@ -878,12 +965,40 @@ const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, conta
       refTouchable: refTrigger,
       relativeToRef: containerRef,
       //hostId: "tray",
+      paddingHorizontal: 12 - 2, // Padding aus refTrigger -> touchableHapticDropdown
       open,
-      children: <View style={{ backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
-        , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
+      children: <View style={{ width: 240, backgroundColor: "#fff", borderRadius: 10, padding: 4, paddingHorizontal: 6, paddingVertical: 6
+        , borderWidth: 0, borderColor: shadeColor(secondaryBorderColor, 0.3), gap: 2
        }}>
 
-        <TextBase text="Vor Ereignisbeginn" type="label" style={{ color: typeAccent[node.type] }} />
+        <ListItemGroup
+          title={"Auslöser"}
+          gap={STYLES.sizeGap * 1.75}
+          style={{ paddingVertical: 6 , paddingHorizontal: 6 }} />
+        <View style={{ gap: 4, backgroundColor: shadeColor(secondaryBgColor, 0.1), borderRadius: 8, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+            <FontAwesomeIcon icon={faCalendarCirclePlus as IconProp} size={14} color="#202122" />
+            <TextBase text="Neue Terminbuchung" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+          </View>
+          <TextBase text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." type="label" style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) }]} />
+        </View>
+
+        <View style={{ gap: 4, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+            <FontAwesomeIcon icon={faHourglassStart as IconProp} size={14} color="#202122" />
+            <TextBase text="Vor Ereignisbeginn" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+          </View>
+          <TextBase text="Lorem ipsum dolor sit amet, consectetur adipiscing elit." type="label" style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) }]} />
+        </View>
+
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12, padding: 6, paddingHorizontal: 10 }]}>
+          <FontAwesomeIcon icon={faHourglassEnd as IconProp} size={14} color="#202122" />
+          <TextBase text="Nach Ereignisende" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+        </View>   
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12, padding: 6, paddingHorizontal: 10 }]}>
+          <FontAwesomeIcon icon={faTrashCanSlash as IconProp} size={14} color="#202122" />
+          <TextBase text="Nach Ereignisstornierung" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+        </View>        
        </View>,
     });
   };
@@ -916,10 +1031,11 @@ const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, conta
 };
 
 const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
-  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor } = useThemeColors();
+  const { secondaryBgColor, tertiaryBgColor, secondaryBorderColor, infoColor } = useThemeColors();
 
 
   const refTrigger = React.useRef<View>(null);
+  const refTriggerHours = React.useRef<View>(null);
 
   /**
    * @description Get the dropdown functions for displaying the mail accounts.
@@ -934,15 +1050,43 @@ const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, c
      * @description Open the dropdown component based on a calculated measurement template
      * @see {@link components/button/TouchableDropdown} */
     _open({
-      refTouchable: refTrigger,
+      refTouchable: refTriggerHours,
       relativeToRef: containerRef,
       //hostId: "tray",
+      paddingHorizontal: 12 - 2, // Padding aus refTrigger -> touchableHapticDropdown
       open,
-      children: <View style={{ backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
-        , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
+      children: <View style={{ width: 140, backgroundColor: "#fff", borderRadius: 10, padding: 4, paddingHorizontal: 8, paddingVertical: 8
+        , borderColor: shadeColor(secondaryBorderColor, 0.3)
        }}>
 
-        <TextBase text="24H" type="label" style={{ color: typeAccent[node.type] }} />
+<ListItemGroup
+          title={"Zeitraum"}
+          gap={STYLES.sizeGap * 1.75}
+          style={{ paddingVertical: 6 , paddingHorizontal: 6 }} />
+
+        <View style={{ gap: 4, borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+            <FontAwesomeIcon icon={faCalendarWeek as IconProp} size={14} color="#202122" />
+            <TextBase text="Wochen" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+          </View>
+        </View>
+
+        <View style={{ gap: 4, backgroundColor: shadeColor(secondaryBgColor, 0.1), borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+            <FontAwesomeIcon icon={faCalendarDay as IconProp} size={14} color="#202122" />
+            <TextBase text="Tage" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+          </View>
+        </View>
+
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12, padding: 6, paddingHorizontal: 10 }]}>
+          <FontAwesomeIcon icon={faHourglassClock as IconProp} size={14} color="#202122" />
+          <TextBase text="Stunden" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+        </View>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12, padding: 6, paddingHorizontal: 10 }]}>
+          <FontAwesomeIcon icon={faClockEightThirty as IconProp} size={14} color="#202122" />
+          <TextBase text="Minuten" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
+        </View>   
+
        </View>,
     });
   };
@@ -961,16 +1105,28 @@ const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, c
       ]}
     >
       <TextBase text="Zeitraum" type="label" style={{ color: typeAccent[node.type] }} />
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
+        <FontAwesomeIcon icon={faStopwatch as IconProp} size={14} />
+      <TextInput
+        value="24"
+        keyboardType="numeric"
+        style={{
+          color: typeAccent[node.type],
+          fontSize: Number(SIZES.label),
+          fontFamily: String(FAMILIY.subtitle),
+          marginTop: 1
+        }}
+      />
       <TouchableHapticDropdown
-        ref={refTrigger}
-        icon={faAlarmClock as IconProp}
-        text="24h"
+        ref={refTriggerHours}
+        text="Stunden"
         backgroundColor={tertiaryBgColor}
         hasViewCustomStyle
         textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
         viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
         onPress={onPressDropdown}
       />
+      </View>
     </View>
   );
 };
@@ -1185,7 +1341,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
   },
   connectionInsertionLabel: {
     color: '#fff',

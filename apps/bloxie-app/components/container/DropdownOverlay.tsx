@@ -31,7 +31,7 @@ type DropdownOverlayProps = {
  * @component */
 const DropdownOverlay = ({ 
   hostId = "default",
-  backgroundColor = "#00000010",
+  backgroundColor = "#00000015",
   hasCustomViewStyle = false,
   customViewStyle
 }: DropdownOverlayProps) => {

@@ -32,7 +32,7 @@ export const COLORS = {
     primaryBorder: "#E3E3E3",
     secondaryBorder: "#CACACA",
     tertiaryBorder: "#D1D1D1",
-    primaryIcon: "#303030",
+    primaryIcon: "#202122",
     secondaryIcon: "#626D7B",
     tertiaryIcon: "#fff",
     primaryIconBg: "#fff",

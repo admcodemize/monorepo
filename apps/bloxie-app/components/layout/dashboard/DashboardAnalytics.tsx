@@ -12,11 +12,11 @@ import { DashboardDropdownItemKeyDays, useDashboardContextStore } from "@/contex
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import TouchableDropdown, { open as _open } from "@/components/button/TouchableDropdown";
+import TouchableDropdown, { open as _open } from "@/components/button/dropdown/TouchableDropdown";
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import TitleWithDescription from "@/components/typography/TitleWithDescription";
-import TouchableDropdownItemBase from "@/components/button/TouchableDropdownItemBase";
+import TouchableDropdownItemBase from "@/components/button/dropdown/TouchableDropdownItemBase";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 

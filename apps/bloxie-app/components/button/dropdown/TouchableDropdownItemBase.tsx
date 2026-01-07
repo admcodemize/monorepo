@@ -7,7 +7,7 @@ import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import TouchableDropdownItem from "@/components/button/TouchableDropdownItem";
+import TouchableDropdownItem from "@/components/button/dropdown/TouchableDropdownItem";
 import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
@@ -30,6 +30,7 @@ export type TouchableDropdownItemBaseProps = {
 
 /**
  * @private
+ * @todo REMOVE THIS COMPONENT
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.5
  * @version 0.0.2

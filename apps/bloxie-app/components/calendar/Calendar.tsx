@@ -14,7 +14,6 @@ import { useCalendarContextStore } from "@/context/CalendarContext";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useDropdown } from "@/hooks/button/useDropdown";
 
-import TouchableDropdown, { open as _open } from "@/components/button/TouchableDropdown";
 import TouchableHaptic from "../button/TouchableHaptic";
 import TextBase from "../typography/Text";
 import CalendarDay from "./day/CalendarDay";
@@ -31,7 +30,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TouchableHapticText from "../button/TouchableHapticText";
 import { useTrays } from "react-native-trays";
 import { DROPDOWN_CALENDAR_VIEWS, DROPDOWN_DASHBOARD_PERIOD } from "@/constants/Models";
-import TouchableDropdownItemBase from "../button/TouchableDropdownItemBase";
+import TouchableDropdownItemBase from "../button/dropdown/TouchableDropdownItemBase";
 import ViewBase from "../container/View";
 import CalendarStyle from "@/styles/components/calendar/Calendar";
 import TrayHeader from "../container/TrayHeader";

@@ -64,6 +64,11 @@
         "horizontalNavigation": {
           "workProcess": "Workflow Builder",
           "active": "Aktive Workflows"
+        },
+        "builder": {
+          "trigger": "Auslöser",
+          "timePeriod": "Zeitraum",
+          "confirmation": "Bestätigung"
         }
       },
       "integrations": {
@@ -195,8 +200,7 @@
       },
       "trayWorkflows": {
         "title": "Workflows",
-        "description": "Verwalte deine Workflows",
-        "trigger": "Auslöser"
+        "description": "Verwalte deine Workflows"
       }
     },
     "convex": {

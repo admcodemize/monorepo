@@ -25,6 +25,7 @@ type KeysProps = {
   calendarHourGrid: string;
   calendarHourGridItem: string;
   calendarHoursDivider: string;
+  listDropdownItem: string;
 }
 
 /**
@@ -54,4 +55,5 @@ export const KEYS: KeysProps = {
   calendarHourGrid: "calendarHourGrid",
   calendarHourGridItem: "calendarHourGridItem",
   calendarHoursDivider: "calendarHoursDivider",
+  listDropdownItem: "listDropdownItem",
 }

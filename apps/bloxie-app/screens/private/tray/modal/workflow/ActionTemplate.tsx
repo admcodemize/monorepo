@@ -23,7 +23,7 @@ import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
 
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
-import { open as _open } from "@/components/button/TouchableDropdown";
+import { open as _open } from "@/components/button/dropdown/TouchableDropdown";
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";

@@ -8,7 +8,7 @@ import { ProviderEnum } from "@/constants/Provider";
 import { STYLES } from "@codemize/constants/Styles";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
-import TouchableDropdownItemBase from "@/components/button/TouchableDropdownItemBase";
+import TouchableDropdownItemBase from "@/components/button/dropdown/TouchableDropdownItemBase";
 
 /**
  * @public

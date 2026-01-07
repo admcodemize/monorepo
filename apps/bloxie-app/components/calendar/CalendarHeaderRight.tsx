@@ -9,8 +9,8 @@ import { useDropdown } from "@/hooks/button/useDropdown";
 import { DROPDOWN_CALENDAR_VIEWS } from "@/constants/Models";
 
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
-import TouchableDropdown, { open as _open } from "@/components/button/TouchableDropdown";
-import TouchableDropdownItemBase from "@/components/button/TouchableDropdownItemBase";
+import TouchableDropdown, { open as _open } from "@/components/button/dropdown/TouchableDropdown";
+import TouchableDropdownItemBase from "@/components/button/dropdown/TouchableDropdownItemBase";
 import Divider from "@/components/container/Divider";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";

@@ -10,6 +10,8 @@ import { shadeColor } from "@codemize/helpers/Colors";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 
 /**
+ * @public
+ * @todo REMOVE THIS COMPONENT
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
@@ -24,6 +26,7 @@ type DropdownItemProps = PropsWithChildren & {
 
 /**
  * @public
+ * @todo REMOVE THIS COMPONENT
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a positioned dropdown based on parent component
  * @since 0.0.2

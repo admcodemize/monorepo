@@ -97,6 +97,7 @@ export const open = ({
 
 /**
  * @public
+ * @todo REMOVE THIS COMPONENT
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a positioned dropdown based on parent component
  * @since 0.0.2
@@ -113,7 +114,8 @@ const TouchableDropdown = ({
 }: TouchableDropdownProps) => {  
   const colors = useThemeColors();
   return (
-    <View 
+    <></>
+    /*<View 
       style={[TouchableDropdownStyle.view, {
         backgroundColor: colors.primaryBgColor,
         borderColor: colors.tertiaryBorderColor,
@@ -125,7 +127,7 @@ const TouchableDropdown = ({
           contentContainerStyle={[{ gap: gapBetweenItems }]}>
             {children}
         </ScrollView>
-    </View>
+    </View>*/
   )
 }
 

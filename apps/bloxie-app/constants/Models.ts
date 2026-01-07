@@ -1,3 +1,4 @@
+import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import {
   faArrowProgress,
   faBarsProgress,
@@ -15,6 +16,17 @@ import {
   faTrowelBricks,
   faUserSecret,
   faFlaskGear,
+  faCalendarCirclePlus,
+  faHourglassStart,
+  faHourglassEnd,
+  faTrashCanSlash,
+  faClockEightThirty,
+  faEnvelope,
+  faBellSlash,
+  faStopwatch,
+  faEnvelopeOpenText,
+  faBells,
+  faStopwatch20,
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -282,4 +294,83 @@ export const EDITOR_STYLE_ITEMS: EditorStyleItemProps[] = [{
   icon: faCode as IconProp,
   state: "isCodeBlock",
   functionAsString: "toggleCodeBlock",
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the workflow trigger items for the dropdown
+ * @readonly
+ * @since 0.0.43
+ * @version 0.0.1
+ * @constant */
+export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: "newBooking",
+  title: "Neue Terminbuchung",
+  icon: faCalendarCirclePlus as IconProp,
+  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  isSelected: true,
+}, {
+  itemKey: "beforeEventStart",
+  title: "Vor Ereignisbeginn",
+  icon: faHourglassStart as IconProp
+}, {
+  itemKey: "afterEventEnd",
+  title: "Nach Ereignisende",
+  icon: faHourglassEnd as IconProp
+}, {
+  itemKey: "afterEventCancellation",
+  title: "Nach Ereignisstornierung",
+  icon: faTrashCanSlash as IconProp
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the workflow time period items for the dropdown
+ * @readonly
+ * @since 0.0.43
+ * @version 0.0.1
+ * @constant */
+export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: "week",
+  title: "Wochen",
+  icon: faCalendarWeek as IconProp
+}, {
+  itemKey: "day",
+  title: "Tage",
+  icon: faCalendarDay as IconProp
+}, {
+  itemKey: "hour",
+  title: "Stunden",
+  icon: faStopwatch as IconProp,
+  isSelected: true,
+}, {
+  itemKey: "minute",
+  title: "Minuten",
+  icon: faStopwatch20 as IconProp
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the workflow confirmation items for the dropdown
+ * @readonly
+ * @since 0.0.43
+ * @version 0.0.1
+ * @constant */
+export const WORKFLOW_CONFIRMATION_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: "pushNotification",
+  title: "Push-Benachrichtigung",
+  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  icon: faBells as IconProp,
+  isSelected: true,
+}, {
+  itemKey: "sendEmail",
+  title: "E-Mail-Benachrichtigung",
+  icon: faEnvelopeOpenText as IconProp
+}, {
+  itemKey: "none",
+  title: "Keine Bestätigung",
+  icon: faBellSlash as IconProp,
 }];

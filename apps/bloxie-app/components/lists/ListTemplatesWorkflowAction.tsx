@@ -70,7 +70,7 @@ const ListTemplatesWorkflowAction = ({
           <ListItemWithChildren
             title={template.name || ""}
             description={template.description || ""}
-            type={ListItemWithChildrenTypeEnum.navigation}
+            type={ListItemWithChildrenTypeEnum.custom}
             icon={resolveRuntimeIcon(template.icon || "faFileDashedLine")} />
         </TouchableHaptic>
       ))}

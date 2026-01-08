@@ -1,18 +1,20 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { LayoutChangeEvent } from "react-native";
 import { createStore, StoreApi, useStore } from "zustand";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type DropdownContextProps = {
   isOpen: boolean;
   children: React.ReactNode;
   position: DropdownContextPositionProps|null;
   hostId: string|null;
-  open: (children: React.ReactNode, position: DropdownContextPositionProps|null, hostId?: string) => void;
+  openOnTop: boolean;
+  open: (children: React.ReactNode, position: DropdownContextPositionProps|null, hostId?: string, openOnTop?: boolean) => void;
   close: () => void;
 };
 
@@ -44,7 +46,7 @@ const DropdownOverlayContext = createContext<StoreApi<DropdownContextProps>|unde
  * @author Marc Stöckli - Codemize GmbH 
  * @description 
  * @since 0.0.2
- * @version 0.0.2 */
+ * @version 0.0.3 */
 export default function DropdownProvider({ 
   children 
 }: DropdownProviderProps) {
@@ -54,9 +56,10 @@ export default function DropdownProvider({
       children: null,
       position: null,
       hostId: null,
+      openOnTop: false,
       initialDropdownItemIdx: null,
-      open: (children, position, hostId = "default") => set((state) => ({ ...state, children, position, hostId, isOpen: true })),
-      close: () => set((state) => ({ ...state, isOpen: false, children: null, position: null, hostId: null, initialDropdownItemIdx: null })),
+      open: (children, position, hostId = "default", openOnTop = false) => set((state) => ({ ...state, children, position, hostId, openOnTop, isOpen: true })),
+      close: () => set((state) => ({ ...state, isOpen: false, children: null, position: null, hostId: null, openOnTop: false, initialDropdownItemIdx: null })),
     }))
   );
 

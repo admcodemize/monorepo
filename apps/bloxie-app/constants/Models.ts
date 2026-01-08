@@ -27,6 +27,7 @@ import {
   faEnvelopeOpenText,
   faBells,
   faStopwatch20,
+  faBridgeCircleCheck,
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -306,10 +307,15 @@ export const EDITOR_STYLE_ITEMS: EditorStyleItemProps[] = [{
  * @constant */
 export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
   itemKey: "newBooking",
-  title: "Neue Terminbuchung",
+  title: "Neue Ereignisbuchung",
   icon: faCalendarCirclePlus as IconProp,
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  description: "Auslösung bei einer neuen Ereignisbuchung über das Buchungsportal",
   isSelected: true,
+}, {
+  itemKey: "afterEventCancellation",
+  title: "Nach Ereignisstornierung",
+  description: "Auslösung bei einer Ereignisstornierung durch Teilnehmer oder Gastgeber",
+  icon: faTrashCanSlash as IconProp
 }, {
   itemKey: "beforeEventStart",
   title: "Vor Ereignisbeginn",
@@ -317,11 +323,8 @@ export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
 }, {
   itemKey: "afterEventEnd",
   title: "Nach Ereignisende",
+  description: "Teilnehmer welche vor Ereignisbeginn das Ereignis storniert haben erhalten keine Benachrichtigung mehr",
   icon: faHourglassEnd as IconProp
-}, {
-  itemKey: "afterEventCancellation",
-  title: "Nach Ereignisstornierung",
-  icon: faTrashCanSlash as IconProp
 }];
 
 /**
@@ -362,15 +365,30 @@ export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
 export const WORKFLOW_CONFIRMATION_ITEMS: ListItemDropdownProps[] = [{
   itemKey: "pushNotification",
   title: "Push-Benachrichtigung",
-  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  description: "In-App-Benachrichtigung auf Endgerät",
   icon: faBells as IconProp,
   isSelected: true,
 }, {
   itemKey: "sendEmail",
   title: "E-Mail-Benachrichtigung",
+  description: "E-Mail-Benachrichtigung an die E-Mail-Adresse mit welcher sich der Benutzer registriert hat",
   icon: faEnvelopeOpenText as IconProp
 }, {
   itemKey: "none",
   title: "Keine Bestätigung",
   icon: faBellSlash as IconProp,
+}];
+
+export const WORKFLOW_NODE_ACTION_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: "deleteAction",
+  title: "Löschen der Aktion/Entscheidung",
+  description: "Löscht die Aktion/Entscheidung aus dem Workflow",
+  icon: faTrashCanSlash as IconProp,
+  isSelected: true,
+}, {
+  itemKey: "executionStatus",
+  title: "Ausführungsstatus",
+  description: "Der Ausführungsstatus bestimmt, ob die Aktion innerhalb der Synchronisationsschleife ausgeführt wird oder nicht",
+  icon: faBridgeCircleCheck as IconProp,
+  isSelected: true,
 }];

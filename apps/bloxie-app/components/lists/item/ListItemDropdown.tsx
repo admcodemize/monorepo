@@ -5,6 +5,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { SIZES } from "@codemize/constants/Fonts";
+import { STYLES } from "@codemize/constants/Styles";
 
 import TextBase from "@/components/typography/Text";
 
@@ -16,21 +17,22 @@ import ListItemDropdownStyle from "@/styles/components/lists/item/ListItemDropdo
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ListItemDropdownProps = {
   itemKey: string;
   title: string;
   description?: string;
-  icon: IconProp;
+  icon?: IconProp;
   isSelected?: boolean;
+  right?: React.ReactNode;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @param {ListItemDropdownProps} param0
  * @param {string} param0.title - The title of the dropdown item
  * @param {string} param0.description - The description of the dropdown item
@@ -40,33 +42,37 @@ const ListItemDropdown = ({
   title,
   description,
   icon,
-  isSelected = false
+  isSelected = false,
+  right
 }: ListItemDropdownProps) => {
   const { secondaryBgColor, infoColor, primaryIconColor } = useThemeColors();
   return (
     <View style={[ListItemDropdownStyle.view, { 
       backgroundColor: isSelected ? shadeColor(secondaryBgColor, 0.1) : undefined, 
     }]}>
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
-        <FontAwesomeIcon 
-          icon={icon} 
-          size={14} 
-          color={primaryIconColor} />
-        <TextBase 
-          text={title} 
-          type="label" 
-          style={[GlobalTypographyStyle.titleSubtitle, { 
-            color: infoColor, 
-            fontSize: Number(SIZES.label) 
-          }]} />
+      <View style={[GlobalContainerStyle.rowCenterBetween,{ gap: 40 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+          {icon && <FontAwesomeIcon 
+            icon={icon} 
+            size={STYLES.sizeFaIcon + 2} 
+            color={primaryIconColor} />}
+          <TextBase 
+            text={title} 
+            type="label" 
+            style={[GlobalTypographyStyle.titleSubtitle, { 
+              color: infoColor, 
+              fontSize: Number(SIZES.label) 
+            }]} />
+        </View>
+        {right && right}
       </View>
       {description && <TextBase 
         text={description} 
         type="label" 
         style={[GlobalTypographyStyle.labelText, { 
           color: shadeColor(infoColor, 0.3), 
-          fontSize: Number(SIZES.label) 
-        }]} />}
+          fontSize: Number(SIZES.label) - 1 
+      }]} />}
     </View>
   );
 }

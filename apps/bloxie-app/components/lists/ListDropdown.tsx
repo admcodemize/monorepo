@@ -1,4 +1,4 @@
-import { GestureResponderEvent, ScrollView, View } from "react-native";
+import { GestureResponderEvent, LayoutChangeEvent, ScrollView, View } from "react-native";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { STYLES } from "@codemize/constants/Styles";
@@ -10,11 +10,13 @@ import ListItemDropdown, { ListItemDropdownProps } from "@/components/lists/item
 import ListDropdownStyle from "@/styles/components/lists/ListDropdown";
 import TouchableHaptic from "../button/TouchableHaptic";
 
+export const DEFAULT_WIDTH = 260;
+
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ListDropdownProps = {
   title: string;
@@ -23,27 +25,30 @@ export type ListDropdownProps = {
   width?: number;
   isScrollEnabled?: boolean;
   onPressItem: (item: ListItemDropdownProps) => void;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @param {ListDropdownProps} param0
  * @param {string} param0.title - The title of the dropdown list
  * @param {ListItemDropdownProps[]} param0.items - The items of the dropdown list
  * @param {ListItemDropdownProps} param0.selectedItem - The selected item of the dropdown list
  * @param {number} param0.width - The width of the dropdown list
  * @param {boolean} param0.isScrollEnabled - Whether the scroll view is enabled
+ * @param {Function} param0.onLayout - Callback function when the layout changes (re-rendered)
  * @component */
 const ListDropdown = ({
   title,
   items,
   selectedItem,
-  width = 240,
+  width = DEFAULT_WIDTH,
   isScrollEnabled = false,
   onPressItem,
+  onLayout,
 }: ListDropdownProps) => {
   const { primaryBgColor } = useThemeColors();
 
@@ -57,10 +62,12 @@ const ListDropdown = ({
   (e: GestureResponderEvent) => onPressItem(item);
 
   return (
-    <View style={[ListDropdownStyle.view, { 
-      width, 
-      backgroundColor: primaryBgColor
-    }]}>
+    <View 
+      onLayout={onLayout}
+      style={[ListDropdownStyle.view, { 
+        width, 
+        backgroundColor: primaryBgColor
+      }]}>
       <ListItemGroup
         title={title}
         gap={STYLES.sizeGap * 1.75}
@@ -70,9 +77,10 @@ const ListDropdown = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ gap: 4 }}>
           {items.map((item, index) => 
-            <TouchableHaptic onPress={onPressItemInternal(item)}>
+            <TouchableHaptic 
+              key={`${KEYS.listDropdownItem}-${index}`}
+              onPress={onPressItemInternal(item)}>
               <ListItemDropdown 
-                key={`${KEYS.listDropdownItem}-${index}`} 
                 {...item}
                 isSelected={selectedItem.itemKey === item.itemKey} />
             </TouchableHaptic>

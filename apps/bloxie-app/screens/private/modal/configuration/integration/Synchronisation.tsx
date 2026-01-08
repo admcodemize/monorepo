@@ -15,6 +15,7 @@ import { ConvexCalendarAPIProps, ConvexCalendarQueryAPIProps } from "@codemize/b
 
 import { PNG_ASSETS } from "@/assets/png";
 import { KEYS } from "@/constants/Keys";
+import { SIZES } from "@codemize/constants/Fonts";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
 import TextBase from "@/components/typography/Text";
@@ -52,12 +53,12 @@ type IntegrationCalendarProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.19
- * @version 0.0.3
+ * @version 0.0.4
  * @description The screen for the integration connection
  * @component */
 const ScreenConfigurationIntegrationSynchronisation = (
 ) => {
-  const { secondaryBgColor, primaryBorderColor } = useThemeColors();
+  const { secondaryBgColor } = useThemeColors();
 
   /**
    * @description Get the integrations from the context for updating the UI/UX accordingly
@@ -73,8 +74,7 @@ const ScreenConfigurationIntegrationSynchronisation = (
               key={`${KEYS.integrationConnection}-${integration._id}`}
               style={{ gap: STYLES.sizeGap }}>
                 <View style={[ScreenConfigurationIntegrationSynchronisationStyle.viewHeader, { 
-                  backgroundColor: shadeColor(secondaryBgColor, 0.3), 
-                  borderColor: primaryBorderColor
+                  backgroundColor: shadeColor(secondaryBgColor, 0), 
                 }]}>
                   <IntegrationHeader integration={integration} />
                   <IntegrationCalendar calendars={integration.calendars ?? []} />
@@ -167,7 +167,8 @@ const IntegrationCalendar = ({
             colorActive={linkColor}
             isActive={calendar.isRelevantForSynchronization}
             showActivityIcon={true}
-            onPress={update(calendar._id as Id<"calendar">)} />
+            onPress={update(calendar._id as Id<"calendar">)}
+            textStyle={{ fontSize: Number(SIZES.label) - 1 }} />
         ))}
       </View>
     </View>

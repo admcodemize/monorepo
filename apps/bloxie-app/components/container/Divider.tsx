@@ -1,7 +1,7 @@
 import * as React from "react";
 import { View, ViewProps, ViewStyle } from "react-native";
 
-import { useThemeColor } from "@/hooks/theme/useThemeColor";
+import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 /**
  * @public
@@ -12,6 +12,7 @@ import { useThemeColor } from "@/hooks/theme/useThemeColor";
 export type DividerProps = ViewProps & {
   style?: ViewStyle|ViewStyle[];
   vertical?: boolean;
+  backgroundColor?: string;
 }
 
 /**
@@ -19,19 +20,19 @@ export type DividerProps = ViewProps & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a divider line view
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @param {Object} param0
  * @param {ViewStyle|ViewStyle[]} param0.style - Extended custom styling
  * @param {boolean} param0.vertical - Vertical divider  */
 const Divider = ({ 
   style,
-  vertical = false
+  vertical = false,
+  backgroundColor
 }: DividerProps) => {
-  const primaryBorderColor = useThemeColor("primaryBorder");
-
+  const { primaryBorderColor } = useThemeColors();
   return (
     <View style={[{
-      backgroundColor: primaryBorderColor,
+      backgroundColor: backgroundColor || primaryBorderColor,
       height: vertical ? 14 : 1,
       width: vertical ? 1 : "100%",
     }, style]} />

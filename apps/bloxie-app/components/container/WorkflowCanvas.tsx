@@ -2,7 +2,7 @@ import React from 'react';
 import { LayoutChangeEvent, LayoutRectangle, ScrollView, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { FadeInDown, FadeOutUp, Layout, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeInDown, runOnJS, useAnimatedStyle, useSharedValue, withTiming, interpolate } from 'react-native-reanimated';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -66,8 +66,6 @@ import { ConvexTemplateAPIProps } from '@codemize/backend/Types';
 import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
 import DropdownOverlay from './DropdownOverlay';
-import ListProviderMailAccounts from '../lists/ListProviderMailAccounts';
-import { open as _open, TouchableDropdownFloat } from '@/components/button/dropdown/TouchableDropdown';
 import { useDropdown } from '@/hooks/button/useDropdown';
 import GlobalTypographyStyle from '@/styles/GlobalTypography';
 import { STYLES } from '@codemize/constants/Styles';
@@ -75,6 +73,7 @@ import ListItemGroup from './ListItemGroup';
 import TouchableHapticTrigger from '../button/workflow/TouchableHapticTrigger';
 import TouchableHapticTimePeriod from '../button/workflow/TouchableHapticTimePeriod';
 import TouchableHapticConfirmation from '../button/workflow/TouchableHapticConfirmation';
+import TouchableHapticAction from '../button/workflow/TouchableHapticAction';
 
 export type WorkflowNodeType = 'start' | 'action' | 'decision' | 'end';
 
@@ -133,6 +132,7 @@ type WorkflowCanvasProps = {
   nodes?: WorkflowNode[];
   onNodePress?: (node: WorkflowNode) => void;
   onAddNode?: (connection: WorkflowAdditionPayload|null, type: WorkflowNodeType) => void;
+  onRemoveNode?: (node: WorkflowNode) => void;
   onAddNodeItem?: (node: WorkflowNode, item: ConvexTemplateAPIProps) => void;
   onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
   onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
@@ -332,6 +332,7 @@ export function WorkflowCanvas({
   nodes,
   onNodePress,
   onAddNode,
+  onRemoveNode,
   onAddNodeItem,
   onRemoveNodeItem,
   onChangeNodeItem,
@@ -387,28 +388,61 @@ export function WorkflowCanvas({
       return inputNodes.splice(index, 1)[0];
     };
 
-    const startNode =
-      extractNodeByType('start') ??
-      ({
-        id: 'start',
-        type: 'start',
-        title: typeLabel.start,
-        icon: typeIcon.start,
-      } as WorkflowNode);
+    const resolveNode = (
+      node: WorkflowNode | null,
+      fallback: WorkflowNodeType,
+    ): WorkflowNode => {
+      if (!node) {
+        return {
+          id: fallback,
+          type: fallback,
+          title: typeLabel[fallback],
+          icon: typeIcon[fallback],
+        } as WorkflowNode;
+      }
 
-    const endNode =
-      extractNodeByType('end') ??
-      ({
-        id: 'end',
-        type: 'end',
-        title: typeLabel.end,
-        icon: typeIcon.end,
-      } as WorkflowNode);
+      if (node.icon) {
+        return node;
+      }
 
-    return [{ ...startNode, icon: startNode.icon ?? typeIcon.start }, ...inputNodes, { ...endNode, icon: endNode.icon ?? typeIcon.end }];
+      return {
+        ...node,
+        icon: typeIcon[node.type],
+      };
+    };
+
+    const startNode = resolveNode(extractNodeByType('start'), 'start');
+    const endNode = resolveNode(extractNodeByType('end'), 'end');
+
+    return [startNode, ...inputNodes, endNode];
   }, [nodes]);
   const connections = React.useMemo(() => deriveConnectionsFromNodes(nodeList), [nodeList]);
   const renderedConnectionsCache = React.useRef<Map<string, RenderedConnection>>(new Map());
+  const [removingNodeIds, setRemovingNodeIds] = React.useState<Set<string>>(new Set());
+
+  const handleRequestRemoveNode = React.useCallback((node: WorkflowNode) => {
+    if (!node?.id) {
+      return;
+    }
+
+    setRemovingNodeIds(prev => {
+      if (prev.has(node.id)) {
+        return prev;
+      }
+
+      const next = new Set(prev);
+      next.add(node.id);
+      return next;
+    });
+  }, []);
+
+  const handleRemovalAnimationEnd = React.useCallback((node: WorkflowNode) => {
+    if (!node?.id) {
+      return;
+    }
+
+    onRemoveNode?.(node);
+  }, [onRemoveNode]);
   const renderedConnections = React.useMemo(() => {
     const prev = renderedConnectionsCache.current;
     const next = new Map<string, RenderedConnection>();
@@ -527,6 +561,28 @@ export function WorkflowCanvas({
     return Array.from(next.values());
   }, [connections, nodeLayouts, nodeList]);
 
+  React.useEffect(() => {
+    setRemovingNodeIds(prev => {
+      if (prev.size === 0) {
+        return prev;
+      }
+
+      const validIds = new Set(nodeList.map(node => node.id));
+      let changed = false;
+      const next = new Set<string>();
+
+      prev.forEach(id => {
+        if (validIds.has(id)) {
+          next.add(id);
+        } else {
+          changed = true;
+        }
+      });
+
+      return changed ? next : prev;
+    });
+  }, [nodeList]);
+
   const handleNodeLayout = React.useCallback((id: string, layout: LayoutRectangle) => {
     setNodeLayouts(prev => {
       const previous = prev[id];
@@ -554,7 +610,7 @@ export function WorkflowCanvas({
             <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
               {renderedConnections.map(({ connection, path }) => (
                 <Path
-                  key={connection.id}
+                  key={`${connection.id}:${nodes?.length ?? 0}`}
                   d={path}
                   stroke="#000"
                   strokeWidth={1}
@@ -612,6 +668,9 @@ export function WorkflowCanvas({
                     node={node}
                     isFirst={index === 0}
                     isLast={index === nodeList.length - 1}
+                    isRemoving={removingNodeIds.has(node.id)}
+                    onRemoveNode={handleRequestRemoveNode}
+                    onRemovalAnimationEnd={handleRemovalAnimationEnd}
                     onAddNodeItem={onAddNodeItem}
                     onRemoveNodeItem={onRemoveNodeItem}
                     onChangeNodeItem={onChangeNodeItem}
@@ -633,13 +692,16 @@ type WorkflowNodeProps = {
   node: WorkflowNode;
   isFirst: boolean;
   isLast: boolean;
+  isRemoving: boolean;
+  onRemoveNode?: (node: WorkflowNode) => void;
+  onRemovalAnimationEnd?: (node: WorkflowNode) => void;
   onAddNodeItem?: (node: WorkflowNode,item: ConvexTemplateAPIProps) => void;
   onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
   onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
   onLayout: (layout: LayoutRectangle) => void;
 };
 
-const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, onChangeNodeItem, onLayout }: WorkflowNodeProps) => {
+const WorkflowNode = ({ node, isFirst, isLast, isRemoving, onAddNodeItem, onRemoveNode, onRemovalAnimationEnd, onRemoveNodeItem, onChangeNodeItem, onLayout }: WorkflowNodeProps) => {
   const { secondaryBgColor, secondaryBorderColor, errorColor, infoColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
@@ -649,6 +711,30 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
   const [isOpen, setIsOpen] = React.useState<boolean>(true);
 
   const { push, dismiss } = useTrays('main');
+
+  const removalProgress = useSharedValue(0);
+
+  const removalStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(removalProgress.value, [0, 1], [1, 0]),
+    transform: [
+      {
+        translateY: interpolate(removalProgress.value, [0, 1], [0, -16]),
+      },
+    ],
+  }));
+
+  React.useEffect(() => {
+    if (!isRemoving) {
+      removalProgress.value = 0;
+      return;
+    }
+
+    removalProgress.value = withTiming(1, { duration: 180 }, finished => {
+      if (finished && onRemovalAnimationEnd) {
+        runOnJS(onRemovalAnimationEnd)(node);
+      }
+    });
+  }, [isRemoving, node, onRemovalAnimationEnd, removalProgress]);
 
   const handleLayout = React.useCallback(
     (event: LayoutChangeEvent) => {
@@ -665,56 +751,7 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
   /**
    * @description Get the dropdown functions for displaying the mail accounts.
    * @see {@link hooks/button/useDropdown} */
-   const { open } = useDropdown();
-
-  /**
-   * @description Used to open the dropdown component
-   * @function */
-  const onPressDropdown = () => {
-    /** 
-     * @description Open the dropdown component based on a calculated measurement template
-     * @see {@link components/button/TouchableDropdown} */
-    _open({
-      refTouchable: refMenu,
-      relativeToRef: refTrigger,
-      //hostId: "tray",
-      paddingHorizontal: 12 - 2, // Padding aus refTrigger -> touchableHapticDropdown
-      open,
-      children: <View style={{ width: 260, backgroundColor: "#fff", borderRadius: 10, padding: 4, paddingHorizontal: 8, paddingVertical: 8
-        , borderColor: shadeColor(secondaryBorderColor, 0.3), gap: 4
-       }}>
-
-        <ListItemGroup
-          title={"Aktionen"}
-          gap={STYLES.sizeGap * 1.75}
-          style={{ paddingVertical: 6 , paddingHorizontal: 6 }} />
-
-        <View style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3), gap: 4, borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
-          <View style={[GlobalContainerStyle.rowCenterBetween,{ gap: 40 }]}>
-            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
-              <FontAwesomeIcon icon={faTrashCanSlash as IconProp} size={14} color="#202122" />
-              <TextBase text="Löschen der Aktion/Entscheidung" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
-            </View>
-          </View>
-        </View>
-
-        <View style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3), gap: 4, borderRadius: 6, padding: 6, paddingHorizontal: 10 }}>
-          <View style={[GlobalContainerStyle.rowCenterBetween,{ gap: 40 }]}>
-            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
-              <FontAwesomeIcon icon={faBridgeCircleCheck as IconProp} size={14} color="#202122" />
-              <TextBase text="Ausführungsstatus" type="label" style={[GlobalTypographyStyle.titleSubtitle, { color: infoColor, fontSize: Number(SIZES.label) }]} />
-            </View>
-            <TouchableHapticSwitch
-              state={isActive}
-              onStateChange={setIsActive}/>
-          </View>
-          <TextBase text="Der Ausführungsstatus bestimmt, ob die Aktion innerhalb der Synchronisationsschleife ausgeführt wird oder nicht." type="label" style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) }]} />
-        </View>
-
-
-       </View>,
-    });
-  };
+   const { open: _open } = useDropdown();
 
 
 
@@ -723,9 +760,12 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
     <Animated.View
       onLayout={handleLayout}
       entering={FadeInDown.duration(180)}
-      exiting={FadeOutUp.duration(140)}
-      pointerEvents="box-none"
-      style={[styles.nodeWrapper, !isLast && styles.nodeWrapperSpacing]}
+      pointerEvents={isRemoving ? 'none' : 'box-none'}
+      style={[
+        styles.nodeWrapper,
+        !isLast && styles.nodeWrapperSpacing,
+        removalStyle,
+      ]}
     >
       <View style={styles.tagRow}>
         <TouchableTag
@@ -789,13 +829,26 @@ const WorkflowNode = ({ node, isFirst, isLast, onAddNodeItem, onRemoveNodeItem, 
                 <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
               </TouchableHaptic>}
 
-              <TouchableHaptic
+              {/*<TouchableHaptic
                 onPress={() => {
                   //setIsActive((prev) => !prev);
                   onPressDropdown();
                 }}>
                 <FontAwesomeIcon icon={faEllipsisStroke as IconProp} size={16} color={typeAccent[node.type]} />
-              </TouchableHaptic>
+              </TouchableHaptic>*/}
+
+              <TouchableHapticAction
+                refContainer={refTrigger}
+                onPress={(item) => {
+                  if (isRemoving) {
+                    return;
+                  }
+
+                  if (item.itemKey === "deleteAction") {
+                    onRemoveNode?.(node);
+                  }
+                }}
+                onPressExecutionStatus={setIsActive}/>
 
               <TouchableHaptic
                 ref={refMenu}

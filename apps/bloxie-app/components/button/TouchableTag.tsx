@@ -1,10 +1,11 @@
 import React from "react";
-import { View, ViewStyle } from "react-native";
+import { TextStyle, View, ViewStyle } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCheck, faXmark } from "@fortawesome/pro-solid-svg-icons";
 
 import { shadeColor } from "@codemize/helpers/Colors";
+import { STYLES } from "@codemize/constants/Styles";
 
 import TextBase, { TextBaseTypes } from "@/components/typography/Text";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
@@ -17,7 +18,7 @@ import TouchableTagStyle from "@/styles/components/button/TouchableTag";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.18
- * @version 0.0.4
+ * @version 0.0.5
  * @type */
 export type TouchableTagProps = {
   icon?: IconProp;
@@ -32,6 +33,7 @@ export type TouchableTagProps = {
   activityIconActive?: IconProp;
   activityIconInactive?: IconProp;
   viewStyle?: ViewStyle|ViewStyle[];
+  textStyle?: TextStyle;
   onPress?: (isActive: boolean) => void;
 }
 
@@ -39,7 +41,7 @@ export type TouchableTagProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.18
- * @version 0.0.3
+ * @version 0.0.4
  * @param {TouchableTagProps} param0 
  * @param {IconProp} param0.icon - The icon to display
  * @param {string} param0.text - The text to display
@@ -52,6 +54,7 @@ export type TouchableTagProps = {
  * @param {IconProp} param0.activityIconActive - The icon to display when the TouchableTag is active
  * @param {IconProp} param0.activityIconInactive - The icon to display when the TouchableTag is inactive
  * @param {ViewStyle|ViewStyle[]} param0.viewStyle - The style to apply to the TouchableTag component
+ * @param {TextStyle} param0.textStyle - The style to apply to the text of the TouchableTag
  * @param {boolean} param0.disabled - The disabled state of the TouchableTag
  * @param {Function} param0.onPress - The function to call when the TouchableTag is pressed
  * @component */
@@ -68,6 +71,7 @@ const TouchableTag = ({
   activityIconActive = faXmark as IconProp,
   activityIconInactive = faCheck as IconProp,
   viewStyle,
+  textStyle,
   onPress = () => {}
 }: TouchableTagProps) => {
   const [_isActive, _setIsActive] = React.useState<boolean>(isActive);
@@ -93,16 +97,16 @@ const TouchableTag = ({
         }]}>
           {icon && <FontAwesomeIcon
             icon={icon} 
-            size={12} 
+            size={STYLES.sizeFaIcon} 
             color={shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1)} />}
           <TextBase
             text={text} 
             type={type} 
-            style={[GlobalTypographyStyle.labelText, { color: shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1) }]} />
+            style={[GlobalTypographyStyle.labelText, { color: shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1), ...textStyle }]} />
           {showActivityIcon && 
             <FontAwesomeIcon
               icon={_isActive ? activityIconActive : activityIconInactive}
-              size={10}
+              size={STYLES.sizeFaIcon - 2}
               color={shadeColor(backgroundColor ? backgroundColor : _isActive ? colorActive : colorInactive, -0.1)} />}
         </View>
     </TouchableHaptic>

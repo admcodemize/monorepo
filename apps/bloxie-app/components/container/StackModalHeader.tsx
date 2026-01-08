@@ -47,14 +47,14 @@ const StackModalHeader = ({
       <View style={[GlobalContainerStyle.rowCenterBetween]}> 
         <TextBase 
           text={title}
-          style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 12 }]} />
+          style={[GlobalTypographyStyle.headerSubtitle, { fontSize: 14 }]} />
         <TouchableHapticClose onPress={onPressClose} />
       </View>
       {description && <TextBase 
         type="label" 
         text={description} 
         numberOfLines={3}
-        style={[GlobalTypographyStyle.labelText, { color: infoColor }]} />}
+        style={[GlobalTypographyStyle.standardText, { color: infoColor }]} />}
     </View>
   )
 }

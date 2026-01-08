@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { GestureResponderEvent, Image, ScrollView, View } from "react-native";
+import { GestureResponderEvent, Image, ScrollView, TextInput, View } from "react-native";
 import type { EnrichedTextInputInstance } from 'react-native-enriched';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useTrays } from "react-native-trays";
@@ -23,7 +23,6 @@ import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
 
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
-import { open as _open } from "@/components/button/dropdown/TouchableDropdown";
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
@@ -34,10 +33,10 @@ import ListTemplatesWorkflowAction from "@/components/lists/ListTemplatesWorkflo
 import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
 import type { WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
-import ListProviderMailAccounts from "@/components/lists/ListProviderMailAccounts";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/ActionTemplate";
+import TouchableHapticMailAccounts from "@/components/button/workflow/TouchableHapticMailAccounts";
 
 const EDITOR_BASE_HEIGHT = 360;
 const TOOLBAR_HEIGHT = 40;
@@ -254,7 +253,7 @@ const ScreenTrayActionTemplate = ({
                 title={variable.name}
                 description={"Keine aktive Verwendung"}
                 type={ListItemWithChildrenTypeEnum.custom}
-                right={<TextBase text={`{{${variable.pattern}}}`} type="label"/>}
+                right={<TextBase text={`{{${variable.pattern}}}`} type="label" />}
                 icon={resolveRuntimeIcon(variable.icon || "") as IconProp}
                 iconSize={16} />
             </TouchableHaptic>
@@ -413,7 +412,7 @@ const ScreenTrayActionTemplate = ({
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.40
- * @version 0.0.1
+ * @version 0.0.2
  * @param {ScreenTrayActionTemplateHeaderProps} param0
  * @param {string} param0.name - The name of the action template which is chosen by the user for the workflow action template
  * @param {() => void} param0.onPressClose - The function to call when the close button is pressed on the top right corner
@@ -426,15 +425,10 @@ const ScreenTrayActionTemplateHeader = ({
 }: ScreenTrayActionTemplateHeaderProps) => {
   const { infoColor, secondaryBorderColor } = useThemeColors();
 
-  /** 
-   * @description Returns the linked mail account for the currently signed in user 
-   * @see {@link hooks/auth/useLinkedAccount} */
-  const { linkedMailAccount } = useLinkedMailAccounts();
-
   /**
    * @description Get the dropdown functions for displaying the mail accounts.
    * @see {@link hooks/button/useDropdown} */
-  const { open } = useDropdown();
+   const { state: { open }, open: _open } = useDropdown();
 
   /**
    * @description Used to open the dropdown component
@@ -443,7 +437,7 @@ const ScreenTrayActionTemplateHeader = ({
     /** 
      * @description Open the dropdown component based on a calculated measurement template
      * @see {@link components/button/TouchableDropdown} */
-    _open({
+    /*_open({
       refTouchable: mailAccountRef,
       relativeToRef: containerRef,
       hostId: "tray",
@@ -452,17 +446,28 @@ const ScreenTrayActionTemplateHeader = ({
         , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
        }}><ListProviderMailAccounts showListGroup={false} onPress={() => {}}
 
-      /></View>,
-    });
+      /></View>
+    });*/
   };
 
+  const ref = React.useRef<View>(null);
+
   return (
-    <View style={[GlobalContainerStyle.rowCenterBetween, ActionTemplateStyle.header]}>
-      <TextBase 
-        text={name} 
-        type="label" 
-        style={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }} />
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+    <View style={[GlobalContainerStyle.rowCenterBetween, ActionTemplateStyle.header, { gap: STYLES.sizeGap, flex: 1 }]} ref={ref}>
+      <TextInput
+        value={name}
+        editable={false}
+        placeholder="Name der Aktion"
+        numberOfLines={1}
+        style={{
+          color: infoColor,
+          fontSize: Number(SIZES.label),
+          fontFamily: String(FAMILIY.subtitle),
+          flexGrow: 1,
+          flexShrink: 1,
+        }}/>
+      <TouchableHapticMailAccounts refContainer={containerRef} onPress={() => {}} />
+      {/*<View style={[GlobalContainerStyle.rowCenterEnd, { gap: 4 }]}>
         {linkedMailAccount() && <Image 
           source={getImageAssetByProvider(linkedMailAccount()?.provider as ProviderEnum)} 
           resizeMode="cover"
@@ -484,7 +489,7 @@ const ScreenTrayActionTemplateHeader = ({
             iconColor={infoColor}
             onPress={onPressClose}/>
         </View>
-      </View>
+      </View>*/}
     </View>
   );
 }

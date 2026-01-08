@@ -2,7 +2,7 @@ import { t } from "i18next";
 import React from "react";
 import { GestureResponderEvent, View } from "react-native";
 
-import { faUsersBetweenLines, faRotate, faUserSecret } from "@fortawesome/duotone-thin-svg-icons";
+import { faUsersBetweenLines } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 import { STYLES } from "@codemize/constants/Styles";
@@ -12,11 +12,7 @@ import { DashboardDropdownItemKeyDays, useDashboardContextStore } from "@/contex
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import TouchableDropdown, { open as _open } from "@/components/button/dropdown/TouchableDropdown";
 import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
-import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import TitleWithDescription from "@/components/typography/TitleWithDescription";
-import TouchableDropdownItemBase from "@/components/button/dropdown/TouchableDropdownItemBase";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 
@@ -81,7 +77,7 @@ const DashboardAnalytics = ({
  /**
    * @description Get the dropdown functions.
    * @see {@link hooks/container/useDropdown} */
-  const { open } = useDropdown();
+   const { state: { open }, open: _open } = useDropdown();
 
   /**
    * @description Get the dropdown context store for handling the selected item key for teams and calendar.
@@ -112,13 +108,13 @@ const DashboardAnalytics = ({
     /** 
      * @description Open the dropdown component based on a calculated measurement template
      * @see {@link components/button/TouchableDropdown} */
-    _open({
+    /*_open({
       refTouchable: ref,
       relativeToRef: refContainer,
       hostId: "tray",
       open,
       children,
-    });
+    });*/
   }
   
   return (
@@ -170,22 +166,7 @@ const TouchableDropdownBaseTeams = ({
     }
 
   return (
-    <TouchableDropdown>
-      <TouchableDropdownItemBase
-        key={0}
-        itemKey={0}
-        icon={faUsersBetweenLines as IconProp}
-        text="codemize.com"
-        isSelected={selectedTeam === 0}
-        onPress={onPressItem} />
-      <TouchableDropdownItemBase
-        key={1}
-        itemKey={1}
-        icon={faUserSecret as IconProp}
-        text="Privater Kalender"
-        isSelected={selectedTeam === 1}
-        onPress={onPressItem} />
-    </TouchableDropdown>
+    <View />
   )
 }
 
@@ -215,18 +196,9 @@ const TouchableDropdownBaseDays = ({
       onSelectDay(key as DashboardDropdownItemKeyDays);
     }
 
+    //DROPDOWN_DASHBOARD_PERIOD
   return (
-    <TouchableDropdown>
-      {DROPDOWN_DASHBOARD_PERIOD.map((period) => (
-        <TouchableDropdownItemBase
-          key={period.key}
-          itemKey={period.key}
-          icon={period.iconDuotone as IconProp}
-          text={period.title}
-          isSelected={selectedDay === period.key}
-          onPress={onPressItem} />
-      ))}
-    </TouchableDropdown>
+    <View />
   )
 }
 

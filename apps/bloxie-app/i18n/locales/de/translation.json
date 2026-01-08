@@ -96,7 +96,7 @@
             "meet": {
               "title": "Google Meet",
               "description": "Videokonferenz- und Instant-Messaging-Dienst",
-              "info": "Aktivierung von Online-Besprechungen über Google Meet für Termintypen"
+              "info": "Aktivierung von Online-Besprechungen über Google Meet für Ereignistypen"
             }
           },
           "microsoft": {
@@ -114,7 +114,7 @@
             },
             "paypal": {
               "title": "PayPal - Bezahldienst",
-              "description": "Empfangen von Zahlungen für kostenpflichtige Termine"
+              "description": "Empfangen von Zahlungen"
             }
           }
         },
@@ -140,19 +140,19 @@
         "items": {
           "booking": {
             "title": "Buchung",
-            "description": "Buchung von Terminen mittels Termintyp"
+            "description": "Buchung von Ereignissen mittels Ereignistyp"
           },
           "type": {
-            "title": "Termintypen",
-            "description": "Verwendung für neue Termine auf der öffentlichen Buchungsseite."
+            "title": "Ereignistypen",
+            "description": "Verwendung für neue Ereignisse auf der öffentlichen Buchungsseite."
           },
           "poll": {
             "title": "Umfrage",
-            "description": "Finde einen passenden Termin für mehrere Teilnehmer"
+            "description": "Finden eines passenden Ereignis für mehrere Teilnehmer"
           },
           "bookingPage": {
             "title": "Buchungsseite",
-            "description": "Öffentlicher Kalender deiner buchbaren Termine"
+            "description": "Öffentlicher Kalender deiner buchbaren Ereignisse"
           },
           "team": {
             "title": "Mitarbeiter",
@@ -235,8 +235,8 @@
         },
         "workflowDecisions": {
           "eventType": {
-            "title": "Termintypen",
-            "description": "Der Termintyp definiert die unterschiedlichen Buchungsoptionen für den Termin."
+            "title": "Ereignistypen",
+            "description": "Der Ereignistyp definiert die unterschiedlichen Buchungsoptionen"
           },
           "calendarConnection": {
             "title": "Kalenderverbindung",

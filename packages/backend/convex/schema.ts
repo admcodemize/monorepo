@@ -139,11 +139,7 @@ export const settingsSchema = {
   pushNotifications: v.optional(v.boolean()),
   durationMinute: v.optional(v.number()),
   breakingTimeBetweenEvents: v.optional(v.number()),
-  defaultMailAccount: v.optional(v.string()),
-  integrations: v.optional(v.array(v.object({
-    integrationKey: v.string(),
-    state: v.boolean(),
-  }))),
+  defaultMailAccount: v.optional(v.string())
 }
 
 /**

@@ -2,7 +2,6 @@ import React from "react";
 import { View } from "react-native";
 import { t } from "i18next";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faFunction } from "@fortawesome/duotone-thin-svg-icons";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
@@ -11,7 +10,6 @@ import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { WORKFLOW_TRIGGER_ITEMS } from "@/constants/Models";
 
-import { open as _open } from '@/components/button/dropdown/TouchableDropdown';
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import TextBase from "@/components/typography/Text";
 import ListDropdown from "@/components/lists/ListDropdown";
@@ -53,7 +51,7 @@ const TouchableHapticTrigger = ({
   /**
    * @description Get the dropdown functions for displaying the available triggers.
    * @see {@link hooks/button/useDropdown} */
-  const { open, close } = useDropdown();
+   const { state: { open, close }, open: _open } = useDropdown();
 
   /**
    * @description Returns the children (dropdown items as a scrollable list)for the dropdown component

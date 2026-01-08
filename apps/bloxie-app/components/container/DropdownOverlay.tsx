@@ -1,9 +1,12 @@
-import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import React from "react";
+import { LayoutRectangle, Pressable, StyleSheet, View, ViewStyle, Dimensions } from "react-native";
 import Animated, { Easing, FadeIn, FadeOut } from "react-native-reanimated";
 
 import { useDropdownContextStore } from "@/context/DropdownContext";
 
 import DropdownOverlayStyle from "@/styles/components/container/DropdownOverlay";
+
+const DIM = Dimensions.get("window");
 
 /**
  * @private
@@ -35,11 +38,14 @@ const DropdownOverlay = ({
   hasCustomViewStyle = false,
   customViewStyle
 }: DropdownOverlayProps) => {
+  const [layout, setLayout] = React.useState<LayoutRectangle|null>(null);
+
   /** @see {@link context/DropdownContext} */
-  const { isOpen, children, position, close, hostId: activeHostId } = useDropdownContextStore((state) => state);
+  const { isOpen, children, position, close, hostId: activeHostId, openOnTop } = useDropdownContextStore((state) => state);
 
   /** @description If the dropdown is not open or the children or position is not set, do not render anything */
   if (!isOpen || !children || !position || activeHostId !== hostId) return null;
+  const top = openOnTop ? position.top - (layout?.height ?? 0) : position.top;
 
   return (
     <Animated.View
@@ -50,13 +56,17 @@ const DropdownOverlay = ({
         <Pressable 
           style={[DropdownOverlayStyle.container, { backgroundColor }]} 
           onPress={close} />
-        <View style={{ 
-          position: "absolute",  
-          top: position.top, 
-          bottom: position.bottom,
-          left: position.left,
-          right: position.right
-        }}>{children}</View>
+        <View 
+          onLayout={(event) => setLayout(event.nativeEvent.layout)}
+          style={{ 
+            position: "absolute",  
+            top, 
+            bottom: position.bottom,
+            left: position.left,
+            right: position.right
+          }}>
+            {children}
+          </View>
     </Animated.View>
   )
 };

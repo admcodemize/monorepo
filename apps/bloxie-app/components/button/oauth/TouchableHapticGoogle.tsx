@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faPlus } from "@fortawesome/pro-solid-svg-icons";
+import { faCloudPlus } from "@fortawesome/duotone-thin-svg-icons";
 import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
@@ -33,7 +33,7 @@ export type TouchableHapticGoogleProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.14
- * @version 0.0.4
+ * @version 0.0.5
  * @param {StartGoogleFlowProps} param0 - The props for the Gmail OAuth flow
  * @param {string} param0.email - The email of the user
  * @param {boolean} param0.grantScopeGmail - Whether to grant the Gmail scope
@@ -64,7 +64,7 @@ const TouchableHapticGoogle = ({
       onPress={onPress}>
         <View style={[GlobalContainerStyle.rowCenterStart, TouchableHapticGoogleStyle.view, { backgroundColor: shadeColor(focusedBgColor, 0) }]}>
           <FontAwesomeIcon 
-            icon={faPlus as IconProp} 
+            icon={faCloudPlus as IconProp} 
             size={12} 
             color={focusedContentColor} />
           <TextBase 

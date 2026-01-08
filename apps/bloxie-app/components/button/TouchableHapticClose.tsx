@@ -42,7 +42,7 @@ const TouchableHapticClose = ({
         <TextBase
           text={t("i18n.buttons.close")}
           type="label"
-          style={[{ color: colors.linkColor }]} />
+          style={[{ color: colors.linkColor, fontSize: 12 }]} />
     </TouchableHaptic>
   )
 }

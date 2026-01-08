@@ -8,7 +8,7 @@ const DIM = Dimensions.get("window");
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.18
- * @version 0.0.3 */
+ * @version 0.0.4 */
 const ScreenConfigurationIntegrationConnectionStyle = StyleSheet.create({
   view: {
     paddingHorizontal: STYLES.paddingHorizontal, 
@@ -18,7 +18,6 @@ const ScreenConfigurationIntegrationConnectionStyle = StyleSheet.create({
   },
   viewHeader: {
     borderRadius: 10,
-    borderWidth: 0.5,
     padding: 2,
     gap: 4
   },

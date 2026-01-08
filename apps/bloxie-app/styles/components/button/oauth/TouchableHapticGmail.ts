@@ -8,7 +8,7 @@ import { StyleSheet } from "react-native"
 const TouchableHapticGmailStyle = StyleSheet.create({
   view: {
     padding: 6, 
-    paddingVertical: 6, 
+    paddingVertical: 4, 
     borderRadius: 6,
     gap: 4
   }

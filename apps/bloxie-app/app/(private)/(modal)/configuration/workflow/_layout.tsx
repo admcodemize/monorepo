@@ -11,7 +11,7 @@ import ToastifyProvider from 'toastify-react-native';
 import { config } from "@/helpers/Toastify";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { useFontSize } from "@/hooks/typography/useFont";
+import { useFontFamily, useFontSize } from "@/hooks/typography/useFont";
 import { useConvexUser } from "@/hooks/auth/useConvexUser";
 import { useTemplates } from "@/hooks/configuration/useTemplate";
 import { useWorkflows } from "@/hooks/configuration/useWorkflows";
@@ -73,7 +73,7 @@ const ModalConfigurationWorkflowLayout = () => {
       <MaterialTopTabs 
         screenOptions={{ 
           swipeEnabled: true, 
-          tabBarLabelStyle: { fontSize: useFontSize("text") },
+          tabBarLabelStyle: { fontSize: useFontSize("text") + 1, fontFamily: useFontFamily("text") },
           tabBarItemStyle: { width: "auto" },
           tabBarIndicatorStyle: { backgroundColor: focusedBgColor },
           tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: primaryBorderColor },

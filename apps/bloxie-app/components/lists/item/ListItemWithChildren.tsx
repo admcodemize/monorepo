@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+import { Image } from "react-native";
 import { ImageSourcePropType, StyleProp, View, ViewStyle } from "react-native";
 
 import { faAngleRight, faExclamationTriangle } from "@fortawesome/duotone-thin-svg-icons";
@@ -6,16 +7,21 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 import { STYLES } from "@codemize/constants/Styles";
+import { SIZES } from "@codemize/constants/Fonts";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import TextBase from "@/components/typography/Text";
+import TouchableTag from "@/components/button/TouchableTag";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ListItemWithChildrenStyle from "@/styles/components/lists/item/ListItemWithChildren";
-import { Image } from "react-native";
-import TouchableTag from "@/components/button/TouchableTag";
+
+const DEFAULT_ICON_SIZE = STYLES.sizeFaIcon + 6;
+const DEFAULT_IMAGE_WIDTH = STYLES.sizeFaIcon + 18;
+const DEFAULT_IMAGE_HEIGHT = STYLES.sizeFaIcon + 24;
+const DEFAULT_CONTENT_GAP = STYLES.sizeGap + 4;
 
 /**
  * @public
@@ -60,7 +66,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description A list item with a title, description and children
  * @since 0.0.2
- * @version 0.0.6
+ * @version 0.0.7
  * @param {ListItemWithChildrenProps} param0
  * @param {IconProp} param0.icon - The icon to display
  * @param {number} param0.iconSize - The custom size of the icon
@@ -83,17 +89,17 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
  * @component */
 const ListItemWithChildren = ({
   icon,
-  iconSize = STYLES.sizeFaIcon + 6,
+  iconSize,
   image,
-  imageWidth = STYLES.sizeFaIcon + 18,
-  imageHeight = STYLES.sizeFaIcon + 24,
+  imageWidth,
+  imageHeight,
   title,
   description,
   titleI18nTranslation = true,
   descriptionI18nTranslation = true,
   type = ListItemWithChildrenTypeEnum.select,
   showDescription = true,
-  gap = STYLES.sizeGap,
+  gap,
   top,
   right,
   bottom,
@@ -106,15 +112,15 @@ const ListItemWithChildren = ({
     <View style={{ gap: STYLES.sizeGap }}>
       {top}
       <View style={[GlobalContainerStyle.rowStartStart, ListItemWithChildrenStyle.border]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: gap || STYLES.sizeGap + 4 }]}>
-          {icon && !image && <FontAwesomeIcon
-            icon={icon}
-            size={iconSize}
-            color={primaryIconColor} />}
-          {image &&!icon && <Image 
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: gap ?? DEFAULT_CONTENT_GAP }]}>
+          {!image ? <FontAwesomeIcon
+            icon={icon as IconProp}
+            size={iconSize ?? DEFAULT_ICON_SIZE}
+            color={primaryIconColor} /> : null}
+          {!icon ? <Image 
             source={image} 
-            style={{ height: imageHeight, width: imageWidth }} 
-            resizeMode="cover"/>}
+            style={{ height: imageHeight ?? DEFAULT_IMAGE_HEIGHT, width: imageWidth ?? DEFAULT_IMAGE_WIDTH }} 
+            resizeMode="cover"/> : null}
           <View style={[GlobalContainerStyle.rowCenterBetween, { flex: 1 }]}>
             <View style={[{ flexShrink: 1, gap: showDescription ? 1 : 0 }, styleTextComponent]}>
               <TextBase 
@@ -128,7 +134,7 @@ const ListItemWithChildren = ({
                 i18nTranslation={descriptionI18nTranslation}
                 numberOfLines={2}
                 ellipsizeMode="tail"
-                style={[GlobalTypographyStyle.labelText, { fontSize: 9 }]} />}
+                style={[GlobalTypographyStyle.labelText, { fontSize: Number(SIZES.label) }]} />}
             </View>
             {isComingSoon && <TouchableTag
               icon={faExclamationTriangle as IconProp}
@@ -136,11 +142,11 @@ const ListItemWithChildren = ({
               type="label"
               colorInactive={errorColor}
               disabled={true} />}
-            {type === ListItemWithChildrenTypeEnum.navigation && <FontAwesomeIcon
+            {type === ListItemWithChildrenTypeEnum.navigation ? <FontAwesomeIcon
               icon={faAngleRight as IconProp}
               size={STYLES.sizeFaIcon}
-              color={primaryIconColor} />}
-            {type === ListItemWithChildrenTypeEnum.custom && right}
+              color={primaryIconColor} /> : null}
+            {type === ListItemWithChildrenTypeEnum.custom ? right : null}
           </View>
         </View>
         {children}

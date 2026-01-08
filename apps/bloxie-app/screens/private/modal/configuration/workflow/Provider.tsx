@@ -6,7 +6,85 @@ import WorkflowFooter from "@/components/layout/footer/WorkflowFooter";
 import { WorkflowCanvas, WorkflowAdditionPayload, WorkflowNodeType } from "@/components/container/WorkflowCanvas";
 import type { WorkflowNode, WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
 import { ConvexTemplateAPIProps } from "@codemize/backend/Types";
-import DropdownOverlay from "@/components/container/DropdownOverlay";
+
+type ExtendedWorkflowNode = WorkflowNode & {
+  parentId?: string;
+  childIds?: string[];
+};
+
+type WorkflowNodeId = NonNullable<WorkflowNode["parentNodeId"]>;
+
+const readParentId = (node: ExtendedWorkflowNode): string | undefined => {
+  if (typeof node.parentNodeId === "string" && node.parentNodeId.length > 0) {
+    return node.parentNodeId;
+  }
+
+  if (typeof node.parentId === "string" && node.parentId.length > 0) {
+    return node.parentId;
+  }
+
+  return undefined;
+};
+
+const toWorkflowNodeId = (value?: string): WorkflowNode["parentNodeId"] => {
+  if (!value) {
+    return undefined;
+  }
+
+  return value as WorkflowNodeId;
+};
+
+const applyParentId = (node: ExtendedWorkflowNode, parentId?: string): ExtendedWorkflowNode => {
+  const currentParentId = readParentId(node);
+  if (currentParentId === parentId) {
+    return node;
+  }
+
+  const next: ExtendedWorkflowNode = { ...node };
+
+  if (parentId) {
+    const normalizedParentId = toWorkflowNodeId(parentId);
+    if (normalizedParentId) {
+      next.parentNodeId = normalizedParentId;
+    } else {
+      delete next.parentNodeId;
+    }
+    next.parentId = parentId;
+    return next;
+  }
+
+  delete next.parentNodeId;
+  delete next.parentId;
+  return next;
+};
+
+const removeChildReference = (node: ExtendedWorkflowNode, childId: string): ExtendedWorkflowNode => {
+  const removalId = toWorkflowNodeId(childId);
+  const hasChildNodeIds =
+    Array.isArray(node.childNodeIds) &&
+    (removalId
+      ? node.childNodeIds.some(id => id === removalId)
+      : node.childNodeIds.some(id => String(id) === childId));
+  const hasLegacyChildIds = Array.isArray(node.childIds) && node.childIds.includes(childId);
+
+  if (!hasChildNodeIds && !hasLegacyChildIds) {
+    return node;
+  }
+
+  const next: ExtendedWorkflowNode = { ...node };
+
+  if (hasChildNodeIds && Array.isArray(node.childNodeIds)) {
+    next.childNodeIds = removalId
+      ? node.childNodeIds.filter(id => id !== removalId)
+      : node.childNodeIds.filter(id => String(id) !== childId);
+  }
+
+  if (hasLegacyChildIds) {
+    next.childIds = node.childIds?.filter(id => id !== childId);
+  }
+
+  return next;
+};
 
 /**
  * @public
@@ -16,17 +94,17 @@ import DropdownOverlay from "@/components/container/DropdownOverlay";
  * @component */
 const ScreenConfigurationWorkflowProvider = () => {
 
-  const nodes = [
-    { id: 'start', type: 'start', icon: faBrightnessLow as IconProp },
+  const initialNodes: ExtendedWorkflowNode[] = [
+    { id: "start", type: "start", icon: faBrightnessLow as IconProp },
     {
-      id: 'end',
-      type: 'end',
-      title: 'Abschluss',
+      id: "end",
+      type: "end",
+      title: "Abschluss",
       icon: faBrightnessLow as IconProp,
     },
   ];
 
-  const [_nodes, setNodes] = React.useState<any[]>(nodes);
+  const [_nodes, setNodes] = React.useState<ExtendedWorkflowNode[]>(initialNodes);
 
   return (
     <>
@@ -48,7 +126,8 @@ const ScreenConfigurationWorkflowProvider = () => {
               type,
               title: `Entscheidung ${next.length + 1}`,
               icon: faCodeCommit as IconProp,
-              parentNodeId: parentId,
+              parentNodeId: toWorkflowNodeId(parentId),
+              parentId,
             };
 
             const insertBeforeIndex = targetId ? next.findIndex(node => node.id === targetId) : -1;
@@ -79,7 +158,37 @@ const ScreenConfigurationWorkflowProvider = () => {
             return next;
           });
         }}
-        onAddNodeItem={(node: any, template: ConvexTemplateAPIProps) => {
+        onRemoveNode={(node: WorkflowNode) => {
+          setNodes(prev => {
+            const index = prev.findIndex(existing => existing.id === node.id);
+            if (index === -1) {
+              return prev;
+            }
+
+            const target = prev[index];
+
+            if (target.type === "start" || target.type === "end") {
+              return prev;
+            }
+
+            const fallbackParentId = readParentId(target) ?? prev[index - 1]?.id;
+
+            const filtered = prev.filter(existing => existing.id !== node.id);
+
+            return filtered.map(existing => {
+              let updated = existing;
+
+              if (readParentId(existing) === node.id) {
+                updated = applyParentId(existing, fallbackParentId);
+              }
+
+              updated = removeChildReference(updated, node.id);
+
+              return updated;
+            });
+          });
+        }}
+        onAddNodeItem={(node: WorkflowNode, template: ConvexTemplateAPIProps) => {
           setNodes(prev => {
             const next = prev.map(existing => {
               if (existing.id !== node.id) {
@@ -87,15 +196,19 @@ const ScreenConfigurationWorkflowProvider = () => {
               }
 
               const items = existing.items ? [...existing.items] : [];
+              const templateId =
+                (template._id as WorkflowNodeItemProps["_id"]) ??
+                (`template-${Date.now()}` as WorkflowNodeItemProps["_id"]);
+
               const nextItem = {
                 id: `action-${Date.now()}`,
                 name: template.name ?? '',
                 description: template.description ?? '',
                 icon: (template.icon as IconProp) ?? faCodeCommit,
-                language: template.language,
+                language: template.language as WorkflowNodeItemProps["language"],
                 subject: template.subject ?? '',
                 content: template.content ?? '',
-                _id: template._id,
+                _id: templateId,
               };
 
               items.push(nextItem);
@@ -108,7 +221,6 @@ const ScreenConfigurationWorkflowProvider = () => {
 
             return next;
           });
-          console.log("onAddNodeItem", _nodes);
         }}
         onRemoveNodeItem={(node: any, key: string) => {
           console.log("onRemoveNodeItemProvider", key);

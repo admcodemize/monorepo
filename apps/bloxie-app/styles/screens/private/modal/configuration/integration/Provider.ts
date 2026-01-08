@@ -23,8 +23,8 @@ const ProviderStyle = StyleSheet.create({
     paddingHorizontal: 8
   },
   itemImage: {
-    height: STYLES.sizeFaIcon + 18, 
-    width: STYLES.sizeFaIcon + 16
+    height: STYLES.sizeFaIcon + 12, 
+    width: STYLES.sizeFaIcon + 12
   },
   itemBottom: {
     paddingVertical: 6, 

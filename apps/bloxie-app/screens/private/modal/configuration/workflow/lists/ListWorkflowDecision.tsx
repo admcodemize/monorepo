@@ -1,18 +1,14 @@
 import React from "react";
 import { DimensionValue, GestureResponderEvent, ScrollView, View } from "react-native";
 
-import { getLocalization, LanguageEnumProps, resolveRuntimeIcon } from "@/helpers/System";
-import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { useConfigurationContextStore } from "@/context/ConfigurationContext";
+import { resolveRuntimeIcon } from "@/helpers/System";
 import { STYLES } from "@codemize/constants/Styles";
-import { ConvexRuntimeAPIWorkflowDecisionProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
+import { ConvexRuntimeAPIWorkflowDecisionProps } from "@codemize/backend/Types";
+import { useUserContextStore } from "@/context/UserContext";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
-import TextBase from "../typography/Text";
-import GlobalContainerStyle from "@/styles/GlobalContainer";
-import { useUserContextStore } from "@/context/UserContext";
 
 /**
  * @public
@@ -20,7 +16,7 @@ import { useUserContextStore } from "@/context/UserContext";
  * @since 0.0.38
  * @version 0.0.1
  * @component */
-export type ListTemplatesWorkflowDecisionProps = {
+export type ListWorkflowDecisionProps = {
   maxHeight?: DimensionValue;
   showListGroup?: boolean;
   onPress: (decision: ConvexRuntimeAPIWorkflowDecisionProps) => void;
@@ -31,15 +27,15 @@ export type ListTemplatesWorkflowDecisionProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
  * @version 0.0.2
- * @param {ListTemplatesWorkflowDecisionProps} param0
+ * @param {ListWorkflowDecisionProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
  * @param {(decision: ConvexRuntimeAPIWorkflowDecisionProps) => void} param0.onPress - The function to call when a decision is pressed
  * @component */
-const ListTemplatesWorkflowDecision = ({
+const ListWorkflowDecision = ({
   maxHeight = "100%",
   showListGroup = true,
   onPress,
-}: ListTemplatesWorkflowDecisionProps) => {
+}: ListWorkflowDecisionProps) => {
   /** @description Returns all the workflow decisions stored in the context for the currently signed in user */
   const workflowDecisions = useUserContextStore((state) => state.runtime.workflowDecisions);
   const memoizedDecisions = React.useMemo(() => workflowDecisions, [workflowDecisions]);
@@ -75,4 +71,4 @@ const ListTemplatesWorkflowDecision = ({
   );
 };
 
-export default ListTemplatesWorkflowDecision;
+export default ListWorkflowDecision;

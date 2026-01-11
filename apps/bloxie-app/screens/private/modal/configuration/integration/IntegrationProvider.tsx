@@ -3,33 +3,26 @@ import { Image, ImageSourcePropType, ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next";
 import { faAlarmClock, faCloud } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { ReactAction, useAction } from "convex/react";
 
-import { STYLES } from "@codemize/constants/Styles"
+import { SIZES } from "@codemize/constants/Fonts";
 import { shadeColor } from "@codemize/helpers/Colors";
-import { convertToCleanObjectForUpdate } from "@codemize/backend/Convert";
 
-import { api } from "../../../../../../../packages/backend/convex/_generated/api";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
-import { ConvexCalendarQueryAPIProps, ConvexSettingsAPIProps } from "@codemize/backend/Types";
+import { ConvexCalendarQueryAPIProps } from "@codemize/backend/Types";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { useIntegrationContextStore } from "@/context/IntegrationContext";
 import { getProviderItemsGoogle, PROVIDER_ITEMS_MICROSOFT, PROVIDER_ITEMS_OTHERS, ProviderEnum, ProviderIntegrationEnum, ProviderItemProps } from "@/constants/Provider";
 import { useUserContextStore } from "@/context/UserContext";
-import { handleConvexError } from "@/helpers/Convex";
 import { KEYS } from "@/constants/Keys";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
-import TouchableHapticSwitch from "@/components/button/TouchableHapticSwitch";
 import TextBase from "@/components/typography/Text";
 import TouchableTag from "@/components/button/TouchableTag";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
-import { SIZES } from "@codemize/constants/Fonts";
-import Divider from "@/components/container/Divider";
 
 /**
  * @private
@@ -77,8 +70,6 @@ type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegr
  * @version 0.0.4
  * @component */
 const ScreenConfigurationIntegrationProvider = () => {
-  const { primaryBorderColor } = useThemeColors();
-
   /**
    * @description Get the settings from the context for updating the integration state
    * @see {@link context/UserContext} */

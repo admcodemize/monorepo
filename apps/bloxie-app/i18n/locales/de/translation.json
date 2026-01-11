@@ -34,11 +34,54 @@
           "week": "Woche",
           "agenda": "Agenda"
         }
-      }
-    },
-    "lists": {
-      "templatesWorkflowAction": {
-        "title": "Öffentliche Vorlagen"
+      },
+      "workflow": {
+        "builder": {
+          "trigger": {
+            "newBooking": {
+              "title": "Neue Ereignisbuchung",
+              "description": "Auslösung bei einer neuen Ereignisbuchung über das Buchungsportal"
+            },
+            "afterEventCancellation": {
+              "title": "Nach Ereignisstornierung",
+              "description": "Auslösung bei einer Ereignisstornierung durch Teilnehmer oder Gastgeber"
+            },
+            "beforeEventStart": {
+              "title": "Vor Ereignisbeginn"
+            },
+            "afterEventEnd": {
+              "title": "Nach Ereignisende",
+              "description": "Teilnehmer welche vor Ereignisbeginn das Ereignis storniert haben erhalten keine Benachrichtigung mehr"
+            }
+          },
+          "timePeriod": {
+            "week": "Wochen",
+            "day": "Tage",
+            "hour": "Stunden",
+            "minute": "Minuten"
+          },
+          "confirmation": {
+            "pushNotification": {
+              "title": "Push-Benachrichtigung",
+              "description": "In-App-Benachrichtigung auf Endgerät"
+            },
+            "sendEmail": {
+              "title": "E-Mail-Benachrichtigung",
+              "description": "E-Mail-Benachrichtigung an die E-Mail-Adresse mit welcher sich der Benutzer registriert hat"
+            },
+            "none": "Keine Bestätigung"
+          },
+          "action": {
+            "deleteAction": {
+              "title": "Löschen der Aktion/Entscheidung",
+              "description": "Löscht die Aktion/Entscheidung aus dem Workflow"
+            },
+            "executionStatus": {
+              "title": "Ausführungsstatus",
+              "description": "Der Ausführungsstatus bestimmt, ob die Aktion innerhalb der Synchronisationsschleife ausgeführt wird oder nicht"
+            }
+          }
+        }
       }
     },
     "screens": {
@@ -62,13 +105,27 @@
       "workflow": {
         "title": "Workflow",
         "horizontalNavigation": {
-          "workProcess": "Workflow Builder",
-          "active": "Aktive Workflows"
+          "builder": "Workflow Builder",
+          "history": "Ausgeführte Workflows"
         },
         "builder": {
           "trigger": "Auslöser",
           "timePeriod": "Zeitraum",
-          "confirmation": "Bestätigung"
+          "confirmation": "Bestätigung",
+          "mailAccounts": {
+            "title": "E-Mail-Konten",
+            "descriptionNoReply": "Rückanworten der Teilnehmer/Eingeladenen werden NICHT verarbeitet bzw. weitergeleitet"
+          },
+          "action": {
+            "templates": {
+              "title": "Öffentliche Vorlagen",
+              "withoutTemplate": "Ohne Vorlage fortfahren"
+            }
+          },
+          "workflows": {
+            "title": "Workflows",
+            "description": "Übersicht über deine Workflows"
+          }
         }
       },
       "integrations": {
@@ -144,7 +201,7 @@
           },
           "type": {
             "title": "Ereignistypen",
-            "description": "Verwendung für neue Ereignisse auf der öffentlichen Buchungsseite."
+            "description": "Verwendung für das Buchen von Ereignissen auf der öffentlichen Buchungsseite durch Drittperson"
           },
           "poll": {
             "title": "Umfrage",

@@ -4,7 +4,7 @@ import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView"
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import ScreenConfigurationWorkflowProvider from "@/screens/private/modal/configuration/workflow/Provider";
+import ScreenConfigurationWorkflowBuilder from "@/screens/private/modal/configuration/workflow/WorkflowBuilder";
 
 /** 
  * @public
@@ -12,13 +12,13 @@ import ScreenConfigurationWorkflowProvider from "@/screens/private/modal/configu
  * @since 0.0.29
  * @version 0.0.1
  * @component */
-const ModalConfigurationWorkflowProvider = () => {
+const ModalConfigurationWorkflowBuilder = () => {
   const { secondaryBgColor } = useThemeColors();
   return (
     <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3) }}>
-      <ScreenConfigurationWorkflowProvider />
+      <ScreenConfigurationWorkflowBuilder />
     </SafeAreaContextViewBase>
   )
 }
 
-export default ModalConfigurationWorkflowProvider; 
+export default ModalConfigurationWorkflowBuilder; 

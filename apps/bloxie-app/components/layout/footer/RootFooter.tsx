@@ -46,10 +46,10 @@ const RootFooter = ({
   const { push } = useTrays('main');
 
   /** @description Handles the on press event for the action tray */
-  const onPressAction = () => push("ActionTray", {});
+  const onPressAction = () => push("TrayAction", {});
 
   /** @description Handles the on press event for the dashboard tray */
-  const onPressDashboard = () => push("DashboardTray", {});
+  const onPressDashboard = () => push("TrayDashboard", {});
 
   /** @description Used to get the height and progress of the keyboard */
   const { height, progress } = useReanimatedKeyboardAnimation();

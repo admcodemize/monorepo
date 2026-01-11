@@ -5,6 +5,7 @@ import { faAngleRight } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
+import { shadeColor } from "@codemize/helpers/Colors";
 import { STYLES } from "@codemize/constants/Styles";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
@@ -13,9 +14,7 @@ import { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWi
 import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
-import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ListItemWithChildrenStyle from "@/styles/components/lists/item/ListItemWithChildren";
-import { shadeColor } from "@codemize/helpers/Colors";
 
 /**
  * @public

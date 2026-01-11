@@ -22,6 +22,9 @@ import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
 import StackModalHeader from "@/components/container/StackModalHeader";
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
+import { useMaterialTabs } from "@/hooks/container/useMaterialTabs";
+import React from "react";
+import LoadingScreen from "@/screens/private/LoadingScreen";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -44,46 +47,51 @@ export const MaterialTopTabs = withLayoutContext<
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.46
+ * @version 0.0.1
+ * @type */
+type LoadedProps = {
+  workflowsFetchFinished: boolean;
+  templatesFetchFinished: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.4
+ * @version 0.0.5
  * @component */
 const ModalConfigurationWorkflowLayout = () => {
-  const { tertiaryBgColor, primaryBorderColor, focusedBgColor } = useThemeColors();
+  const { tertiaryBgColor } = useThemeColors();
   const { t } = useTranslation();
   const { convexUser } = useConvexUser();
 
   const tray = TRAY_CONFIGURATION_ITEMS.find((item) => item.key === "workflow");
 
+  /** 
+   * @description Returns the default screen options for the material top tabs
+   * @see {@link hooks/container/useMaterialTabs} */
+  const { screenOptions } = useMaterialTabs();
+
   /**
    * @description Loads the workflows for the currently signed in user
    * @see {@link hooks/configuration/useWorkflows} */
-  useWorkflows({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => {}});
+  useWorkflows({ convexUser: convexUser as ConvexUsersAPIProps });
 
   /**
    * @description Loads the templates for the currently signed in user and also the global templates created by the system (bloxie)
    * @see {@link hooks/configuration/useTemplates} */
-  useTemplates({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => {}});
+  useTemplates({ convexUser: convexUser as ConvexUsersAPIProps });
 
   return (
     <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.1) }}>
       <ToastifyProvider config={config} />
       <StackModalHeader 
         title={tray!.title} 
-        description={tray?.modal || ""} />
-      <MaterialTopTabs 
-        screenOptions={{ 
-          swipeEnabled: true, 
-          tabBarLabelStyle: { fontSize: useFontSize("text") + 1, fontFamily: useFontFamily("text") },
-          tabBarItemStyle: { width: "auto" },
-          tabBarIndicatorStyle: { backgroundColor: focusedBgColor },
-          tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: primaryBorderColor },
-          tabBarStyle: { 
-            height: STYLES.layoutTabBarHeight,
-            backgroundColor: shadeColor(tertiaryBgColor, 0.1),
-          } 
-        }}>
-          <MaterialTopTabs.Screen name="(wp)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.workProcess") }} />
-          <MaterialTopTabs.Screen name="(act)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.active") }} />
+        description={tray?.modal} />
+      <MaterialTopTabs screenOptions={screenOptions}>
+        <MaterialTopTabs.Screen name="(builder)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.builder") }} />
+        <MaterialTopTabs.Screen name="(history)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.history") }} />
       </MaterialTopTabs>
       <DropdownOverlay />
     </SafeAreaContextViewBase>

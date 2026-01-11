@@ -1,12 +1,9 @@
-import ScreenTrayAction from "@/screens/private/tray/main/Action";
-import ScreenTrayCalendarDay from "@/screens/private/tray/main/CalendarDay";
-import ScreenTrayDashboard from "@/screens/private/tray/main/Dashboard";
-import ScreenTraySyncedCalendar from "@/screens/private/tray/main/SyncedCalendar";
-import ScreenTrayDecisionTemplateList, { ScreenTrayDecisionTemplateListProps } from "@/screens/private/tray/main/workflow/ActionDecisionList";
-import ScreenTrayActionTemplate, { ScreenTrayActionTemplateProps } from "@/screens/private/tray/modal/workflow/ActionTemplate";
-import ScreenTrayActionTemplateList, { ScreenTrayActionTemplateListProps } from "@/screens/private/tray/main/workflow/ActionTemplateList";
-import ScreenTrayWorkflows, { ScreenTrayWorkflowsProps } from "@/screens/private/tray/main/workflow/Workflows";
-import { DatesInWeekInfoProps } from "@codemize/helpers/DateTime";
+import ScreenTrayAction from "@/screens/private/trays/TrayAction";
+import ScreenTrayDashboard from "@/screens/private/trays/TrayDashboard";
+import ScreenTrayWorkflow, { ScreenTrayWorkflowProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflow";
+import ScreenTrayWorkflowTemplate, { ScreenTrayWorkflowTemplateProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowTemplate";
+import ScreenTrayWorkflowDecision, { ScreenTrayWorkflowDecisionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecision";
+import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowAction";
 
 /**
  * @private
@@ -21,10 +18,7 @@ const defaultStackConfig = {
   horizontalSpacing: 10,
   backdropStyles: { backgroundColor: "#00000030" },
   trayStyles: { 
-    paddingHorizontal: 6,
     borderRadius: 20,
-    borderWidth: 0,
-    borderColor: "#dfdfdf",
   }
 }
 
@@ -32,39 +26,40 @@ const defaultStackConfig = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.4
  * @constant */
 export const stackConfigs = {
-  main: defaultStackConfig  ,
-  modal: {
+  main: defaultStackConfig,
+  keyboard: {
     ...defaultStackConfig,
     dismissOnBackdropPress: false,
     enableSwipeToClose: false,
     trayStyles: {
-      paddingHorizontal: 0,
       borderRadius: 14,
       marginBottom: 4 // -> can be used to get e small margin between keyboard and tray
     }
-  },
+  }
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.7
+ * @version 0.0.8
  * @object */
 export const trays = {
   main: {
-    ActionTray: { component: ScreenTrayAction },
-    SyncedCalendarTray: { component: ScreenTraySyncedCalendar },
-    DashboardTray: { component: ScreenTrayDashboard },
-    CalendarDayTray: { component: (dateInWeek: DatesInWeekInfoProps ) => <ScreenTrayCalendarDay {...dateInWeek} /> },
-    WorkflowListTray: { component: (props: ScreenTrayWorkflowsProps) => <ScreenTrayWorkflows {...props} /> },
-    WorkflowActionTemplateListTray: { component: (props: ScreenTrayActionTemplateListProps) => <ScreenTrayActionTemplateList {...props} /> },
-    WorkflowDecisionTemplateListTray: { component: (props: ScreenTrayDecisionTemplateListProps) => <ScreenTrayDecisionTemplateList {...props} /> },
+    /** @description Action trays @see {@link screens/private/trays} */
+    TrayAction: { component: ScreenTrayAction },
+    TrayDashboard: { component: ScreenTrayDashboard },
+
+    /** @description Workflow trays @see {@link screens/private/modal/configuration/workflow/trays} */
+    TrayWorkflow: { component: (props: ScreenTrayWorkflowProps) => <ScreenTrayWorkflow {...props} /> },
+    TrayWorkflowTemplate: { component: (props: ScreenTrayWorkflowTemplateProps) => <ScreenTrayWorkflowTemplate {...props} /> },
+    TrayWorkflowDecision: { component: (props: ScreenTrayWorkflowDecisionProps) => <ScreenTrayWorkflowDecision {...props} /> },
   },
-  modal: {
-    WorkflowActionTemplateTray: { component: (props: ScreenTrayActionTemplateProps) => <ScreenTrayActionTemplate {...props} /> },
-  },
+  keyboard: {
+    /** @description Workflow trays @see {@link screens/private/modal/configuration/workflow/trays} -> Special settings for keyboard handling */
+    TrayWorkflowAction: { component: (props: ScreenTrayWorkflowActionProps) => <ScreenTrayWorkflowAction {...props} /> },
+  }
 };

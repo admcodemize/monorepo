@@ -1,6 +1,39 @@
-import { v } from "convex/values";
-import { internalMutation } from "../../_generated/server";
+import { ConvexError, v } from "convex/values";
+import { internalMutation, mutation } from "../../_generated/server";
 import { settingsSchema } from "../../schema";
+import { convexError } from "../../../Fetch";
+import { Id } from "../../_generated/dataModel";
+import { ConvexActionServerityEnum } from "../../../Types";
+
+/**
+ * @public
+ * @since 0.0.19
+ * @version 0.0.2
+ * @description Handles the database mutation for updating a single property of a settings object
+ * -> Hint: Function can be called directly from the client!
+ * @param {Object} param0
+ * @param {Id<"settings">} param0._id - The settings id to update
+ * @param {string} param0.property - The property to update
+ * @param {boolean} param0.value - The value to update */
+export const updateSettingsProperty = mutation({
+  args: {
+    _id: v.id("settings"),
+    property: v.string(),
+    value: v.union(v.boolean(), v.string())
+  },
+  handler: async (ctx, { _id, property, value }) => {
+    try { await ctx.db.patch(_id, { [property]: value }); }
+    catch (err) {
+      throw new ConvexError(convexError({
+        code: 404,
+        info: "i18n.convex.sync.settings.mutation.update.notFound",
+        severity: ConvexActionServerityEnum.ERROR,
+        name: "BLOXIE_MS_U_E01",
+        _id: _id as Id<"settings">,
+      }));
+    }
+  }
+});
 
 /**
  * @private
@@ -17,34 +50,6 @@ export const create = internalMutation({
     await ctx.db.insert("settings", {
       ...data,
       userId: data.userId
-    });
-  }
-});
-
-/**
- * @private
- * @description Update a settings object for a user
- * -> Internal call must be called from another mutation or action
- * @function
- * @since 0.0.15
- * @version 0.0.1
- * @param {object} args
- * @param {v.id("settings")} _id - The id of the settings object
- * @param {boolean} args.faceId - Face-ID 
- * @param {boolean} args.pushNotifications - Push notifications
- * @param {number} args.durationMinute - Duration of an event in minutes 
- * @param {number} args.breakingTimeBetweenEvents - The breaking time between events in minutes
- * @param {object} args.integrations - The integrations to update
- * @param {string} args.integrations.integrationKey - The key of the integration
- * @param {boolean} args.integrations.state - The state of the integration */
-export const update = internalMutation({
-  args: {
-    _id: v.id("settings"),
-    ...settingsSchema
-  },
-  handler: async (ctx, { _id, ...data }) => {
-    await ctx.db.patch(_id, {
-      ...data
     });
   }
 });

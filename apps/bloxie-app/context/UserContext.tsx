@@ -2,19 +2,21 @@ import * as React from "react";
 import { createContext, useContext } from "react";
 import { createStore, useStore, StoreApi } from "zustand";
 
-import { ConvexRuntimeAPIProps, ConvexSettingsAPIProps, ConvexTimesAPIProps } from "@codemize/backend/Types";
+import { ConvexLinkedAPIProps, ConvexRuntimeAPIProps, ConvexSettingsAPIProps, ConvexTimesAPIProps } from "@codemize/backend/Types";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @type */
 export type UserContextProps = {
   runtime: ConvexRuntimeAPIProps;
   settings: ConvexSettingsAPIProps;
+  linkedMailAccounts: ConvexLinkedAPIProps[];
   times: ConvexTimesAPIProps[];
   setSettings: (settings: ConvexSettingsAPIProps) => void;
+  setSettingsProperty: (property: string, value: boolean|string) => void;
 };
 
 /**
@@ -26,6 +28,7 @@ export type UserContextProps = {
 export type UserProviderProps = React.PropsWithChildren & {
   runtime: ConvexRuntimeAPIProps;
   settings: ConvexSettingsAPIProps;
+  linkedMailAccounts: ConvexLinkedAPIProps[];
   times: ConvexTimesAPIProps[];
 }
 
@@ -35,7 +38,7 @@ const UserContext = createContext<StoreApi<UserContextProps>|undefined>(undefine
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.16
- * @version 0.0.2
+ * @version 0.0.3
  * @description Create the store and initialize the state
  * @param {ConvexSettingsAPIProps} settings - The settings of the currently signed in user.
  * @param {ConvexTimesAPIProps[]} times - The times of the currently signed in user.
@@ -43,12 +46,21 @@ const UserContext = createContext<StoreApi<UserContextProps>|undefined>(undefine
 export const store = (
   runtime: ConvexRuntimeAPIProps,
   settings: ConvexSettingsAPIProps,
+  linkedMailAccounts: ConvexLinkedAPIProps[],
   times: ConvexTimesAPIProps[]
 ): StoreApi<UserContextProps> => createStore<UserContextProps>()((set, get) => ({
   runtime,
   settings,
+  linkedMailAccounts,
   times,
   setSettings: (settings: ConvexSettingsAPIProps) => set((state) => ({ ...state, settings })),
+  setSettingsProperty: (property: string, value: boolean|string) => set((state) => ({ 
+    ...state, 
+    settings: { 
+      ...state.settings, 
+      [property]: value 
+    } 
+  })),
 }));
 
 /**
@@ -60,11 +72,11 @@ export const store = (
 export default function UserProvider({ 
   runtime,
   settings,
+  linkedMailAccounts,
   times,
   children 
 }: UserProviderProps) {
-  const [storeInstance] = React.useState(() => store(runtime, settings, times));
-  
+  const [storeInstance] = React.useState(() => store(runtime, settings, linkedMailAccounts, times));
   return (
     <UserContext.Provider 
       value={storeInstance}>

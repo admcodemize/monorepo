@@ -8,6 +8,7 @@ import { useConvexUser } from "@/hooks/auth/useConvexUser";
 import { useUserSettings } from "@/hooks/user/useUserSettings";
 import { useCalendarEvents } from "@/hooks/calendar/useCalendarEvents";
 import { useRuntime } from "@/hooks/user/useRuntime";
+import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedMailAccounts";
 import { useIntegrations } from "@/hooks/integrations/useIntegrations";
 import { getTimeZone } from "@/helpers/System";
 
@@ -21,20 +22,21 @@ import UserProvider from "@/context/UserContext";
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.4
+ * @version 0.0.5
  * @type */
 type LoadedProps = {
   userSettingsFetchFinished: boolean;
   runtimeFetchFinished: boolean;
   eventsFetchFinished: boolean;
   integrationsFetchFinished: boolean;
+  linkedMailAccountsFetchFinished: boolean;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.1
- * @version 0.0.5 */
+ * @version 0.0.6 */
 const PrivateLayout = () => { 
   /**
    * @description Handles the authentication state of the user
@@ -52,7 +54,8 @@ const PrivateLayout = () => {
     userSettingsFetchFinished: false, 
     runtimeFetchFinished: false,
     eventsFetchFinished: false,
-    integrationsFetchFinished: false 
+    integrationsFetchFinished: false,
+    linkedMailAccountsFetchFinished: false
   });
 
   /**
@@ -65,6 +68,11 @@ const PrivateLayout = () => {
    * -> The runtime informations contain the template variables and the license features and counter (how many linked providers and workflows are allowed/etc..)
    * @see {@link hooks/user/useRuntime} */
   const { runtime } = useRuntime({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, runtimeFetchFinished: true })) });
+
+  /** 
+   * @description Returns the linked mail account for the currently signed in user 
+   * @see {@link hooks/auth/useLinkedAccount} */
+  const { linkedMailAccounts } = useLinkedMailAccounts({ onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, linkedMailAccountsFetchFinished: true })) });
 
   /**
    * @description Loads the currently signed in and subscripted users events 
@@ -79,12 +87,13 @@ const PrivateLayout = () => {
   useIntegrations({ convexUser: convexUser as ConvexUsersAPIProps, onFetchFinished: () => setIsLoaded((prev) => ({ ...prev, integrationsFetchFinished: true })) });
 
   /** @description If not all the data is loaded, show the loading screen */
-  if (!isLoaded.userSettingsFetchFinished || !isLoaded.eventsFetchFinished || !isLoaded.integrationsFetchFinished) return <LoadingScreen />;
+  if (!isLoaded.userSettingsFetchFinished || !isLoaded.eventsFetchFinished || !isLoaded.integrationsFetchFinished || !isLoaded.linkedMailAccountsFetchFinished) return <LoadingScreen />;
   
   return (
     <UserProvider 
       runtime={runtime}
       settings={settings} 
+      linkedMailAccounts={linkedMailAccounts}
       times={[]}>
         <DateTimeProvider timeZone={getTimeZone()}>
           <Stack
@@ -94,11 +103,8 @@ const PrivateLayout = () => {
               <Stack.Protected guard={isSignedIn || false}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(modal)/create" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/action/booking" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/action/meeting" options={{ presentation: "fullScreenModal" }}  />
-                <Stack.Screen name="(modal)/action/type" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/action/team" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/action/poll" options={{ presentation: "fullScreenModal" }} />
+                <Stack.Screen name="(modal)/general/booking" options={{ presentation: "fullScreenModal" }} />
+                <Stack.Screen name="(modal)/general/poll" options={{ presentation: "fullScreenModal" }} />
                 <Stack.Screen name="(modal)/configuration" options={{ presentation: "fullScreenModal" }} />
               </Stack.Protected>
           </Stack>  

@@ -30,7 +30,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TouchableHapticText from "../button/TouchableHapticText";
 import { useTrays } from "react-native-trays";
 import { DROPDOWN_CALENDAR_VIEWS, DROPDOWN_DASHBOARD_PERIOD } from "@/constants/Models";
-import TouchableDropdownItemBase from "../button/dropdown/TouchableDropdownItemBase";
 import ViewBase from "../container/View";
 import CalendarStyle from "@/styles/components/calendar/Calendar";
 import TrayHeader from "../container/TrayHeader";

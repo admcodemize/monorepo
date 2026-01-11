@@ -1,42 +1,50 @@
-import { useQuery } from "convex/react";
-import { Id } from "../../../../packages/backend/convex/_generated/dataModel";
-import { api } from "../../../../packages/backend/convex/_generated/api";
-
-import { useConvexUser } from "@/hooks/auth/useConvexUser";
 import { useUserContextStore } from "@/context/UserContext";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.40
+ * @since 0.0.45
  * @version 0.0.1
- * @description Hook to use the linked mail accounts for the currently signed in user */
-export function useLinkedMailAccounts() {
-  const { convexUser } = useConvexUser();
+ * @type */
+export type UseLinkedMailAccountProps = {
+  defaultMailAccount?: string;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.40
+ * @version 0.0.3
+ * @description Hook to use the linked mail account for the currently signed in user */
+export function useLinkedMailAccount({
+  defaultMailAccount,
+}: UseLinkedMailAccountProps) {
+  /** 
+   * @description Reads all the linked mail accounts for the currently signed in user
+   * -> The linked mail accounts are loaded during the initial app load
+   * @see {@link context/UserContext} */
+  const linkedMailAccounts = useUserContextStore((state) => state.linkedMailAccounts);
+
+  /** 
+   * @description Reads the settings for the currently signed in user
+   * -> The settings are loaded during the initial app load
+   * @see {@link context/UserContext} */
   const settings = useUserContextStore((state) => state.settings);
 
-  /** @description Reads all the linked mail accounts for the currently signed in user */
-  const linkedMailAccounts = useQuery(api.sync.integrations.query.linkedWithMailPermission, convexUser?._id
-    ? { userId: convexUser._id as Id<"users"> }
-    : "skip");
-
-  const isReady = Array.isArray(linkedMailAccounts);
+  /** @description The preferred mail account to use for sending workflow emails */
+  const preferredMailAccount = defaultMailAccount ?? settings?.defaultMailAccount;
 
   /**
    * @description Returns the linked mail account for the currently signed in user or undefined if no linked mail account is found
+   * -> Default mail account "no-reply@bloxie.ch" will be used if no default mail account is set
    * @function */
   const linkedMailAccount =() => {
-    if (!isReady || linkedMailAccounts.length === 0) return undefined;
-    if (settings?.defaultMailAccount) {
-      const preferred = linkedMailAccounts.find((account) => account.email === settings.defaultMailAccount);
+    if (linkedMailAccounts.length === 0) return undefined;
+    if (preferredMailAccount) {
+      const preferred = linkedMailAccounts.find((account) => account.email === preferredMailAccount);
       if (preferred) return preferred;
-    }
-    return linkedMailAccounts[0];
+    } else return linkedMailAccounts[0];
   };
 
-  return { 
-    linkedMailAccounts, 
-    linkedMailAccount,
-    isReady
-  };
+  return { linkedMailAccount };
 }

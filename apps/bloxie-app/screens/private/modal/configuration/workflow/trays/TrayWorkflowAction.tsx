@@ -15,7 +15,7 @@ import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 import { STYLES } from "@codemize/constants/Styles";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { useLinkedMailAccounts } from "@/hooks/auth/useLinkedMailAccount";
+import { useLinkedMailAccount } from "@/hooks/auth/useLinkedMailAccount";
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useUserContextStore } from "@/context/UserContext";
 import { resolveRuntimeIcon } from "@/helpers/System";
@@ -29,7 +29,7 @@ import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import TouchableHapticText from "@/components/button/TouchableHapticText";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 import ListItemGroup from "@/components/container/ListItemGroup";
-import ListTemplatesWorkflowAction from "@/components/lists/ListTemplatesWorkflowAction";
+import ListWorkflowTemplate from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowTemplate";
 import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
 import type { WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
@@ -37,6 +37,10 @@ import DropdownOverlay from "@/components/container/DropdownOverlay";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/ActionTemplate";
 import TouchableHapticMailAccounts from "@/components/button/workflow/TouchableHapticMailAccounts";
+import { useMutation } from "convex/react";
+import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
+import { api } from "../../../../../../../../packages/backend/convex/_generated/api";
+import { Id } from "../../../../../../../../packages/backend/convex/_generated/dataModel";
 
 const EDITOR_BASE_HEIGHT = 360;
 const TOOLBAR_HEIGHT = 40;
@@ -79,7 +83,7 @@ export type ActionTouchableType = ActionTouchableTypeEnum.VARIABLES | ActionTouc
  * @since 0.0.34
  * @version 0.0.1
  * @type */
-export type ScreenTrayActionTemplateProps = {
+export type ScreenTrayWorkflowActionProps = {
   item: WorkflowNodeItemProps;
   onAfterSave: (item: WorkflowNodeItemProps) => void;
 }
@@ -90,7 +94,7 @@ export type ScreenTrayActionTemplateProps = {
  * @since 0.0.40
  * @version 0.0.1
  * @type */
-export type ScreenTrayActionTemplateHeaderProps = {
+export type ScreenTrayWorkflowActionHeaderProps = {
   name: string;
   onPressClose: () => void;
   containerRef: React.RefObject<View|null>;
@@ -102,12 +106,12 @@ export type ScreenTrayActionTemplateHeaderProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.34
  * @version 0.0.3
- * @param {ScreenTrayActionTemplateProps} param0
+ * @param {ScreenTrayWorkflowActionProps} param0
  * @component */
-const ScreenTrayActionTemplate = ({ 
+const ScreenTrayWorkflowAction = ({ 
   item,
   onAfterSave
-}: ScreenTrayActionTemplateProps) => {
+}: ScreenTrayWorkflowActionProps) => {
   const refBody = React.useRef<EnrichedTextInputInstance>(null);
   const refSubject = React.useRef<EnrichedTextInputInstance>(null);
   const refFocused = React.useRef<EnrichedTextInputInstance|null>(null);
@@ -119,7 +123,7 @@ const ScreenTrayActionTemplate = ({
   const { secondaryBgColor, primaryBorderColor, infoColor, tertiaryBgColor, primaryBgColor, linkColor } = useThemeColors();
   const { templateVariables } = useUserContextStore((state) => state.runtime);
 
-  const { dismiss } = useTrays('modal');
+  const { dismiss } = useTrays('keyboard');
 
   /** @description Handles the style state of the editor content and the highlighting of the styling buttons */
   const [styleState, setStyleState] = React.useState<EditorStyleState>(createInitialStyleState());
@@ -199,10 +203,10 @@ const ScreenTrayActionTemplate = ({
   /** 
    * @description Handles the close action of the tray
    * -> Closes first the keyboard (when focused) and then the tray */
-  const onPressClose = React.useCallback(() => {
+  const onPressCloseInternal = React.useCallback(() => {
     refBody.current?.blur();
     setTimeout(() => {
-      dismiss('WorkflowActionTemplateTray');
+      dismiss('TrayWorkflowAction');
     }, refIsFocused.current ? 220 * 1.5 : 0);
   }, [dismiss, refIsFocused]);
 
@@ -213,17 +217,17 @@ const ScreenTrayActionTemplate = ({
     (variable: ConvexRuntimeAPITemplateVariableProps) => 
     (e: GestureResponderEvent) => {
       insertPatternValue(refFocused, variable.pattern);
-      toggleList("variables");
+      toggleList(ActionTouchableTypeEnum.VARIABLES);
   }, [refFocused, toggleList, insertPatternValue]);
 
   /** 
    * @description Handles the press event of the template
    * -> Inserts the template into the editor and toggles the templates list */
   const onPressTemplate = React.useCallback(
-    (template: ConvexTemplateAPIProps) => 
-    (e: GestureResponderEvent) => {
+    (template: ConvexTemplateAPIProps) => {
+      console.log("onPressTemplate", template);
       refBody.current?.setValue(hydrateTemplate(template.content || "", templateVariables));
-      toggleList("templates");
+      toggleList(ActionTouchableTypeEnum.TEMPLATES);
     }, [refBody, templateVariables, hydrateTemplate, toggleList]);
 
   /** @description Renders the dynamic variables component list */
@@ -278,7 +282,7 @@ const ScreenTrayActionTemplate = ({
           borderTopColor: primaryBorderColor, 
           borderBottomColor: primaryBorderColor 
         }]}>
-          <ListTemplatesWorkflowAction
+          <ListWorkflowTemplate
             maxHeight={ANIMATED_HEIGHT - TOOLBAR_HEIGHT - 10}
             showWithoutTemplateOption={false}
             onPress={onPressTemplate} />
@@ -292,7 +296,7 @@ const ScreenTrayActionTemplate = ({
     return (
       <TouchableHapticDropdown
         text={t(`i18n.global.${type}`)}
-        icon={type === "variables" ? faSquareRootVariable as IconProp : faFileDashedLine as IconProp}
+        icon={type === ActionTouchableTypeEnum.VARIABLES ? faSquareRootVariable as IconProp : faFileDashedLine as IconProp}
         type="label"
         hasViewCustomStyle={true}
         viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
@@ -310,9 +314,9 @@ const ScreenTrayActionTemplate = ({
     }}>
       <View style={{ gap: STYLES.sizeGap }}>
         <View style={[ActionTemplateStyle.view, { backgroundColor: shadeColor(secondaryBgColor, 0.3) }]}>
-           <ScreenTrayActionTemplateHeader
+           <ScreenTrayWorkflowActionHeader
              name={item.name}
-             onPressClose={onPressClose}
+             onPressClose={onPressCloseInternal}
              containerRef={refContainer}
              mailAccountRef={refMailAccount}
            />
@@ -412,48 +416,49 @@ const ScreenTrayActionTemplate = ({
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.40
- * @version 0.0.2
- * @param {ScreenTrayActionTemplateHeaderProps} param0
+ * @version 0.0.3
+ * @param {ScreenTrayWorkflowActionHeaderProps} param0
  * @param {string} param0.name - The name of the action template which is chosen by the user for the workflow action template
  * @param {() => void} param0.onPressClose - The function to call when the close button is pressed on the top right corner
+ * @param {React.RefObject<View|null>} param0.containerRef - The reference to the container view for displaying the dropdown
  * @component */
-const ScreenTrayActionTemplateHeader = ({
+const ScreenTrayWorkflowActionHeader = ({
   name,
   onPressClose,
   containerRef,
-  mailAccountRef,
-}: ScreenTrayActionTemplateHeaderProps) => {
-  const { infoColor, secondaryBorderColor } = useThemeColors();
-
-  /**
-   * @description Get the dropdown functions for displaying the mail accounts.
-   * @see {@link hooks/button/useDropdown} */
-   const { state: { open }, open: _open } = useDropdown();
-
-  /**
-   * @description Used to open the dropdown component
-   * @function */
-  const onPressDropdown = () => {
-    /** 
-     * @description Open the dropdown component based on a calculated measurement template
-     * @see {@link components/button/TouchableDropdown} */
-    /*_open({
-      refTouchable: mailAccountRef,
-      relativeToRef: containerRef,
-      hostId: "tray",
-      open,
-      children: <View style={{ minWidth: 175, width: 200, backgroundColor: "#fff", borderRadius: 6, padding: 4, paddingHorizontal: 8, paddingVertical: 8
-        , borderWidth: 1, borderColor: shadeColor(secondaryBorderColor, 0.3)
-       }}><ListProviderMailAccounts showListGroup={false} onPress={() => {}}
-
-      /></View>
-    });*/
-  };
-
+}: ScreenTrayWorkflowActionHeaderProps) => {
+  const { infoColor } = useThemeColors();
   const ref = React.useRef<View>(null);
 
+  const settings = useUserContextStore((state) => state.settings);
+
+  /**
+   * @description Get the mutation function for updating a settings property such as the default mail account
+   * @see {@link backend/convex/sync/settings/mutation} */
+  const updateSettingsProperty = useMutation(api.sync.settings.mutation.updateSettingsProperty);
+
+  /** 
+   * @description Handles the press event of the mail account
+   * -> Updates the default mail account of the user's settings in the database
+   * @param {ListItemDropdownProps} item - The item to press which is the mail account to set as default
+   * @function */
+  const onPress = React.useCallback(
+    async (item: ListItemDropdownProps) => {
+      console.log("onPress", item);
+      await updateSettingsProperty({ 
+        _id: settings._id as Id<"settings">, 
+        property: "defaultMailAccount", 
+        value: item.itemKey
+      });
+    }, [updateSettingsProperty, settings._id]);
+
   return (
-    <View style={[GlobalContainerStyle.rowCenterBetween, ActionTemplateStyle.header, { gap: STYLES.sizeGap, flex: 1 }]} ref={ref}>
+    <View 
+      ref={ref}
+      style={[GlobalContainerStyle.rowCenterBetween, ActionTemplateStyle.header, { 
+        gap: STYLES.sizeGap, 
+        flex: 1 
+    }]}>
       <TextInput
         value={name}
         editable={false}
@@ -466,32 +471,12 @@ const ScreenTrayActionTemplateHeader = ({
           flexGrow: 1,
           flexShrink: 1,
         }}/>
-      <TouchableHapticMailAccounts refContainer={containerRef} onPress={() => {}} />
-      {/*<View style={[GlobalContainerStyle.rowCenterEnd, { gap: 4 }]}>
-        {linkedMailAccount() && <Image 
-          source={getImageAssetByProvider(linkedMailAccount()?.provider as ProviderEnum)} 
-          resizeMode="cover"
-          style={ActionTemplateStyle.image} />}
-        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
-          <TouchableHapticDropdown
-            ref={mailAccountRef}
-            text={linkedMailAccount()?.email ?? "notifications@bloxie.ch"}
-            disabled={!linkedMailAccount()}
-            hasViewCustomStyle
-            textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-            viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-            onPress={onPressDropdown}/>
-          <Divider vertical />
-          <TouchableHapticIcon
-            icon={faXmark as IconProp}
-            iconSize={STYLES.sizeFaIcon}
-            hasViewCustomStyle={true}
-            iconColor={infoColor}
-            onPress={onPressClose}/>
-        </View>
-      </View>*/}
+      <TouchableHapticMailAccounts 
+        refContainer={containerRef} 
+        onPress={onPress} 
+        onPressClose={onPressClose} />
     </View>
   );
 }
 
-export default ScreenTrayActionTemplate;  
+export default ScreenTrayWorkflowAction;  

@@ -10,9 +10,8 @@ import { TRAY_ACCOUNT_ITEMS, TRAY_ACTION_ITEMS, TRAY_CONFIGURATION_ITEMS } from 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import TouchableHaptic from "@/components/button/TouchableHaptic";
-import Divider from "@/components/container/Divider";
 import ListItemGroup from "@/components/container/ListItemGroup";
-import TrayHeader from "@/components/container/TrayHeader";
+import TrayContainer from "@/components/container/TrayContainer";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
@@ -21,28 +20,18 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const ScreenTrayAction = () => {
   /** @description Used to get the theme based colors */
-  const colors = useThemeColors();
+  const { primaryIconColor } = useThemeColors();
 
   return (
-    <View style={{ 
-      padding: STYLES.paddingHorizontal, 
-      backgroundColor: colors.primaryBgColor, 
-      borderColor: colors.primaryBorderColor 
-    }}>
-      <View style={{ gap: STYLES.sizeGap }}>
-        <TrayHeader
-          title={"i18n.screens.trayAction.title"}
-          description={"i18n.screens.trayAction.description"} />
-        <Divider />
-      </View>
-      <View style={{ paddingVertical: STYLES.paddingVertical, gap: STYLES.sizeGap * 2 }}>
+    <TrayContainer title={"i18n.screens.trayAction.title"}>
+      <View style={{ gap: STYLES.sizeGap * 2 }}>
         <ListItemGroup 
           title={"i18n.screens.trayAction.groups.manage"}
-          gap={STYLES.sizeGap * 1.75}>
+          gap={STYLES.sizeGap * 1.5}>
           {TRAY_ACTION_ITEMS.map((item) => (
             <ScreenTrayActionItemChildren 
               key={item.key}
@@ -54,7 +43,7 @@ const ScreenTrayAction = () => {
         </ListItemGroup>
         <ListItemGroup 
           title={"i18n.screens.trayAction.groups.configuration"}
-          gap={STYLES.sizeGap * 1.75}>
+          gap={STYLES.sizeGap * 1.5}>
             {TRAY_CONFIGURATION_ITEMS.map((item) => (
               <ScreenTrayActionItemChildren 
                 key={item.key}
@@ -66,12 +55,12 @@ const ScreenTrayAction = () => {
                 right={item.key === "bookingPage" ? <FontAwesomeIcon
                   icon={faArrowUpRightFromSquare as IconProp}
                   size={STYLES.sizeFaIcon}
-                  color={colors.primaryIconColor} /> : undefined} />
+                  color={primaryIconColor} /> : undefined} />
             ))}
         </ListItemGroup>
         <ListItemGroup 
           title={"i18n.screens.trayAction.groups.account"}
-          gap={STYLES.sizeGap * 1.75}>
+          gap={STYLES.sizeGap * 1.5}>
             {TRAY_ACCOUNT_ITEMS.map((item) => (
               <ScreenTrayActionItemChildren 
                 key={item.key}
@@ -82,11 +71,11 @@ const ScreenTrayAction = () => {
                 right={item.key === "bookingPage" ? <FontAwesomeIcon
                   icon={faArrowUpRightFromSquare as IconProp}
                   size={STYLES.sizeFaIcon}
-                  color={colors.primaryIconColor} /> : undefined} />
+                  color={primaryIconColor} /> : undefined} />
             ))}
         </ListItemGroup>
       </View>
-    </View>
+    </TrayContainer>
   );
 };
 

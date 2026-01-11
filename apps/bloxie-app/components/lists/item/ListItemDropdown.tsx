@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Image, ImageSourcePropType, View } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
@@ -12,6 +12,7 @@ import TextBase from "@/components/typography/Text";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ListItemDropdownStyle from "@/styles/components/lists/item/ListItemDropdown";
+import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/ActionTemplate";
 
 /**
  * @public
@@ -24,6 +25,7 @@ export type ListItemDropdownProps = {
   title: string;
   description?: string;
   icon?: IconProp;
+  image?: ImageSourcePropType;
   isSelected?: boolean;
   right?: React.ReactNode;
 }
@@ -37,11 +39,15 @@ export type ListItemDropdownProps = {
  * @param {string} param0.title - The title of the dropdown item
  * @param {string} param0.description - The description of the dropdown item
  * @param {IconProp} param0.icon - The icon of the dropdown item
+ * @param {ImageSourcePropType} param0.image - The image of the dropdown item
+ * @param {boolean} param0.isSelected - Whether the dropdown item is selected
+ * @param {React.ReactNode} param0.right - The right custom component of the dropdown item
  * @component */
 const ListItemDropdown = ({
   title,
   description,
   icon,
+  image,
   isSelected = false,
   right
 }: ListItemDropdownProps) => {
@@ -52,10 +58,14 @@ const ListItemDropdown = ({
     }]}>
       <View style={[GlobalContainerStyle.rowCenterBetween,{ gap: 40 }]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
-          {icon && <FontAwesomeIcon 
+          {icon && !image && <FontAwesomeIcon 
             icon={icon} 
             size={STYLES.sizeFaIcon + 2} 
             color={primaryIconColor} />}
+          {image && <Image 
+            source={image} 
+            style={ActionTemplateStyle.image} 
+            resizeMode="cover" />}
           <TextBase 
             text={title} 
             type="label" 

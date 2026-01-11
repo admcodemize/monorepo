@@ -11,18 +11,18 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TrayHeaderProps = {
   title: string;
-  description: string;
+  description?: string;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @param {TrayHeaderProps} param0
  * @param {string} param0.title - The title to display
  * @param {string} param0.description - The description to display (below the title)
@@ -38,12 +38,12 @@ const TrayHeader = ({
         <TextBase 
           text={t(title)}
           style={GlobalTypographyStyle.titleSubtitle} />
-        <TextBase 
+        {description && <TextBase 
           text={t(description)}
           type="label"
           numberOfLines={3}
           ellipsizeMode={"tail"}
-          style={[GlobalTypographyStyle.labelText]} />
+          style={[GlobalTypographyStyle.labelText]} />}
       </View>
     </View>
   )

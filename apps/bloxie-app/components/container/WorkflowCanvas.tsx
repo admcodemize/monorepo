@@ -1,81 +1,49 @@
 import React from 'react';
 import { LayoutChangeEvent, LayoutRectangle, ScrollView, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { FadeInDown, runOnJS, useAnimatedStyle, useSharedValue, withTiming, interpolate } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  FadeInDown,
+  FadeOutUp,
+  LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
-  faAlarmClock,
   faAngleDown,
-  faAnglesDown,
-  faAnglesUp,
-  faArrowDown,
-  faBellSlash,
   faBolt,
-  faBoltSlash,
-  faBridgeCircleCheck,
-  faBrightnessLow,
-  faCalendarCirclePlus,
-  faCalendarDay,
-  faCalendarPlus,
-  faCalendarWeek,
-  faChevronDown,
-  faChevronUp,
-  faClockEightThirty,
-  faClonePlus,
-  faEject,
-  faEllipsisStroke,
-  faEnvelopeOpenText,
-  faFileDashedLine,
-  faFlagCheckered,
-  faFunction,
-  faHourglassClock,
-  faHourglassEnd,
-  faHourglassStart,
-  faLink,
-  faMessageBot,
-  faMessages,
-  faMessageSlash,
+  faMicrochip,
   faObjectExclude,
   faPause,
-  faPenNibSlash,
   faPlay,
-  faPlus,
-  faRectangleHistoryCirclePlus,
-  faRepeat1,
+  faSignPost,
+  faSignsPost,
   faStopwatch,
-  faTrash,
-  faTrashCan,
-  faTrashCanSlash,
   faXmark,
 } from '@fortawesome/duotone-thin-svg-icons';
 import GlobalContainerStyle from '@/styles/GlobalContainer';
 import { shadeColor } from '@codemize/helpers/Colors';
 import { useThemeColors } from '@/hooks/theme/useThemeColor';
 import { FAMILIY, SIZES } from '@codemize/constants/Fonts';
-import TouchableHapticDropdown from '../button/TouchableHapticDropdown';
 import TouchableHaptic from '../button/TouchableHaptic';
 import TouchableTag from '../button/TouchableTag';
 import TextBase from '../typography/Text';
-import TouchableHapticSwitch from '../button/TouchableHapticSwitch';
 import TouchableHapticIcon from '../button/TouchableHaptichIcon';
 import Divider from './Divider';
 import { useTrays } from 'react-native-trays';
 import { ConvexTemplateAPIProps } from '@codemize/backend/Types';
 import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
-import DropdownOverlay from './DropdownOverlay';
-import { useDropdown } from '@/hooks/button/useDropdown';
-import GlobalTypographyStyle from '@/styles/GlobalTypography';
-import { STYLES } from '@codemize/constants/Styles';
-import ListItemGroup from './ListItemGroup';
 import TouchableHapticTrigger from '../button/workflow/TouchableHapticTrigger';
 import TouchableHapticTimePeriod from '../button/workflow/TouchableHapticTimePeriod';
 import TouchableHapticConfirmation from '../button/workflow/TouchableHapticConfirmation';
-import TouchableHapticAction from '../button/workflow/TouchableHapticAction';
+import { STYLES } from '@codemize/constants/Styles';
 
-export type WorkflowNodeType = 'start' | 'action' | 'decision' | 'end';
+export type WorkflowNodeType = 'start' | 'generic' | 'end';
+
+export type WorkflowNodeItemVariant = 'action' | 'decision';
 
 export type WorkflowNodeItemProps = {
   id: string;
@@ -86,6 +54,7 @@ export type WorkflowNodeItemProps = {
   subject: string;
   content: string;
   isActive?: boolean;
+  variant: WorkflowNodeItemVariant;
   _id: Id<"template">;
 };
 
@@ -133,47 +102,47 @@ type WorkflowCanvasProps = {
   onNodePress?: (node: WorkflowNode) => void;
   onAddNode?: (connection: WorkflowAdditionPayload|null, type: WorkflowNodeType) => void;
   onRemoveNode?: (node: WorkflowNode) => void;
-  onAddNodeItem?: (node: WorkflowNode, item: ConvexTemplateAPIProps) => void;
+  onAddNodeItem?: (node: WorkflowNode, variant: WorkflowNodeItemVariant, template: ConvexTemplateAPIProps) => void;
   onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
   onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
   renderNode?: (node: WorkflowNode) => React.ReactNode;
-  gesturesEnabled?: boolean;
   children?: React.ReactNode;
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 const MIN_SCALE = 0.35;
 const MAX_SCALE = 1;
-const CONNECTION_INSERTION_HEIGHT = 24;
+const CONNECTION_INSERTION_HEIGHT = 0;
 const CONNECTION_INSERTION_WIDTH = 160;
 const CONNECTION_INSERTION_MARGIN = 4;
-const CONTENT_VERTICAL_GAP = 8;
+const CONTENT_VERTICAL_GAP = 0;
+
+/** Shared no-op callback reused to avoid creating redundant handlers. */
+const noop = () => {};
+
+const NODE_EXIT_DURATION = 210;
 
 const typeAccent: Record<WorkflowNodeType, string> = {
   start: '#626D7B',
-  action: '#626D7B',
-  decision: '#626D7B',
+  generic: '#626D7B',
   end: '#626D7B',
 };
 
 const typeBackground: Record<WorkflowNodeType, string> = {
   start: '#30303010',
-  action: '#30303010',
-  decision: '#30303010',
+  generic: '#30303010',
   end: '#30303010',
 };
 
 const typeLabel: Record<WorkflowNodeType, string> = {
   start: 'Start',
-  action: 'Aktion',
-  decision: 'Entscheidung',
+  generic: 'Prozessschritte',
   end: 'Ende',
 };
 
 const typeIcon: Record<WorkflowNodeType, IconProp> = {
   start: faBolt as IconProp,
-  action: faObjectExclude as IconProp,
-  decision: faFlagCheckered as IconProp,
+  generic: faMicrochip as IconProp,
   end: faStopwatch as IconProp,
 };
 
@@ -193,6 +162,7 @@ type LegacyWorkflowNodeProps = {
   childIds?: string | string[];
 };
 
+/** Normalizes legacy schema fields into a simple string array. */
 const normalizeIds = (value?: unknown) => {
   if (!value) {
     return [];
@@ -205,6 +175,7 @@ const normalizeIds = (value?: unknown) => {
   return typeof value === 'string' && value.length > 0 ? [value] : [];
 };
 
+/** Collects all parent ids across legacy and current node shapes. */
 const getParentIds = (node: WorkflowNode): string[] => {
   const legacyParentIds = normalizeIds((node as LegacyWorkflowNodeProps).parentId);
   const currentParentIds = normalizeIds(node.parentNodeId);
@@ -212,6 +183,7 @@ const getParentIds = (node: WorkflowNode): string[] => {
   return Array.from(new Set([...legacyParentIds, ...currentParentIds]));
 };
 
+/** Collects child ids across legacy and current node shapes. */
 const getChildIds = (node: WorkflowNode): string[] => {
   const legacyChildIds = normalizeIds((node as LegacyWorkflowNodeProps).childIds);
   const currentChildIds = Array.isArray(node.childNodeIds) ? node.childNodeIds : [];
@@ -219,7 +191,7 @@ const getChildIds = (node: WorkflowNode): string[] => {
   return Array.from(new Set([...legacyChildIds, ...currentChildIds].filter(id => typeof id === 'string' && id.length > 0)));
 };
 
-/** @description Multiple nodes can be connected to a single parent node */
+/** Derives directional connections to render between workflow nodes. */
 const deriveConnectionsFromNodes = (nodes: WorkflowNode[]): WorkflowConnection[] => {
   if (!nodes || nodes.length === 0) {
     return [];
@@ -328,6 +300,10 @@ const deriveConnectionsFromNodes = (nodes: WorkflowNode[]): WorkflowConnection[]
   });
 };
 
+/**
+ * High-level canvas that renders nodes, their connections and contextual UI for
+ * building automated workflows.
+ */
 export function WorkflowCanvas({
   nodes,
   onNodePress,
@@ -337,31 +313,11 @@ export function WorkflowCanvas({
   onRemoveNodeItem,
   onChangeNodeItem,
   renderNode,
-  gesturesEnabled = false,
   children,
 }: WorkflowCanvasProps) {
-  const colors = useThemeColors();
-  const refTrigger = React.useRef<View>(null);
-
   const scale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-
-  const panGesture = Gesture.Pan()
-    .enabled(gesturesEnabled)
-    .onUpdate(event => {
-      translateX.value += event.translationX;
-      translateY.value += event.translationY;
-    });
-
-  const pinchGesture = Gesture.Pinch()
-    .enabled(gesturesEnabled)
-    .onUpdate(event => {
-      const next = clamp(scale.value * event.scale, MIN_SCALE, MAX_SCALE);
-      scale.value = next;
-    });
-
-  const gesture = Gesture.Simultaneous(panGesture, pinchGesture);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -418,32 +374,8 @@ export function WorkflowCanvas({
   }, [nodes]);
   const connections = React.useMemo(() => deriveConnectionsFromNodes(nodeList), [nodeList]);
   const renderedConnectionsCache = React.useRef<Map<string, RenderedConnection>>(new Map());
-  const [removingNodeIds, setRemovingNodeIds] = React.useState<Set<string>>(new Set());
-
-  const handleRequestRemoveNode = React.useCallback((node: WorkflowNode) => {
-    if (!node?.id) {
-      return;
-    }
-
-    setRemovingNodeIds(prev => {
-      if (prev.has(node.id)) {
-        return prev;
-      }
-
-      const next = new Set(prev);
-      next.add(node.id);
-      return next;
-    });
-  }, []);
-
-  const handleRemovalAnimationEnd = React.useCallback((node: WorkflowNode) => {
-    if (!node?.id) {
-      return;
-    }
-
-    onRemoveNode?.(node);
-  }, [onRemoveNode]);
   const renderedConnections = React.useMemo(() => {
+    // Cache rendered connection metadata to avoid re-calculating SVG paths on every render.
     const prev = renderedConnectionsCache.current;
     const next = new Map<string, RenderedConnection>();
 
@@ -561,28 +493,9 @@ export function WorkflowCanvas({
     return Array.from(next.values());
   }, [connections, nodeLayouts, nodeList]);
 
-  React.useEffect(() => {
-    setRemovingNodeIds(prev => {
-      if (prev.size === 0) {
-        return prev;
-      }
-
-      const validIds = new Set(nodeList.map(node => node.id));
-      let changed = false;
-      const next = new Set<string>();
-
-      prev.forEach(id => {
-        if (validIds.has(id)) {
-          next.add(id);
-        } else {
-          changed = true;
-        }
-      });
-
-      return changed ? next : prev;
-    });
-  }, [nodeList]);
-
+  /**
+   * Stores the last known layout of a node so we can calculate connectors and drop zones accurately.
+   */
   const handleNodeLayout = React.useCallback((id: string, layout: LayoutRectangle) => {
     setNodeLayouts(prev => {
       const previous = prev[id];
@@ -594,10 +507,8 @@ export function WorkflowCanvas({
   }, []);
 
   return (
-    <>
-    <GestureDetector gesture={gesture}>
       <View style={styles.container}>
-      <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
+        <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
         <Defs>
           <Pattern id="dots" patternUnits="userSpaceOnUse" width={22} height={22}>
             <Circle cx={1} cy={1} r={1} fill="#d0d0d0" />
@@ -606,11 +517,14 @@ export function WorkflowCanvas({
         <Rect width="100%" height="100%" fill="url(#dots)" />
         </Svg>
         <ScrollView style={{ maxHeight: "85%"}} showsVerticalScrollIndicator={false}>
-          <Animated.View style={[styles.content, animatedStyle]}>
-            <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
+          <Animated.View
+            layout={LinearTransition.duration(220).easing(Easing.inOut(Easing.ease))}
+            style={[styles.content, animatedStyle]}
+          >
+            {/*<Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents="none">
               {renderedConnections.map(({ connection, path }) => (
                 <Path
-                  key={`${connection.id}:${nodes?.length ?? 0}`}
+                  key={connection.id}
                   d={path}
                   stroke="#000"
                   strokeWidth={1}
@@ -618,11 +532,15 @@ export function WorkflowCanvas({
                   strokeLinecap="round"
                 />
               ))}
-            </Svg>
+            </Svg>*/}
 
-            <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+            {/*<View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
               {renderedConnections.map(({ connection, overlayStyle }) => (
-                <View key={`${connection.id}-zone`} style={[styles.connectionInsertionZone, overlayStyle]}>
+                <Animated.View
+                  key={connection.id}
+                  layout={LinearTransition.duration(220).easing(Easing.inOut(Easing.ease))}
+                  style={[styles.connectionInsertionZone, overlayStyle, { paddingHorizontal: 10 }]}
+                >
                   <View style={[GlobalContainerStyle.rowCenterStart, { gap: 10 }]}>
                     <TouchableHaptic
                       onPress={() => {
@@ -635,7 +553,9 @@ export function WorkflowCanvas({
                         }, 'decision');
                       }}
                     >
-                      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                      <View
+                        style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}
+                      >
                         <FontAwesomeIcon icon={faFlagCheckered as IconProp} size={14} color="#fff" />
                         <TextBase text="Entscheidung" type="label" style={styles.connectionInsertionLabel} />
                       </View>
@@ -651,15 +571,17 @@ export function WorkflowCanvas({
                         }, 'action');
                       }}
                     >
-                      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                      <View
+                        style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}
+                      >
                         <FontAwesomeIcon icon={faObjectExclude as IconProp} size={14} color="#fff" />
                         <TextBase text="Aktion" type="label" style={styles.connectionInsertionLabel} />
                       </View>
                     </TouchableHaptic>
                   </View>
-                </View>
+                </Animated.View>
               ))}
-            </View>
+            </View>*/}
 
             {nodeList.length > 0
               ? nodeList.map((node, index) => (
@@ -668,9 +590,7 @@ export function WorkflowCanvas({
                     node={node}
                     isFirst={index === 0}
                     isLast={index === nodeList.length - 1}
-                    isRemoving={removingNodeIds.has(node.id)}
-                    onRemoveNode={handleRequestRemoveNode}
-                    onRemovalAnimationEnd={handleRemovalAnimationEnd}
+                    onRemoveNode={onRemoveNode}
                     onAddNodeItem={onAddNodeItem}
                     onRemoveNodeItem={onRemoveNodeItem}
                     onChangeNodeItem={onChangeNodeItem}
@@ -683,8 +603,6 @@ export function WorkflowCanvas({
           </Animated.View>
         </ScrollView>
       </View>
-    </GestureDetector>
-    </>
   );
 }
 
@@ -692,49 +610,40 @@ type WorkflowNodeProps = {
   node: WorkflowNode;
   isFirst: boolean;
   isLast: boolean;
-  isRemoving: boolean;
   onRemoveNode?: (node: WorkflowNode) => void;
-  onRemovalAnimationEnd?: (node: WorkflowNode) => void;
-  onAddNodeItem?: (node: WorkflowNode,item: ConvexTemplateAPIProps) => void;
+  onAddNodeItem?: (node: WorkflowNode, variant: WorkflowNodeItemVariant, template: ConvexTemplateAPIProps) => void;
   onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
   onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
   onLayout: (layout: LayoutRectangle) => void;
 };
 
-const WorkflowNode = ({ node, isFirst, isLast, isRemoving, onAddNodeItem, onRemoveNode, onRemovalAnimationEnd, onRemoveNodeItem, onChangeNodeItem, onLayout }: WorkflowNodeProps) => {
-  const { secondaryBgColor, secondaryBorderColor, errorColor, infoColor } = useThemeColors();
+/**
+ * Displays a single node within the workflow, including its animated entry/exit,
+ * inline editing and contextual actions.
+ */
+const WorkflowNodeComponent = ({
+  node,
+  isFirst,
+  isLast,
+  onAddNodeItem,
+  onRemoveNode,
+  onRemoveNodeItem,
+  onChangeNodeItem,
+  onLayout,
+}: WorkflowNodeProps) => {
+  const { errorColor, primaryIconColor, infoColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
   const refTrigger = React.useRef<View>(null);
-
   const [isOpen, setIsOpen] = React.useState<boolean>(true);
 
   const { push, dismiss } = useTrays('main');
-
-  const removalProgress = useSharedValue(0);
-
-  const removalStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(removalProgress.value, [0, 1], [1, 0]),
-    transform: [
-      {
-        translateY: interpolate(removalProgress.value, [0, 1], [0, -16]),
-      },
-    ],
-  }));
+  const [isClosing, setIsClosing] = React.useState(false);
 
   React.useEffect(() => {
-    if (!isRemoving) {
-      removalProgress.value = 0;
-      return;
-    }
-
-    removalProgress.value = withTiming(1, { duration: 180 }, finished => {
-      if (finished && onRemovalAnimationEnd) {
-        runOnJS(onRemovalAnimationEnd)(node);
-      }
-    });
-  }, [isRemoving, node, onRemovalAnimationEnd, removalProgress]);
+    setTitle(node.title ?? '');
+  }, [node.title]);
 
   const handleLayout = React.useCallback(
     (event: LayoutChangeEvent) => {
@@ -744,27 +653,59 @@ const WorkflowNode = ({ node, isFirst, isLast, isRemoving, onAddNodeItem, onRemo
   );
 
   const accent = typeAccent[node.type];
+  const normalizedItems = React.useMemo(
+    () =>
+      (node.items ?? []).map(item => ({
+        ...item,
+        variant: item.variant ?? 'action',
+      })),
+    [node.items],
+  );
+  const actionItems = React.useMemo(
+    () => normalizedItems.filter(item => item.variant === 'action'),
+    [normalizedItems],
+  );
+  const decisionItems = React.useMemo(
+    () => normalizedItems.filter(item => item.variant === 'decision'),
+    [normalizedItems],
+  );
 
+  const handleAddItem = React.useCallback(
+    (variant: WorkflowNodeItemVariant) => {
+      if (!onAddNodeItem) {
+        return;
+      }
 
-  const refMenu = React.useRef<View>(null);
+      if (variant === 'decision') {
+        push('TrayWorkflowDecision', {
+          onPress: (template: ConvexTemplateAPIProps) => {
+            dismiss('TrayWorkflowDecision');
+            onAddNodeItem(node, variant, template);
+          },
+        });
+        return;
+      }
 
-  /**
-   * @description Get the dropdown functions for displaying the mail accounts.
-   * @see {@link hooks/button/useDropdown} */
-   const { open: _open } = useDropdown();
-
-
-
+      push('TrayWorkflowTemplate', {
+        onPress: (template: ConvexTemplateAPIProps) => {
+          dismiss('TrayWorkflowTemplate');
+          onAddNodeItem(node, variant, template);
+        },
+      });
+    },
+    [dismiss, node, onAddNodeItem, push],
+  );
 
   return (
     <Animated.View
       onLayout={handleLayout}
+      layout={undefined}
       entering={FadeInDown.duration(180)}
-      pointerEvents={isRemoving ? 'none' : 'box-none'}
+      exiting={FadeOutUp.duration(NODE_EXIT_DURATION)}
+      pointerEvents={isClosing ? 'none' : 'box-none'}
       style={[
         styles.nodeWrapper,
         !isLast && styles.nodeWrapperSpacing,
-        removalStyle,
       ]}
     >
       <View style={styles.tagRow}>
@@ -774,18 +715,18 @@ const WorkflowNode = ({ node, isFirst, isLast, isRemoving, onAddNodeItem, onRemo
           type="label"
           isActive={true}
           disabled={true}
-          colorActive={shadeColor((node.type === "start" || node.type === "end") ? '#3F37A0' : node.type === "action" ? '#587E1F' : node.type === "decision" ? '#e09100' : typeAccent[node.type], 0)}
+          colorActive={shadeColor((node.type === "start" || node.type === "end") ? '#3F37A0' : typeAccent[node.type], 0)}
           viewStyle={{ paddingVertical: 3 }}
         />
       </View>
 
         <View style={[styles.node]} pointerEvents="box-none" ref={refTrigger}>
-        {!isFirst && <WorkflowNodeConnector node={node} position="top" />}
+        {/*!isFirst && <WorkflowNodeConnector node={node} position="top" />*/}
 
         <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
 
           <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderContent]}>
-            {!isActive && (node.type === 'action' || node.type === 'decision') && <TouchableTag
+            {!isActive && node.type === 'generic' && <TouchableTag
               text={"Inaktiv"}
               type="label"
               colorInactive={errorColor}
@@ -805,58 +746,38 @@ const WorkflowNode = ({ node, isFirst, isLast, isRemoving, onAddNodeItem, onRemo
 
           </View>
 
-          <View style={{ flexGrow: 1, backgroundColor: 'red' }} />
+          <View style={{ flexGrow: 1 }} />
 
-          {(node.type === 'action' || node.type === 'decision') && (
+          {node.type === 'generic' && (
             <View style={[GlobalContainerStyle.rowCenterEnd, styles.nodeHeaderActions]}>
-              {node.type === 'action' && <TouchableHaptic
-                onPress={() => {
-                  push('WorkflowActionTemplateListTray', { onPress: (template: ConvexTemplateAPIProps) => {
-                    dismiss("WorkflowActionTemplateListTray");
-                    onAddNodeItem?.(node, template);
-                  } });
-                }}>
-                <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
-              </TouchableHaptic>}
-
-              {node.type === 'decision' && <TouchableHaptic
-                onPress={() => {
-                  push('WorkflowDecisionTemplateListTray', { onPress: (template: ConvexTemplateAPIProps) => {
-                    dismiss("WorkflowDecisionTemplateListTray");
-                    onAddNodeItem?.(node, template);
-                  } });
-                }}>
-                <FontAwesomeIcon icon={faRectangleHistoryCirclePlus as IconProp} size={16} color="#047dd4" />
-              </TouchableHaptic>}
-
-              {/*<TouchableHaptic
-                onPress={() => {
-                  //setIsActive((prev) => !prev);
-                  onPressDropdown();
-                }}>
-                <FontAwesomeIcon icon={faEllipsisStroke as IconProp} size={16} color={typeAccent[node.type]} />
-              </TouchableHaptic>*/}
-
-              <TouchableHapticAction
-                refContainer={refTrigger}
-                onPress={(item) => {
-                  if (isRemoving) {
-                    return;
-                  }
-
-                  if (item.itemKey === "deleteAction") {
-                    onRemoveNode?.(node);
-                  }
-                }}
-                onPressExecutionStatus={setIsActive}/>
-
-              <TouchableHaptic
-                ref={refMenu}
-                onPress={() => {
-                  setIsOpen((prev) => !prev);
-                }}>
-                <FontAwesomeIcon icon={faAngleDown as IconProp} size={16} color={typeAccent[node.type]} />
-              </TouchableHaptic>
+              <View style={[GlobalContainerStyle.rowCenterStart, { gap: 16 }]}>
+                <TouchableHaptic
+                  onPress={() => handleAddItem('action')}
+                >
+                  <FontAwesomeIcon
+                    icon={faObjectExclude as IconProp}
+                    size={STYLES.sizeFaIcon}
+                    color="#587E1F"
+                  />
+                </TouchableHaptic>
+                <TouchableHaptic
+                  onPress={() => handleAddItem('decision')}
+                >
+                  <FontAwesomeIcon
+                    icon={faSignsPost as IconProp}
+                    size={STYLES.sizeFaIcon}
+                    color="#e09100"
+                  />
+                </TouchableHaptic>
+                <Divider vertical />
+                <TouchableHaptic
+                  onPress={() => {
+                    setIsOpen(prev => !prev);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faAngleDown as IconProp} size={16} color={typeAccent[node.type]} />
+                </TouchableHaptic>
+              </View>
             </View>
           )}
 
@@ -880,48 +801,63 @@ const WorkflowNode = ({ node, isFirst, isLast, isRemoving, onAddNodeItem, onRemo
           </>
         )}
 
-        {node.type === 'action' && isOpen &&
-        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
-          {node.items?.map((item) => <WorkflowNodeAction key={item.id} item={item} color={typeAccent[node.type]} onRemoveNodeItem={() => {
-            onRemoveNodeItem?.(node, item.id);
-            console.log("onRemoveNodeItem", node, item.id);
-          }} onChangeNodeItem={(item: WorkflowNodeItemProps) => {
-            onChangeNodeItem?.(node, item);
-          }} />)}
-        </View>}
+        {node.type === 'generic' && isOpen && (
+          <View style={{ gap: 16, alignSelf: 'stretch' }}>
+            {actionItems.length > 0 && (
+              <View style={{ gap: 8 }}>
+                <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
+                  {actionItems.map(item => (
+                    <WorkflowNodeAction
+                      key={item.id}
+                      item={item}
+                      color={infoColor}
+                      onRemoveNodeItem={() => onRemoveNodeItem?.(node, item.id)}
+                      onChangeNodeItem={(updated: WorkflowNodeItemProps) => onChangeNodeItem?.(node, updated)}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
 
-        {node.type === 'decision' &&
-        <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
-          {node.items?.map((item) => <WorkflowNodeDecision key={item.id} {...item} />)}
-        </View>}
+            {decisionItems.length > 0 && (
+              <View style={{ gap: 8 }}>
+                <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
+                  {decisionItems.map(item => (
+                    <WorkflowNodeDecision
+                      key={item.id}
+                      item={item}
+                      color={infoColor}
+                      onRemoveNodeItem={() => onRemoveNodeItem?.(node, item.id)}
+                      onChangeNodeItem={(updated: WorkflowNodeItemProps) => onChangeNodeItem?.(node, updated)}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
 
-        {!isLast && node.type !== 'end' && <WorkflowNodeConnector node={node} position='bottom' />}
+            {actionItems.length === 0 && decisionItems.length === 0 && (
+              <TextBase
+                text="Noch keine Schritte hinzugefügt."
+                type="label"
+                style={{ color: '#626D7B', alignSelf: 'center', fontSize: 11 }}
+              />
+            )}
+          </View>
+        )}
       </View>
     </Animated.View>
   );
 };
 
-const WorkflowNodeConnector = ({ node, position }: { node: WorkflowNode; position: 'top' | 'bottom' }) => (
-  <View
-    style={[
-      styles.nodeConnector,
-      {
-        borderColor: '#000',
-        borderWidth: 2,
-        backgroundColor: '#fff',
-        [position]: 0,
-      },
-    ]}
-  />
-);
+const WorkflowNode = React.memo(WorkflowNodeComponent);
+WorkflowNode.displayName = 'WorkflowNode';
+
 
 const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
   return (
     <TouchableHapticConfirmation
       refContainer={containerRef}
-      onPress={(item) => {
-        console.log("onPressConfirmation", item);
-      }}/>
+      onPress={noop}/>
   );
 };
 
@@ -929,9 +865,7 @@ const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, conta
   return (
     <TouchableHapticTrigger
       refContainer={containerRef}
-      onPress={(item) => {
-        console.log("onPressTrigger", item);
-      }}
+      onPress={noop}
     />
   );
 };
@@ -940,19 +874,35 @@ const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, c
   return (
     <TouchableHapticTimePeriod
       refContainer={containerRef}
-      onPress={(item) => {
-        console.log("onPressTimePeriod", item);
-      }}/>
+      onPress={noop}/>
   );
 };
 
 
-const WorkflowNodeAction = ({ item, color, onRemoveNodeItem, onChangeNodeItem }: { item: WorkflowNodeItemProps, color: string, onRemoveNodeItem?: () => void, onChangeNodeItem?: (item: WorkflowNodeItemProps) => void }) => {
+/**
+ * Renders an action row that belongs to an action node, including edit, toggle and delete affordances.
+ */
+const WorkflowNodeActionComponent = ({
+  item,
+  color,
+  onRemoveNodeItem,
+  onChangeNodeItem,
+}: {
+  item: WorkflowNodeItemProps;
+  color: string;
+  onRemoveNodeItem?: () => void;
+  onChangeNodeItem?: (item: WorkflowNodeItemProps) => void;
+}) => {
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
   const [isActive, setIsActive] = React.useState<boolean>(item.isActive ?? true);
   const [name, setName] = React.useState<string>(item.name);
 
-  const { push, dismiss } = useTrays('modal');
+  const { push, dismiss } = useTrays('keyboard');
+
+  const resolvedIcon = React.useMemo(
+    () => resolveRuntimeIcon(String(item?.icon || 'faCodeCommit')) as IconProp,
+    [item?.icon],
+  );
 
   React.useEffect(() => {
     setIsActive(item.isActive ?? true);
@@ -962,21 +912,50 @@ const WorkflowNodeAction = ({ item, color, onRemoveNodeItem, onChangeNodeItem }:
     setName(item.name);
   }, [item.name]);
 
-  const onPressEditAction = React.useCallback(() => {
-    push('WorkflowActionTemplateTray', {
+  const handleEdit = React.useCallback(() => {
+    push('TrayWorkflowAction', {
       item,
       onAfterSave: (updated: WorkflowNodeItemProps) => {
         onChangeNodeItem?.(updated);
         setName(updated.name);
         setIsActive(updated.isActive ?? true);
-        dismiss('WorkflowActionTemplateTray');
+        dismiss('TrayWorkflowAction');
+      },
+      onPressClose: () => {
+        dismiss('TrayWorkflowAction');
       },
     });
   }, [push, dismiss, item, onChangeNodeItem]);
 
+  const handleNameChange = React.useCallback(
+    (text: string) => {
+      setName(text);
+      onChangeNodeItem?.({
+        ...item,
+        name: text,
+      });
+    },
+    [item, onChangeNodeItem],
+  );
+
+  const handleToggleActive = React.useCallback(() => {
+    const next = !isActive;
+    setIsActive(next);
+    onChangeNodeItem?.({
+      ...item,
+      isActive: next,
+    });
+  }, [isActive, item, onChangeNodeItem]);
+
+  const handleRemove = React.useCallback(() => {
+    onRemoveNodeItem?.();
+  }, [onRemoveNodeItem]);
 
   return (
-    <View
+    <Animated.View
+      entering={FadeInDown.duration(160)}
+      layout={undefined}
+      exiting={FadeOutUp.duration(160)}
       style={[
         GlobalContainerStyle.rowCenterBetween,
         {
@@ -989,63 +968,89 @@ const WorkflowNodeAction = ({ item, color, onRemoveNodeItem, onChangeNodeItem }:
       ]}
     >
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-      <FontAwesomeIcon icon={resolveRuntimeIcon(String(item?.icon || "faCodeCommit")) as IconProp} size={16} color={infoColor} />
-      <TextInput
-        value={name}
-        placeholder="Name der Aktion"
-        style={{
-          color: color,
-          fontSize: Number(SIZES.label),
-          fontFamily: String(FAMILIY.subtitle),
-          maxWidth: 180
-        }}
-        onChangeText={(text) => {
-          setName(text);
-          onChangeNodeItem?.({
-            ...item,
-            name: text,
-          });
-        }}/>
+        <FontAwesomeIcon icon={resolvedIcon} size={16} color={infoColor} />
+        <TextInput
+          value={name}
+          placeholder="Name der Aktion"
+          style={{
+            color,
+            fontSize: Number(SIZES.label),
+            fontFamily: String(FAMILIY.subtitle),
+            maxWidth: 180,
+          }}
+          onChangeText={handleNameChange}
+        />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
-        <TouchableHaptic onPress={onPressEditAction}>
+        <TouchableHaptic onPress={handleEdit}>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-            {/* <FontAwesomeIcon icon={faPenNibSlash as IconProp} size={16} color={color} /> */}
-            <TextBase text="Bearbeiten" type="label" style={{  }} />
+            <TextBase text="Bearbeiten" type="label" />
           </View>
         </TouchableHaptic>
         <Divider vertical />
         <TouchableHapticIcon
-          icon={isActive ? faPlay as IconProp : faPause as IconProp}
+          icon={(isActive ? faPlay : faPause) as IconProp}
           iconSize={12}
           iconColor={isActive ? successColor : errorColor}
           hasViewCustomStyle={true}
-          onPress={() => {
-            const next = !isActive;
-            setIsActive(next);
-            onChangeNodeItem?.({
-              ...item,
-              isActive: next,
-            });
-          }}/>
+          onPress={handleToggleActive}
+        />
         <TouchableHapticIcon
           icon={faXmark as IconProp}
           iconSize={12}
           hasViewCustomStyle={true}
-          onPress={() => {
-            onRemoveNodeItem?.();
-          }}/>
+          onPress={handleRemove}
+        />
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
-const WorkflowNodeDecision = ({ name, icon }: WorkflowNodeItemProps) => {
-  const { secondaryBgColor, tertiaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
-  const [isActive, setIsActive] = React.useState<boolean>(true);
+/**
+ * Displays the condensed decision outcome row beneath a decision node.
+ */
+const WorkflowNodeDecisionComponent = ({
+  item,
+  color,
+  onRemoveNodeItem,
+  onChangeNodeItem,
+}: {
+  item: WorkflowNodeItemProps;
+  color: string;
+  onRemoveNodeItem?: () => void;
+  onChangeNodeItem?: (item: WorkflowNodeItemProps) => void;
+}) => {
+  const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
+  const [isActive, setIsActive] = React.useState<boolean>(item.isActive ?? true);
+
+  const resolvedIcon = React.useMemo(
+    () => resolveRuntimeIcon(String(item.icon || 'faCodeCommit')) as IconProp,
+    [item.icon],
+  );
+  const accentColor = color ?? infoColor;
+
+  React.useEffect(() => {
+    setIsActive(item.isActive ?? true);
+  }, [item.isActive]);
+
+  const handleToggleActive = React.useCallback(() => {
+    const next = !isActive;
+    setIsActive(next);
+    onChangeNodeItem?.({
+      ...item,
+      isActive: next,
+    });
+  }, [isActive, item, onChangeNodeItem]);
+
+  const handleRemove = React.useCallback(() => {
+    onRemoveNodeItem?.();
+  }, [onRemoveNodeItem]);
 
   return (
-    <View
+    <Animated.View
+      entering={FadeInDown.duration(160)}
+      layout={undefined}
+      exiting={FadeOutUp.duration(160)}
       style={[
         GlobalContainerStyle.rowCenterBetween,
         {
@@ -1058,37 +1063,34 @@ const WorkflowNodeDecision = ({ name, icon }: WorkflowNodeItemProps) => {
       ]}
     >
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-      <FontAwesomeIcon icon={resolveRuntimeIcon(String(icon || "faCodeCommit")) as IconProp} size={16} color={infoColor} />
-      <TextBase
-        text={name}
-        type="label"
-        style={{ color: infoColor, maxWidth: 180 }} />
+        <FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />
+        <TextBase text={item.name} type="label" style={{ color: accentColor, maxWidth: 180 }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
-        <TouchableHaptic>
+        <TouchableHaptic onPress={noop}>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-            <TextBase text="Bearbeiten" type="label" style={{  }} />
+            <TextBase text="Bearbeiten" type="label" style={{ color: accentColor }} />
           </View>
         </TouchableHaptic>
         <Divider vertical />
         <TouchableHapticIcon
-          icon={isActive ? faPlay as IconProp : faPause as IconProp}
+          icon={(isActive ? faPlay : faPause) as IconProp}
           iconSize={12}
           iconColor={isActive ? successColor : errorColor}
           hasViewCustomStyle={true}
-          onPress={() => {
-            setIsActive((prev) => !prev);
-          }}/>
-        <TouchableHapticIcon
-          icon={faXmark as IconProp}
-          iconSize={12}
-          hasViewCustomStyle={true}
-          onPress={() => {}}/>
-
+          onPress={handleToggleActive}
+        />
+        <TouchableHapticIcon icon={faXmark as IconProp} iconSize={12} hasViewCustomStyle={true} onPress={handleRemove} />
       </View>
-    </View>
+    </Animated.View>
   );
 };
+
+const WorkflowNodeAction = React.memo(WorkflowNodeActionComponent);
+WorkflowNodeAction.displayName = 'WorkflowNodeAction';
+
+const WorkflowNodeDecision = React.memo(WorkflowNodeDecisionComponent);
+WorkflowNodeDecision.displayName = 'WorkflowNodeDecision';
 
 const styles = StyleSheet.create({
   container: {
@@ -1108,10 +1110,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 4,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: 6,
+    paddingHorizontal: 2,
+  },
   nodeWrapper: {
     gap: 4,
+    overflow: 'hidden',
   },
   nodeWrapperSpacing: {
+    //marginBottom: CONNECTION_INSERTION_HEIGHT + CONNECTION_INSERTION_MARGIN * 2,
     marginBottom: CONNECTION_INSERTION_HEIGHT + CONNECTION_INSERTION_MARGIN * 2,
   },
   node: {
@@ -1156,6 +1167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
+    paddingHorizontal: 10,
     //paddingHorizontal: 10,
   },
   connectionInsertionLabel: {

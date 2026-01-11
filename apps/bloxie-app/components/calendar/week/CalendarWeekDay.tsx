@@ -63,7 +63,7 @@ const CalendarWeekDay = ({
   /**
    * @description Handles the opening of the trays which are defined in the @/helpers/Trays.tsx file as screens in the @/screens/private/tray folder
    * @see {@link @/helpers/Trays} */
-   const { push } = useTrays('main');
+   //const { push } = useTrays('main');
   /** 
    * @description Handles the events of the day -> Used for highlighting the members of the event as a circle
    * @see {@link hooks/calendar/useCalendarStore}
@@ -103,9 +103,9 @@ const CalendarWeekDay = ({
     /**
       * @description Handles the on press event for opening the action tray
       * @function */
-    push("CalendarDayTray", {
+    /*push("CalendarDayTray", {
       ...dateInWeek
-    });
+    });*/
   };
   
   /**

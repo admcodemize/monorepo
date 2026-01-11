@@ -1,4 +1,3 @@
-import { ProviderIntegrationEnum } from "../../apps/bloxie-app/constants/Provider";
 import { Id } from "./convex/_generated/dataModel";
 import { ConvexHandlerError } from "./Fetch";
 
@@ -49,6 +48,22 @@ export type ConvexWorkflowNodeAPITypeEnum = "action" | "decision";
  * @description The license type for the application
  * @type */
 export type ConvexLicenseAPITypeEnum = "freemium" | "premium";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.46
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowAPITriggerEnum = "beforeEventStart" | "afterEventEnd" | "newBooking" | "afterEventCancellation";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.46
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowAPITimePeriodEnum = "week" | "day" | "hour" | "minute";
 
 /**
  * @public
@@ -222,8 +237,9 @@ export type ConvexWorkflowAPIProps = {
   start: {
     eventTypes: Id<"eventType">[];
     calendars: Id<"calendar">[];
-    trigger: string;
-    timePeriod: string;
+    trigger: ConvexWorkflowAPITriggerEnum;
+    timePeriod: ConvexWorkflowAPITimePeriodEnum;
+    timePeriodValue: number;
   };
   end: {
     confirmation: ConvexWorkflowAPIConfirmationEnum;
@@ -272,10 +288,6 @@ export type ConvexSettingsAPIProps = {
   durationMinute?: number;
   breakingTimeBetweenEvents?: number;
   defaultMailAccount?: string;
-  integrations?: {
-    integrationKey: ProviderIntegrationEnum;
-    state: boolean;
-  }[];
 }
 
 /**

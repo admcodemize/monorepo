@@ -10,7 +10,8 @@ import { ConvexTemplateAPIProps } from "@codemize/backend/Types";
 import ListItemGroup from "@/components/container/ListItemGroup";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
-import TextBase from "../typography/Text";
+import TextBase from "@/components/typography/Text";
+
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 
 /**
@@ -19,7 +20,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @since 0.0.38
  * @version 0.0.2
  * @component */
-export type ListTemplatesWorkflowActionProps = {
+export type ListWorkflowTemplateProps = {
   maxHeight?: DimensionValue;
   showListGroup?: boolean;
   showWithoutTemplateOption?: boolean;
@@ -31,18 +32,18 @@ export type ListTemplatesWorkflowActionProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
  * @version 0.0.3
- * @param {ListTemplatesWorkflowActionProps} param0
+ * @param {ListWorkflowTemplateProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
  * @param {boolean} param0.showListGroup - Whether to show the list group
  * @param {boolean} param0.showWithoutTemplateOption - Whether to show the option to continue without a template
  * @param {(template: ConvexTemplateAPIProps) => void} param0.onPress - The function to call when a template is pressed
  * @component */
-const ListTemplatesWorkflowAction = ({
+const ListWorkflowTemplate = ({
   maxHeight = "100%",
   showListGroup = true,
   showWithoutTemplateOption = true,
   onPress,
-}: ListTemplatesWorkflowActionProps) => {
+}: ListWorkflowTemplateProps) => {
   const { linkColor } = useThemeColors();
   /** @description Returns all the workflows templates stored in the context for the currently signed in user */
   const templates = useConfigurationContextStore((state) => state.templates).filter((template) => template.isGlobal);
@@ -56,12 +57,12 @@ const ListTemplatesWorkflowAction = ({
   return (
     <>
     {showListGroup && <ListItemGroup
-      title={"i18n.lists.templatesWorkflowAction.title"}
+      title="i18n.screens.workflow.builder.action.templates.title"
       gap={STYLES.sizeGap}
       style={{ paddingVertical: 10 }} />}
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ gap: 10 }}
+      contentContainerStyle={{ gap: STYLES.sizeGap * 1.5 }}
       style={{ maxHeight }}>
       {memoizedTemplates.map((template) => (
         <TouchableHaptic 
@@ -75,18 +76,24 @@ const ListTemplatesWorkflowAction = ({
         </TouchableHaptic>
       ))}
     </ScrollView>
-    {showWithoutTemplateOption && <View style={[GlobalContainerStyle.rowCenterBetween, { paddingVertical: 10 }]}>
+    {showWithoutTemplateOption && <View style={[GlobalContainerStyle.rowCenterStart, { 
+      paddingTop: STYLES.paddingVertical + 4, 
+      paddingVertical: STYLES.paddingVertical - 4
+     }]}>
       <View />
       <TouchableHaptic onPress={onPressInternal({ 
         icon: "faCodeCommit",
         type: "workflow", 
         language: getLocalization().code as LanguageEnumProps 
       })}>
-        <TextBase text="Ohne Vorlage fortfahren" type="label" color={linkColor} />
+        <TextBase 
+          text="i18n.screens.workflow.builder.action.templates.withoutTemplate"
+          type="label" 
+          color={linkColor} />
       </TouchableHaptic>
     </View>}
     </>
   );
 };
 
-export default ListTemplatesWorkflowAction;
+export default ListWorkflowTemplate;

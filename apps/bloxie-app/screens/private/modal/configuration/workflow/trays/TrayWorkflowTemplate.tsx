@@ -6,15 +6,16 @@ import { ConvexTemplateAPIProps } from "@codemize/backend/Types";
 
 import Divider from "@/components/container/Divider";
 import TrayHeader from "@/components/container/TrayHeader";
-import ListTemplatesWorkflowAction from "@/components/lists/ListTemplatesWorkflowAction";
+import ListWorkflowTemplate from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowTemplate";
+import TrayContainer from "@/components/container/TrayContainer";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
-export type ScreenTrayActionTemplateListProps = {
+export type ScreenTrayWorkflowTemplateProps = {
   onPress: (template: ConvexTemplateAPIProps) => void;
 }
 
@@ -22,31 +23,38 @@ export type ScreenTrayActionTemplateListProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.1
- * @param {ScreenTrayActionTemplateListProps} param0
+ * @version 0.0.2
+ * @param {ScreenTrayWorkflowTemplateProps} param0
  * @param {(template: ConvexTemplateAPIProps) => void} param0.onPress - The function to call when a template is pressed
  * @component */
-const ScreenTrayActionTemplateList = ({
+const ScreenTrayWorkflowTemplate = ({
   onPress,
-}: ScreenTrayActionTemplateListProps) => {
+}: ScreenTrayWorkflowTemplateProps) => {
   const { primaryBgColor, primaryBorderColor } = useThemeColors();
   return (
-    <View style={{ 
+    /*<View style={{ 
       padding: STYLES.paddingHorizontal, 
       backgroundColor: primaryBgColor, 
       borderColor: primaryBorderColor,
     }}>
-      <View style={{ gap: STYLES.sizeGap }}>
+      <View style={{ gap: STYLES.sizeGap + 4 }}>
         <TrayHeader
           title={"i18n.screens.trayWorkflowActionTemplates.title"}
           description={"i18n.screens.trayWorkflowActionTemplates.description"} />
         <Divider />
-        <ListTemplatesWorkflowAction
+        <ListWorkflowTemplate
           showListGroup={false}
           onPress={onPress} />
       </View>
-    </View>
+    </View>*/
+    <TrayContainer 
+      title={"i18n.screens.trayWorkflowActionTemplates.title"} 
+      description={"i18n.screens.trayWorkflowActionTemplates.description"}>
+        <ListWorkflowTemplate
+          showListGroup={false}
+          onPress={onPress} />
+    </TrayContainer>
   );
 };
 
-export default ScreenTrayActionTemplateList;
+export default ScreenTrayWorkflowTemplate;

@@ -155,7 +155,7 @@ export const updateCalendarProperty = mutation({
         code: 404,
         info: "i18n.convex.sync.integrations.mutation.update.notFound",
         severity: ConvexActionServerityEnum.ERROR,
-        name: "BLOXIE_IMC_U_E02",
+        name: "BLOXIE_MC_U_E01",
         _id: _id as Id<"calendar">,
       }));
     }

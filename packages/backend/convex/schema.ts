@@ -254,8 +254,9 @@ export const workflowSchema = {
   start: v.object({
     eventTypes: v.array(v.id("eventType")),
     calendars: v.array(v.id("calendar")),
-    trigger: v.string(),
-    timePeriod: v.string()
+    trigger: v.union(v.literal("beforeEventStart"), v.literal("afterEventEnd"), v.literal("newBooking"), v.literal("afterEventCancellation")),
+    timePeriod: v.union(v.literal("week"), v.literal("day"), v.literal("hour"), v.literal("minute")),
+    timePeriodValue: v.number(),
   }),
   end: v.object({
     confirmation: v.union(v.literal("none"), v.literal("email"), v.literal("pushNotification")),

@@ -16,7 +16,7 @@ import { useConfigurationContextStore } from "@/context/ConfigurationContext";
  * @type */
 type UseTemplatesProps = {
   convexUser?: ConvexUsersAPIProps;
-  onFetchFinished: () => void;
+  onFetchFinished?: () => void;
 }
 
 /**
@@ -24,7 +24,7 @@ type UseTemplatesProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description - Sets the templates stored in convex
  * @since 0.0.37
- * @version 0.0.1 */
+ * @version 0.0.2 */
 export function useTemplates({
   convexUser,
   onFetchFinished = () => {},

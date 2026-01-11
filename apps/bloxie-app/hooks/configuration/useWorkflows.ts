@@ -12,11 +12,11 @@ import { useConfigurationContextStore } from "@/context/ConfigurationContext";
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 type UseWorkflowsProps = {
   convexUser?: ConvexUsersAPIProps;
-  onFetchFinished: () => void;
+  onFetchFinished?: () => void;
 }
 
 /**

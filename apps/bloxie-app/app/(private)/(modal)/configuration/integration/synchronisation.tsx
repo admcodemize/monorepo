@@ -4,7 +4,7 @@ import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
 import ToastOverlay from "@/components/container/ToastOverlay";
-import ScreenConfigurationIntegrationSynchronisation from "@/screens/private/modal/configuration/integration/Synchronisation";
+import ScreenConfigurationIntegrationSynchronisation from "@/screens/private/modal/configuration/integration/IntegrationSynchronisation";
 
 /** 
  * @public

@@ -10,9 +10,9 @@ import ToastOverlay from "@/components/container/ToastOverlay";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
-const ModalConfigurationWorkflowActive = () => {
+const ModalConfigurationWorkflowHistory = () => {
   const { tertiaryBgColor } = useThemeColors();
   return (
     <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.7) }}>
@@ -22,4 +22,4 @@ const ModalConfigurationWorkflowActive = () => {
   )
 }
 
-export default ModalConfigurationWorkflowActive; 
+export default ModalConfigurationWorkflowHistory; 

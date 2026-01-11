@@ -303,28 +303,28 @@ export const EDITOR_STYLE_ITEMS: EditorStyleItemProps[] = [{
  * @description Used for handling the workflow trigger items for the dropdown
  * @readonly
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: "newBooking",
-  title: "Neue Ereignisbuchung",
-  icon: faCalendarCirclePlus as IconProp,
-  description: "Auslösung bei einer neuen Ereignisbuchung über das Buchungsportal",
-  isSelected: true,
-}, {
-  itemKey: "afterEventCancellation",
-  title: "Nach Ereignisstornierung",
-  description: "Auslösung bei einer Ereignisstornierung durch Teilnehmer oder Gastgeber",
-  icon: faTrashCanSlash as IconProp
-}, {
   itemKey: "beforeEventStart",
-  title: "Vor Ereignisbeginn",
+  title: "i18n.dropdown.workflow.builder.trigger.beforeEventStart.title",
   icon: faHourglassStart as IconProp
 }, {
   itemKey: "afterEventEnd",
-  title: "Nach Ereignisende",
-  description: "Teilnehmer welche vor Ereignisbeginn das Ereignis storniert haben erhalten keine Benachrichtigung mehr",
+  title: "i18n.dropdown.workflow.builder.trigger.afterEventEnd.title",
+  description: "i18n.dropdown.workflow.builder.trigger.afterEventEnd.description",
   icon: faHourglassEnd as IconProp
+}, {
+  itemKey: "newBooking",
+  title: "i18n.dropdown.workflow.builder.trigger.newBooking.title",
+  icon: faCalendarCirclePlus as IconProp,
+  description: "i18n.dropdown.workflow.builder.trigger.newBooking.description",
+  isSelected: true,
+}, {
+  itemKey: "afterEventCancellation",
+  title: "i18n.dropdown.workflow.builder.trigger.afterEventCancellation.title",
+  description: "i18n.dropdown.workflow.builder.trigger.afterEventCancellation.description",
+  icon: faTrashCanSlash as IconProp
 }];
 
 /**
@@ -333,24 +333,24 @@ export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
  * @description Used for handling the workflow time period items for the dropdown
  * @readonly
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
   itemKey: "week",
-  title: "Wochen",
+  title: "i18n.dropdown.workflow.builder.timePeriod.week",
   icon: faCalendarWeek as IconProp
 }, {
   itemKey: "day",
-  title: "Tage",
+  title: "i18n.dropdown.workflow.builder.timePeriod.day",
   icon: faCalendarDay as IconProp
 }, {
   itemKey: "hour",
-  title: "Stunden",
+  title: "i18n.dropdown.workflow.builder.timePeriod.hour",
   icon: faStopwatch as IconProp,
   isSelected: true,
 }, {
   itemKey: "minute",
-  title: "Minuten",
+  title: "i18n.dropdown.workflow.builder.timePeriod.minute",
   icon: faStopwatch20 as IconProp
 }];
 
@@ -364,31 +364,31 @@ export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
  * @constant */
 export const WORKFLOW_CONFIRMATION_ITEMS: ListItemDropdownProps[] = [{
   itemKey: "pushNotification",
-  title: "Push-Benachrichtigung",
-  description: "In-App-Benachrichtigung auf Endgerät",
+  title: "i18n.dropdown.workflow.builder.confirmation.pushNotification.title",
+  description: "i18n.dropdown.workflow.builder.confirmation.pushNotification.description",
   icon: faBells as IconProp,
   isSelected: true,
 }, {
   itemKey: "sendEmail",
-  title: "E-Mail-Benachrichtigung",
-  description: "E-Mail-Benachrichtigung an die E-Mail-Adresse mit welcher sich der Benutzer registriert hat",
+  title: "i18n.dropdown.workflow.builder.confirmation.sendEmail.title",
+  description: "i18n.dropdown.workflow.builder.confirmation.sendEmail.description",
   icon: faEnvelopeOpenText as IconProp
 }, {
   itemKey: "none",
-  title: "Keine Bestätigung",
+  title: "i18n.dropdown.workflow.builder.confirmation.none",
   icon: faBellSlash as IconProp,
 }];
 
 export const WORKFLOW_NODE_ACTION_ITEMS: ListItemDropdownProps[] = [{
   itemKey: "deleteAction",
-  title: "Löschen der Aktion/Entscheidung",
-  description: "Löscht die Aktion/Entscheidung aus dem Workflow",
+  title: "i18n.dropdown.workflow.builder.action.deleteAction.title",
+  description: "i18n.dropdown.workflow.builder.action.deleteAction.description",
   icon: faTrashCanSlash as IconProp,
   isSelected: true,
 }, {
   itemKey: "executionStatus",
-  title: "Ausführungsstatus",
-  description: "Der Ausführungsstatus bestimmt, ob die Aktion innerhalb der Synchronisationsschleife ausgeführt wird oder nicht",
+  title: "i18n.dropdown.workflow.builder.action.executionStatus.title",
+  description: "i18n.dropdown.workflow.builder.action.executionStatus.description",
   icon: faBridgeCircleCheck as IconProp,
   isSelected: true,
 }];

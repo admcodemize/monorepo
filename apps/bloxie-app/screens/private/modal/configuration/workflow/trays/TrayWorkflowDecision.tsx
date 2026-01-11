@@ -6,15 +6,15 @@ import { ConvexRuntimeAPIWorkflowDecisionProps } from "@codemize/backend/Types";
 
 import Divider from "@/components/container/Divider";
 import TrayHeader from "@/components/container/TrayHeader";
-import ListTemplatesWorkflowDecision from "@/components/lists/ListTemplatesWorkflowDecision";
+import ListWorkflowDecision from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowDecision";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.2
+ * @version 0.0.3
  * @component */
-export type ScreenTrayDecisionTemplateListProps = {
+export type ScreenTrayWorkflowDecisionProps = {
   onPress: (decision: ConvexRuntimeAPIWorkflowDecisionProps) => void;
 }
 
@@ -22,13 +22,13 @@ export type ScreenTrayDecisionTemplateListProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.1
- * @param {ScreenTrayDecisionTemplateListProps} param0
+ * @version 0.0.2
+ * @param {ScreenTrayWorkflowDecisionProps} param0
  * @param {(decision: ConvexRuntimeAPIWorkflowDecisionProps) => void} param0.onPress - The function to call when a decision is pressed
  * @component */
-const ScreenTrayDecisionTemplateList = ({
+const ScreenTrayWorkflowDecision = ({
   onPress,
-}: ScreenTrayDecisionTemplateListProps) => {
+}: ScreenTrayWorkflowDecisionProps) => {
   const { primaryBgColor, primaryBorderColor } = useThemeColors();
   return (
     <View style={{ 
@@ -41,7 +41,7 @@ const ScreenTrayDecisionTemplateList = ({
           title={"i18n.screens.trayWorkflowDecisions.title"}
           description={"i18n.screens.trayWorkflowDecisions.description"} />
         <Divider />
-        <ListTemplatesWorkflowDecision
+        <ListWorkflowDecision
           showListGroup={false}
           onPress={onPress} />
       </View>
@@ -49,4 +49,4 @@ const ScreenTrayDecisionTemplateList = ({
   );
 };
 
-export default ScreenTrayDecisionTemplateList;
+export default ScreenTrayWorkflowDecision;

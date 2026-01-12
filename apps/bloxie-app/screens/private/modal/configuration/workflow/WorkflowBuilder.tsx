@@ -1,6 +1,6 @@
 import React from "react";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faBrightnessLow, faMicrochip } from "@fortawesome/duotone-thin-svg-icons";
+import { faBrightnessLow, faLayerGroup, faMicrochip } from "@fortawesome/duotone-thin-svg-icons";
 
 import WorkflowFooter from "@/components/layout/footer/WorkflowFooter";
 import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemVariant } from "@/components/container/WorkflowCanvas";
@@ -17,6 +17,12 @@ const INITIAL_NODES: ExtendedWorkflowNode[] = [
     type: "generic",
     title: "Prozessschritte",
     icon: faMicrochip as IconProp,
+    /*groups: [{
+      id: "group-1",
+      name: "Gruppe 1",
+      icon: faLayerGroup as IconProp,
+      items: [],
+    }],*/
     items: [],
   },
   { id: "end", type: "end", title: "Abschluss", icon: faBrightnessLow as IconProp },

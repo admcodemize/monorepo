@@ -6,33 +6,31 @@ import TrayContainer from "@/components/container/TrayContainer";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.38
- * @version 0.0.2
+ * @since 0.0.46
+ * @version 0.0.1
  * @component */
-export type ScreenTrayWorkflowTemplateProps = {
-  onPress: (template: ConvexTemplateAPIProps) => void;
+export type ScreenTrayWorkflowEventTypeProps = {
+  onPress: () => void;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.38
- * @version 0.0.2
- * @param {ScreenTrayWorkflowTemplateProps} param0
+ * @since 0.0.46
+ * @version 0.0.1
+ * @param {ScreenTrayWorkflowEventTypeProps} param0
  * @param {(template: ConvexTemplateAPIProps) => void} param0.onPress - The function to call when a template is pressed
  * @component */
-const ScreenTrayWorkflowTemplate = ({
+const ScreenTrayWorkflowEventType = ({
   onPress,
-}: ScreenTrayWorkflowTemplateProps) => {
+}: ScreenTrayWorkflowEventTypeProps) => {
   return (
     <TrayContainer 
-      title={"i18n.screens.trayWorkflowActionTemplates.title"} 
-      description={"i18n.screens.trayWorkflowActionTemplates.description"}>
-        <ListWorkflowTemplate
-          showListGroup={false}
-          onPress={onPress} />
+      title={"i18n.screens.trayWorkflowEventType.title"} 
+      description={"i18n.screens.trayWorkflowEventType.description"}>
+
     </TrayContainer>
   );
 };
 
-export default ScreenTrayWorkflowTemplate;
+export default ScreenTrayWorkflowEventType;

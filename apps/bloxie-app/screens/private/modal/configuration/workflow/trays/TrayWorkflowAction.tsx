@@ -1,22 +1,21 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { GestureResponderEvent, Image, ScrollView, TextInput, View } from "react-native";
+import { GestureResponderEvent, ScrollView, TextInput, View } from "react-native";
 import type { EnrichedTextInputInstance } from 'react-native-enriched';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useTrays } from "react-native-trays";
 import { t } from "i18next";
-import { faFileDashedLine, faKeyboardDown, faLanguage, faSquareRootVariable, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { faFileDashedLine, faKeyboardDown, faLanguage, faSquareRootVariable } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { useMutation } from "convex/react";
+import { api } from "../../../../../../../../packages/backend/convex/_generated/api";
+import { Id } from "../../../../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 import { ConvexRuntimeAPITemplateVariableProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
-import { getImageAssetByProvider } from "@/helpers/Events";
-import { ProviderEnum } from "@/constants/Provider";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 import { STYLES } from "@codemize/constants/Styles";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { useLinkedMailAccount } from "@/hooks/auth/useLinkedMailAccount";
-import { useDropdown } from "@/hooks/button/useDropdown";
 import { useUserContextStore } from "@/context/UserContext";
 import { resolveRuntimeIcon } from "@/helpers/System";
 import { EDITOR_STYLE_ITEMS } from "@/constants/Models";
@@ -33,14 +32,11 @@ import ListWorkflowTemplate from "@/screens/private/modal/configuration/workflow
 import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
 import type { WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
+import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
+import TouchableHapticMailAccounts from "@/components/button/workflow/TouchableHapticMailAccounts";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/ActionTemplate";
-import TouchableHapticMailAccounts from "@/components/button/workflow/TouchableHapticMailAccounts";
-import { useMutation } from "convex/react";
-import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
-import { api } from "../../../../../../../../packages/backend/convex/_generated/api";
-import { Id } from "../../../../../../../../packages/backend/convex/_generated/dataModel";
 
 const EDITOR_BASE_HEIGHT = 360;
 const TOOLBAR_HEIGHT = 40;

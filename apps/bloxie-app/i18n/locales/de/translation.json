@@ -7,7 +7,8 @@
       "hint": "Hinweis:",
       "subject": "Betreff",
       "templates": "Vorlagen",
-      "variables": "Dynamische Inhalte"
+      "variables": "Dynamische Inhalte",
+      "edit": "Bearbeiten"
     },
     "buttons": {
       "close": "Schliessen",
@@ -112,6 +113,7 @@
           "trigger": "Auslöser",
           "timePeriod": "Zeitraum",
           "confirmation": "Bestätigung",
+          "cancellationTerms": "Stornierungsbedingungen",
           "mailAccounts": {
             "title": "E-Mail-Konten",
             "descriptionNoReply": "Rückanworten der Teilnehmer/Eingeladenen werden NICHT verarbeitet bzw. weitergeleitet"
@@ -254,6 +256,14 @@
           "title": "Kalenderverbindung",
           "description": "Wähle eine Kalenderverbindung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
         }
+      },
+      "trayWorkflowEventType": {
+        "title": "Ereignistypen",
+        "description": "Wähle einen Ereignistyp aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+      },
+      "trayWorkflowCalendar": {
+        "title": "Kalender",
+        "description": "Wähle einen Kalender aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
       },
       "trayWorkflows": {
         "title": "Workflows",

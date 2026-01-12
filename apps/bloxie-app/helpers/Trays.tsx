@@ -4,6 +4,7 @@ import ScreenTrayWorkflow, { ScreenTrayWorkflowProps } from "@/screens/private/m
 import ScreenTrayWorkflowTemplate, { ScreenTrayWorkflowTemplateProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowTemplate";
 import ScreenTrayWorkflowDecision, { ScreenTrayWorkflowDecisionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecision";
 import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowAction";
+import ScreenTrayWorkflowEventType, { ScreenTrayWorkflowEventTypeProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowEventType";
 
 /**
  * @private
@@ -45,7 +46,7 @@ export const stackConfigs = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.8
+ * @version 0.0.9
  * @object */
 export const trays = {
   main: {
@@ -57,6 +58,7 @@ export const trays = {
     TrayWorkflow: { component: (props: ScreenTrayWorkflowProps) => <ScreenTrayWorkflow {...props} /> },
     TrayWorkflowTemplate: { component: (props: ScreenTrayWorkflowTemplateProps) => <ScreenTrayWorkflowTemplate {...props} /> },
     TrayWorkflowDecision: { component: (props: ScreenTrayWorkflowDecisionProps) => <ScreenTrayWorkflowDecision {...props} /> },
+    TrayWorkflowEventType: { component: (props: ScreenTrayWorkflowEventTypeProps) => <ScreenTrayWorkflowEventType {...props} /> },
   },
   keyboard: {
     /** @description Workflow trays @see {@link screens/private/modal/configuration/workflow/trays} -> Special settings for keyboard handling */

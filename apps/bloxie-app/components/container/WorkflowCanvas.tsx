@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutChangeEvent, LayoutRectangle, ScrollView, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
+import { Dimensions, LayoutChangeEvent, LayoutRectangle, ScrollView, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import Animated, {
   Easing,
@@ -20,6 +20,7 @@ import {
   faPlay,
   faSignPost,
   faSignsPost,
+  faSquare,
   faStopwatch,
   faXmark,
 } from '@fortawesome/duotone-thin-svg-icons';
@@ -40,6 +41,8 @@ import TouchableHapticTrigger from '../button/workflow/TouchableHapticTrigger';
 import TouchableHapticTimePeriod from '../button/workflow/TouchableHapticTimePeriod';
 import TouchableHapticConfirmation from '../button/workflow/TouchableHapticConfirmation';
 import { STYLES } from '@codemize/constants/Styles';
+import { useTranslation } from 'react-i18next';
+import TouchableHapticCancellationTerms from '../button/workflow/TouchableHapticCancellationTerms';
 
 export type WorkflowNodeType = 'start' | 'generic' | 'end';
 
@@ -66,8 +69,7 @@ export type WorkflowNode = {
   icon?: IconProp;
   meta?: string;
   items?: WorkflowNodeItemProps[];
-  parentNodeId?: Id<"workflowNodes">;
-  childNodeIds?: Id<"workflowNodes">[];
+  hasCancellationTerms?: boolean;
 };
 
 export type WorkflowConnection = {
@@ -80,14 +82,6 @@ export type WorkflowConnection = {
 };
 
 export type WorkflowNodeLayoutMap = Record<string, LayoutRectangle>;
-
-type RenderedConnection = {
-  connection: WorkflowConnection;
-  path: string;
-  overlayStyle: ViewStyle;
-  start: { x: number; y: number };
-  end: { x: number; y: number };
-};
 
 export type WorkflowAdditionPayload = {
   fromId: string;
@@ -109,9 +103,6 @@ type WorkflowCanvasProps = {
   children?: React.ReactNode;
 };
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
-const MIN_SCALE = 0.35;
-const MAX_SCALE = 1;
 const CONNECTION_INSERTION_HEIGHT = 0;
 const CONNECTION_INSERTION_WIDTH = 160;
 const CONNECTION_INSERTION_MARGIN = 4;
@@ -128,12 +119,6 @@ const typeAccent: Record<WorkflowNodeType, string> = {
   end: '#626D7B',
 };
 
-const typeBackground: Record<WorkflowNodeType, string> = {
-  start: '#30303010',
-  generic: '#30303010',
-  end: '#30303010',
-};
-
 const typeLabel: Record<WorkflowNodeType, string> = {
   start: 'Start',
   generic: 'Prozessschritte',
@@ -146,159 +131,7 @@ const typeIcon: Record<WorkflowNodeType, IconProp> = {
   end: faStopwatch as IconProp,
 };
 
-const layoutsAreEqual = (a?: LayoutRectangle, b?: LayoutRectangle, epsilon = 0.5) => {
-  if (!a || !b) return false;
-  return (
-    Math.abs(a.x - b.x) <= epsilon &&
-    Math.abs(a.y - b.y) <= epsilon &&
-    Math.abs(a.width - b.width) <= epsilon &&
-    Math.abs(a.height - b.height) <= epsilon
-  );
-};
 
-/** @description Multiple nodes can be connected to a single parent node */
-type LegacyWorkflowNodeProps = {
-  parentId?: string | string[];
-  childIds?: string | string[];
-};
-
-/** Normalizes legacy schema fields into a simple string array. */
-const normalizeIds = (value?: unknown) => {
-  if (!value) {
-    return [];
-  }
-
-  if (Array.isArray(value)) {
-    return value.filter((entry): entry is string => typeof entry === 'string' && entry.length > 0);
-  }
-
-  return typeof value === 'string' && value.length > 0 ? [value] : [];
-};
-
-/** Collects all parent ids across legacy and current node shapes. */
-const getParentIds = (node: WorkflowNode): string[] => {
-  const legacyParentIds = normalizeIds((node as LegacyWorkflowNodeProps).parentId);
-  const currentParentIds = normalizeIds(node.parentNodeId);
-
-  return Array.from(new Set([...legacyParentIds, ...currentParentIds]));
-};
-
-/** Collects child ids across legacy and current node shapes. */
-const getChildIds = (node: WorkflowNode): string[] => {
-  const legacyChildIds = normalizeIds((node as LegacyWorkflowNodeProps).childIds);
-  const currentChildIds = Array.isArray(node.childNodeIds) ? node.childNodeIds : [];
-
-  return Array.from(new Set([...legacyChildIds, ...currentChildIds].filter(id => typeof id === 'string' && id.length > 0)));
-};
-
-/** Derives directional connections to render between workflow nodes. */
-const deriveConnectionsFromNodes = (nodes: WorkflowNode[]): WorkflowConnection[] => {
-  if (!nodes || nodes.length === 0) {
-    return [];
-  }
-
-  const nodeMap = new Map(nodes.map(node => [node.id, node]));
-  const connections = new Map<string, WorkflowConnection>();
-
-  const addConnection = (from?: string, to?: string, metadata?: Partial<WorkflowConnection>) => {
-    if (!from || !to || from === to) {
-      return;
-    }
-
-    const fromExists = nodeMap.has(from);
-    const toExists = nodeMap.has(to);
-
-    if (!fromExists && from !== 'start' && from !== 'end') {
-      return;
-    }
-
-    if (!toExists && to !== 'start' && to !== 'end') {
-      return;
-    }
-
-    const key = `${from}-${to}`;
-
-    const existing = connections.get(key);
-
-    if (!existing) {
-      connections.set(key, {
-        id: key,
-        from,
-        to,
-        fromIndex: metadata?.fromIndex ?? -1,
-        toIndex: metadata?.toIndex ?? -1,
-        parentId: metadata?.parentId,
-      });
-      return;
-    }
-
-    if (metadata) {
-      connections.set(key, {
-        ...existing,
-        fromIndex: metadata.fromIndex ?? existing.fromIndex,
-        toIndex: metadata.toIndex ?? existing.toIndex,
-        parentId: metadata.parentId ?? existing.parentId,
-      });
-    }
-  };
-
-  nodes.forEach((node, index) => {
-    const parentIds = getParentIds(node);
-
-    if (parentIds.length > 0) {
-      parentIds.forEach(parentId =>
-        addConnection(parentId, node.id, {
-          parentId,
-          toIndex: index,
-        }),
-      );
-    } else if (index > 0) {
-      addConnection(nodes[index - 1].id, node.id, {
-        fromIndex: index - 1,
-        toIndex: index,
-      });
-    }
-
-    getChildIds(node).forEach(childId => addConnection(node.id, childId));
-  });
-
-  const startNode = nodes.find(node => node.type === 'start');
-  const firstNonStart = nodes.find(node => node.type !== 'start');
-  if (startNode && firstNonStart) {
-    addConnection(startNode.id, firstNonStart.id, {
-      fromIndex: nodes.findIndex(node => node.id === startNode.id),
-      toIndex: nodes.findIndex(node => node.id === firstNonStart.id),
-    });
-  }
-
-  const reversedNodes = [...nodes].reverse();
-  const endNode = reversedNodes.find(node => node.type === 'end');
-  const lastNonEnd = reversedNodes.find(node => node.type !== 'end');
-  if (endNode && lastNonEnd) {
-    addConnection(lastNonEnd.id, endNode.id, {
-      fromIndex: nodes.findIndex(node => node.id === lastNonEnd.id),
-      toIndex: nodes.findIndex(node => node.id === endNode.id),
-    });
-  }
-
-  return Array.from(connections.values()).map(connection => {
-    const resolvedFromIndex =
-      connection.fromIndex >= 0 ? connection.fromIndex : nodes.findIndex(node => node.id === connection.from);
-    const resolvedToIndex =
-      connection.toIndex >= 0 ? connection.toIndex : nodes.findIndex(node => node.id === connection.to);
-    const toNode = resolvedToIndex >= 0 ? nodes[resolvedToIndex] : undefined;
-    const parentId =
-      connection.parentId ??
-      (toNode && getParentIds(toNode).length > 0 ? getParentIds(toNode)[0] : nodes[resolvedFromIndex]?.parentNodeId);
-
-    return {
-      ...connection,
-      fromIndex: resolvedFromIndex,
-      toIndex: resolvedToIndex,
-      parentId,
-    };
-  });
-};
 
 /**
  * High-level canvas that renders nodes, their connections and contextual UI for
@@ -327,185 +160,6 @@ export function WorkflowCanvas({
     ],
   }));
 
-  const [nodeLayouts, setNodeLayouts] = React.useState<WorkflowNodeLayoutMap>({});
-  const nodeList = React.useMemo(() => {
-    if (!nodes) {
-      return [];
-    }
-
-    const inputNodes = [...nodes];
-
-    const extractNodeByType = (type: WorkflowNodeType) => {
-      const index = inputNodes.findIndex(node => node.type === type);
-      if (index === -1) {
-        return null;
-      }
-
-      return inputNodes.splice(index, 1)[0];
-    };
-
-    const resolveNode = (
-      node: WorkflowNode | null,
-      fallback: WorkflowNodeType,
-    ): WorkflowNode => {
-      if (!node) {
-        return {
-          id: fallback,
-          type: fallback,
-          title: typeLabel[fallback],
-          icon: typeIcon[fallback],
-        } as WorkflowNode;
-      }
-
-      if (node.icon) {
-        return node;
-      }
-
-      return {
-        ...node,
-        icon: typeIcon[node.type],
-      };
-    };
-
-    const startNode = resolveNode(extractNodeByType('start'), 'start');
-    const endNode = resolveNode(extractNodeByType('end'), 'end');
-
-    return [startNode, ...inputNodes, endNode];
-  }, [nodes]);
-  const connections = React.useMemo(() => deriveConnectionsFromNodes(nodeList), [nodeList]);
-  const renderedConnectionsCache = React.useRef<Map<string, RenderedConnection>>(new Map());
-  const renderedConnections = React.useMemo(() => {
-    // Cache rendered connection metadata to avoid re-calculating SVG paths on every render.
-    const prev = renderedConnectionsCache.current;
-    const next = new Map<string, RenderedConnection>();
-
-    const defaultGap = CONNECTION_INSERTION_HEIGHT + CONNECTION_INSERTION_MARGIN * 2 + CONTENT_VERTICAL_GAP;
-
-    const getLayoutAtIndex = (index: number) => {
-      if (index < 0 || index >= nodeList.length) {
-        return undefined;
-      }
-      const node = nodeList[index];
-      return nodeLayouts[node.id];
-    };
-
-    connections.forEach(connection => {
-      const fromLayout = nodeLayouts[connection.from];
-      const toLayout = nodeLayouts[connection.to];
-      const previous = prev.get(connection.id);
-
-      const resolvedStart = (() => {
-        if (fromLayout) {
-          return {
-            x: fromLayout.x + fromLayout.width / 2,
-            y: fromLayout.y + fromLayout.height,
-          };
-        }
-
-        if (previous?.start) {
-          return previous.start;
-        }
-
-        if (toLayout) {
-          return {
-            x: toLayout.x + toLayout.width / 2,
-            y: toLayout.y - defaultGap,
-          };
-        }
-
-        const fallbackLayout = getLayoutAtIndex(connection.toIndex + 1);
-        if (fallbackLayout) {
-          return {
-            x: fallbackLayout.x + fallbackLayout.width / 2,
-            y: fallbackLayout.y - defaultGap,
-          };
-        }
-
-        return undefined;
-      })();
-
-      const resolvedEnd = (() => {
-        if (toLayout) {
-          return {
-            x: toLayout.x + toLayout.width / 2,
-            y: toLayout.y,
-          };
-        }
-
-        if (previous?.end) {
-          return previous.end;
-        }
-
-        if (fromLayout) {
-          return {
-            x: fromLayout.x + fromLayout.width / 2,
-            y: fromLayout.y + fromLayout.height + defaultGap,
-          };
-        }
-
-        const fallbackLayout = getLayoutAtIndex(connection.toIndex + 1);
-        if (fallbackLayout) {
-          return {
-            x: fallbackLayout.x + fallbackLayout.width / 2,
-            y: fallbackLayout.y,
-          };
-        }
-
-        return undefined;
-      })();
-
-      if (!resolvedStart || !resolvedEnd) {
-        if (previous) {
-          next.set(connection.id, previous);
-        }
-        return;
-      }
-
-      const startX = resolvedStart.x;
-      const startY = resolvedStart.y;
-      const endX = resolvedEnd.x;
-      const endY = resolvedEnd.y;
-      const controlY = startY + (endY - startY) / 2;
-      const midX = (startX + endX) / 2;
-      const naturalCenterY = (startY + endY) / 2;
-
-      const fromBottom = fromLayout ? fromLayout.y + fromLayout.height : startY;
-      const toTop = toLayout ? toLayout.y : endY;
-
-      const safeCenterMin = fromBottom + CONNECTION_INSERTION_MARGIN + CONNECTION_INSERTION_HEIGHT / 2;
-      const safeCenterMax = toTop - CONNECTION_INSERTION_MARGIN - CONNECTION_INSERTION_HEIGHT / 2;
-      const overlayCenterY =
-        safeCenterMin <= safeCenterMax ? clamp(naturalCenterY, safeCenterMin, safeCenterMax) : naturalCenterY;
-
-      next.set(connection.id, {
-        connection,
-        path: `M${startX} ${startY} C ${startX} ${controlY}, ${endX} ${controlY}, ${endX} ${endY}`,
-        overlayStyle: {
-          left: midX - CONNECTION_INSERTION_WIDTH / 2,
-          top: overlayCenterY - CONNECTION_INSERTION_HEIGHT / 2,
-        },
-        start: resolvedStart,
-        end: resolvedEnd,
-      });
-    });
-
-    renderedConnectionsCache.current = next;
-    return Array.from(next.values());
-  }, [connections, nodeLayouts, nodeList]);
-
-  /**
-   * Stores the last known layout of a node so we can calculate connectors and drop zones accurately.
-   */
-  const handleNodeLayout = React.useCallback((id: string, layout: LayoutRectangle) => {
-    setNodeLayouts(prev => {
-      const previous = prev[id];
-      if (previous && layoutsAreEqual(previous, layout)) {
-        return prev;
-      }
-      return { ...prev, [id]: layout };
-    });
-  }, []);
-
   return (
       <View style={styles.container}>
         <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
@@ -521,80 +175,20 @@ export function WorkflowCanvas({
             layout={LinearTransition.duration(220).easing(Easing.inOut(Easing.ease))}
             style={[styles.content, animatedStyle]}
           >
-            {/*<Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents="none">
-              {renderedConnections.map(({ connection, path }) => (
-                <Path
-                  key={connection.id}
-                  d={path}
-                  stroke="#000"
-                  strokeWidth={1}
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              ))}
-            </Svg>*/}
 
-            {/*<View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-              {renderedConnections.map(({ connection, overlayStyle }) => (
-                <Animated.View
-                  key={connection.id}
-                  layout={LinearTransition.duration(220).easing(Easing.inOut(Easing.ease))}
-                  style={[styles.connectionInsertionZone, overlayStyle, { paddingHorizontal: 10 }]}
-                >
-                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 10 }]}>
-                    <TouchableHaptic
-                      onPress={() => {
-                        onAddNode?.({
-                          fromId: connection.from,
-                          toId: connection.to === connection.from ? null : connection.to,
-                          fromIndex: connection.fromIndex,
-                          toIndex: connection.toIndex,
-                          parentId: connection.parentId,
-                        }, 'decision');
-                      }}
-                    >
-                      <View
-                        style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}
-                      >
-                        <FontAwesomeIcon icon={faFlagCheckered as IconProp} size={14} color="#fff" />
-                        <TextBase text="Entscheidung" type="label" style={styles.connectionInsertionLabel} />
-                      </View>
-                    </TouchableHaptic>
-                    <TouchableHaptic
-                      onPress={() => {
-                        onAddNode?.({
-                          fromId: connection.from,
-                          toId: connection.to === connection.from ? null : connection.to,
-                          fromIndex: connection.fromIndex,
-                          toIndex: connection.toIndex,
-                          parentId: connection.parentId,
-                        }, 'action');
-                      }}
-                    >
-                      <View
-                        style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}
-                      >
-                        <FontAwesomeIcon icon={faObjectExclude as IconProp} size={14} color="#fff" />
-                        <TextBase text="Aktion" type="label" style={styles.connectionInsertionLabel} />
-                      </View>
-                    </TouchableHaptic>
-                  </View>
-                </Animated.View>
-              ))}
-            </View>*/}
 
-            {nodeList.length > 0
-              ? nodeList.map((node, index) => (
+            {nodes && nodes.length > 0
+              ? nodes.map((node, index) => (
                   <WorkflowNode
                     key={node.id}
                     node={node}
                     isFirst={index === 0}
-                    isLast={index === nodeList.length - 1}
+                    isLast={index === nodes.length - 1}
                     onRemoveNode={onRemoveNode}
                     onAddNodeItem={onAddNodeItem}
                     onRemoveNodeItem={onRemoveNodeItem}
                     onChangeNodeItem={onChangeNodeItem}
-                    onLayout={layout => handleNodeLayout(node.id, layout)}
+                    //onLayout={layout => handleNodeLayout(node.id, layout)}
                   />
                 ))
               : renderNode
@@ -614,7 +208,6 @@ type WorkflowNodeProps = {
   onAddNodeItem?: (node: WorkflowNode, variant: WorkflowNodeItemVariant, template: ConvexTemplateAPIProps) => void;
   onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
   onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
-  onLayout: (layout: LayoutRectangle) => void;
 };
 
 /**
@@ -629,9 +222,8 @@ const WorkflowNodeComponent = ({
   onRemoveNode,
   onRemoveNodeItem,
   onChangeNodeItem,
-  onLayout,
 }: WorkflowNodeProps) => {
-  const { errorColor, primaryIconColor, infoColor } = useThemeColors();
+  const { errorColor, primaryIconColor, infoColor, secondaryBgColor } = useThemeColors();
   const [title, setTitle] = React.useState<string>(node.title ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
@@ -639,18 +231,10 @@ const WorkflowNodeComponent = ({
   const [isOpen, setIsOpen] = React.useState<boolean>(true);
 
   const { push, dismiss } = useTrays('main');
-  const [isClosing, setIsClosing] = React.useState(false);
 
   React.useEffect(() => {
     setTitle(node.title ?? '');
   }, [node.title]);
-
-  const handleLayout = React.useCallback(
-    (event: LayoutChangeEvent) => {
-      onLayout(event.nativeEvent.layout);
-    },
-    [onLayout],
-  );
 
   const accent = typeAccent[node.type];
   const normalizedItems = React.useMemo(
@@ -698,14 +282,13 @@ const WorkflowNodeComponent = ({
 
   return (
     <Animated.View
-      onLayout={handleLayout}
       layout={undefined}
       entering={FadeInDown.duration(180)}
       exiting={FadeOutUp.duration(NODE_EXIT_DURATION)}
-      pointerEvents={isClosing ? 'none' : 'box-none'}
       style={[
         styles.nodeWrapper,
         !isLast && styles.nodeWrapperSpacing,
+        { maxWidth: Dimensions.get('window').width - 28 },
       ]}
     >
       <View style={styles.tagRow}>
@@ -733,7 +316,8 @@ const WorkflowNodeComponent = ({
               viewStyle={{ paddingVertical: 3 }}/>}
             <FontAwesomeIcon icon={(node.icon as IconProp) ?? typeIcon[node.type]} size={16} color={accent} />
             <TextInput
-              //editable={node.type === 'start'}
+              editable={node.type === 'start'}
+
               value={title}
               onChangeText={setTitle}
               placeholder="Name des Workflows"
@@ -754,28 +338,24 @@ const WorkflowNodeComponent = ({
                 <TouchableHaptic
                   onPress={() => handleAddItem('action')}
                 >
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
                   <FontAwesomeIcon
                     icon={faObjectExclude as IconProp}
                     size={STYLES.sizeFaIcon}
-                    color="#587E1F"
                   />
+                  <TextBase text="Aktion" type="label" style={{ color: infoColor }} />
+                  </View>
                 </TouchableHaptic>
                 <TouchableHaptic
                   onPress={() => handleAddItem('decision')}
                 >
+                  <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
                   <FontAwesomeIcon
                     icon={faSignsPost as IconProp}
                     size={STYLES.sizeFaIcon}
-                    color="#e09100"
                   />
-                </TouchableHaptic>
-                <Divider vertical />
-                <TouchableHaptic
-                  onPress={() => {
-                    setIsOpen(prev => !prev);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faAngleDown as IconProp} size={16} color={typeAccent[node.type]} />
+                  <TextBase text="Entscheid" type="label" style={{ color: infoColor }} />
+                  </View>
                 </TouchableHaptic>
               </View>
             </View>
@@ -802,45 +382,50 @@ const WorkflowNodeComponent = ({
         )}
 
         {node.type === 'generic' && isOpen && (
-          <View style={{ gap: 16, alignSelf: 'stretch' }}>
-            {actionItems.length > 0 && (
-              <View style={{ gap: 8 }}>
-                <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
-                  {actionItems.map(item => (
-                    <WorkflowNodeAction
+          <View style={{ alignSelf: 'stretch' }}>
+            <WorkflowNodeCancellationTerms onPress={() => {}} />
+            {node.items && node.items.length > 0 && (
+              <View>
+                <View style={{ opacity: isActive ? 1 : 0.5, gap: 6, alignSelf: 'stretch' }}>
+                  {node.items.map(item => (
+                    item.variant === 'action' ? <WorkflowNodeAction
                       key={item.id}
                       item={item}
-                      color={infoColor}
-                      onRemoveNodeItem={() => onRemoveNodeItem?.(node, item.id)}
-                      onChangeNodeItem={(updated: WorkflowNodeItemProps) => onChangeNodeItem?.(node, updated)}
-                    />
+                        color={infoColor}
+                        onRemoveNodeItem={() => onRemoveNodeItem?.(node, item.id)}
+                        onChangeNodeItem={(updated: WorkflowNodeItemProps) => onChangeNodeItem?.(node, updated)}
+                      />
+                    :
+                      <WorkflowNodeDecision
+                        key={item.id}
+                        item={item}
+                        color={infoColor}
+                        onRemoveNodeItem={() => onRemoveNodeItem?.(node, item.id)}
+                        onChangeNodeItem={(updated: WorkflowNodeItemProps) => onChangeNodeItem?.(node, updated)}
+                      />
                   ))}
                 </View>
               </View>
             )}
 
-            {decisionItems.length > 0 && (
-              <View style={{ gap: 8 }}>
-                <View style={{ opacity: isActive ? 1 : 0.5, gap: 4, alignSelf: 'stretch' }}>
-                  {decisionItems.map(item => (
-                    <WorkflowNodeDecision
-                      key={item.id}
-                      item={item}
-                      color={infoColor}
-                      onRemoveNodeItem={() => onRemoveNodeItem?.(node, item.id)}
-                      onChangeNodeItem={(updated: WorkflowNodeItemProps) => onChangeNodeItem?.(node, updated)}
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
 
             {actionItems.length === 0 && decisionItems.length === 0 && (
-              <TextBase
-                text="Noch keine Schritte hinzugefügt."
-                type="label"
-                style={{ color: '#626D7B', alignSelf: 'center', fontSize: 11 }}
-              />
+              <View       style={[
+                GlobalContainerStyle.rowCenterBetween,
+                {
+                  gap: 18,
+                  backgroundColor: shadeColor(secondaryBgColor, 0.3),
+                  height: 28,
+                  paddingHorizontal: 10,
+                  borderRadius: 8,
+                },
+              ]}>
+                <TextBase
+                  text="Noch keine Schritte hinzugefügt."
+                  type="label"
+                  style={{ color: '#626D7B', alignSelf: 'center', fontSize: 11 }}
+                />
+              </View>
             )}
           </View>
         )}
@@ -878,6 +463,14 @@ const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, c
   );
 };
 
+const WorkflowNodeCancellationTerms = ({ onPress }: { onPress: (selected: boolean) => void }) => {
+  return (
+    <View style={{ marginVertical: 6, gap: 4 }}>
+      <TouchableHapticCancellationTerms
+        onPress={noop}/>
+    </View>
+  );
+};
 
 /**
  * Renders an action row that belongs to an action node, including edit, toggle and delete affordances.
@@ -955,12 +548,12 @@ const WorkflowNodeActionComponent = ({
     <Animated.View
       entering={FadeInDown.duration(160)}
       layout={undefined}
-      exiting={FadeOutUp.duration(160)}
+      //exiting={FadeOutUp.duration(160)}
       style={[
         GlobalContainerStyle.rowCenterBetween,
         {
           gap: 18,
-          backgroundColor: shadeColor(secondaryBgColor, 0.3),
+          backgroundColor: shadeColor(secondaryBgColor, 0.1),
           height: 28,
           paddingHorizontal: 10,
           borderRadius: 8,
@@ -968,6 +561,7 @@ const WorkflowNodeActionComponent = ({
       ]}
     >
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
+        <FontAwesomeIcon icon={faSquare as IconProp} size={14} color={"#587E1F"} />
         <FontAwesomeIcon icon={resolvedIcon} size={16} color={infoColor} />
         <TextInput
           value={name}
@@ -976,15 +570,15 @@ const WorkflowNodeActionComponent = ({
             color,
             fontSize: Number(SIZES.label),
             fontFamily: String(FAMILIY.subtitle),
-            maxWidth: 180,
+            maxWidth: 160,
           }}
           onChangeText={handleNameChange}
         />
       </View>
-      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
         <TouchableHaptic onPress={handleEdit}>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-            <TextBase text="Bearbeiten" type="label" />
+            <TextBase text={'Bearbeiten'} type="label" />
           </View>
         </TouchableHaptic>
         <Divider vertical />
@@ -1023,6 +617,8 @@ const WorkflowNodeDecisionComponent = ({
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
   const [isActive, setIsActive] = React.useState<boolean>(item.isActive ?? true);
 
+  const { push, dismiss } = useTrays('main');
+  const { t } = useTranslation();
   const resolvedIcon = React.useMemo(
     () => resolveRuntimeIcon(String(item.icon || 'faCodeCommit')) as IconProp,
     [item.icon],
@@ -1046,41 +642,97 @@ const WorkflowNodeDecisionComponent = ({
     onRemoveNodeItem?.();
   }, [onRemoveNodeItem]);
 
+  const onPress = React.useCallback(() => {
+    console.log('onPress', item);
+    push('TrayWorkflowEventType', {
+      onPress: () => {
+        dismiss('TrayWorkflowEventType');
+      },
+    });
+  }, [push, dismiss]);
+
   return (
     <Animated.View
       entering={FadeInDown.duration(160)}
       layout={undefined}
-      exiting={FadeOutUp.duration(160)}
+      //exiting={FadeOutUp.duration(160)}
       style={[
-        GlobalContainerStyle.rowCenterBetween,
+        //GlobalContainerStyle.rowCenterBetween,
         {
-          gap: 18,
-          backgroundColor: shadeColor(secondaryBgColor, 0.3),
-          height: 28,
-          paddingHorizontal: 10,
+          //gap: 18,
+          gap: 8,
+          backgroundColor: shadeColor(secondaryBgColor, 0.1),
+          //height: 28,
+          
+          paddingVertical: 6,
           borderRadius: 8,
+          justifyContent: 'center',
         },
       ]}
     >
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-        <FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />
-        <TextBase text={item.name} type="label" style={{ color: accentColor, maxWidth: 180 }} />
+      <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
+          <FontAwesomeIcon icon={faSquare as IconProp} size={14} color={"#e09100"} />
+          <FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />
+          <TextInput
+            editable={false}
+            value={t(item.name)}
+            placeholder="Name der Aktion"
+            style={{
+              color,
+              fontSize: Number(SIZES.label),
+              fontFamily: String(FAMILIY.subtitle),
+              //maxWidth: 180,
+            }}
+            onChangeText={() => {}}
+          />
+        </View>
+        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
+        <TouchableHaptic onPress={onPress}>
+            <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
+              <TextBase text="Auswählen" type="label" />
+            </View>
+          </TouchableHaptic>
+          <Divider vertical />
+          <TouchableHapticIcon
+            icon={(isActive ? faPlay : faPause) as IconProp}
+            iconSize={12}
+            iconColor={isActive ? successColor : errorColor}
+            hasViewCustomStyle={true}
+            onPress={handleToggleActive}
+          />
+          <TouchableHapticIcon icon={faXmark as IconProp} iconSize={12} hasViewCustomStyle={true} onPress={handleRemove} />
+        </View>
       </View>
-      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 8 }]}>
-        <TouchableHaptic onPress={noop}>
-          <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-            <TextBase text="Bearbeiten" type="label" style={{ color: accentColor }} />
-          </View>
-        </TouchableHaptic>
-        <Divider vertical />
-        <TouchableHapticIcon
-          icon={(isActive ? faPlay : faPause) as IconProp}
-          iconSize={12}
-          iconColor={isActive ? successColor : errorColor}
-          hasViewCustomStyle={true}
-          onPress={handleToggleActive}
-        />
-        <TouchableHapticIcon icon={faXmark as IconProp} iconSize={12} hasViewCustomStyle={true} onPress={handleRemove} />
+      
+      <View style={{ marginHorizontal: 4 }}>
+        <TextBase text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." type="label" style={{ fontSize: 10, color: shadeColor(infoColor, 0.3), marginBottom: 4, marginLeft: 4 }} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxHeight: 26 }} contentContainerStyle={{ gap: 4 }}>
+            <TouchableTag
+              text="30-Min Besprechung"
+              type="label"
+              colorActive={shadeColor(infoColor, 0.2)}
+              colorInactive={shadeColor(infoColor, 0.2)}
+              viewStyle={{ paddingVertical: 6, borderRadius: 6, paddingHorizontal: 8 }}
+              textStyle={{ fontSize: 10, color: infoColor }}
+              showActivityIcon={true}
+              activityIconActive={faXmark as IconProp}
+              activityIconInactive={faXmark as IconProp}
+              onPress={() => { console.log('30-Min Besprechung'); }}
+            />
+            <TouchableTag
+              text="45-Min Besprechung"
+              type="label"
+              colorActive={shadeColor(infoColor, 0.2)}
+              colorInactive={shadeColor(infoColor, 0.2)}
+              viewStyle={{ paddingVertical: 6, borderRadius: 6, paddingHorizontal: 8 }}
+              textStyle={{ fontSize: 10, color: infoColor }}
+              showActivityIcon={true}
+              activityIconActive={faXmark as IconProp}
+              activityIconInactive={faXmark as IconProp}
+              onPress={() => { console.log('45-Min Besprechung'); }}
+            />xw
+          </ScrollView>
       </View>
     </Animated.View>
   );
@@ -1174,4 +826,5 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
+
 

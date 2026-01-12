@@ -38,7 +38,7 @@ const ScreenTrayWorkflowDecision = ({
     }}>
       <View style={{ gap: STYLES.sizeGap }}>
         <TrayHeader
-          title={"i18n.screens.trayWorkflowDecisions.title"}
+          title={"i18n.screens.trayWorkflowDecision.title"}
           description={"i18n.screens.trayWorkflowDecisions.description"} />
         <Divider />
         <ListWorkflowDecision

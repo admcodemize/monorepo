@@ -20,14 +20,14 @@ import {
   faHourglassStart,
   faHourglassEnd,
   faTrashCanSlash,
-  faClockEightThirty,
-  faEnvelope,
   faBellSlash,
   faStopwatch,
   faEnvelopeOpenText,
   faBells,
   faStopwatch20,
   faBridgeCircleCheck,
+  faPlay,
+  faPause,
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -391,4 +391,25 @@ export const WORKFLOW_NODE_ACTION_ITEMS: ListItemDropdownProps[] = [{
   description: "i18n.dropdown.workflow.builder.action.executionStatus.description",
   icon: faBridgeCircleCheck as IconProp,
   isSelected: true,
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the workflow activity status items for the dropdown
+ * @readonly
+ * @since 0.0.47
+ * @version 0.0.1
+ * @constant */
+export const WORKFLOW_ACTIVITY_STATUS_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: "activ",
+  title: "i18n.dropdown.workflow.builder.activityStatus.active.title",
+  description: "i18n.dropdown.workflow.builder.activityStatus.active.description",
+  icon: faPlay as IconProp,
+  isSelected: true,
+}, {
+  itemKey: "inactiv",
+  title: "i18n.dropdown.workflow.builder.activityStatus.inactive.title",
+  description: "i18n.dropdown.workflow.builder.activityStatus.inactive.description",
+  icon: faPause as IconProp,
 }];

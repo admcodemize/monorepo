@@ -1,12 +1,12 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
 
-import { ConvexWorkflowAPIProps, ConvexWorkflowNodeAPIProps, ConvexWorkflowQueryAPIProps } from "../../../Types";
+import { ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "../../../Types";
 
 /**
  * @public
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
  * @description Returns all the workflows for currently signed in user */
 export const get = query({
   args: {
@@ -20,15 +20,21 @@ export const get = query({
       .withIndex("byUserId", (q) => q.eq("userId", _id))
       .collect();
 
-    /** @description Get all the nodes for each workflow */
-    await Promise.all(workflow.map(async (workflow: ConvexWorkflowAPIProps) => {
-      const nodes = await ctx.db.query("workflowNodes")
-        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow._id))
+    await Promise.all(workflow.map(async (workflow1: ConvexWorkflowAPIProps) => {
+      const actions = await ctx.db.query("workflowAction")
+        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow1._id))
+        .collect();
+
+      const decisions = await ctx.db.query("workflowDecision")
+        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow1._id))
         .collect();
 
       workflows.push({
-        ...workflow,
-        nodes: nodes as ConvexWorkflowNodeAPIProps[]
+        ...workflow1,
+        process: {
+          ...workflow1.process,
+          items: [...actions, ...decisions] as ConvexWorkflowActionAPIProps[] | ConvexWorkflowDecisionAPIProps[]
+        }
       });
     }));
 

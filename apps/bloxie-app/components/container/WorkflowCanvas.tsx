@@ -14,6 +14,8 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
   faAngleDown,
   faBolt,
+  faBrightness,
+  faBrightnessLow,
   faMicrochip,
   faObjectExclude,
   faPause,
@@ -34,7 +36,7 @@ import TextBase from '../typography/Text';
 import TouchableHapticIcon from '../button/TouchableHaptichIcon';
 import Divider from './Divider';
 import { useTrays } from 'react-native-trays';
-import { ConvexTemplateAPIProps } from '@codemize/backend/Types';
+import { ConvexTemplateAPIProps, ConvexWorkflowAPIProps } from '@codemize/backend/Types';
 import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
 import TouchableHapticTrigger from '../button/workflow/TouchableHapticTrigger';
@@ -43,10 +45,13 @@ import TouchableHapticConfirmation from '../button/workflow/TouchableHapticConfi
 import { STYLES } from '@codemize/constants/Styles';
 import { useTranslation } from 'react-i18next';
 import TouchableHapticCancellationTerms from '../button/workflow/TouchableHapticCancellationTerms';
+import TouchableHapticActivityStatus from '../button/workflow/TouchableHapticActivityStatus';
 
 export type WorkflowNodeType = 'start' | 'generic' | 'end';
 
-export type WorkflowNodeItemVariant = 'action' | 'decision';
+export type WorkflowNodeItemType = 'action' | 'decision';
+
+export type WorkflowNodeItemDecisionType = 'eventType' | 'calendar';
 
 export type WorkflowNodeItemProps = {
   id: string;
@@ -57,7 +62,8 @@ export type WorkflowNodeItemProps = {
   subject: string;
   content: string;
   isActive?: boolean;
-  variant: WorkflowNodeItemVariant;
+  type: WorkflowNodeItemType;
+  decision?: WorkflowNodeItemDecisionType;
   _id: Id<"template">;
 };
 
@@ -92,38 +98,26 @@ export type WorkflowAdditionPayload = {
 };
 
 type WorkflowCanvasProps = {
-  nodes?: WorkflowNode[];
-  onNodePress?: (node: WorkflowNode) => void;
+  workflow?: ConvexWorkflowAPIProps;
+  onNodePress?: (node: ConvexWorkflowAPIProps) => void;
   onAddNode?: (connection: WorkflowAdditionPayload|null, type: WorkflowNodeType) => void;
-  onRemoveNode?: (node: WorkflowNode) => void;
-  onAddNodeItem?: (node: WorkflowNode, variant: WorkflowNodeItemVariant, template: ConvexTemplateAPIProps) => void;
-  onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
-  onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
-  renderNode?: (node: WorkflowNode) => React.ReactNode;
+  onRemoveNode?: (node: ConvexWorkflowAPIProps) => void;
+  onAddNodeItem?: (node: ConvexWorkflowAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
+  onRemoveNodeItem?: (node: ConvexWorkflowAPIProps, key: string) => void;
+  onChangeNodeItem?: (node: ConvexWorkflowAPIProps, item: WorkflowNodeItemProps) => void;
+  renderNode?: (node: ConvexWorkflowAPIProps) => React.ReactNode;
   children?: React.ReactNode;
 };
 
 const CONNECTION_INSERTION_HEIGHT = 0;
 const CONNECTION_INSERTION_WIDTH = 160;
 const CONNECTION_INSERTION_MARGIN = 4;
-const CONTENT_VERTICAL_GAP = 0;
+const CONTENT_VERTICAL_GAP = 14;
 
 /** Shared no-op callback reused to avoid creating redundant handlers. */
 const noop = () => {};
 
-const NODE_EXIT_DURATION = 210;
 
-const typeAccent: Record<WorkflowNodeType, string> = {
-  start: '#626D7B',
-  generic: '#626D7B',
-  end: '#626D7B',
-};
-
-const typeLabel: Record<WorkflowNodeType, string> = {
-  start: 'Start',
-  generic: 'Prozessschritte',
-  end: 'Ende',
-};
 
 const typeIcon: Record<WorkflowNodeType, IconProp> = {
   start: faBolt as IconProp,
@@ -138,7 +132,7 @@ const typeIcon: Record<WorkflowNodeType, IconProp> = {
  * building automated workflows.
  */
 export function WorkflowCanvas({
-  nodes,
+  workflow,
   onNodePress,
   onAddNode,
   onRemoveNode,
@@ -160,6 +154,10 @@ export function WorkflowCanvas({
     ],
   }));
 
+  const { errorColor, primaryIconColor, infoColor, secondaryBgColor } = useThemeColors();
+
+  const refStartNode = React.useRef<View>(null);
+
   return (
       <View style={styles.container}>
         <Svg style={[StyleSheet.absoluteFill, styles.connectionLayer]} pointerEvents="none">
@@ -176,11 +174,106 @@ export function WorkflowCanvas({
             style={[styles.content, animatedStyle]}
           >
 
+            {/* Start Node */}
+            <View style={[
+              styles.nodeWrapper,
+              { maxWidth: Dimensions.get('window').width - 28 },
+            ]}>
+              <View style={styles.tagRow}>
+                <WorkflowNodeTag icon={faStopwatch as IconProp} text={"Ende"} color={shadeColor(("#3F37A0"), 0)} />
+                <View style={[styles.node]} pointerEvents="box-none" ref={refStartNode}>
+                  <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
 
-            {nodes && nodes.length > 0
+                    <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
+                    <TextInput
+                      value={workflow?.name ?? ""}
+                      onChangeText={() => {}}
+                      placeholder="Name des Workflows"
+                      style={{
+                        color: "#626D7B",
+                        fontSize: Number(SIZES.label),
+                        fontFamily: String(FAMILIY.subtitle),
+                        flexGrow: 0,
+                      }}/>
+                  </View>
+                  <View style={{ gap: 4}}>  
+                    <WorkflowNodeTrigger containerRef={refStartNode} />
+                    <WorkflowNodeTriggerTime containerRef={refStartNode} />
+                    <WorkflowNodeActivityStatus containerRef={refStartNode} />
+                  </View>
+                </View>
+              </View>
+            </View>
+
+
+            {/* Process Steps Node */}
+            <View style={[
+              styles.nodeWrapper,
+              { maxWidth: Dimensions.get('window').width - 28 },
+            ]}>
+              <View style={styles.tagRow}>
+                <WorkflowNodeTag icon={faMicrochip as IconProp} text={"Prozessschritte"} color={shadeColor(("#626D7B"), 0)} />
+                <View style={[styles.node]} pointerEvents="box-none" ref={refStartNode}>
+                  <View style={[GlobalContainerStyle.rowCenterBetween]}>
+                    <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
+                      <FontAwesomeIcon icon={faMicrochip as IconProp} size={16} color={"#626D7B"} />
+                      <TextInput
+                        editable={false}
+                        value={"Prozessschritte"}
+                        onChangeText={() => {}}
+                        style={{
+                          color: "#626D7B",
+                          fontSize: Number(SIZES.label),
+                          fontFamily: String(FAMILIY.subtitle),
+                          flexGrow: 0,
+                        }}/>
+                    </View>
+
+                    <View style={[GlobalContainerStyle.rowCenterEnd, styles.nodeHeaderActions]}>
+                      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 16 }]}>
+                        <TouchableHaptic
+                          onPress={() => {}}
+                        >
+                          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                          <FontAwesomeIcon
+                            icon={faObjectExclude as IconProp}
+                            size={STYLES.sizeFaIcon}
+                          />
+                          <TextBase text="Aktion" type="label" style={{ color: infoColor }} />
+                          </View>
+                        </TouchableHaptic>
+                        <TouchableHaptic
+                          onPress={() => {}}
+                        >
+                          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+                          <FontAwesomeIcon
+                            icon={faSignsPost as IconProp}
+                            size={STYLES.sizeFaIcon}
+                          />
+                          <TextBase text="Entscheid" type="label" style={{ color: infoColor }} />
+                          </View>
+                        </TouchableHaptic>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={{ gap: 4}}>  
+                    {workflow?.process.items.map((item, index) => (
+
+                        <View key={index}>
+                          <TextBase text={item.toString()} type="label" style={{ color: infoColor }} />
+                        </View>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            </View>
+
+
+            {/*nodes && nodes.length > 0
               ? nodes.map((node, index) => (
+                <></>
                   <WorkflowNode
-                    key={node.id}
+                    key={node._id}
                     node={node}
                     isFirst={index === 0}
                     isLast={index === nodes.length - 1}
@@ -193,7 +286,40 @@ export function WorkflowCanvas({
                 ))
               : renderNode
               ? (nodes ?? []).map(renderNode)
-              : children}
+              : children*/}
+
+
+            {/* End Node */}
+            <View style={[
+              styles.nodeWrapper,
+              { maxWidth: Dimensions.get('window').width - 28 },
+            ]}>
+              <View style={styles.tagRow}>
+                <WorkflowNodeTag icon={faBolt as IconProp} text={"Ende"} color={shadeColor(("#3F37A0"), 0)} />
+                <View style={[styles.node]} pointerEvents="box-none" ref={refStartNode}>
+                  <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
+
+                    <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
+                    <TextInput
+                      editable={false}
+                      value={"Abschluss"}
+                      onChangeText={() => {}}
+                      placeholder="Name des Workflows"
+                      style={{
+                        color: "#626D7B",
+                        fontSize: Number(SIZES.label),
+                        fontFamily: String(FAMILIY.subtitle),
+                        flexGrow: 0,
+                      }}/>
+                  </View>
+                  <View style={{ gap: 4}}>  
+                    <WorkflowNodeConfirmation containerRef={refStartNode} />
+                  </View>
+                </View>
+              </View>
+            </View>
+
+
           </Animated.View>
         </ScrollView>
       </View>
@@ -201,13 +327,13 @@ export function WorkflowCanvas({
 }
 
 type WorkflowNodeProps = {
-  node: WorkflowNode;
+  node: ConvexWorkflowAPIProps;
   isFirst: boolean;
   isLast: boolean;
-  onRemoveNode?: (node: WorkflowNode) => void;
-  onAddNodeItem?: (node: WorkflowNode, variant: WorkflowNodeItemVariant, template: ConvexTemplateAPIProps) => void;
-  onRemoveNodeItem?: (node: WorkflowNode, key: string) => void;
-  onChangeNodeItem?: (node: WorkflowNode, item: WorkflowNodeItemProps) => void;
+  onRemoveNode?: (node: ConvexWorkflowAPIProps) => void;
+  onAddNodeItem?: (node: ConvexWorkflowAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
+  onRemoveNodeItem?: (node: ConvexWorkflowAPIProps, key: string) => void;
+  onChangeNodeItem?: (node: ConvexWorkflowAPIProps, item: WorkflowNodeItemProps) => void;
 };
 
 /**
@@ -223,8 +349,8 @@ const WorkflowNodeComponent = ({
   onRemoveNodeItem,
   onChangeNodeItem,
 }: WorkflowNodeProps) => {
-  const { errorColor, primaryIconColor, infoColor, secondaryBgColor } = useThemeColors();
-  const [title, setTitle] = React.useState<string>(node.title ?? '');
+  /*const { errorColor, primaryIconColor, infoColor, secondaryBgColor } = useThemeColors();
+  const [title, setTitle] = React.useState<string>(node.name ?? '');
   const [isActive, setIsActive] = React.useState<boolean>(true);
 
   const refTrigger = React.useRef<View>(null);
@@ -233,29 +359,28 @@ const WorkflowNodeComponent = ({
   const { push, dismiss } = useTrays('main');
 
   React.useEffect(() => {
-    setTitle(node.title ?? '');
-  }, [node.title]);
+    setTitle(node.name ?? '');
+  }, [node.name]);
 
-  const accent = typeAccent[node.type];
   const normalizedItems = React.useMemo(
     () =>
       (node.items ?? []).map(item => ({
         ...item,
-        variant: item.variant ?? 'action',
+        type: item.type ?? 'action',
       })),
     [node.items],
   );
   const actionItems = React.useMemo(
-    () => normalizedItems.filter(item => item.variant === 'action'),
+    () => normalizedItems.filter(item => item.type === 'action'),
     [normalizedItems],
   );
   const decisionItems = React.useMemo(
-    () => normalizedItems.filter(item => item.variant === 'decision'),
+    () => normalizedItems.filter(item => item.type === 'decision'),
     [normalizedItems],
   );
 
   const handleAddItem = React.useCallback(
-    (variant: WorkflowNodeItemVariant) => {
+    (variant: WorkflowNodeItemType) => {
       if (!onAddNodeItem) {
         return;
       }
@@ -304,7 +429,7 @@ const WorkflowNodeComponent = ({
       </View>
 
         <View style={[styles.node]} pointerEvents="box-none" ref={refTrigger}>
-        {/*!isFirst && <WorkflowNodeConnector node={node} position="top" />*/}
+        {/*!isFirst && <WorkflowNodeConnector node={node} position="top" />*
 
         <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
 
@@ -314,7 +439,7 @@ const WorkflowNodeComponent = ({
               type="label"
               colorInactive={errorColor}
               viewStyle={{ paddingVertical: 3 }}/>}
-            <FontAwesomeIcon icon={(node.icon as IconProp) ?? typeIcon[node.type]} size={16} color={accent} />
+            <FontAwesomeIcon icon={(node.icon as IconProp) ?? typeIcon[node.type]} size={16} color={"#626D7B"} />
             <TextInput
               editable={node.type === 'start'}
 
@@ -322,7 +447,7 @@ const WorkflowNodeComponent = ({
               onChangeText={setTitle}
               placeholder="Name des Workflows"
               style={{
-                color: accent,
+                color: "#626D7B",
                 fontSize: Number(SIZES.label),
                 fontFamily: String(FAMILIY.subtitle),
                 flexGrow: 0,
@@ -368,9 +493,11 @@ const WorkflowNodeComponent = ({
           <>
             <View style={{ gap: 4}}>
               {/*<WorkflowNodeEventType node={node} />
-              <WorkflowNodeCalendarGroup node={node} />*/}
+              <WorkflowNodeCalendarGroup node={node} />*
               <WorkflowNodeTrigger node={node} containerRef={refTrigger} />
               <WorkflowNodeTriggerTime node={node} containerRef={refTrigger} />
+              <WorkflowNodeActivityStatus node={node} containerRef={refTrigger} />
+
             </View>
           </>
         )}
@@ -388,7 +515,7 @@ const WorkflowNodeComponent = ({
               <View>
                 <View style={{ opacity: isActive ? 1 : 0.5, gap: 6, alignSelf: 'stretch' }}>
                   {node.items.map(item => (
-                    item.variant === 'action' ? <WorkflowNodeAction
+                    item.type === 'action' ? <WorkflowNodeAction
                       key={item.id}
                       item={item}
                         color={infoColor}
@@ -431,14 +558,14 @@ const WorkflowNodeComponent = ({
         )}
       </View>
     </Animated.View>
-  );
+  );*/
 };
 
-const WorkflowNode = React.memo(WorkflowNodeComponent);
-WorkflowNode.displayName = 'WorkflowNode';
+//const WorkflowNode = React.memo(WorkflowNodeComponent);
+//WorkflowNode.displayName = 'WorkflowNode';
 
 
-const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
+const WorkflowNodeConfirmation = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
   return (
     <TouchableHapticConfirmation
       refContainer={containerRef}
@@ -446,7 +573,7 @@ const WorkflowNodeConfirmation = ({ node, containerRef }: { node: WorkflowNode, 
   );
 };
 
-const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
+const WorkflowNodeTrigger = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
   return (
     <TouchableHapticTrigger
       refContainer={containerRef}
@@ -455,11 +582,20 @@ const WorkflowNodeTrigger = ({ node, containerRef }: { node: WorkflowNode, conta
   );
 };
 
-const WorkflowNodeTriggerTime = ({ node, containerRef }: { node: WorkflowNode, containerRef: React.RefObject<View|null> }) => {
+const WorkflowNodeTriggerTime = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
   return (
     <TouchableHapticTimePeriod
       refContainer={containerRef}
       onPress={noop}/>
+  );
+};
+
+const WorkflowNodeActivityStatus = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
+  return (
+    <TouchableHapticActivityStatus
+      refContainer={containerRef}
+      onPress={noop}
+    />
   );
 };
 
@@ -469,6 +605,19 @@ const WorkflowNodeCancellationTerms = ({ onPress }: { onPress: (selected: boolea
       <TouchableHapticCancellationTerms
         onPress={noop}/>
     </View>
+  );
+};
+
+const WorkflowNodeTag = ({ icon, text, color }: { icon: IconProp, text: string, color: string }) => {
+  return (
+    <TouchableTag
+    icon={icon}
+    text={text}
+    type="label"
+    isActive={true}
+    disabled={true}
+    colorActive={color}
+    viewStyle={{ paddingVertical: 3 }} />
   );
 };
 
@@ -731,7 +880,7 @@ const WorkflowNodeDecisionComponent = ({
               activityIconActive={faXmark as IconProp}
               activityIconInactive={faXmark as IconProp}
               onPress={() => { console.log('45-Min Besprechung'); }}
-            />xw
+            />
           </ScrollView>
       </View>
     </Animated.View>
@@ -761,6 +910,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
+    gap: 4
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -789,7 +939,7 @@ const styles = StyleSheet.create({
   },
   nodeHeaderRow: {
     paddingHorizontal: 4,
-    gap: 18,
+    gap: 10,
     height: 24,
   },
   nodeHeaderContent: {

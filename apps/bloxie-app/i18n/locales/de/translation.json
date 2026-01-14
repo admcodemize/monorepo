@@ -81,6 +81,16 @@
               "title": "Ausführungsstatus",
               "description": "Der Ausführungsstatus bestimmt, ob die Aktion innerhalb der Synchronisationsschleife ausgeführt wird oder nicht"
             }
+          },
+          "activityStatus": {
+            "active": {
+              "title": "Aktiv",
+              "description": "Aktiviert den Workflow für die Hintergrundverarbeitung"
+            },
+            "inactive": {
+              "title": "Inaktiv",
+              "description": "Deaktiviert den Workflow für die Hintergrundverarbeitung"
+            }
           }
         }
       }
@@ -114,6 +124,7 @@
           "timePeriod": "Zeitraum",
           "confirmation": "Bestätigung",
           "cancellationTerms": "Stornierungsbedingungen",
+          "activityStatus": "Ausführungszustand",
           "mailAccounts": {
             "title": "E-Mail-Konten",
             "descriptionNoReply": "Rückanworten der Teilnehmer/Eingeladenen werden NICHT verarbeitet bzw. weitergeleitet"

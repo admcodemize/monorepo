@@ -68,6 +68,14 @@ export type ConvexWorkflowAPITimePeriodEnum = "week" | "day" | "hour" | "minute"
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.47
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowAPIDecisionTypeEnum = "eventType" | "calendarConnection";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.11
  * @version 0.0.1
  * @type */
@@ -206,40 +214,20 @@ export type ConvexTemplateAPIProps = {
  * @since 0.0.37
  * @version 0.0.2
  * @type */
-export type ConvexWorkflowNodeAPIProps = {
-  _id?: Id<"workflowNodes">;
-  _creationTime?: number;
-  workflowId: Id<"workflow">;
-  type: ConvexWorkflowNodeAPITypeEnum;
-  name?: string;
-  items?: {
-    key: string;
-    shouldBeExecuted: boolean;
-    templateId: Id<"template">;
-  }[];
-  parentNodeId?: Id<"workflowNodes">;
-  childNodeIds?: Id<"workflowNodes">[];
-}
-
-/**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.37
- * @version 0.0.1
- * @type */
 export type ConvexWorkflowAPIProps = {
   _id?: Id<"workflow">;
   _creationTime?: number;
   userId: Id<"users">;
   name: string;
-  icon?: string;
-  isActive: boolean;
   start: {
-    eventTypes: Id<"eventType">[];
-    calendars: Id<"calendar">[];
     trigger: ConvexWorkflowAPITriggerEnum;
     timePeriod: ConvexWorkflowAPITimePeriodEnum;
     timePeriodValue: number;
+    activityStatus: boolean;
+  };
+  process: {
+    isCancellactionTermsIncludes: boolean;
+    items: Id<"workflowAction">[] | Id<"workflowDecision">[];
   };
   end: {
     confirmation: ConvexWorkflowAPIConfirmationEnum;
@@ -249,11 +237,58 @@ export type ConvexWorkflowAPIProps = {
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.37
+ * @since 0.0.47
  * @version 0.0.1
  * @type */
-export type ConvexWorkflowQueryAPIProps = ConvexWorkflowAPIProps & {
-  nodes: ConvexWorkflowNodeAPIProps[];
+export type ConvexWorkflowActionAPIProps = {
+  _id?: Id<"workflowAction">;
+  _creationTime?: number;
+  workflowId: Id<"workflow">;
+  name: string;
+  subject: string;
+  content: string;
+  activityStatus: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.47
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowDecisionAPIProps = {
+  _id?: Id<"workflowDecision">;
+  _creationTime?: number;
+  workflowId: Id<"workflow">;
+  type: ConvexWorkflowAPIDecisionTypeEnum;
+  content: string[];
+  activityStatus: boolean;
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.47
+ * @version 0.0.1
+ * @type */
+export type ConvexWorkflowQueryAPIProps = {
+  _id?: Id<"workflow">;
+  _creationTime?: number;
+  userId: Id<"users">;
+  name: string;
+  start: {
+    trigger: ConvexWorkflowAPITriggerEnum;
+    timePeriod: ConvexWorkflowAPITimePeriodEnum;
+    timePeriodValue: number;
+    activityStatus: boolean;
+  };
+  process: {
+    isCancellactionTermsIncludes: boolean;
+    items: ConvexWorkflowActionAPIProps[] | ConvexWorkflowDecisionAPIProps[];
+  };
+  end: {
+    confirmation: ConvexWorkflowAPIConfirmationEnum;
+  };
 }
 
 /**

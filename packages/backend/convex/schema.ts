@@ -242,21 +242,22 @@ export const eventTypeSchema = {
 
 /**
  * @since 0.0.37
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for table "workflow"
  * -> Handles the workflow template configurations for the user
  * @interface */
 export const workflowSchema = {
   userId: v.id("users"),
   name: v.string(),
-  icon: v.optional(v.string()),
-  isActive: v.boolean(),
   start: v.object({
-    eventTypes: v.array(v.id("eventType")),
-    calendars: v.array(v.id("calendar")),
     trigger: v.union(v.literal("beforeEventStart"), v.literal("afterEventEnd"), v.literal("newBooking"), v.literal("afterEventCancellation")),
     timePeriod: v.union(v.literal("week"), v.literal("day"), v.literal("hour"), v.literal("minute")),
     timePeriodValue: v.number(),
+    activityStatus: v.optional(v.boolean()), // -> If the workflow is active or inactive => true: active, false: inactive
+  }),
+  process: v.object({
+    isCancellactionTermsIncludes: v.optional(v.boolean()),
+    items: v.array(v.union(v.id("workflowAction"), v.id("workflowDecision"))),
   }),
   end: v.object({
     confirmation: v.union(v.literal("none"), v.literal("email"), v.literal("pushNotification")),
@@ -264,23 +265,30 @@ export const workflowSchema = {
 }
 
 /**
- * @since 0.0.37
- * @version 0.0.2
- * @description Schema definition for table "workflowNodes"
- * -> Handles the nodes in the workflow
- * -> Used for the actions and decisions in the workflow
+ * @since 0.0.47
+ * @version 0.0.1
+ * @description Schema definition for table "workflowAction"
+ * -> Handles the action configuration for a specific workflow
  * @interface */
-export const workflowNodesSchema = {
+export const workflowActionSchema = {
   workflowId: v.id("workflow"),
-  type: v.union(v.literal("action"), v.literal("decision")),
-  name: v.optional(v.string()),
-  items: v.optional(v.array(v.object({
-    key: v.string(), // -> Referenced to the execution key of the item which is defined in the frontend => Example Action: "E-Mail an alle Teilnehmer senden"
-    shouldBeExecuted: v.boolean(),
-    templateId: v.id("template"),
-  }))),
-  parentNodeId: v.optional(v.id("workflowNodes")),
-  childNodeIds: v.optional(v.array(v.id("workflowNodes"))),
+  name: v.string(),
+  subject: v.string(),
+  content: v.string(),
+  activityStatus: v.optional(v.boolean()), // -> If the action is active or inactive => true: active, false: inactive
+}
+
+/**
+ * @since 0.0.47
+ * @version 0.0.1
+ * @description Schema definition for table "workflowDecision"
+ * -> Handles the decision configuration for a specific workflow
+ * @interface */
+export const workflowDecisionSchema = {
+  workflowId: v.id("workflow"),
+  type: v.union(v.literal("eventType"), v.literal("calendarConnection")),
+  content: v.array(v.string()),
+  activityStatus: v.optional(v.boolean()), // -> If the decision is active or inactive => true: active, false: inactive
 }
 
 /**
@@ -368,11 +376,18 @@ export default defineSchema({
   workflow: defineTable(workflowSchema).index("byUserId", ["userId"]),
 
   /**
-   * @since 0.0.37
+   * @since 0.0.47
    * @version 0.0.1
-   * @description Schema definition for table "workflowNodes"
+   * @description Schema definition for table "workflowAction"
    * @type */
-  workflowNodes: defineTable(workflowNodesSchema).index("byWorkflowId", ["workflowId"]),
+  workflowAction: defineTable(workflowActionSchema).index("byWorkflowId", ["workflowId"]),
+
+  /**
+   * @since 0.0.47
+   * @version 0.0.1
+   * @description Schema definition for table "workflowDecision"
+   * @type */
+  workflowDecision: defineTable(workflowDecisionSchema).index("byWorkflowId", ["workflowId"]),
 
   /**
    * @since 0.0.37

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 import { shadeColor } from "@codemize/helpers/Colors";
+import { ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
@@ -22,11 +23,26 @@ import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.43
+ * @readonly
+ * @since 0.0.48
  * @version 0.0.1
+ * @enum */
+export enum WorkflowTimePeriodEnum {
+  WEEK = "week",
+  DAY = "day",
+  HOUR = "hour",
+  MINUTE = "minute",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.43
+ * @version 0.0.2
  * @type */
 export type TouchableHapticTimePeriodProps = {
   refContainer: React.RefObject<View|null>;
+  workflow: ConvexWorkflowQueryAPIProps|undefined;
   onPress: (item: ListItemDropdownProps) => void;
 };
 
@@ -38,10 +54,12 @@ export type TouchableHapticTimePeriodProps = {
  * @version 0.0.1
  * @param {TouchableHapticTimePeriodProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
+ * @param {ConvexWorkflowQueryAPIProps|undefined} param0.workflow - The selected workflow object
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
 const TouchableHapticTimePeriod = ({
   refContainer,
+  workflow,
   onPress,
 }: TouchableHapticTimePeriodProps) => {
   const refTimePeriod = React.useRef<View>(null);
@@ -49,6 +67,12 @@ const TouchableHapticTimePeriod = ({
 
   const [selected, setSelected] = React.useState<ListItemDropdownProps>(WORKFLOW_TIME_PERIOD_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps);
   const [timePeriod, setTimePeriod] = React.useState<string>("24");
+
+  React.useEffect(() => {
+    /** @description Set the selected time period/value based on the workflow start time period if it is defined */
+    if (workflow?.start.timePeriodValue) setTimePeriod(workflow?.start.timePeriodValue.toString());
+    if (workflow?.start.timePeriod) setSelected(WORKFLOW_TIME_PERIOD_ITEMS.find((item) => item.itemKey === workflow?.start.timePeriod) as ListItemDropdownProps);
+  }, [workflow?.start.timePeriod, workflow?.start.timePeriodValue]);
 
   /**
    * @description Get the dropdown functions for displaying the available triggers.

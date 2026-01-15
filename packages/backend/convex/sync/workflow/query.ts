@@ -1,12 +1,13 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
 
-import { ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "../../../Types";
+import { ConvexWorkflowActionAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "../../../Types";
 
 /**
  * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.37
- * @version 0.0.2
+ * @version 0.0.3
  * @description Returns all the workflows for currently signed in user */
 export const get = query({
   args: {
@@ -16,25 +17,26 @@ export const get = query({
     const workflows: ConvexWorkflowQueryAPIProps[] = [];
     
     /** @description Get all the workflows for the currently signed in user */
-    const workflow = await ctx.db.query("workflow")
+    const workflowQuery = await ctx.db.query("workflow")
       .withIndex("byUserId", (q) => q.eq("userId", _id))
       .collect();
 
-    await Promise.all(workflow.map(async (workflow1: ConvexWorkflowAPIProps) => {
-      const actions = await ctx.db.query("workflowAction")
-        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow1._id))
+    await Promise.all(workflowQuery.map(async (workflow) => {
+      const actions: ConvexWorkflowActionAPIProps[] = await ctx.db.query("workflowAction")
+        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow._id))
         .collect();
 
-      const decisions = await ctx.db.query("workflowDecision")
-        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow1._id))
+      const decisions: ConvexWorkflowDecisionAPIProps[] = await ctx.db.query("workflowDecision")
+        .withIndex("byWorkflowId", (q) => q.eq("workflowId", workflow._id))
         .collect();
 
       workflows.push({
-        ...workflow1,
+        ...workflow,
         process: {
-          ...workflow1.process,
-          items: [...actions, ...decisions] as ConvexWorkflowActionAPIProps[] | ConvexWorkflowDecisionAPIProps[]
-        }
+          ...workflow.process,
+          isCancellactionTermsIncludes: workflow.process.isCancellactionTermsIncludes ?? false,
+          items: [...actions.map((action) => ({ ...action, nodeType: "action" as const })), ...decisions.map((decision) => ({ ...decision, nodeType: "decision" as const }))],
+        },
       });
     }));
 

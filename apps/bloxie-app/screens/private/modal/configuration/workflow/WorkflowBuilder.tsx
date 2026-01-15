@@ -4,138 +4,25 @@ import { faBrightnessLow, faLayerGroup, faMicrochip } from "@fortawesome/duotone
 
 import WorkflowFooter from "@/components/layout/footer/WorkflowFooter";
 import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemType } from "@/components/container/WorkflowCanvas";
-import { ConvexTemplateAPIProps, ConvexWorkflowAPIProps } from "@codemize/backend/Types";
+import { ConvexTemplateAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
-
-/**
- const INITIAL_NODES: ExtendedWorkflowNode[] = [
-  { id: "start", type: "start", icon: faBrightnessLow as IconProp },
-  {
-    id: GENERIC_NODE_ID,
-    type: "generic",
-    title: "Prozessschritte",
-    icon: faMicrochip as IconProp,
-    /*groups: [{
-      id: "group-1",
-      name: "Gruppe 1",
-      icon: faLayerGroup as IconProp,
-      items: [],
-    }],*
-    items: [],
-  },
-  { id: "end", type: "end", title: "Abschluss", icon: faBrightnessLow as IconProp },
-];
- */
-
-const workflow: ConvexWorkflowAPIProps = 
-  {
-    _id: "j5744ppd87fwk0njh4qww4a4yx7ywx7h" as Id<"workflow">,
-    _creationTime: 1715769600,
-    userId: "j5744ppd87fwk0njh4qww4a4yx7ywx7h" as Id<"users">,
-    name: "Workflow 1",
-    start: {
-      trigger: "beforeEventStart",
-      timePeriod: "hour",
-      timePeriodValue: 24,
-      activityStatus: true,
-    },
-    process: {
-      isCancellactionTermsIncludes: false,
-      items: ["j5744ppd87fwk0njh4qww4a4yx7ywx7h"] as Id<"workflowAction">[] | Id<"workflowDecision">[],
-    },
-    end: {
-      confirmation: "none",
-    },
-  };
-/**
- * /**
- * @since 0.0.37
- * @version 0.0.2
- * @description Schema definition for table "workflow"
- * -> Handles the workflow template configurations for the user
- * @interface *
-export const workflowSchema = {
-  userId: v.id("users"),
-  name: v.string(),
-  start: v.object({
-    trigger: v.union(v.literal("beforeEventStart"), v.literal("afterEventEnd"), v.literal("newBooking"), v.literal("afterEventCancellation")),
-    timePeriod: v.union(v.literal("week"), v.literal("day"), v.literal("hour"), v.literal("minute")),
-    timePeriodValue: v.number(),
-    activityStatus: v.optional(v.boolean()), // -> If the workflow is active or inactive => true: active, false: inactive
-  }),
-  process: v.object({
-    isCancellactionTermsIncludes: v.optional(v.boolean()),
-    actions: v.array(v.id("workflowAction")),
-    decisions: v.array(v.id("workflowDecision")),
-  }),
-  end: v.object({
-    confirmation: v.union(v.literal("none"), v.literal("email"), v.literal("pushNotification")),
-  }),
-}
-
-/**
- * @since 0.0.47
- * @version 0.0.1
- * @description Schema definition for table "workflowAction"
- * -> Handles the action configuration for a specific workflow
- * @interface *
-export const workflowActionSchema = {
-  workflowId: v.id("workflow"),
-  name: v.string(),
-  subject: v.string(),
-  content: v.string(),
-  activityStatus: v.optional(v.boolean()), // -> If the action is active or inactive => true: active, false: inactive
-}
-
-/**
- * @since 0.0.47
- * @version 0.0.1
- * @description Schema definition for table "workflowDecision"
- * -> Handles the decision configuration for a specific workflow
- * @interface *
-export const workflowDecisionSchema = {
-  workflowId: v.id("workflow"),
-  type: v.union(v.literal("eventType"), v.literal("calendarConnection")),
-  content: v.array(v.string()),
-  activityStatus: v.optional(v.boolean()), // -> If the decision is active or inactive => true: active, false: inactive
-}
- */
-
-
-type ExtendedWorkflowNode = WorkflowNode;
-
-const GENERIC_NODE_ID = "generic";
-
-const INITIAL_NODES: ExtendedWorkflowNode[] = [
-  { id: "start", type: "start", icon: faBrightnessLow as IconProp },
-  {
-    id: GENERIC_NODE_ID,
-    type: "generic",
-    title: "Prozessschritte",
-    icon: faMicrochip as IconProp,
-    /*groups: [{
-      id: "group-1",
-      name: "Gruppe 1",
-      icon: faLayerGroup as IconProp,
-      items: [],
-    }],*/
-    items: [],
-  },
-  { id: "end", type: "end", title: "Abschluss", icon: faBrightnessLow as IconProp },
-];
+import { useConfigurationContextStore } from "@/context/ConfigurationContext";
 
 const ScreenConfigurationWorkflowBuilder = () => {
-  const [workflowState, setWorkflowState] = React.useState<ConvexWorkflowAPIProps>(workflow);
+
+  const workflows = useConfigurationContextStore((state) => state.workflows);
+  console.log("workflows", workflows);
+  const [workflowState, setWorkflowState] = React.useState<ConvexWorkflowQueryAPIProps>(workflows[0]);
 
   const updateGenericNode = React.useCallback(
-    (updater: (node: ConvexWorkflowAPIProps) => ConvexWorkflowAPIProps) => {
+    (updater: (node: ConvexWorkflowQueryAPIProps) => ConvexWorkflowQueryAPIProps) => {
       setWorkflowState(prev => updater(prev));
     },
-    [workflow],
+    [workflows],
   );
 
   const handleAddNodeItem = React.useCallback(
-    (_node: ConvexWorkflowAPIProps, type: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => {
+    (_node: ConvexWorkflowQueryAPIProps, type: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => {
       updateGenericNode(existing => {
         return existing;
         /*const templateId =
@@ -168,7 +55,7 @@ const ScreenConfigurationWorkflowBuilder = () => {
   );
 
   const handleRemoveNodeItem = React.useCallback(
-    (_node: ConvexWorkflowAPIProps, key: string) => {
+    (_node: ConvexWorkflowQueryAPIProps, key: string) => {
       /*updateGenericNode(existing => ({
         ...existing,
         items: (existing.items ?? []).filter(item => item.id !== key),
@@ -178,7 +65,7 @@ const ScreenConfigurationWorkflowBuilder = () => {
   );
 
   const handleChangeNodeItem = React.useCallback(
-    (_node: ConvexWorkflowAPIProps, item: WorkflowNodeItemProps) => {
+    (_node: ConvexWorkflowQueryAPIProps, item: WorkflowNodeItemProps) => {
       /*updateGenericNode(existing => ({
         ...existing,
         items: (existing.items ?? []).map(existingItem =>
@@ -192,7 +79,7 @@ const ScreenConfigurationWorkflowBuilder = () => {
   return (
     <>
       <WorkflowCanvas
-        workflow={workflowState}
+        workflow={workflows[0]}
         onAddNodeItem={handleAddNodeItem}
         onRemoveNodeItem={handleRemoveNodeItem}
         onChangeNodeItem={handleChangeNodeItem}
@@ -203,47 +90,3 @@ const ScreenConfigurationWorkflowBuilder = () => {
 };
 
 export default ScreenConfigurationWorkflowBuilder;
-
-/**
- *     /*{
-      id: 'decision-main',
-      type: 'decision',
-      title: 'Entscheidung 1',
-      icon: faCodeCommit as IconProp,
-      parentId: 'start',
-      /*items: [{
-        id: 'action-positive-2',
-        name: 'Für Benutzergruppe ...',
-        description: '',
-        icon: faUsersSlash as IconProp,
-      }],
-    },
-    {
-      id: 'action-positive',
-      type: 'action',
-      title: 'Aktion 1',
-      icon: faCodeCommit as IconProp,
-      parentId: 'decision-main',
-      /*items: [{
-        id: 'action-positive-1',
-        name: 'E-Mail an alle Teilnehmer senden',
-        description: '',
-        icon: faEnvelopesBulk as IconProp,
-      }/*, {
-        id: 'action-positive-1',
-        name: 'E-Mail an spezifische Teilnehmer senden',
-        description: '',
-        icon: faEnvelopesBulk as IconProp,
-      }, {
-        id: 'action-positive-2',
-        name: 'E-Mail an Gastgeber senden',
-        description: '',
-        icon: faEnvelopeCircleCheck as IconProp,
-      }, { 
-        id: 'action-positive-2',
-        name: 'E-Mail an Drittperson(en) senden',
-        description: '',
-        icon: faEnvelopeCircleUser as IconProp,
-      }*],
-    },*/
- 

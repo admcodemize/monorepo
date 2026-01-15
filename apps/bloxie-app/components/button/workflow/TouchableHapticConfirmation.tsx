@@ -21,6 +21,19 @@ import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.48
+ * @version 0.0.1
+ * @enum */
+export enum WorkflowConfirmationEnum {
+  PUSH_NOTIFICATION = "pushNotification",
+  SEND_EMAIL = "sendEmail",
+  NONE = "none",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
  * @version 0.0.1
  * @type */

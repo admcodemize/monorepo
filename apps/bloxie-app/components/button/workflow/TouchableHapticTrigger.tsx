@@ -4,6 +4,7 @@ import { t } from "i18next";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 import { shadeColor } from "@codemize/helpers/Colors";
+import { ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
@@ -21,11 +22,26 @@ import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.48
+ * @version 0.0.1
+ * @enum */
+export enum WorkflowTriggerEnum {
+  BEFORE_EVENT_START = "beforeEventStart",
+  AFTER_EVENT_END = "afterEventEnd",
+  NEW_BOOKING = "newBooking",
+  AFTER_EVENT_CANCELLATION = "afterEventCancellation",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
  * @version 0.0.1
  * @type */
 export type TouchableHapticTriggerProps = {
   refContainer: React.RefObject<View|null>;
+  workflow: ConvexWorkflowQueryAPIProps|undefined;
   onPress: (item: ListItemDropdownProps) => void;
 };
 
@@ -34,20 +50,25 @@ export type TouchableHapticTriggerProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticTriggerProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
 const TouchableHapticTrigger = ({
   refContainer,
+  workflow,
   onPress,
 }: TouchableHapticTriggerProps) => {
   const refTrigger = React.useRef<View>(null);
   const { secondaryBgColor, tertiaryBgColor, infoColor } = useThemeColors();
 
   const [selected, setSelected] = React.useState<ListItemDropdownProps>(WORKFLOW_TRIGGER_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps);
-
+  React.useEffect(() => {
+    /** @description Set the selected trigger based on the workflow start trigger if it is defined */
+    if (workflow?.start.trigger) setSelected(WORKFLOW_TRIGGER_ITEMS.find((item) => item.itemKey === workflow?.start.trigger) as ListItemDropdownProps);
+  }, [workflow?.start.trigger]);
+  
   /**
    * @description Get the dropdown functions for displaying the available triggers.
    * @see {@link hooks/button/useDropdown} */

@@ -1,22 +1,14 @@
 import React from "react";
 import { View } from "react-native";
-import { t } from "i18next";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-
-import { shadeColor } from "@codemize/helpers/Colors";
-import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { WORKFLOW_CONFIRMATION_ITEMS, WORKFLOW_NODE_ACTION_ITEMS } from "@/constants/Models";
+import { WORKFLOW_NODE_ACTION_ITEMS } from "@/constants/Models";
 
 import ListItemDropdown, { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
-import TextBase from "@/components/typography/Text";
-import ListDropdown, { DEFAULT_WIDTH } from "@/components/lists/ListDropdown";
-import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
+import { DEFAULT_WIDTH } from "@/components/lists/ListDropdown";
 
-import GlobalContainerStyle from "@/styles/GlobalContainer";
-import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import ListItemGroup from "@/components/container/ListItemGroup";
 import { STYLES } from "@codemize/constants/Styles";
 import ListDropdownStyle from "@/styles/components/lists/ListDropdown";
@@ -25,6 +17,18 @@ import { KEYS } from "@/constants/Keys";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faEllipsisStroke } from "@fortawesome/pro-solid-svg-icons";
 import TouchableHapticSwitch from "../TouchableHapticSwitch";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.48
+ * @version 0.0.1
+ * @enum */
+export enum WorkflowActionEnum {
+  DELETE_ACTION = "deleteAction",
+  EXECUTION_STATUS = "executionStatus",
+}
 
 /**
  * @public

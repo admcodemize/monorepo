@@ -36,7 +36,7 @@ import TextBase from '../typography/Text';
 import TouchableHapticIcon from '../button/TouchableHaptichIcon';
 import Divider from './Divider';
 import { useTrays } from 'react-native-trays';
-import { ConvexTemplateAPIProps, ConvexWorkflowAPIProps } from '@codemize/backend/Types';
+import { ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
 import { Id } from '../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps, resolveRuntimeIcon } from '@/helpers/System';
 import TouchableHapticTrigger from '../button/workflow/TouchableHapticTrigger';
@@ -98,14 +98,14 @@ export type WorkflowAdditionPayload = {
 };
 
 type WorkflowCanvasProps = {
-  workflow?: ConvexWorkflowAPIProps;
-  onNodePress?: (node: ConvexWorkflowAPIProps) => void;
+  workflow?: ConvexWorkflowQueryAPIProps;
+  onNodePress?: (node: ConvexWorkflowQueryAPIProps) => void;
   onAddNode?: (connection: WorkflowAdditionPayload|null, type: WorkflowNodeType) => void;
-  onRemoveNode?: (node: ConvexWorkflowAPIProps) => void;
-  onAddNodeItem?: (node: ConvexWorkflowAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
-  onRemoveNodeItem?: (node: ConvexWorkflowAPIProps, key: string) => void;
-  onChangeNodeItem?: (node: ConvexWorkflowAPIProps, item: WorkflowNodeItemProps) => void;
-  renderNode?: (node: ConvexWorkflowAPIProps) => React.ReactNode;
+  onRemoveNode?: (node: ConvexWorkflowQueryAPIProps) => void;
+  onAddNodeItem?: (node: ConvexWorkflowQueryAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
+  onRemoveNodeItem?: (node: ConvexWorkflowQueryAPIProps, key: string) => void;
+  onChangeNodeItem?: (node: ConvexWorkflowQueryAPIProps, item: WorkflowNodeItemProps) => void;
+  renderNode?: (node: ConvexWorkflowQueryAPIProps) => React.ReactNode;
   children?: React.ReactNode;
 };
 
@@ -154,9 +154,12 @@ export function WorkflowCanvas({
     ],
   }));
 
-  const { errorColor, primaryIconColor, infoColor, secondaryBgColor } = useThemeColors();
+  const { errorColor, primaryIconColor, infoColor, secondaryBgColor, successColor } = useThemeColors();
 
   const refStartNode = React.useRef<View>(null);
+
+
+  console.log("workflowState", workflow?.process.items);
 
   return (
       <View style={styles.container}>
@@ -182,24 +185,23 @@ export function WorkflowCanvas({
               <View style={styles.tagRow}>
                 <WorkflowNodeTag icon={faStopwatch as IconProp} text={"Ende"} color={shadeColor(("#3F37A0"), 0)} />
                 <View style={[styles.node]} pointerEvents="box-none" ref={refStartNode}>
-                  <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
-
-                    <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
-                    <TextInput
-                      value={workflow?.name ?? ""}
-                      onChangeText={() => {}}
-                      placeholder="Name des Workflows"
-                      style={{
-                        color: "#626D7B",
-                        fontSize: Number(SIZES.label),
-                        fontFamily: String(FAMILIY.subtitle),
-                        flexGrow: 0,
-                      }}/>
-                  </View>
+                    <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
+                      <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
+                      <TextInput
+                        value={workflow?.name ?? ""}
+                        onChangeText={() => {}}
+                        placeholder="Name des Workflows"
+                        style={{
+                          color: "#626D7B",
+                          fontSize: Number(SIZES.label),
+                          fontFamily: String(FAMILIY.subtitle),
+                          flexGrow: 0,
+                        }}/>
+                    </View>
                   <View style={{ gap: 4}}>  
-                    <WorkflowNodeTrigger containerRef={refStartNode} />
-                    <WorkflowNodeTriggerTime containerRef={refStartNode} />
-                    <WorkflowNodeActivityStatus containerRef={refStartNode} />
+                    <WorkflowNodeTrigger containerRef={refStartNode} workflow={workflow} />
+                    <WorkflowNodeTriggerTime containerRef={refStartNode} workflow={workflow} />
+                    <WorkflowNodeActivityStatus containerRef={refStartNode} workflow={workflow} />
                   </View>
                 </View>
               </View>
@@ -214,8 +216,8 @@ export function WorkflowCanvas({
               <View style={styles.tagRow}>
                 <WorkflowNodeTag icon={faMicrochip as IconProp} text={"Prozessschritte"} color={shadeColor(("#626D7B"), 0)} />
                 <View style={[styles.node]} pointerEvents="box-none" ref={refStartNode}>
-                  <View style={[GlobalContainerStyle.rowCenterBetween]}>
-                    <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
+                  <View style={[GlobalContainerStyle.rowCenterBetween, styles.nodeHeaderRow]}>
+                    <View style={[GlobalContainerStyle.rowCenterStart, { flexGrow: 1, gap: 10 }]}>
                       <FontAwesomeIcon icon={faMicrochip as IconProp} size={16} color={"#626D7B"} />
                       <TextInput
                         editable={false}
@@ -256,13 +258,35 @@ export function WorkflowCanvas({
                       </View>
                     </View>
                   </View>
-                  <View style={{ gap: 4}}>  
+                  <View style={{ alignSelf: 'stretch' }}>  
+                    <WorkflowNodeCancellationTerms onPress={noop} />
+                    <View style={{ gap: 6 }}>
                     {workflow?.process.items.map((item, index) => (
-
-                        <View key={index}>
-                          <TextBase text={item.toString()} type="label" style={{ color: infoColor }} />
-                        </View>
+                      item.nodeType === "action" ? (
+                        <WorkflowNodeAction key={item._id} item={item as ConvexWorkflowActionAPIProps} color={infoColor} />
+                      ) : (
+                        <WorkflowNodeDecision key={item._id} item={item as ConvexWorkflowDecisionAPIProps} color={infoColor} />
+                      )
                     ))}
+                    </View>
+                    {((workflow?.process.items && workflow?.process.items.length === 0) || !workflow?.process.items) && (
+                      <View       style={[
+                        GlobalContainerStyle.rowCenterBetween,
+                        {
+                          gap: 18,
+                          backgroundColor: shadeColor(secondaryBgColor, 0.3),
+                          height: 28,
+                          paddingHorizontal: 10,
+                          borderRadius: 8
+                        },
+                      ]}>
+                        <TextBase
+                          text="Noch keine Schritte hinzugefügt."
+                          type="label"
+                          style={{ color: '#626D7B', alignSelf: 'center', fontSize: 11 }}
+                        />
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
@@ -327,13 +351,13 @@ export function WorkflowCanvas({
 }
 
 type WorkflowNodeProps = {
-  node: ConvexWorkflowAPIProps;
+  node: ConvexWorkflowQueryAPIProps;
   isFirst: boolean;
   isLast: boolean;
-  onRemoveNode?: (node: ConvexWorkflowAPIProps) => void;
-  onAddNodeItem?: (node: ConvexWorkflowAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
-  onRemoveNodeItem?: (node: ConvexWorkflowAPIProps, key: string) => void;
-  onChangeNodeItem?: (node: ConvexWorkflowAPIProps, item: WorkflowNodeItemProps) => void;
+  onRemoveNode?: (node: ConvexWorkflowQueryAPIProps) => void;
+  onAddNodeItem?: (node: ConvexWorkflowQueryAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
+  onRemoveNodeItem?: (node: ConvexWorkflowQueryAPIProps, key: string) => void;
+  onChangeNodeItem?: (node: ConvexWorkflowQueryAPIProps, item: WorkflowNodeItemProps) => void;
 };
 
 /**
@@ -573,27 +597,30 @@ const WorkflowNodeConfirmation = ({ containerRef }: { containerRef: React.RefObj
   );
 };
 
-const WorkflowNodeTrigger = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
+const WorkflowNodeTrigger = ({ containerRef, workflow }: { containerRef: React.RefObject<View|null>, workflow: ConvexWorkflowQueryAPIProps|undefined }) => {
   return (
     <TouchableHapticTrigger
       refContainer={containerRef}
+      workflow={workflow}
       onPress={noop}
     />
   );
 };
 
-const WorkflowNodeTriggerTime = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
+const WorkflowNodeTriggerTime = ({ containerRef, workflow }: { containerRef: React.RefObject<View|null>, workflow: ConvexWorkflowQueryAPIProps|undefined }) => {
   return (
     <TouchableHapticTimePeriod
       refContainer={containerRef}
+      workflow={workflow}
       onPress={noop}/>
   );
 };
 
-const WorkflowNodeActivityStatus = ({ containerRef }: { containerRef: React.RefObject<View|null> }) => {
+const WorkflowNodeActivityStatus = ({ containerRef, workflow }: { containerRef: React.RefObject<View|null>, workflow: ConvexWorkflowQueryAPIProps|undefined }) => {
   return (
     <TouchableHapticActivityStatus
       refContainer={containerRef}
+      workflow={workflow}
       onPress={noop}
     />
   );
@@ -630,25 +657,25 @@ const WorkflowNodeActionComponent = ({
   onRemoveNodeItem,
   onChangeNodeItem,
 }: {
-  item: WorkflowNodeItemProps;
+  item: ConvexWorkflowActionAPIProps;
   color: string;
   onRemoveNodeItem?: () => void;
-  onChangeNodeItem?: (item: WorkflowNodeItemProps) => void;
+  onChangeNodeItem?: (item: ConvexWorkflowActionAPIProps) => void;
 }) => {
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
-  const [isActive, setIsActive] = React.useState<boolean>(item.isActive ?? true);
+  const [isActive, setIsActive] = React.useState<boolean>(item.activityStatus ?? true);
   const [name, setName] = React.useState<string>(item.name);
 
   const { push, dismiss } = useTrays('keyboard');
 
-  const resolvedIcon = React.useMemo(
+  /*const resolvedIcon = React.useMemo(
     () => resolveRuntimeIcon(String(item?.icon || 'faCodeCommit')) as IconProp,
     [item?.icon],
-  );
+  );*/
 
   React.useEffect(() => {
-    setIsActive(item.isActive ?? true);
-  }, [item.isActive]);
+    setIsActive(item.activityStatus ?? true);
+  }, [item.activityStatus]);
 
   React.useEffect(() => {
     setName(item.name);
@@ -657,10 +684,10 @@ const WorkflowNodeActionComponent = ({
   const handleEdit = React.useCallback(() => {
     push('TrayWorkflowAction', {
       item,
-      onAfterSave: (updated: WorkflowNodeItemProps) => {
+      onAfterSave: (updated: ConvexWorkflowActionAPIProps) => {
         onChangeNodeItem?.(updated);
         setName(updated.name);
-        setIsActive(updated.isActive ?? true);
+        setIsActive(updated.activityStatus ?? true);
         dismiss('TrayWorkflowAction');
       },
       onPressClose: () => {
@@ -685,7 +712,7 @@ const WorkflowNodeActionComponent = ({
     setIsActive(next);
     onChangeNodeItem?.({
       ...item,
-      isActive: next,
+      activityStatus: next,
     });
   }, [isActive, item, onChangeNodeItem]);
 
@@ -711,7 +738,7 @@ const WorkflowNodeActionComponent = ({
     >
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
         <FontAwesomeIcon icon={faSquare as IconProp} size={14} color={"#587E1F"} />
-        <FontAwesomeIcon icon={resolvedIcon} size={16} color={infoColor} />
+        {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={infoColor} />*/}
         <TextInput
           value={name}
           placeholder="Name der Aktion"
@@ -758,32 +785,32 @@ const WorkflowNodeDecisionComponent = ({
   onRemoveNodeItem,
   onChangeNodeItem,
 }: {
-  item: WorkflowNodeItemProps;
+  item: ConvexWorkflowDecisionAPIProps;
   color: string;
   onRemoveNodeItem?: () => void;
-  onChangeNodeItem?: (item: WorkflowNodeItemProps) => void;
+  onChangeNodeItem?: (item: ConvexWorkflowDecisionAPIProps) => void;
 }) => {
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
-  const [isActive, setIsActive] = React.useState<boolean>(item.isActive ?? true);
+  const [isActive, setIsActive] = React.useState<boolean>(item.activityStatus ?? true);
 
   const { push, dismiss } = useTrays('main');
   const { t } = useTranslation();
-  const resolvedIcon = React.useMemo(
+  /*const resolvedIcon = React.useMemo(
     () => resolveRuntimeIcon(String(item.icon || 'faCodeCommit')) as IconProp,
     [item.icon],
-  );
+  );*/
   const accentColor = color ?? infoColor;
 
   React.useEffect(() => {
-    setIsActive(item.isActive ?? true);
-  }, [item.isActive]);
+    setIsActive(item.activityStatus ?? true);
+  }, [item.activityStatus]);
 
   const handleToggleActive = React.useCallback(() => {
     const next = !isActive;
     setIsActive(next);
     onChangeNodeItem?.({
       ...item,
-      isActive: next,
+      activityStatus: next,
     });
   }, [isActive, item, onChangeNodeItem]);
 
@@ -822,10 +849,10 @@ const WorkflowNodeDecisionComponent = ({
       <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10 }]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
           <FontAwesomeIcon icon={faSquare as IconProp} size={14} color={"#e09100"} />
-          <FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />
+          {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />*/}
           <TextInput
             editable={false}
-            value={t(item.name)}
+            value={item.type === "eventType" ? "Ereignistypen" : "Kalender-Verbindungen"}
             placeholder="Name der Aktion"
             style={{
               color,

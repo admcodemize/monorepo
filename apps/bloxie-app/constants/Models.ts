@@ -1,3 +1,8 @@
+import { WorkflowActionEnum } from "@/components/button/workflow/TouchableHapticAction";
+import { WorkflowActivityStatusEnum } from "@/components/button/workflow/TouchableHapticActivityStatus";
+import { WorkflowConfirmationEnum } from "@/components/button/workflow/TouchableHapticConfirmation";
+import { WorkflowTimePeriodEnum } from "@/components/button/workflow/TouchableHapticTimePeriod";
+import { WorkflowTriggerEnum } from "@/components/button/workflow/TouchableHapticTrigger";
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import {
   faArrowProgress,
@@ -306,22 +311,22 @@ export const EDITOR_STYLE_ITEMS: EditorStyleItemProps[] = [{
  * @version 0.0.2
  * @constant */
 export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: "beforeEventStart",
+  itemKey: WorkflowTriggerEnum.BEFORE_EVENT_START,
   title: "i18n.dropdown.workflow.builder.trigger.beforeEventStart.title",
   icon: faHourglassStart as IconProp
 }, {
-  itemKey: "afterEventEnd",
+  itemKey: WorkflowTriggerEnum.AFTER_EVENT_END,
   title: "i18n.dropdown.workflow.builder.trigger.afterEventEnd.title",
   description: "i18n.dropdown.workflow.builder.trigger.afterEventEnd.description",
   icon: faHourglassEnd as IconProp
 }, {
-  itemKey: "newBooking",
+  itemKey: WorkflowTriggerEnum.NEW_BOOKING,
   title: "i18n.dropdown.workflow.builder.trigger.newBooking.title",
   icon: faCalendarCirclePlus as IconProp,
   description: "i18n.dropdown.workflow.builder.trigger.newBooking.description",
   isSelected: true,
 }, {
-  itemKey: "afterEventCancellation",
+  itemKey: WorkflowTriggerEnum.AFTER_EVENT_CANCELLATION,
   title: "i18n.dropdown.workflow.builder.trigger.afterEventCancellation.title",
   description: "i18n.dropdown.workflow.builder.trigger.afterEventCancellation.description",
   icon: faTrashCanSlash as IconProp
@@ -336,20 +341,20 @@ export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
  * @version 0.0.2
  * @constant */
 export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: "week",
+  itemKey: WorkflowTimePeriodEnum.WEEK,
   title: "i18n.dropdown.workflow.builder.timePeriod.week",
   icon: faCalendarWeek as IconProp
 }, {
-  itemKey: "day",
+  itemKey: WorkflowTimePeriodEnum.DAY,
   title: "i18n.dropdown.workflow.builder.timePeriod.day",
   icon: faCalendarDay as IconProp
 }, {
-  itemKey: "hour",
+  itemKey: WorkflowTimePeriodEnum.HOUR,
   title: "i18n.dropdown.workflow.builder.timePeriod.hour",
   icon: faStopwatch as IconProp,
   isSelected: true,
 }, {
-  itemKey: "minute",
+  itemKey: WorkflowTimePeriodEnum.MINUTE,
   title: "i18n.dropdown.workflow.builder.timePeriod.minute",
   icon: faStopwatch20 as IconProp
 }];
@@ -360,33 +365,41 @@ export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
  * @description Used for handling the workflow confirmation items for the dropdown
  * @readonly
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const WORKFLOW_CONFIRMATION_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: "pushNotification",
+  itemKey: WorkflowConfirmationEnum.PUSH_NOTIFICATION,
   title: "i18n.dropdown.workflow.builder.confirmation.pushNotification.title",
   description: "i18n.dropdown.workflow.builder.confirmation.pushNotification.description",
   icon: faBells as IconProp,
   isSelected: true,
 }, {
-  itemKey: "sendEmail",
+  itemKey: WorkflowConfirmationEnum.SEND_EMAIL,
   title: "i18n.dropdown.workflow.builder.confirmation.sendEmail.title",
   description: "i18n.dropdown.workflow.builder.confirmation.sendEmail.description",
   icon: faEnvelopeOpenText as IconProp
 }, {
-  itemKey: "none",
+  itemKey: WorkflowConfirmationEnum.NONE,
   title: "i18n.dropdown.workflow.builder.confirmation.none",
   icon: faBellSlash as IconProp,
 }];
 
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the workflow node action items for the dropdown
+ * @readonly
+ * @since 0.0.47
+ * @version 0.0.2
+ * @constant */
 export const WORKFLOW_NODE_ACTION_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: "deleteAction",
+  itemKey: WorkflowActionEnum.DELETE_ACTION,
   title: "i18n.dropdown.workflow.builder.action.deleteAction.title",
   description: "i18n.dropdown.workflow.builder.action.deleteAction.description",
   icon: faTrashCanSlash as IconProp,
   isSelected: true,
 }, {
-  itemKey: "executionStatus",
+  itemKey: WorkflowActionEnum.EXECUTION_STATUS,
   title: "i18n.dropdown.workflow.builder.action.executionStatus.title",
   description: "i18n.dropdown.workflow.builder.action.executionStatus.description",
   icon: faBridgeCircleCheck as IconProp,
@@ -399,16 +412,16 @@ export const WORKFLOW_NODE_ACTION_ITEMS: ListItemDropdownProps[] = [{
  * @description Used for handling the workflow activity status items for the dropdown
  * @readonly
  * @since 0.0.47
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const WORKFLOW_ACTIVITY_STATUS_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: "activ",
+  itemKey: WorkflowActivityStatusEnum.ACTIVE,
   title: "i18n.dropdown.workflow.builder.activityStatus.active.title",
   description: "i18n.dropdown.workflow.builder.activityStatus.active.description",
   icon: faPlay as IconProp,
   isSelected: true,
 }, {
-  itemKey: "inactiv",
+  itemKey: WorkflowActivityStatusEnum.INACTIVE,
   title: "i18n.dropdown.workflow.builder.activityStatus.inactive.title",
   description: "i18n.dropdown.workflow.builder.activityStatus.inactive.description",
   icon: faPause as IconProp,

@@ -223,11 +223,11 @@ export type ConvexWorkflowAPIProps = {
     trigger: ConvexWorkflowAPITriggerEnum;
     timePeriod: ConvexWorkflowAPITimePeriodEnum;
     timePeriodValue: number;
-    activityStatus: boolean;
+    activityStatus?: boolean;
   };
   process: {
     isCancellactionTermsIncludes: boolean;
-    items: Id<"workflowAction">[] | Id<"workflowDecision">[];
+    items: (Id<"workflowAction"> | Id<"workflowDecision">)[];
   };
   end: {
     confirmation: ConvexWorkflowAPIConfirmationEnum;
@@ -238,7 +238,7 @@ export type ConvexWorkflowAPIProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.47
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexWorkflowActionAPIProps = {
   _id?: Id<"workflowAction">;
@@ -247,14 +247,14 @@ export type ConvexWorkflowActionAPIProps = {
   name: string;
   subject: string;
   content: string;
-  activityStatus: boolean;
+  activityStatus?: boolean;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.47
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexWorkflowDecisionAPIProps = {
   _id?: Id<"workflowDecision">;
@@ -262,14 +262,14 @@ export type ConvexWorkflowDecisionAPIProps = {
   workflowId: Id<"workflow">;
   type: ConvexWorkflowAPIDecisionTypeEnum;
   content: string[];
-  activityStatus: boolean;
+  activityStatus?: boolean;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.47
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ConvexWorkflowQueryAPIProps = {
   _id?: Id<"workflow">;
@@ -280,11 +280,13 @@ export type ConvexWorkflowQueryAPIProps = {
     trigger: ConvexWorkflowAPITriggerEnum;
     timePeriod: ConvexWorkflowAPITimePeriodEnum;
     timePeriodValue: number;
-    activityStatus: boolean;
+    activityStatus?: boolean;
   };
   process: {
     isCancellactionTermsIncludes: boolean;
-    items: ConvexWorkflowActionAPIProps[] | ConvexWorkflowDecisionAPIProps[];
+    items: Array<
+      | (ConvexWorkflowActionAPIProps & { nodeType: "action" })
+      | (ConvexWorkflowDecisionAPIProps & { nodeType: "decision" })>;
   };
   end: {
     confirmation: ConvexWorkflowAPIConfirmationEnum;

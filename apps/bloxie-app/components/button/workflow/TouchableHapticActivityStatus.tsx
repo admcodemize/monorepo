@@ -4,6 +4,7 @@ import { t } from "i18next";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 import { shadeColor } from "@codemize/helpers/Colors";
+import { ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
@@ -21,11 +22,24 @@ import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.48
+ * @version 0.0.1
+ * @enum */
+export enum WorkflowActivityStatusEnum {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.47
  * @version 0.0.1
  * @type */
 export type TouchableHapticActivityStatusProps = {
   refContainer: React.RefObject<View|null>;
+  workflow: ConvexWorkflowQueryAPIProps|undefined;
   onPress: (item: ListItemDropdownProps) => void;
 };
 
@@ -37,16 +51,22 @@ export type TouchableHapticActivityStatusProps = {
  * @version 0.0.1
  * @param {TouchableHapticActivityStatusProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
+ * @param {ConvexWorkflowQueryAPIProps|undefined} param0.workflow - The selected workflow object
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
 const TouchableHapticActivityStatus = ({
   refContainer,
+  workflow,
   onPress,
 }: TouchableHapticActivityStatusProps) => {
   const refTrigger = React.useRef<View>(null);
   const { secondaryBgColor, tertiaryBgColor, infoColor } = useThemeColors();
 
   const [selected, setSelected] = React.useState<ListItemDropdownProps>(WORKFLOW_ACTIVITY_STATUS_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps);
+  React.useEffect(() => {
+    /** @description Set the selected activity status based on the workflow start activity status if it is defined */
+    setSelected(WORKFLOW_ACTIVITY_STATUS_ITEMS.find((item) => item.itemKey === (workflow?.start.activityStatus ? WorkflowActivityStatusEnum.ACTIVE : WorkflowActivityStatusEnum.INACTIVE)) as ListItemDropdownProps);
+  }, [workflow?.start.activityStatus]);
 
   /**
    * @description Get the dropdown functions for displaying the available triggers.

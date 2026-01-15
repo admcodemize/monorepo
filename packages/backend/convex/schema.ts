@@ -280,7 +280,7 @@ export const workflowActionSchema = {
 
 /**
  * @since 0.0.47
- * @version 0.0.1
+ * @version 0.0.2
  * @description Schema definition for table "workflowDecision"
  * -> Handles the decision configuration for a specific workflow
  * @interface */

@@ -1,10 +1,11 @@
 import { StyleSheet } from "react-native";
+import GlobalContainerStyle from "./GlobalContainer";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @description Global styles for the workflow components
  * @component */
 const GlobalWorkflowStyle = StyleSheet.create({
@@ -12,7 +13,12 @@ const GlobalWorkflowStyle = StyleSheet.create({
     gap: 18,
     height: 28,
     paddingHorizontal: 10,
-    borderRadius: 8,
+    borderRadius: 8
+  },
+  right: {
+    ...GlobalContainerStyle.rowCenterCenter,
+    width: 40,
+    gap: 18
   }
 });
 

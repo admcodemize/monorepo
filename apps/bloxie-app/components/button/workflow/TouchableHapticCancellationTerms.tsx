@@ -29,7 +29,7 @@ export type TouchableHapticCancellationTermsProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.46
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticCancellationTermsProps} param0 
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
@@ -44,22 +44,24 @@ const TouchableHapticCancellationTerms = ({
   return (
     <View
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        backgroundColor: shadeColor(secondaryBgColor, 0.3),
+        backgroundColor: shadeColor(secondaryBgColor, 0.3)
       }]}>
       <TextBase
         text={t("i18n.screens.workflow.builder.cancellationTerms")} 
         type="label" 
         style={{ color: infoColor }} />
-      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: STYLES.sizeGap }]}>
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: STYLES.sizeGap + 6 }]}>
         <TouchableHaptic>
           <TextBase
             text={t("i18n.global.edit")} 
             type="label" />
         </TouchableHaptic>
         <Divider vertical />
+        <View style={{ width: 40 }}>
         <TouchableHapticSwitch
-          state={selected}
-          onStateChange={setSelected}/>
+            state={selected}
+            onStateChange={setSelected}/>
+        </View>
       </View>
     </View>
   );

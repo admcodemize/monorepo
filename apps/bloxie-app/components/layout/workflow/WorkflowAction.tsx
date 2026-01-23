@@ -15,30 +15,55 @@ import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import { faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
+import { useTrays } from "react-native-trays";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.49
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type WorkflowActionProps = {
   action: ConvexWorkflowActionAPIProps;
+  onPressRemove: (action: ConvexWorkflowActionAPIProps) => void;
 };
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.49
- * @version 0.0.1
+ * @version 0.0.2
  * @param {WorkflowActionProps} param0
- * @param {ConvexWorkflowActionAPIProps} param0.action
+ * @param {ConvexWorkflowActionAPIProps} param0.action - The workflow action
+ * @param {(action: ConvexWorkflowActionAPIProps) => void} param0.onPressRemove - Callback function when the remove button is pressed
  * @component */
 const WorkflowAction = ({ 
-  action 
+  action,
+  onPressRemove
 }: WorkflowActionProps) => {
   const { infoColor, secondaryBgColor, successColor, errorColor } = useThemeColors();
+  const { push, dismiss } = useTrays('keyboard');
+
+  /** 
+   * @description Handles the press event of the edit button
+   * -> Opens the tray for editing the action template */
+  const onPressEdit = React.useCallback(() => {
+    push('TrayWorkflowAction', {
+      item: action,
+      onAfterSave: (updated: ConvexWorkflowActionAPIProps) => {
+        console.log("onAfterSave", updated);
+      },
+    });
+  }, [push, action]);
+
+  /** 
+   * @description Handles the press event of the remove button
+   * -> Calls the onPressRemove callback function and removes the action from the workflow canvas state array */
+  const onPressRemoveInternal = React.useCallback(() => {
+    onPressRemove(action);
+  }, [onPressRemove, action]);
+  
   return (
     <Animated.View
       entering={FadeInDown.duration(160)}
@@ -63,7 +88,7 @@ const WorkflowAction = ({
           onChangeText={() => {}}/>
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
-        <TouchableHaptic onPress={() => {}}>
+        <TouchableHaptic onPress={onPressEdit}>
           <View style={[GlobalContainerStyle.rowCenterCenter]}>
             <TextBase 
               text={'Bearbeiten'} 
@@ -82,7 +107,7 @@ const WorkflowAction = ({
           icon={faXmark as IconProp}
           iconSize={12}
           hasViewCustomStyle={true}
-          onPress={(() => {})}/>
+          onPress={onPressRemoveInternal}/>
         </View>
       </View>
     </Animated.View>

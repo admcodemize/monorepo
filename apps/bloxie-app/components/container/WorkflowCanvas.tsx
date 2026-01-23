@@ -102,11 +102,12 @@ export type WorkflowAdditionPayload = {
 
 type WorkflowCanvasProps = {
   workflow?: ConvexWorkflowQueryAPIProps;
+  onRemoveItem: (item: ConvexWorkflowActionAPIProps|ConvexWorkflowDecisionAPIProps) => void;
+
   onNodePress?: (node: ConvexWorkflowQueryAPIProps) => void;
   onAddNode?: (connection: WorkflowAdditionPayload|null, type: WorkflowNodeType) => void;
   onRemoveNode?: (node: ConvexWorkflowQueryAPIProps) => void;
   onAddNodeItem?: (node: ConvexWorkflowQueryAPIProps, variant: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => void;
-  onRemoveNodeItem?: (node: ConvexWorkflowQueryAPIProps, key: string) => void;
   onChangeNodeItem?: (node: ConvexWorkflowQueryAPIProps, item: WorkflowNodeItemProps) => void;
   renderNode?: (node: ConvexWorkflowQueryAPIProps) => React.ReactNode;
   children?: React.ReactNode;
@@ -130,7 +131,7 @@ export function WorkflowCanvas({
   onAddNode,
   onRemoveNode,
   onAddNodeItem,
-  onRemoveNodeItem,
+  onRemoveItem,
   onChangeNodeItem,
   renderNode,
   children,
@@ -150,9 +151,27 @@ export function WorkflowCanvas({
   const { errorColor, primaryIconColor, infoColor, secondaryBgColor, successColor } = useThemeColors();
 
   const refStartNode = React.useRef<View>(null);
+  const processItems = workflow?.process?.items ?? [];
 
+  const { push, dismiss } = useTrays('main');
 
-  console.log("workflowState", workflow?.process.items);
+  const onPressAction = React.useCallback(() => {
+      push('TrayWorkflowTemplate', {
+        onPress: (template: ConvexTemplateAPIProps) => {
+          onAddNodeItem?.(workflow as ConvexWorkflowQueryAPIProps, "action", template);
+          dismiss('TrayWorkflowTemplate');
+        },
+      });
+    }, [push]);
+
+  const onPressDecision = React.useCallback(() => {
+    push('TrayWorkflowDecision', {
+      onPress: (template: ConvexTemplateAPIProps) => {
+        onAddNodeItem?.(workflow as ConvexWorkflowQueryAPIProps, "decision", template);
+        dismiss('TrayWorkflowDecision');
+      },
+    });
+  }, [push]);
 
   return (
       <View style={styles.container}>
@@ -176,7 +195,7 @@ export function WorkflowCanvas({
               { maxWidth: Dimensions.get('window').width - 28 },
             ]}>
               <View style={styles.tagRow}>
-                <WorkflowNodeTag icon={faStopwatch as IconProp} text={"Ende"} color={shadeColor(("#3F37A0"), 0)} />
+                <WorkflowNodeTag icon={faBolt as IconProp} text={"Start"} color={shadeColor(("#3F37A0"), 0)} />
                 <View style={[styles.node, { }]} pointerEvents="box-none" ref={refStartNode}>
                     <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
                       <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
@@ -236,7 +255,7 @@ export function WorkflowCanvas({
                     <View style={[GlobalContainerStyle.rowCenterEnd, styles.nodeHeaderActions]}>
                       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 18 }]}>
                         <TouchableHaptic
-                          onPress={() => {}}
+                          onPress={onPressAction}
                         >
                           <View style={[GlobalContainerStyle.rowCenterStart, { gap: 6 }]}>
                           <FontAwesomeIcon
@@ -247,7 +266,7 @@ export function WorkflowCanvas({
                           </View>
                         </TouchableHaptic>
                         <TouchableHaptic
-                          onPress={() => {}}
+                          onPress={onPressDecision}
                         >
                           <View style={[GlobalContainerStyle.rowCenterStart, { gap: 6 }]}>
                           <FontAwesomeIcon
@@ -263,17 +282,22 @@ export function WorkflowCanvas({
                   <View style={{ alignSelf: 'stretch' }}>  
                     <View style={{ gap: 6 }}>
                     <TouchableHapticCancellationTerms onPress={noop}/>
-                    {workflow?.process.items.map((item, index) => (
+                    {processItems.map((item, index) => (
                       item.nodeType === "action" ? (
                         /*<WorkflowNodeAction key={item._id} item={item as ConvexWorkflowActionAPIProps} color={infoColor} />*/
-                        <WorkflowAction key={item._id} action={item as ConvexWorkflowActionAPIProps} />
+                        <WorkflowAction 
+                          key={item._id} 
+                          action={item as ConvexWorkflowActionAPIProps}
+                          onPressRemove={onRemoveItem} />
                       ) : (
                         /*<WorkflowNodeDecision key={item._id} item={item as ConvexWorkflowDecisionAPIProps} color={infoColor} />*/
-                        <WorkflowDecision key={item._id} decision={item as ConvexWorkflowDecisionAPIProps} />
+                        <WorkflowDecision 
+                          key={item._id} 
+                          decision={item as ConvexWorkflowDecisionAPIProps}
+                          onPressRemove={onRemoveItem} />
                       )
                     ))}
-                    </View>
-                    {((workflow?.process.items && workflow?.process.items.length === 0) || !workflow?.process.items) && (
+                    {(processItems.length === 0) && (
                       <View       
                         style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
                           backgroundColor: shadeColor(secondaryBgColor, 0.3),
@@ -284,6 +308,7 @@ export function WorkflowCanvas({
                             style={{ color: '#626D7B', alignSelf: 'center', fontSize: 11 }} />
                       </View>
                     )}
+                    </View>
                   </View>
                 </View>
               </View>

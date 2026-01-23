@@ -4,54 +4,83 @@ import { faBrightnessLow, faLayerGroup, faMicrochip } from "@fortawesome/duotone
 
 import WorkflowFooter from "@/components/layout/footer/WorkflowFooter";
 import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemType } from "@/components/container/WorkflowCanvas";
-import { ConvexTemplateAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
+import { ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
 import { useConfigurationContextStore } from "@/context/ConfigurationContext";
 
-const ScreenConfigurationWorkflowBuilder = () => {
+const createEmptyWorkflow = (): ConvexWorkflowQueryAPIProps => ({
+  _id: (`local-${Date.now()}`) as any,
+  _creationTime: Date.now(),
+  name: "Neuer Workflow",
+  userId: "" as any,
+  process: {
+    isCancellactionTermsIncludes: false,
+    items: [],
+  } as any,
+  start: {
+    activityStatus: true,
+    trigger: "afterEventEnd",
+    timePeriod: "minute",
+    timePeriodValue: 0,
+  } as any,
+  end: {
+    confirmation: "none",
+  } as any,
+});
 
-  const workflows = useConfigurationContextStore((state) => state.workflows);
-  console.log("workflows", workflows);
-  const [workflowState, setWorkflowState] = React.useState<ConvexWorkflowQueryAPIProps>(workflows[0]);
+const ScreenConfigurationWorkflowBuilder = () => {
+  const [workflowState, setWorkflowState] = React.useState<ConvexWorkflowQueryAPIProps | undefined>(() => createEmptyWorkflow());
+
+  const selectedWorkflow = useConfigurationContextStore((state) => state.selectedWorkflow);
+
+  React.useEffect(() => {
+    if (selectedWorkflow) {
+      setWorkflowState(selectedWorkflow);
+    } else {
+      setWorkflowState(prev => prev ?? createEmptyWorkflow());
+    }
+  }, [selectedWorkflow]);
 
   const updateGenericNode = React.useCallback(
     (updater: (node: ConvexWorkflowQueryAPIProps) => ConvexWorkflowQueryAPIProps) => {
-      setWorkflowState(prev => updater(prev));
+      setWorkflowState((prev) => {
+        if (!prev) return prev;
+        return updater(prev);
+      });
     },
-    [workflows],
+    [],
   );
 
   const handleAddNodeItem = React.useCallback(
     (_node: ConvexWorkflowQueryAPIProps, type: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => {
-      updateGenericNode(existing => {
-        return existing;
-        /*const templateId =
+      setWorkflowState(prev => {
+        const base = prev ?? _node;
+        if (!base) return prev;
+
+        const templateId =
           (template._id as WorkflowNodeItemProps["_id"]) ??
           (`template-${Date.now()}` as WorkflowNodeItemProps["_id"]);
 
-        const nextItem: WorkflowNodeItemProps = {
-          id: `item-${Date.now()}`,
-          name: template.name ?? "",
-          description: template.description ?? "",
-          icon: (template.icon as IconProp) ?? faMicrochip,
-          language: (template.language ?? "de") as WorkflowNodeItemProps["language"],
-          subject: template.subject ?? "",
-          content: template.content ?? "",
-          isActive: true,
-          type,
-          _id: templateId,
-        };
+        const nextItem = {
+          ...(template as any),
+          _id: templateId as any,
+          nodeType: type,
+          name: template.name ?? "Neue Aktion",
+          activityStatus: (template as any).activityStatus ?? true,
+        } as any;
 
-        const items = existing.items ? [...existing.items, nextItem] : [nextItem];
+        const processItems = base.process?.items ?? [];
 
         return {
-          ...existing,
-          items,
-        };*/
-
+          ...base,
+          process: {
+            ...(base.process ?? { isCancellactionTermsIncludes: false }),
+            items: [...processItems, nextItem],
+          },
+        } as ConvexWorkflowQueryAPIProps;
       });
     },
-    [updateGenericNode],
+    [],
   );
 
   const handleRemoveNodeItem = React.useCallback(
@@ -76,15 +105,29 @@ const ScreenConfigurationWorkflowBuilder = () => {
     [updateGenericNode],
   );
 
+  /**
+   * @description Handles the removal of an item from the workflow canvas state array
+   * -> Filters the items array and removes the item with the given convex _id
+   * @param {ConvexWorkflowActionAPIProps|ConvexWorkflowDecisionAPIProps} item - The item to remove */
+  const handleRemoveItem = React.useCallback(
+    (item: ConvexWorkflowActionAPIProps|ConvexWorkflowDecisionAPIProps) => {
+      setWorkflowState((prev) => {
+        if (!prev || !prev.process?.items) return prev;
+        return { ...prev, process: {
+          ...prev.process,
+          items: prev.process.items.filter((existingItem) => existingItem._id !== item._id),
+        }};
+      });
+    }, [setWorkflowState]);
+
   return (
     <>
-      <WorkflowCanvas
-        workflow={workflows[0]}
-        onAddNodeItem={handleAddNodeItem}
-        onRemoveNodeItem={handleRemoveNodeItem}
-        onChangeNodeItem={handleChangeNodeItem}
-      />
-      <WorkflowFooter />
+    <WorkflowCanvas
+      workflow={workflowState}
+      onAddNodeItem={handleAddNodeItem}
+      onRemoveItem={handleRemoveItem}
+      onChangeNodeItem={handleChangeNodeItem} />
+    <WorkflowFooter />
     </>
   );
 };

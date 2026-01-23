@@ -20,6 +20,7 @@ import TouchableHaptic from "@/components/button/TouchableHaptic";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { STYLES } from "@codemize/constants/Styles";
 import Divider from "@/components/container/Divider";
+import { ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 
 /**
  * @public
@@ -38,17 +39,18 @@ type WorkflowFooterProps = {}
 const WorkflowFooter = ({
 }: WorkflowFooterProps) => {
   const { bottom } = useSafeAreaInsets();
-  const { primaryBgColor, primaryBorderColor, secondaryBgColor, linkColor, primaryIconColor } = useThemeColors();
+  const { primaryBgColor, primaryBorderColor, secondaryBgColor, linkColor } = useThemeColors();
   const { push } = useTrays('main');
-
+  
   /** 
    * @description Returns all the workflows stored in the context for the currently signed in user
    * @see {@link context/ConfigurationContext} */
   const workflows = useConfigurationContextStore((state) => state.workflows);
+  const setSelectedWorkflow = useConfigurationContextStore((state) => state.setSelectedWorkflow);
 
   /** @description Handles the on press event for the workflows tray */
-  const onPressWorkflows = () => push("TrayWorkflow", { workflows: workflows, onPress: () => {
-    console.log("onPressWorkflows");
+  const onPressWorkflows = () => push("TrayWorkflow", { workflows: workflows, onPress: (workflow: ConvexWorkflowQueryAPIProps) => {
+    setSelectedWorkflow(workflow);
   } });
 
   return (

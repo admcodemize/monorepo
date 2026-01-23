@@ -24,6 +24,8 @@ export type ConfigurationContextProps = {
   setTemplates: (templates: ConvexTemplateAPIProps[]) => void;
   workflows: ConvexWorkflowQueryAPIProps[];
   setWorkflows: (workflows: ConvexWorkflowQueryAPIProps[]) => void;
+  selectedWorkflow: ConvexWorkflowQueryAPIProps|undefined;
+  setSelectedWorkflow: (workflow: ConvexWorkflowQueryAPIProps|undefined) => void;
 }
 
 /**
@@ -35,6 +37,8 @@ export const store = (
   setTemplates: (templates: ConvexTemplateAPIProps[]) => set((state) => ({ ...state, templates })),
   workflows: [],
   setWorkflows: (workflows: ConvexWorkflowQueryAPIProps[]) => set((state) => ({ ...state, workflows })),
+  selectedWorkflow: undefined,
+  setSelectedWorkflow: (workflow: ConvexWorkflowQueryAPIProps|undefined) => set((state) => ({ ...state, selectedWorkflow: workflow })),
 }));
 
 /**

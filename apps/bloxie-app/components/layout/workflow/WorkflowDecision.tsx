@@ -23,24 +23,38 @@ import TouchableTag from "@/components/button/TouchableTag";
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.49
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type WorkflowDecisionProps = {
   decision: ConvexWorkflowDecisionAPIProps;
+  onPressRemove: (decision: ConvexWorkflowDecisionAPIProps) => void;
 };
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.49
- * @version 0.0.1
+ * @version 0.0.2
  * @param {WorkflowDecisionProps} param0
  * @param {ConvexWorkflowDecisionAPIProps} param0.decision
+ * @param {(decision: ConvexWorkflowDecisionAPIProps) => void} param0.onPressRemove - Callback function when the remove button is pressed
  * @component */
 const WorkflowDecision = ({ 
-  decision 
+  decision,
+  onPressRemove
 }: WorkflowDecisionProps) => {
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
+  const [contentHeight, setContentHeight] = React.useState<number>(20);
+
+  /** 
+   * @description Handles the press event of the remove button
+   * -> Calls the onPressRemove callback function and removes the decision from the workflow canvas state array */
+  const onPressRemoveInternal = React.useCallback(() => {
+    onPressRemove(decision);
+  }, [onPressRemove, decision]);
+
+  React.useEffect(() => console.log('contentHeight', contentHeight), [contentHeight]);
+
   return (
     <Animated.View
       entering={FadeInDown.duration(160)}
@@ -56,7 +70,7 @@ const WorkflowDecision = ({
           <FontAwesomeIcon 
             icon={faSquare as IconProp} 
             size={12} 
-            color={"#e09100"} />
+            color={shadeColor("#e09100", 0.3)} />
           {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />*/}
           <TextInput
             editable={false}
@@ -85,26 +99,22 @@ const WorkflowDecision = ({
               iconColor={decision.activityStatus ? successColor : errorColor}
               hasViewCustomStyle={true}
               onPress={() => {}} />
-            <TouchableHapticIcon icon={faXmark as IconProp} iconSize={12} hasViewCustomStyle={true} onPress={() => {}} />
+            <TouchableHapticIcon 
+              icon={faXmark as IconProp} 
+              iconSize={12} 
+              hasViewCustomStyle={true} 
+              onPress={onPressRemoveInternal} />
           </View>
         </View>
       </View>
       
-      <View style={{ marginHorizontal: 6, gap: 4 }}>
+      {/*<View style={{ marginHorizontal: 6, gap: 4 }}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxHeight: 26 }} contentContainerStyle={{ gap: 4 }}>
-            <WorkflowDecisionItem />
-          </ScrollView>
-        <TextInput
-          //value="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-          placeholder="Benutzerspezifische Beschreibung der Entscheidung ..."
-          style={{ fontSize: 10, color: shadeColor(infoColor, 0.1), marginLeft: 4 }}
-          multiline={true}
-          numberOfLines={4}
-          cursorColor={infoColor}
-          selectionColor={infoColor}
-          onChangeText={() => {}}/>
+        <WorkflowDecisionItem />
+      </ScrollView>
 
-      </View>
+
+      </View>*/}
     </Animated.View>
   );
 };

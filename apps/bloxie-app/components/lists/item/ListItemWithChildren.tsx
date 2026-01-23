@@ -113,11 +113,11 @@ const ListItemWithChildren = ({
       {top}
       <View style={[GlobalContainerStyle.rowStartStart, ListItemWithChildrenStyle.border]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: gap ?? DEFAULT_CONTENT_GAP }]}>
-          {!image ? <FontAwesomeIcon
+          {!image && icon ? <FontAwesomeIcon
             icon={icon as IconProp}
             size={iconSize ?? DEFAULT_ICON_SIZE}
             color={primaryIconColor} /> : null}
-          {!icon ? <Image 
+          {!icon && image ? <Image 
             source={image} 
             style={{ height: imageHeight ?? DEFAULT_IMAGE_HEIGHT, width: imageWidth ?? DEFAULT_IMAGE_WIDTH }} 
             resizeMode="cover"/> : null}

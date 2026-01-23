@@ -76,7 +76,7 @@ const ScreenTrayWorkflow = ({
           title={item.name}
           description={`Ausführungen: ${312} / Abbrüche: ${4}`}
           type={ListItemWithChildrenTypeEnum.custom}
-          icon={resolveRuntimeIcon(item.icon || "faArrowProgress")}
+          //icon={resolveRuntimeIcon(item.process?.icon || "faArrowProgress")}
           right={<View style={[GlobalContainerStyle.rowCenterStart]}>
             <TouchableHapticIcon
               icon={faTrashAltSlash as IconProp}

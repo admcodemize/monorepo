@@ -19,7 +19,7 @@ const ScreenConfigurationIntegrationConnectionStyle = StyleSheet.create({
   viewHeader: {
     borderRadius: 10,
     padding: 2,
-    gap: 4
+    gap: 4,
   },
   viewHeaderContent: {
     paddingHorizontal: 8

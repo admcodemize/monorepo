@@ -1,8 +1,6 @@
 import React from "react";
 import { Image, ImageSourcePropType, ScrollView, View } from "react-native"
 import { useTranslation } from "react-i18next";
-import { faAlarmClock, faCloud } from "@fortawesome/duotone-thin-svg-icons";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 import { SIZES } from "@codemize/constants/Fonts";
 import { shadeColor } from "@codemize/helpers/Colors";
@@ -18,11 +16,13 @@ import { KEYS } from "@/constants/Keys";
 
 import ListItemGroup from "@/components/container/ListItemGroup";
 import TextBase from "@/components/typography/Text";
-import TouchableTag from "@/components/button/TouchableTag";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import ProviderStyle from "@/styles/screens/private/modal/configuration/integration/Provider";
+import TouchableTag from "@/components/button/TouchableTag";
+import { faAlarmClock } from "@fortawesome/pro-solid-svg-icons";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 /**
  * @private
@@ -67,7 +67,7 @@ type ScreenConfigurationIntegrationProviderItemProps = ScreenConfigurationIntegr
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.15
- * @version 0.0.4
+ * @version 0.0.5
  * @component */
 const ScreenConfigurationIntegrationProvider = () => {
   /**
@@ -136,29 +136,24 @@ const ScreenConfigurationIntegrationProvider = () => {
  * @version 0.0.4
  * @param {ScreenConfigurationIntegrationProviderItemProps} param0
  * @param {ConvexCalendarQueryAPIProps[]} param0.integrations - The cnnected provider integrations of the currently signed in user.
- * @param {(settings: ConvexSettingsAPIProps) => void} param0.setSettings - The function to update the settings of the currently signed in user in the context.
- * @param {ProviderIntegrationEnum} param0.integrationKey - The integration key of the item for updating the state and fetching the state from the context.
  * @param {ImageSourcePropType} param0.image - The image source of the item.
  * @param {string} param0.title - The title of the item.
  * @param {string} param0.description - The description of the item.
  * @param {string} param0.info - The info of the item.
- * @param {boolean} param0.hasConnections - Whether the item has connections.
  * @param {boolean} param0.isCommingSoon - Whether the item is already available or coming soon.
  * @param {React.ReactNode} param0.children - The custom children to display on the right side of the item.
  * @component */
 const ScreenConfigurationIntegrationProviderItem = ({
   integrations,
-  integrationKey,
   image,
   title,
   description,
   info,
-  hasConnections = false,
   isCommingSoon = false,
   shouldBeCheckedForRuntime = false,
   children
 }: ScreenConfigurationIntegrationProviderItemProps) => {
-  const { infoColor, successColor, errorColor, inactiveColor, secondaryBgColor, primaryBorderColor, tertiaryBgColor } = useThemeColors();
+  const { infoColor, primaryBgColor, secondaryBgColor, errorColor } = useThemeColors();
   const { t } = useTranslation();
 
   /**
@@ -166,63 +161,43 @@ const ScreenConfigurationIntegrationProviderItem = ({
    * @see {@link context/UserContext} */
   const runtime = useUserContextStore((state) => state.runtime);
 
-  /**
-   * @description Get the initial integration state for the given integration key
-   * @param {ProviderIntegrationEnum} integrationKey - The integration key to get the state for
-   * @function */
-  //const getIntegrationState = (integrationKey: ProviderIntegrationEnum) => settings?.integrations?.find((integration) => integration.integrationKey === integrationKey)?.state ?? false;
-
   return (
-    <View style={[ProviderStyle.item, { backgroundColor: shadeColor(secondaryBgColor, 0), gap: 6, paddingTop: 6  }]}>
-      <View style={[GlobalContainerStyle.rowCenterBetween, ProviderStyle.itemHeader]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
-          <Image source={image} style={ProviderStyle.itemImage} resizeMode="cover"/>
-          <View>
-            <TextBase 
-              text={title} 
-              type="label" 
-              style={[GlobalTypographyStyle.textSubtitle, { color: infoColor }]} />
-            <TextBase 
-              text={description} 
-              type="label" 
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3) }]} />
-          </View>
-        </View>
-      </View>
-      {(info && ((shouldBeCheckedForRuntime && integrations.length >= runtime.license.counter.linkedProviderCount) || !shouldBeCheckedForRuntime)) && <TextBase 
-        text={info} 
-        type="label" 
-        preText={t("i18n.global.hint")} 
-        preTextStyle={{ color: infoColor, fontSize: Number(SIZES.label) - 1 }}
-        style={[GlobalTypographyStyle.labelText, { paddingHorizontal: 8, paddingVertical: 4, color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) - 1 }]} />}
-      <View style={[ProviderStyle.itemBottom, {
-        backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
-        borderColor: primaryBorderColor
-      }]}>
-        <View style={{ gap: 4 }}>
-          <View style={GlobalContainerStyle.rowCenterBetween}>
-            <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
-              <TouchableTag
-                icon={faCloud as IconProp}
-                text={hasConnections ? "i18n.screens.integrations.activeConnections" : "i18n.screens.integrations.noConnections"}
-                isActive={hasConnections}
-                backgroundColor={hasConnections ? successColor : inactiveColor}
-                disabled={true}/>
-              {isCommingSoon && <TouchableTag
-                icon={faAlarmClock as IconProp}
-                text={"i18n.global.comingSoon"}
-                colorInactive={errorColor}
-                isActive={false}
-                disabled={true}/>}
+    <View style={{ backgroundColor: primaryBgColor, padding: 3, borderRadius: 8, opacity: isCommingSoon ? 0.75 : 1 }}>
+      <View style={[ProviderStyle.item, { backgroundColor: shadeColor(secondaryBgColor, 0), gap: 6, paddingVertical: 6 }]}>
+        {isCommingSoon && <View style={{ marginHorizontal: 8, alignSelf: "flex-start" }}>
+          <TouchableTag
+            icon={faAlarmClock as IconProp}
+            text={"i18n.global.comingSoon"}
+            colorInactive={errorColor}
+            isActive={false}
+            disabled={true}/>
+        </View>}
+        <View style={[GlobalContainerStyle.rowCenterBetween, ProviderStyle.itemHeader]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: 4 }]}>
+            <Image source={image} style={ProviderStyle.itemImage} resizeMode="cover"/>
+            <View>
+              <TextBase 
+                text={title} 
+                type="label" 
+                style={[GlobalTypographyStyle.textSubtitle, { color: infoColor }]} />
+              <TextBase 
+                text={description} 
+                type="label" 
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[GlobalTypographyStyle.labelText, { color: shadeColor(infoColor, 0.3) }]} />
             </View>
-            {children && children}
           </View>
+          {children && children}
         </View>
+        {(info && ((shouldBeCheckedForRuntime && integrations.length >= runtime.license.counter.linkedProviderCount) || !shouldBeCheckedForRuntime)) && <TextBase 
+          text={info} 
+          type="label" 
+          preText={t("i18n.global.hint")} 
+          preTextStyle={{ color: infoColor, fontSize: Number(SIZES.label) - 1 }}
+          style={[GlobalTypographyStyle.labelText, { paddingHorizontal: 8, paddingVertical: 4, color: shadeColor(infoColor, 0.3), fontSize: Number(SIZES.label) - 1 }]} />}
       </View>
     </View>
-
   );
 };
 

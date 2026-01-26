@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { View } from "react-native"
+import { View, Dimensions } from "react-native"
 
 import { shadeColor } from "@codemize/helpers/Colors"
 import { STYLES } from "@codemize/constants/Styles";
@@ -8,6 +8,8 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import TrayHeader from "@/components/container/TrayHeader"
 
 import TrayContainerStyle from "@/styles/components/container/TrayContainer";
+
+const DIM = Dimensions.get("window");
 
 /**
  * @public
@@ -40,6 +42,7 @@ const TrayContainer = ({
     <View style={{ 
       backgroundColor: primaryBgColor, 
       borderColor: primaryBorderColor,
+      height: children ? 'auto' : DIM.height - 100,
     }}>
       <View style={{ gap: STYLES.sizeGap }}>
         <View style={[TrayContainerStyle.container, { backgroundColor: shadeColor(secondaryBgColor, 0.3) }]}>
@@ -51,7 +54,8 @@ const TrayContainer = ({
           <View style={[TrayContainerStyle.children, {
             borderColor: shadeColor(primaryBorderColor, 0.4),
             backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
-            paddingVertical: STYLES.paddingVertical, 
+            paddingVertical: STYLES.paddingVertical,
+            height: children ? 'auto' : DIM.height - 146,
           }]}>
             {children}
           </View>

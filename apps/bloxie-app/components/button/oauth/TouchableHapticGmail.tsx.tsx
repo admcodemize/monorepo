@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faCloudPlus } from "@fortawesome/duotone-thin-svg-icons";
+import { faClouds } from "@fortawesome/duotone-thin-svg-icons";
 import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
@@ -11,10 +11,8 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { startGoogleFlow, StartGoogleFlowProps } from "@/helpers/Provider";
 
 import TouchableHaptic from "@/components/button/TouchableHaptic";
-import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
-import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import TouchableHapticGmailStyle from "@/styles/components/button/oauth/TouchableHapticGmail";
 
 /** 
@@ -51,13 +49,9 @@ const TouchableHapticGmail = ({
       onPress={onPress}>
         <View style={[GlobalContainerStyle.rowCenterStart, TouchableHapticGmailStyle.view, { backgroundColor: shadeColor(focusedBgColor, 0) }]}>
           <FontAwesomeIcon 
-            icon={faCloudPlus as IconProp} 
+            icon={faClouds as IconProp} 
             size={12} 
             color={focusedContentColor} />
-          <TextBase 
-            text={"i18n.screens.integrations.connect"} 
-            type="label" 
-            style={[GlobalTypographyStyle.labelText, { color: focusedContentColor }]} />
         </View>
     </TouchableHaptic>
   );

@@ -4,12 +4,12 @@ import { StyleSheet } from "react-native"
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.14
- * @version 0.0.3 */
+ * @version 0.0.4 */
 const TouchableHapticGmailStyle = StyleSheet.create({
   view: {
     padding: 6, 
-    paddingVertical: 4, 
-    borderRadius: 6,
+    paddingVertical: 6, 
+    borderRadius: 4,
     gap: 4
   }
 })

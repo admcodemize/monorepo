@@ -90,8 +90,8 @@ const ModalConfigurationWorkflowLayout = () => {
         title={tray!.title} 
         description={tray?.modal} />
       <MaterialTopTabs screenOptions={screenOptions}>
-        <MaterialTopTabs.Screen name="(builder)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.builder") }} />
-        <MaterialTopTabs.Screen name="(history)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.history") }} />
+        <MaterialTopTabs.Screen name="(builder)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.builder").toUpperCase() }} />
+        <MaterialTopTabs.Screen name="(history)" options={{ title: t("i18n.screens.workflow.horizontalNavigation.history").toUpperCase() }} />
       </MaterialTopTabs>
       <DropdownOverlay />
     </SafeAreaContextViewBase>

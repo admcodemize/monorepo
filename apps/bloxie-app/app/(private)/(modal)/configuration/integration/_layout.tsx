@@ -17,6 +17,7 @@ import { STYLES } from "@codemize/constants/Styles";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
+import { useMaterialTabs } from "@/hooks/container/useMaterialTabs";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -40,13 +41,18 @@ export const MaterialTopTabs = withLayoutContext<
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.2
+ * @version 0.0.3
  * @component */
 const ModalConfigurationIntegrationLayout = () => {
-  const { tertiaryBgColor, primaryBorderColor, focusedBgColor } = useThemeColors();
+  const { tertiaryBgColor } = useThemeColors();
   const { t } = useTranslation();
 
   const tray = TRAY_CONFIGURATION_ITEMS.find((item) => item.key === "integration");
+
+  /** 
+   * @description Returns the default screen options for the material top tabs
+   * @see {@link hooks/container/useMaterialTabs} */
+  const { screenOptions } = useMaterialTabs();
 
   return (
     <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.1) }}>
@@ -55,20 +61,10 @@ const ModalConfigurationIntegrationLayout = () => {
         title={tray!.title} 
         description={tray?.modal || ""} />
       <MaterialTopTabs 
-        screenOptions={{ 
-          swipeEnabled: true, 
-          tabBarLabelStyle: { fontSize: useFontSize("text") + 1, fontFamily: useFontFamily("text") },
-          tabBarItemStyle: { width: "auto" },
-          tabBarIndicatorStyle: { backgroundColor: focusedBgColor },
-          tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: primaryBorderColor },
-          tabBarStyle: { 
-            height: STYLES.layoutTabBarHeight,
-            backgroundColor: shadeColor(tertiaryBgColor, 0.1),
-          } 
-        }}>
-          <MaterialTopTabs.Screen name="index" options={{ title: t("i18n.screens.integrations.horizontalNavigation.provider") }} />
-          <MaterialTopTabs.Screen name="connection" options={{ title: t("i18n.screens.integrations.horizontalNavigation.connections") }} />
-          <MaterialTopTabs.Screen name="synchronisation" options={{ title: t("i18n.screens.integrations.horizontalNavigation.synchronization") }} />
+        screenOptions={screenOptions}>
+          <MaterialTopTabs.Screen name="index" options={{ title: t("i18n.screens.integrations.horizontalNavigation.provider").toUpperCase() }} />
+          <MaterialTopTabs.Screen name="connection" options={{ title: t("i18n.screens.integrations.horizontalNavigation.connections").toUpperCase() }} />
+          <MaterialTopTabs.Screen name="synchronisation" options={{ title: t("i18n.screens.integrations.horizontalNavigation.synchronization").toUpperCase() }} />
       </MaterialTopTabs>
     </SafeAreaContextViewBase>
   );

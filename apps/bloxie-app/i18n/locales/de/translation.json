@@ -116,7 +116,7 @@
       "workflow": {
         "title": "Workflow",
         "horizontalNavigation": {
-          "builder": "Workflow Builder",
+          "builder": "Builder",
           "history": "Ausgeführte Workflows"
         },
         "builder": {

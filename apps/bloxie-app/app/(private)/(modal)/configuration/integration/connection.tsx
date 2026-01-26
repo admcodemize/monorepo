@@ -10,12 +10,12 @@ import ScreenConfigurationIntegrationConnection from "@/screens/private/modal/co
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.29
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const ModalConfigurationIntegrationConnection = () => {
-  const { tertiaryBgColor } = useThemeColors();
+  const { secondaryBgColor } = useThemeColors();
   return (
-    <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(tertiaryBgColor, 0.7) }}>
+    <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3) }}>
       <ScreenConfigurationIntegrationConnection />
       <ToastOverlay />
     </SafeAreaContextViewBase>

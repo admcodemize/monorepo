@@ -148,7 +148,7 @@ export function WorkflowCanvas({
     ],
   }));
 
-  const { errorColor, primaryIconColor, infoColor, secondaryBgColor, successColor } = useThemeColors();
+  const { errorColor, primaryIconColor, infoColor, secondaryBgColor, secondaryBorderColor, primaryBorderColor } = useThemeColors();
 
   const refStartNode = React.useRef<View>(null);
   const processItems = workflow?.process?.items ?? [];
@@ -282,13 +282,15 @@ export function WorkflowCanvas({
                   <View style={{ alignSelf: 'stretch' }}>  
                     <View style={{ gap: 6 }}>
                     <TouchableHapticCancellationTerms onPress={noop}/>
+                    <Divider style={{ borderColor:shadeColor(primaryBorderColor, 0.7), borderWidth: 0.5 }} />
                     {processItems.map((item, index) => (
                       item.nodeType === "action" ? (
                         /*<WorkflowNodeAction key={item._id} item={item as ConvexWorkflowActionAPIProps} color={infoColor} />*/
                         <WorkflowAction 
                           key={item._id} 
                           action={item as ConvexWorkflowActionAPIProps}
-                          onPressRemove={onRemoveItem} />
+                          onPressRemove={onRemoveItem}
+                          onPressActive={noop} />
                       ) : (
                         /*<WorkflowNodeDecision key={item._id} item={item as ConvexWorkflowDecisionAPIProps} color={infoColor} />*/
                         <WorkflowDecision 

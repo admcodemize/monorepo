@@ -5,6 +5,9 @@ import ScreenTrayWorkflowTemplate, { ScreenTrayWorkflowTemplateProps } from "@/s
 import ScreenTrayWorkflowDecision, { ScreenTrayWorkflowDecisionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecision";
 import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowAction";
 import ScreenTrayWorkflowEventType, { ScreenTrayWorkflowEventTypeProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowEventType";
+import { View } from "react-native";
+import TrayContainer from "@/components/container/TrayContainer";
+import ScreenConfigurationWorkflowBuilder from "@/screens/private/modal/configuration/workflow/WorkflowBuilder";
 
 /**
  * @private
@@ -59,6 +62,8 @@ export const trays = {
     TrayWorkflowTemplate: { component: (props: ScreenTrayWorkflowTemplateProps) => <ScreenTrayWorkflowTemplate {...props} /> },
     TrayWorkflowDecision: { component: (props: ScreenTrayWorkflowDecisionProps) => <ScreenTrayWorkflowDecision {...props} /> },
     TrayWorkflowEventType: { component: (props: ScreenTrayWorkflowEventTypeProps) => <ScreenTrayWorkflowEventType {...props} /> },
+
+    TrayIntegration: { component: (props: any) => <TrayContainer title={"i18n.screens.trayIntegration.title"}><ScreenConfigurationWorkflowBuilder /></TrayContainer> },
   },
   keyboard: {
     /** @description Workflow trays @see {@link screens/private/modal/configuration/workflow/trays} -> Special settings for keyboard handling */

@@ -16,6 +16,7 @@ import { faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { useTrays } from "react-native-trays";
+import { faBars } from "@fortawesome/pro-thin-svg-icons";
 
 /**
  * @public
@@ -27,6 +28,7 @@ import { useTrays } from "react-native-trays";
 export type WorkflowActionProps = {
   action: ConvexWorkflowActionAPIProps;
   onPressRemove: (action: ConvexWorkflowActionAPIProps) => void;
+  onPressActive: (isActive: boolean) => void;
 };
 
 /**
@@ -37,13 +39,21 @@ export type WorkflowActionProps = {
  * @param {WorkflowActionProps} param0
  * @param {ConvexWorkflowActionAPIProps} param0.action - The workflow action
  * @param {(action: ConvexWorkflowActionAPIProps) => void} param0.onPressRemove - Callback function when the remove button is pressed
+ * @param {(action: ConvexWorkflowActionAPIProps) => void} param0.onPressActive - Callback function when the active button is pressed
  * @component */
 const WorkflowAction = ({ 
   action,
-  onPressRemove
+  onPressRemove,
+  onPressActive
 }: WorkflowActionProps) => {
   const { infoColor, secondaryBgColor, successColor, errorColor } = useThemeColors();
   const { push, dismiss } = useTrays('keyboard');
+
+  const [isActive, setIsActive] = React.useState<boolean>(action.activityStatus ?? true);
+
+  React.useEffect(() => {
+    onPressActive(isActive);
+  }, [isActive, onPressActive]);
 
   /** 
    * @description Handles the press event of the edit button
@@ -68,9 +78,15 @@ const WorkflowAction = ({
     <Animated.View
       entering={FadeInDown.duration(160)}
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        backgroundColor: shadeColor(secondaryBgColor, 0.3)
+        backgroundColor: shadeColor(secondaryBgColor, 0.3),
       }]}>
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
+        <TouchableHaptic onPress={() => {}}>
+          <FontAwesomeIcon 
+            icon={faBars as IconProp} 
+            size={12} 
+            color={infoColor} />
+        </TouchableHaptic>
         <FontAwesomeIcon 
           icon={faSquare as IconProp} 
           size={12} 
@@ -81,7 +97,7 @@ const WorkflowAction = ({
           placeholder="Name der Aktion"
           style={{
             color: infoColor,
-            maxWidth: 180,
+            maxWidth: 160,
             fontSize: Number(SIZES.label),
             fontFamily: String(FAMILIY.subtitle),
           }}
@@ -98,11 +114,11 @@ const WorkflowAction = ({
         <Divider vertical />
         <View style={GlobalWorkflowStyle.right}>
         <TouchableHapticIcon
-          icon={(action.activityStatus ? faPlay : faPause) as IconProp}
+          icon={(isActive ? faPlay : faPause) as IconProp}
           iconSize={12}
-          iconColor={action.activityStatus ? successColor : errorColor}
+          iconColor={isActive ? successColor : errorColor}
           hasViewCustomStyle={true}
-          onPress={() => {}}/>
+          onPress={() => setIsActive(!isActive)}/>
         <TouchableHapticIcon
           icon={faXmark as IconProp}
           iconSize={12}

@@ -12,7 +12,7 @@ import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import { faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { faBars, faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { ConvexWorkflowDecisionAPIProps } from "@codemize/backend/Types";
@@ -67,6 +67,12 @@ const WorkflowDecision = ({
       }]}>
       <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10 }]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
+          <TouchableHaptic onPress={() => {}}>
+            <FontAwesomeIcon 
+              icon={faBars as IconProp} 
+              size={12} 
+              color={infoColor} />
+          </TouchableHaptic>
           <FontAwesomeIcon 
             icon={faSquare as IconProp} 
             size={12} 

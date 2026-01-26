@@ -17,7 +17,7 @@ export function useMaterialTabs() {
   return {
     screenOptions: {
       swipeEnabled: true, 
-      tabBarLabelStyle: { fontSize: useFontSize("text") + 1, fontFamily: useFontFamily("text") },
+      tabBarLabelStyle: { fontSize: useFontSize("label") - 1, fontFamily: useFontFamily("label") },
       tabBarItemStyle: { width: "auto" },
       tabBarIndicatorStyle: { backgroundColor: focusedBgColor },
       tabBarIndicatorContainerStyle: { borderBottomWidth: 0.5, borderBottomColor: primaryBorderColor },

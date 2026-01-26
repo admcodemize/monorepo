@@ -73,13 +73,13 @@ export const PROVIDER_ITEMS_GOOGLE: ProviderItemProps[] = [{
   description: "i18n.screens.integrations.provider.google.gmail.description",
   info: "i18n.screens.integrations.provider.google.gmail.info",
   children: <TouchableHapticGmail grantScopeGmail={true} />
-}, {
+} /* {
   integrationKey: ProviderIntegrationEnum.GOOGLE_MEET,
   image: PNG_ASSETS.googleMeet,
   title: "i18n.screens.integrations.provider.google.meet.title",
   description: "i18n.screens.integrations.provider.google.meet.description",
   info: "i18n.screens.integrations.provider.google.meet.info",
-}]
+}*/]
 
 /**
  * @public

@@ -2,8 +2,8 @@ import React from "react";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faBrightnessLow, faLayerGroup, faMicrochip } from "@fortawesome/duotone-thin-svg-icons";
 
-import WorkflowFooter from "@/components/layout/footer/WorkflowFooter";
-import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemType } from "@/components/container/WorkflowCanvas";
+import WorkflowFooter from "@/components/layout/workflow/WorkflowFooter";
+import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemType } from "@/components/layout/workflow/WorkflowCanvas";
 import { ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
 import { useConfigurationContextStore } from "@/context/ConfigurationContext";
@@ -19,9 +19,9 @@ const createEmptyWorkflow = (): ConvexWorkflowQueryAPIProps => ({
   } as any,
   start: {
     activityStatus: true,
-    trigger: "afterEventEnd",
-    timePeriod: "minute",
-    timePeriodValue: 0,
+    trigger: "beforeEventStart",
+    timePeriod: "hour",
+    timePeriodValue: 24,
   } as any,
   end: {
     confirmation: "none",
@@ -32,6 +32,7 @@ const ScreenConfigurationWorkflowBuilder = () => {
   const [workflowState, setWorkflowState] = React.useState<ConvexWorkflowQueryAPIProps | undefined>(() => createEmptyWorkflow());
 
   const selectedWorkflow = useConfigurationContextStore((state) => state.selectedWorkflow);
+
 
   React.useEffect(() => {
     if (selectedWorkflow) {
@@ -120,13 +121,36 @@ const ScreenConfigurationWorkflowBuilder = () => {
       });
     }, [setWorkflowState]);
 
+  /**
+   * @description Updates the workflow state with the reordered list of process items
+   * @param {Array<ConvexWorkflowActionAPIProps|ConvexWorkflowDecisionAPIProps>} items - Ordered items after drag & drop
+   */
+  type WorkflowProcessItem = (ConvexWorkflowActionAPIProps & { nodeType: "action" }) | (ConvexWorkflowDecisionAPIProps & { nodeType: "decision" });
+
+  const handleReorderItems = React.useCallback(
+    (items: WorkflowProcessItem[]) => {
+      setWorkflowState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          process: {
+            ...(prev.process ?? { isCancellactionTermsIncludes: false }),
+            items,
+          },
+        };
+      });
+    },
+    [],
+  );
+
   return (
     <>
     <WorkflowCanvas
       workflow={workflowState}
       onAddNodeItem={handleAddNodeItem}
       onRemoveItem={handleRemoveItem}
-      onChangeNodeItem={handleChangeNodeItem} />
+      onChangeNodeItem={handleChangeNodeItem}
+      onReorderItems={handleReorderItems} />
     <WorkflowFooter />
     </>
   );

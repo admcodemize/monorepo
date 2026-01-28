@@ -30,7 +30,7 @@ import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components
 import ListItemGroup from "@/components/container/ListItemGroup";
 import ListWorkflowTemplate from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowTemplate";
 import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
-import type { WorkflowNodeItemProps } from "@/components/container/WorkflowCanvas";
+import type { WorkflowNodeItemProps } from "@/components/layout/workflow/WorkflowCanvas";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import TouchableHapticMailAccounts from "@/components/button/workflow/TouchableHapticMailAccounts";

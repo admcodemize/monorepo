@@ -46,12 +46,18 @@ const WorkflowFooter = ({
    * @description Returns all the workflows stored in the context for the currently signed in user
    * @see {@link context/ConfigurationContext} */
   const workflows = useConfigurationContextStore((state) => state.workflows);
+  const selectedWorkflow = useConfigurationContextStore((state) => state.selectedWorkflow);
   const setSelectedWorkflow = useConfigurationContextStore((state) => state.setSelectedWorkflow);
 
   /** @description Handles the on press event for the workflows tray */
   const onPressWorkflows = () => push("TrayWorkflow", { workflows: workflows, onPress: (workflow: ConvexWorkflowQueryAPIProps) => {
     setSelectedWorkflow(workflow);
   } });
+
+  const onPressSave = () => {
+    console.log("selectedWorkflow", selectedWorkflow);
+    console.log(selectedWorkflow?.process?.items);
+  }
 
   return (
     <Animated.View style={[WorkflowFooterStyle.floating, {
@@ -83,7 +89,7 @@ const WorkflowFooter = ({
             textCustomStyle={{ color: linkColor, fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
             hasViewCustomStyle={true}
             viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-            onPress={() => { console.log("Dashboard"); }} />
+            onPress={onPressSave} />
         </View>
       </Animated.View>
     </Animated.View>

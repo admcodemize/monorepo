@@ -1,7 +1,7 @@
 import React from "react";
 import { ConvexWorkflowActionAPIProps } from "@codemize/backend/Types";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { TextInput, View } from "react-native";
+import { GestureResponderEvent, TextInput, View } from "react-native";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import { faSquare } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -29,6 +29,7 @@ export type WorkflowActionProps = {
   action: ConvexWorkflowActionAPIProps;
   onPressRemove: (action: ConvexWorkflowActionAPIProps) => void;
   onPressActive: (isActive: boolean) => void;
+  onPressDrag: (e: GestureResponderEvent) => void;
 };
 
 /**
@@ -40,11 +41,13 @@ export type WorkflowActionProps = {
  * @param {ConvexWorkflowActionAPIProps} param0.action - The workflow action
  * @param {(action: ConvexWorkflowActionAPIProps) => void} param0.onPressRemove - Callback function when the remove button is pressed
  * @param {(action: ConvexWorkflowActionAPIProps) => void} param0.onPressActive - Callback function when the active button is pressed
+ * @param {(e: GestureResponderEvent) => void} param0.onPressDrag - Callback function when the drag button is pressed
  * @component */
 const WorkflowAction = ({ 
   action,
   onPressRemove,
-  onPressActive
+  onPressActive,
+  onPressDrag
 }: WorkflowActionProps) => {
   const { infoColor, secondaryBgColor, successColor, errorColor } = useThemeColors();
   const { push, dismiss } = useTrays('keyboard');
@@ -81,7 +84,7 @@ const WorkflowAction = ({
         backgroundColor: shadeColor(secondaryBgColor, 0.3),
       }]}>
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-        <TouchableHaptic onPress={() => {}}>
+        <TouchableHaptic onLongPress={onPressDrag}>
           <FontAwesomeIcon 
             icon={faBars as IconProp} 
             size={12} 

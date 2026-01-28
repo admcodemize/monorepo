@@ -110,19 +110,20 @@ const ScreenConfigurationIntegrationProvider = () => {
       showsVerticalScrollIndicator={false} 
       contentContainerStyle={ProviderStyle.view}>
         {providerItems.map((group) => ( 
-          <View style={{ gap: 8 }}>
-          <ListItemGroup 
-            key={`${KEYS.providerGroup}-${group.title}`}
-            title={group.title}
-            style={{ paddingHorizontal: 6 }}>
-          </ListItemGroup>
-            {group.items.map((item, index) => (
-              <ScreenConfigurationIntegrationProviderItem
-                key={`${KEYS.providerGroupItem}-${item.integrationKey}`}
-                {...item}
-                integrations={integrations}
-                hasConnections={hasGoogleConnections(item.integrationKey)}/>
-          ))}
+          <View 
+            key={`${KEYS.providerGroup}-${group.title}`} 
+            style={{ gap: 8 }}>
+              <ListItemGroup 
+                title={group.title}
+                style={{ paddingHorizontal: 6 }}>
+              </ListItemGroup>
+                {group.items.map((item, index) => (
+                  <ScreenConfigurationIntegrationProviderItem
+                    key={`${KEYS.providerGroupItem}-${item.integrationKey}`}
+                    {...item}
+                    integrations={integrations}
+                    hasConnections={hasGoogleConnections(item.integrationKey)}/>
+              ))}
           </View>
         ))}
     </ScrollView>

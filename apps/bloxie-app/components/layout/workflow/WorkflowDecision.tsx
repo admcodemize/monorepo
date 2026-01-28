@@ -1,7 +1,6 @@
 import React from "react";
-import { ConvexWorkflowActionAPIProps } from "@codemize/backend/Types";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { ScrollView, TextInput, View } from "react-native";
+import { GestureResponderEvent, ScrollView, TextInput, View } from "react-native";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import { faSquare } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -17,6 +16,8 @@ import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { ConvexWorkflowDecisionAPIProps } from "@codemize/backend/Types";
 import TouchableTag from "@/components/button/TouchableTag";
+import { STYLES } from "@codemize/constants/Styles";
+import { useTrays } from "react-native-trays";
 
 /**
  * @public
@@ -28,6 +29,7 @@ import TouchableTag from "@/components/button/TouchableTag";
 export type WorkflowDecisionProps = {
   decision: ConvexWorkflowDecisionAPIProps;
   onPressRemove: (decision: ConvexWorkflowDecisionAPIProps) => void;
+  onPressDrag?: (e: GestureResponderEvent) => void;
 };
 
 /**
@@ -41,10 +43,11 @@ export type WorkflowDecisionProps = {
  * @component */
 const WorkflowDecision = ({ 
   decision,
-  onPressRemove
+  onPressRemove,
+  onPressDrag
 }: WorkflowDecisionProps) => {
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
-  const [contentHeight, setContentHeight] = React.useState<number>(20);
+  const { push, dismiss } = useTrays('main');
 
   /** 
    * @description Handles the press event of the remove button
@@ -53,7 +56,16 @@ const WorkflowDecision = ({
     onPressRemove(decision);
   }, [onPressRemove, decision]);
 
-  React.useEffect(() => console.log('contentHeight', contentHeight), [contentHeight]);
+  /** 
+   * @description Handles the press event of the choose button
+   * -> Opens the tray for choosing the decision */
+  const onPressChoose = React.useCallback(() => {
+    push('TrayWorkflowDecisionChoose', {
+      onPress: () => {
+        dismiss('TrayWorkflowDecisionChoose');
+      },
+    });
+  }, [push, decision]);
 
   return (
     <Animated.View
@@ -65,9 +77,9 @@ const WorkflowDecision = ({
         borderRadius: 8,
         justifyContent: 'center',
       }]}>
-      <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10 }]}>
+      <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10, gap: 14 }]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-          <TouchableHaptic onPress={() => {}}>
+          <TouchableHaptic onLongPress={onPressDrag}>
             <FontAwesomeIcon 
               icon={faBars as IconProp} 
               size={12} 
@@ -92,7 +104,7 @@ const WorkflowDecision = ({
           />
         </View>
         <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
-        <TouchableHaptic onPress={() => {}}>
+          <TouchableHaptic onPress={onPressChoose}>
             <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
               <TextBase text="Auswählen" type="label" />
             </View>
@@ -113,34 +125,7 @@ const WorkflowDecision = ({
           </View>
         </View>
       </View>
-      
-      {/*<View style={{ marginHorizontal: 6, gap: 4 }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxHeight: 26 }} contentContainerStyle={{ gap: 4 }}>
-        <WorkflowDecisionItem />
-      </ScrollView>
-
-
-      </View>*/}
     </Animated.View>
-  );
-};
-
-const WorkflowDecisionItem = ({
-
-}) => {
-  const { infoColor } = useThemeColors();
-  return (
-    <TouchableTag
-    text="30-Min Besprechung"
-    type="label"
-    colorActive={shadeColor(infoColor, 0.2)}
-    colorInactive={shadeColor(infoColor, 0.2)}
-    viewStyle={{ paddingVertical: 6, borderRadius: 6, paddingHorizontal: 8 }}
-    textStyle={{ fontSize: 10, color: infoColor }}
-    showActivityIcon={true}
-    activityIconActive={faXmark as IconProp}
-    activityIconInactive={faXmark as IconProp}
-    onPress={() => { console.log('30-Min Besprechung'); }}/>
   );
 };
 

@@ -5,9 +5,8 @@ import ScreenTrayWorkflowTemplate, { ScreenTrayWorkflowTemplateProps } from "@/s
 import ScreenTrayWorkflowDecision, { ScreenTrayWorkflowDecisionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecision";
 import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowAction";
 import ScreenTrayWorkflowEventType, { ScreenTrayWorkflowEventTypeProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowEventType";
-import { View } from "react-native";
-import TrayContainer from "@/components/container/TrayContainer";
-import ScreenConfigurationWorkflowBuilder from "@/screens/private/modal/configuration/workflow/WorkflowBuilder";
+import ScreenTrayWorkflowCancellationTerms, { ScreenTrayWorkflowCancellationTermsProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowCancellationTerms";
+import ScreenTrayWorkflowDecisionChoose, { ScreenTrayWorkflowDecisionChooseProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecisionChoose";
 
 /**
  * @private
@@ -49,7 +48,7 @@ export const stackConfigs = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.9
+ * @version 0.0.10
  * @object */
 export const trays = {
   main: {
@@ -62,11 +61,11 @@ export const trays = {
     TrayWorkflowTemplate: { component: (props: ScreenTrayWorkflowTemplateProps) => <ScreenTrayWorkflowTemplate {...props} /> },
     TrayWorkflowDecision: { component: (props: ScreenTrayWorkflowDecisionProps) => <ScreenTrayWorkflowDecision {...props} /> },
     TrayWorkflowEventType: { component: (props: ScreenTrayWorkflowEventTypeProps) => <ScreenTrayWorkflowEventType {...props} /> },
-
-    TrayIntegration: { component: (props: any) => <TrayContainer title={"i18n.screens.trayIntegration.title"}><ScreenConfigurationWorkflowBuilder /></TrayContainer> },
+    TrayWorkflowDecisionChoose: { component: (props: ScreenTrayWorkflowDecisionChooseProps) => <ScreenTrayWorkflowDecisionChoose {...props} /> },
   },
   keyboard: {
     /** @description Workflow trays @see {@link screens/private/modal/configuration/workflow/trays} -> Special settings for keyboard handling */
     TrayWorkflowAction: { component: (props: ScreenTrayWorkflowActionProps) => <ScreenTrayWorkflowAction {...props} /> },
+    TrayWorkflowCancellationTerms: { component: (props: ScreenTrayWorkflowCancellationTermsProps) => <ScreenTrayWorkflowCancellationTerms {...props} /> },
   }
 };

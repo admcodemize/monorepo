@@ -13,6 +13,7 @@ import Divider from "@/components/container/Divider";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
+import { useTrays } from "react-native-trays";
 
 /**
  * @public
@@ -37,9 +38,19 @@ const TouchableHapticCancellationTerms = ({
   onPress,
 }: TouchableHapticCancellationTermsProps) => {
   const { secondaryBgColor, infoColor } = useThemeColors();
+  const { push, dismiss } = useTrays('keyboard');
 
   const [selected, setSelected] = React.useState<boolean>(false);
   React.useEffect(() => onPress(selected), [selected]);
+
+  /** @description Handles the on press event for editing the cancellation terms */
+  const onPressCancellationTerms = React.useCallback(() => {
+    push('TrayWorkflowCancellationTerms', {
+      onAfterSave: () => {
+        dismiss('TrayWorkflowCancellationTerms');
+      },
+    });
+  }, [push]);
 
   return (
     <View
@@ -51,7 +62,7 @@ const TouchableHapticCancellationTerms = ({
         type="label" 
         style={{ color: infoColor }} />
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: STYLES.sizeGap + 6 }]}>
-        <TouchableHaptic>
+        <TouchableHaptic onPress={onPressCancellationTerms}>
           <TextBase
             text={t("i18n.global.edit")} 
             type="label" />
@@ -59,8 +70,8 @@ const TouchableHapticCancellationTerms = ({
         <Divider vertical />
         <View style={{ width: 40 }}>
         <TouchableHapticSwitch
-            state={selected}
-            onStateChange={setSelected}/>
+          state={selected}
+          onStateChange={setSelected}/>
         </View>
       </View>
     </View>

@@ -12,7 +12,7 @@ import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import { faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { faObjectExclude, faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { useTrays } from "react-native-trays";
@@ -50,10 +50,10 @@ const WorkflowAction = ({
   onPressDrag
 }: WorkflowActionProps) => {
   const { infoColor, secondaryBgColor, successColor, errorColor } = useThemeColors();
-  const { push, dismiss } = useTrays('keyboard');
+  const { push } = useTrays('keyboard');
 
+  const [name, setName] = React.useState<string>(action.name);
   const [isActive, setIsActive] = React.useState<boolean>(action.activityStatus ?? true);
-
   React.useEffect(() => {
     onPressActive(isActive);
   }, [isActive, onPressActive]);
@@ -91,20 +91,23 @@ const WorkflowAction = ({
             color={infoColor} />
         </TouchableHaptic>
         <FontAwesomeIcon 
-          icon={faSquare as IconProp} 
-          size={12} 
+          icon={faObjectExclude as IconProp} 
+          size={14} 
           color={infoColor} />
         {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={infoColor} />*/}
         <TextInput
-          value={action.name}
+          value={name}
+          onChangeText={setName}
           placeholder="Name der Aktion"
           style={{
+            flex: 1,
+            minWidth: 0,
+            flexShrink: 1,
             color: infoColor,
             maxWidth: 160,
             fontSize: Number(SIZES.label),
             fontFamily: String(FAMILIY.subtitle),
-          }}
-          onChangeText={() => {}}/>
+          }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
         <TouchableHaptic onPress={onPressEdit}>

@@ -54,13 +54,13 @@ const TEMPLATE_VARIABLES: ConvexRuntimeAPIProps["templateVariables"] = [
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.39
- * @version 0.0.1
+ * @version 0.0.2
  * @description The workflow decisions for the application
  * -> Used to handle specific decisions in a workflow so the process can continue or not
  * @constant */
 const WORKFLOW_DECISIONS: ConvexRuntimeAPIProps["workflowDecisions"] = [
-  { key: "decisionEventType", sortOrder: 1, name: "i18n.convex.runtime.workflowDecisions.eventType.title", description: "i18n.convex.runtime.workflowDecisions.eventType.description", icon: "faBolt" },
-  { key: "decisionCalendarConnection", sortOrder: 2, name: "i18n.convex.runtime.workflowDecisions.calendarConnection.title", description: "i18n.convex.runtime.workflowDecisions.calendarConnection.description", icon: "faCloud" },
+  { key: "decisionEventType", sortOrder: 1, name: "i18n.convex.runtime.workflowDecisions.eventType.title", description: "i18n.convex.runtime.workflowDecisions.eventType.description", icon: "faBolt", type: "eventType" },
+  { key: "decisionCalendarConnection", sortOrder: 2, name: "i18n.convex.runtime.workflowDecisions.calendarConnection.title", description: "i18n.convex.runtime.workflowDecisions.calendarConnection.description", icon: "faClouds", type: "calendarConnection" },
 ];
 
 /**

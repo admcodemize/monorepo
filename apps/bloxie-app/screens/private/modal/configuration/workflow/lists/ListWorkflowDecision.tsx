@@ -26,7 +26,7 @@ export type ListWorkflowDecisionProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.2
+ * @version 0.0.3
  * @param {ListWorkflowDecisionProps} param0
  * @param {DimensionValue} param0.maxHeight - The maximum height of the scroll view
  * @param {(decision: ConvexRuntimeAPIWorkflowDecisionProps) => void} param0.onPress - The function to call when a decision is pressed
@@ -62,7 +62,7 @@ const ListWorkflowDecision = ({
           <ListItemWithChildren
             title={decision.name}
             description={decision.description}
-            type={ListItemWithChildrenTypeEnum.navigation}
+            type={ListItemWithChildrenTypeEnum.custom}
             icon={resolveRuntimeIcon(decision.icon || "faFlagCheckered")} />
         </TouchableHaptic>
       ))}

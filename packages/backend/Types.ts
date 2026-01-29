@@ -173,6 +173,7 @@ export type ConvexRuntimeAPIWorkflowDecisionProps = {
   name: string;
   description: string;
   icon?: string;
+  type: ConvexWorkflowAPIDecisionTypeEnum;
 }
 
 /**

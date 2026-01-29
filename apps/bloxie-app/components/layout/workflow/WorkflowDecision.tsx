@@ -18,6 +18,7 @@ import { ConvexWorkflowDecisionAPIProps } from "@codemize/backend/Types";
 import TouchableTag from "@/components/button/TouchableTag";
 import { STYLES } from "@codemize/constants/Styles";
 import { useTrays } from "react-native-trays";
+import { faSignsPost } from "@fortawesome/duotone-thin-svg-icons";
 
 /**
  * @public
@@ -86,9 +87,9 @@ const WorkflowDecision = ({
               color={infoColor} />
           </TouchableHaptic>
           <FontAwesomeIcon 
-            icon={faSquare as IconProp} 
-            size={12} 
-            color={shadeColor("#e09100", 0.3)} />
+            icon={faSignsPost as IconProp} 
+            size={14} 
+            color={"#e09100"} />
           {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />*/}
           <TextInput
             editable={false}

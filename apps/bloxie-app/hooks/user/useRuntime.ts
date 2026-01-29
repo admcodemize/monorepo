@@ -36,7 +36,6 @@ export function useRuntime({
   /** @description Call onFetchFinished only when real runtime from DB are loaded */
   React.useEffect(() => {
     if (isReady) onFetchFinished();
-    console.log("runtimeQuery", runtimeQuery);
   }, [runtimeQuery, onFetchFinished]);
 
   return { 

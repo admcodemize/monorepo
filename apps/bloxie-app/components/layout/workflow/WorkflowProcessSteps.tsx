@@ -17,7 +17,8 @@ import Divider from '@/components/container/Divider';
 import { STYLES } from '@codemize/constants/Styles';
 import GlobalWorkflowStyle from '@/styles/GlobalWorkflow';
 import TouchableTag from '@/components/button/TouchableTag';
-import { ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
+import { ConvexRuntimeAPIWorkflowDecisionProps, ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
+import { Id } from '../../../../../packages/backend/convex/_generated/dataModel';
 import TouchableHapticCancellationTerms from '@/components/button/workflow/TouchableHapticCancellationTerms';
 import { useTrays } from 'react-native-trays';
 import { WorkflowCanvasProps } from '@/components/layout/workflow/WorkflowCanvas';
@@ -28,7 +29,9 @@ export type WorkflowProcessStepsProps = WorkflowCanvasProps;
 
 const WorkflowProcessSteps = ({ 
   workflow,
-  onAddNodeItem,
+  onAddAction,
+  onAddDecision,
+
   onRemoveItem,
   onReorderItems
 }: WorkflowProcessStepsProps) => {
@@ -49,16 +52,23 @@ const WorkflowProcessSteps = ({
   const onPressAction = React.useCallback(() => {
       push('TrayWorkflowTemplate', {
         onPress: (template: ConvexTemplateAPIProps) => {
-          onAddNodeItem?.(workflow as ConvexWorkflowQueryAPIProps, "action", template);
+          const action: ConvexWorkflowActionAPIProps = {
+            workflowId: (workflow?._id ?? undefined) as Id<"workflow">,
+            name: template.name ?? "Neue Aktion",
+            subject: template.subject ?? "",
+            content: template.content ?? "",
+            activityStatus: true,
+          };
+          onAddAction(action);
           dismiss('TrayWorkflowTemplate');
         },
       });
-    }, [push]);
+    }, [push, workflow, onAddAction, dismiss]);
 
   const onPressDecision = React.useCallback(() => {
     push('TrayWorkflowDecision', {
-      onPress: (template: ConvexTemplateAPIProps) => {
-        onAddNodeItem?.(workflow as ConvexWorkflowQueryAPIProps, "decision", template);
+      onPress: (decision: ConvexRuntimeAPIWorkflowDecisionProps) => {
+        onAddDecision(decision);
         dismiss('TrayWorkflowDecision');
       },
     });
@@ -112,7 +122,7 @@ const WorkflowProcessSteps = ({
                     <FontAwesomeIcon
                       icon={faSignsPost as IconProp}
                       size={STYLES.sizeFaIcon + 2} />
-                    <TextBase text="Entscheid" type="label" style={{ color: infoColor }} />
+                    <TextBase text="Entscheidung" type="label" style={{ color: infoColor }} />
                   </View>
                 </TouchableHaptic>
               </View>

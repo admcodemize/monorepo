@@ -4,7 +4,7 @@ import { faBrightnessLow, faLayerGroup, faMicrochip } from "@fortawesome/duotone
 
 import WorkflowFooter from "@/components/layout/workflow/WorkflowFooter";
 import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemType } from "@/components/layout/workflow/WorkflowCanvas";
-import { ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
+import { ConvexRuntimeAPIWorkflowDecisionProps, ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
 import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
 import { useConfigurationContextStore } from "@/context/ConfigurationContext";
 
@@ -52,37 +52,6 @@ const ScreenConfigurationWorkflowBuilder = () => {
     [],
   );
 
-  const handleAddNodeItem = React.useCallback(
-    (_node: ConvexWorkflowQueryAPIProps, type: WorkflowNodeItemType, template: ConvexTemplateAPIProps) => {
-      setWorkflowState(prev => {
-        const base = prev ?? _node;
-        if (!base) return prev;
-
-        const templateId =
-          (template._id as WorkflowNodeItemProps["_id"]) ??
-          (`template-${Date.now()}` as WorkflowNodeItemProps["_id"]);
-
-        const nextItem = {
-          ...(template as any),
-          _id: templateId as any,
-          nodeType: type,
-          name: template.name ?? "Neue Aktion",
-          activityStatus: (template as any).activityStatus ?? true,
-        } as any;
-
-        const processItems = base.process?.items ?? [];
-
-        return {
-          ...base,
-          process: {
-            ...(base.process ?? { isCancellactionTermsIncludes: false }),
-            items: [...processItems, nextItem],
-          },
-        } as ConvexWorkflowQueryAPIProps;
-      });
-    },
-    [],
-  );
 
   const handleRemoveNodeItem = React.useCallback(
     (_node: ConvexWorkflowQueryAPIProps, key: string) => {
@@ -143,11 +112,66 @@ const ScreenConfigurationWorkflowBuilder = () => {
     [],
   );
 
+  /**
+   * @description Fügt eine Aktion in den Workflow-State (process.items) ein.
+   */
+  const handleAddAction = React.useCallback(
+    (action: ConvexWorkflowActionAPIProps) => {
+      setWorkflowState((prev) => {
+        if (!prev) return prev;
+        const processItems = prev.process?.items ?? [];
+        const itemWithNodeType = {
+          ...action,
+          _id: action._id ?? (`local-action-${Date.now()}` as Id<"workflowAction">),
+          workflowId: (prev._id ?? action.workflowId) as Id<"workflow">,
+          nodeType: "action" as const,
+        };
+        return {
+          ...prev,
+          process: {
+            ...(prev.process ?? { isCancellactionTermsIncludes: false }),
+            items: [...processItems, itemWithNodeType],
+          },
+        };
+      });
+    },
+    [],
+  );
+
+  /**
+   * @description Konvertiert eine Runtime-Entscheidung in process.items-Format und fügt sie in den Workflow-State ein.
+   */
+  const handleAddDecision = React.useCallback(
+    (decision: ConvexRuntimeAPIWorkflowDecisionProps) => {
+      setWorkflowState((prev) => {
+        if (!prev) return prev;
+        const processItems = prev.process?.items ?? [];
+        const workflowDecision: ConvexWorkflowDecisionAPIProps & { nodeType: "decision" } = {
+          _id: (`local-decision-${Date.now()}` as Id<"workflowDecision">),
+          workflowId: (prev._id ?? undefined) as Id<"workflow">,
+          type: decision.type,
+          content: [decision.key],
+          activityStatus: true,
+          nodeType: "decision",
+        };
+        return {
+          ...prev,
+          process: {
+            ...(prev.process ?? { isCancellactionTermsIncludes: false }),
+            items: [...processItems, workflowDecision],
+          },
+        };
+      });
+    },
+    [],
+  );
+
   return (
     <>
     <WorkflowCanvas
       workflow={workflowState}
-      onAddNodeItem={handleAddNodeItem}
+      onAddAction={handleAddAction}
+      onAddDecision={handleAddDecision}
       onRemoveItem={handleRemoveItem}
       onChangeNodeItem={handleChangeNodeItem}
       onReorderItems={handleReorderItems} />

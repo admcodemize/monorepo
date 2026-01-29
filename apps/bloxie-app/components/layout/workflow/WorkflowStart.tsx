@@ -1,92 +1,125 @@
 import React from 'react';
-import { Dimensions, LayoutRectangle, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
-import Animated, {
-  Easing,
-  LinearTransition,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
+import { TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import {
-  faBolt,
-  faBrightnessLow,
-} from '@fortawesome/duotone-thin-svg-icons';
-import GlobalContainerStyle from '@/styles/GlobalContainer';
+import { faBolt, faBrightnessLow } from '@fortawesome/duotone-thin-svg-icons';
+
+import { useThemeColors } from '@/hooks/theme/useThemeColor';
 import { shadeColor } from '@codemize/helpers/Colors';
-import { FAMILIY, SIZES } from '@codemize/constants/Fonts';
-import TouchableTag from '../../button/TouchableTag';
-import { ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
-import { Id } from '../../../../../packages/backend/convex/_generated/dataModel';
-import { LanguageEnumProps } from '@/helpers/System';
-import TouchableHapticTrigger from '../../button/workflow/TouchableHapticTrigger';
-import TouchableHapticTimePeriod from '../../button/workflow/TouchableHapticTimePeriod';
-import TouchableHapticConfirmation from '../../button/workflow/TouchableHapticConfirmation';
-import TouchableHapticActivityStatus from '../../button/workflow/TouchableHapticActivityStatus';
-import WorkflowProcessSteps from './WorkflowProcessSteps';
-import { useConfigurationContextStore } from '@/context/ConfigurationContext';
+import { ConvexWorkflowAPITimePeriodEnum, ConvexWorkflowAPITriggerEnum, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
+
+import TouchableTag from '@/components/button/TouchableTag';
+import TouchableHapticTrigger from '@/components/button/workflow/TouchableHapticTrigger';
+import TouchableHapticTimePeriod from '@/components/button/workflow/TouchableHapticTimePeriod';
+import TouchableHapticActivityStatus, { WorkflowActivityStatusEnum } from '@/components/button/workflow/TouchableHapticActivityStatus';
+import { ListItemDropdownProps } from '@/components/lists/item/ListItemDropdown';
+
+import GlobalWorkflowStyle, { MAX_WIDTH } from '@/styles/GlobalWorkflow';
+import GlobalContainerStyle from '@/styles/GlobalContainer';
 import { useDebounce } from '@codemize/hooks/useDebounce';
 
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.53
+ * @version 0.0.1
+ * @type */
 export type WorkflowStartProps = {
-  workflow: ConvexWorkflowQueryAPIProps|undefined;
+  workflow: ConvexWorkflowQueryAPIProps;
+  getWorkflow?: () => ConvexWorkflowQueryAPIProps;
+  onChange?: (workflow: ConvexWorkflowQueryAPIProps) => void;
 };
 
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.53
+ * @version 0.0.1
+ * @param {WorkflowStartProps} param0 
+ * @param {ConvexWorkflowQueryAPIProps} param0.workflow - The selected workflow object
+ * @param {Function} param0.getWorkflow - Callback function to get the current workflow from the central ref in component @see {@link WorkflowCanvas}
+ * @param {Function} param0.onChange - Callback function when user pressed the trigger, time period or activity status button
+ * @component */
 const WorkflowStart = ({
   workflow,
+  getWorkflow,
+  onChange,
 }: WorkflowStartProps) => {
-  const refStartNode = React.useRef<View>(null);
+  const { secondaryIconColor } = useThemeColors();
+  const { t } = useTranslation();
+
+  const refStart = React.useRef<View>(null);
   const [workflowName, setWorkflowName] = React.useState(workflow?.name ?? "");
 
-  const setSelectedWorkflow = useConfigurationContextStore((state) => state.setSelectedWorkflow);
-  React.useEffect(() => {
-    setSelectedWorkflow(workflow);
-  }, [workflow]);
+  /**
+   * @description Callback when user changes trigger, time period or activity status.
+   * Uses getWorkflow() so the update is always applied on top of the latest workflow (central ref). */
+  const onPress =
+  (property: "trigger" | "timePeriod" | "activityStatus") =>
+  (item: ListItemDropdownProps) => {
+    const _workflow = getWorkflow?.() ?? workflow;
+    onChange?.({
+      ..._workflow,
+      start: {
+        ..._workflow.start,
+        [property]: item.itemKey as ConvexWorkflowAPITriggerEnum|ConvexWorkflowAPITimePeriodEnum|WorkflowActivityStatusEnum,
+      },
+    });
+  };
 
-  React.useEffect(() => {
-    console.log("re-render");
-  }, []);
-
-  useDebounce(() => {
-
-  }, 1000);
+  /**
+   * @description Callback when user changes the workflow name.
+   * -> Uses getWorkflow() so the update is always applied on top of the latest workflow (central ref).
+   * @param {string} text - The new workflow name
+   * @function */
+  const onChangeWorkflowName = 
+  (text: string) => {
+    setWorkflowName(text);
+    onChange?.({
+      ...(getWorkflow?.() ?? workflow),
+      name: text,
+    });
+  };
 
   return (
-    <View style={[
-      styles.nodeWrapper,
-      { maxWidth: Dimensions.get('window').width - 28 },
-    ]}>
-      <View style={styles.tagRow}>
+    <View style={[{ maxWidth: MAX_WIDTH }]}>
+      <View style={[GlobalWorkflowStyle.node]}>
         <TouchableTag
           icon={faBolt as IconProp}
-          text={"Start"}
+          text={t("i18n.screens.workflow.builder.start")}
           type="label"
           isActive={true}
           disabled={true}
           colorActive={shadeColor(("#3F37A0"), 0)}
           viewStyle={{ paddingVertical: 3 }} />
-        <View style={[styles.node, { }]} pointerEvents="box-none" ref={refStartNode}>
-            <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
-              <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
+        <View 
+          ref={refStart}
+          style={[GlobalWorkflowStyle.nodeContent]}>
+            <View style={[GlobalContainerStyle.rowCenterStart, GlobalWorkflowStyle.nodeHeader]}>
+              <FontAwesomeIcon 
+                icon={faBrightnessLow as IconProp} 
+                size={16} 
+                color={secondaryIconColor} />
               <TextInput
                 value={workflowName}
-                onChangeText={setWorkflowName}
-                placeholder="Name des Workflows"
-                style={styles.workflowNameInput}/>
+                onChangeText={onChangeWorkflowName}
+                placeholder={t("i18n.screens.workflow.builder.workflowNamePlaceholder")}
+                style={GlobalWorkflowStyle.input}/>
             </View>
           <View style={{ gap: 4, alignSelf: 'stretch' }}>  
           <TouchableHapticTrigger
-            refContainer={refStartNode}
+            refContainer={refStart}
             workflow={workflow}
-            onPress={() => {}} />
+            onPress={onPress("trigger")} />
           <TouchableHapticTimePeriod
-            refContainer={refStartNode}
+            refContainer={refStart}
             workflow={workflow}
-            onPress={() => {}}/>
+            onPress={onPress("timePeriod")}/>
           <TouchableHapticActivityStatus
-            refContainer={refStartNode}
+            refContainer={refStart}
             workflow={workflow}
-            onPress={() => {}}/>
+            onPress={onPress("activityStatus")}/>
           </View>
         </View>
       </View>
@@ -95,57 +128,3 @@ const WorkflowStart = ({
 };
 
 export default WorkflowStart;
-
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-
-  tagRow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-    gap: 4
-  },
-  nodeWrapper: {
-    gap: 4,
-    overflow: 'hidden',
-  },
-  node: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 4,
-    paddingTop: 6,
-    gap: 4,
-    minHeight: 34,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  nodeHeaderRow: {
-    paddingHorizontal: 4,
-    gap: 10,
-    height: 24,
-  },
-  workflowNameInput: {
-    flex: 1,
-    minWidth: 0,
-    flexShrink: 1,
-    color: "#626D7B",
-    fontSize: Number(SIZES.label),
-    fontFamily: String(FAMILIY.subtitle),
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-  nodeHeaderActions: {
-    gap: 14,
-    marginLeft: 12,
-  },
-  connectionLayer: {
-    zIndex: -1,
-  },
-});
-
-

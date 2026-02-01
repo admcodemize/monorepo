@@ -8,9 +8,6 @@
     "./DateTime": "./DateTime.ts",
     "./Colors": "./Colors.ts"
   },
-  "dependencies": {
-    "@sentry/react-native": "^7.0.1"
-  },
   "devDependencies": {
     "@codemize/eslint-config": "*",
     "@codemize/typescript-config": "*",

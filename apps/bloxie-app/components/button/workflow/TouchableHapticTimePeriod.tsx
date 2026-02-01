@@ -38,12 +38,13 @@ export enum WorkflowTimePeriodEnum {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type TouchableHapticTimePeriodProps = {
   refContainer: React.RefObject<View|null>;
   workflow: ConvexWorkflowQueryAPIProps|undefined;
   onPress: (item: ListItemDropdownProps) => void;
+  onChangeValue: (value: string) => void;
 };
 
 /**
@@ -51,28 +52,29 @@ export type TouchableHapticTimePeriodProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.43
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticTimePeriodProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
  * @param {ConvexWorkflowQueryAPIProps|undefined} param0.workflow - The selected workflow object
  * @param {Function} param0.onPress - Callback function when user pressed the button
+ * @param {Function} param0.onChangeValue - Callback function when user changes the time period value
  * @component */
 const TouchableHapticTimePeriod = ({
   refContainer,
   workflow,
   onPress,
+  onChangeValue,
 }: TouchableHapticTimePeriodProps) => {
   const refTimePeriod = React.useRef<View>(null);
   const { secondaryBgColor, tertiaryBgColor, infoColor } = useThemeColors();
 
   const [selected, setSelected] = React.useState<ListItemDropdownProps>(WORKFLOW_TIME_PERIOD_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps);
-  const [timePeriod, setTimePeriod] = React.useState<string>("24");
+  const [timePeriodValue, setTimePeriodValue] = React.useState<string>("24");
 
   React.useEffect(() => {
     /** @description Set the selected time period/value based on the workflow start time period if it is defined */
-    if (workflow?.start.timePeriodValue) setTimePeriod(workflow?.start.timePeriodValue.toString());
     if (workflow?.start.timePeriod) setSelected(WORKFLOW_TIME_PERIOD_ITEMS.find((item) => item.itemKey === workflow?.start.timePeriod) as ListItemDropdownProps);
-  }, [workflow?.start.timePeriod, workflow?.start.timePeriodValue]);
+  }, [workflow?.start.timePeriod]);
 
   /**
    * @description Get the dropdown functions for displaying the available triggers.
@@ -96,6 +98,11 @@ const TouchableHapticTimePeriod = ({
         }} />
     );
   }
+
+  const onChangeTimePeriodValue = (text: string) => {
+    setTimePeriodValue(text);
+    onChangeValue(text);
+  };
 
   /**
    * @description Used to open the dropdown component
@@ -127,14 +134,14 @@ const TouchableHapticTimePeriod = ({
           icon={selected.icon as IconProp} 
           size={14} />
         <TextInput
-          value={timePeriod}
-          onChangeText={setTimePeriod}
-          keyboardType="numeric"
+          value={timePeriodValue}
+          onChangeText={onChangeTimePeriodValue}
+          keyboardType="number-pad"
           style={{
             color: infoColor,
+            textAlign: "center",
             fontSize: Number(SIZES.label),
-            fontFamily: String(FAMILIY.subtitle),
-            marginTop: 1
+            height: 30
           }} />
         <TouchableHapticDropdown
           ref={refTimePeriod}

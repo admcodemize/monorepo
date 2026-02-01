@@ -20,10 +20,13 @@ const GlobalWorkflowStyle = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 8
   },
+  viewTag: {
+    paddingVertical: 3
+  },
   right: {
     ...GlobalContainerStyle.rowCenterCenter,
     width: 40,
-    gap: 18
+    gap: 14
   },
   container: {
     flex: 1,
@@ -60,8 +63,6 @@ const GlobalWorkflowStyle = StyleSheet.create({
   },
   input: {
     flex: 1,
-    minWidth: 0,
-    flexShrink: 1,
     color: "#626D7B",
     fontSize: Number(SIZES.label),
     fontFamily: String(FAMILIY.subtitle),

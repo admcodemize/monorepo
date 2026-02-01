@@ -3,7 +3,7 @@
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.1
- * @version 0.0.4
+ * @version 0.0.5
  * @constant */
 export const COLORS = {
   light: {
@@ -40,7 +40,9 @@ export const COLORS = {
     weekendBg: "#626D7B",
     todayBg: "#497BCB",
     prevNextMonthBg: "#D1D1D1",
-    blockedScopeBg: "#f8f8f8"
+    blockedScopeBg: "#f8f8f8",
+    workflowStartBg: "#159F85",
+    workflowEndBg: "#3F37A0",
   },
   dark: {
     link: "#047dd4",
@@ -76,6 +78,8 @@ export const COLORS = {
     weekendBg: "#5E5E5E",
     todayBg: "#303030",
     prevNextMonthBg: "#D1D1D1",
-    blockedScopeBg: "#ededed"
+    blockedScopeBg: "#ededed",
+    workflowStartBg: "#3F37A0",
+    workflowEndBg: "#3F37A0",
   },
 };

@@ -133,7 +133,9 @@ export function WorkflowCanvas({
   return (
       <View style={GlobalWorkflowStyle.container}>
         <DottedBackground />
-        <ScrollView style={{ maxHeight: "85%"}} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={{ maxHeight: "85%"}} 
+          showsVerticalScrollIndicator={false}>
           <View style={[GlobalWorkflowStyle.content]}>
             <WorkflowStart 
               workflow={workflow} 
@@ -145,7 +147,10 @@ export function WorkflowCanvas({
               onAddDecision={onAddDecision}
               onRemoveItem={onRemoveItem}
               onReorderItems={onReorderItems} />
-            <WorkflowEnd workflow={workflow} />
+            <WorkflowEnd 
+              workflow={workflow} 
+              getWorkflow={getWorkflow} 
+              onChange={onChange} />
           </View>
         </ScrollView>
       </View>

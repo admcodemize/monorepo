@@ -6,7 +6,6 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faBolt, faBrightnessLow } from '@fortawesome/duotone-thin-svg-icons';
 
 import { useThemeColors } from '@/hooks/theme/useThemeColor';
-import { shadeColor } from '@codemize/helpers/Colors';
 import { ConvexWorkflowAPITimePeriodEnum, ConvexWorkflowAPITriggerEnum, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
 
 import TouchableTag from '@/components/button/TouchableTag';
@@ -17,7 +16,6 @@ import { ListItemDropdownProps } from '@/components/lists/item/ListItemDropdown'
 
 import GlobalWorkflowStyle, { MAX_WIDTH } from '@/styles/GlobalWorkflow';
 import GlobalContainerStyle from '@/styles/GlobalContainer';
-import { useDebounce } from '@codemize/hooks/useDebounce';
 
 /**
  * @public
@@ -46,7 +44,7 @@ const WorkflowStart = ({
   getWorkflow,
   onChange,
 }: WorkflowStartProps) => {
-  const { secondaryIconColor } = useThemeColors();
+  const { secondaryIconColor, workflowStartBgColor } = useThemeColors();
   const { t } = useTranslation();
 
   const refStart = React.useRef<View>(null);
@@ -82,6 +80,24 @@ const WorkflowStart = ({
     });
   };
 
+  /**
+   * @description Callback when user changes the time period value.
+   * -> Uses getWorkflow() so the update is always applied on top of the latest workflow (central ref).
+   * -> Based on input in component @see {@link TouchableHapticTimePeriod}
+   * @param {string} text - The new time period value
+   * @function */
+  const onChangeTimePeriodValue = 
+  (text: string) => {
+    const _workflow = getWorkflow?.() ?? workflow;
+    onChange?.({
+      ..._workflow,
+      start: {
+        ..._workflow.start,
+        timePeriodValue: parseInt(text),
+      },
+    });
+  };
+
   return (
     <View style={[{ maxWidth: MAX_WIDTH }]}>
       <View style={[GlobalWorkflowStyle.node]}>
@@ -91,8 +107,8 @@ const WorkflowStart = ({
           type="label"
           isActive={true}
           disabled={true}
-          colorActive={shadeColor(("#3F37A0"), 0)}
-          viewStyle={{ paddingVertical: 3 }} />
+          colorActive={workflowStartBgColor}
+          viewStyle={GlobalWorkflowStyle.viewTag} />
         <View 
           ref={refStart}
           style={[GlobalWorkflowStyle.nodeContent]}>
@@ -104,7 +120,7 @@ const WorkflowStart = ({
               <TextInput
                 value={workflowName}
                 onChangeText={onChangeWorkflowName}
-                placeholder={t("i18n.screens.workflow.builder.workflowNamePlaceholder")}
+                placeholder={t("i18n.screens.workflow.builder.placeholderName")}
                 style={GlobalWorkflowStyle.input}/>
             </View>
           <View style={{ gap: 4, alignSelf: 'stretch' }}>  
@@ -115,7 +131,8 @@ const WorkflowStart = ({
           <TouchableHapticTimePeriod
             refContainer={refStart}
             workflow={workflow}
-            onPress={onPress("timePeriod")}/>
+            onPress={onPress("timePeriod")}
+            onChangeValue={onChangeTimePeriodValue}/>
           <TouchableHapticActivityStatus
             refContainer={refStart}
             workflow={workflow}

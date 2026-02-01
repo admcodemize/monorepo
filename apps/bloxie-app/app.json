@@ -78,7 +78,8 @@
       "router": {},
       "eas": {
         "projectId": "7cc140bd-e268-47e6-96ff-44815d156207"
-      }
+      },
+      "expoRouterAppRoot": "apps/bloxie-app/app"
     }
   }
 }

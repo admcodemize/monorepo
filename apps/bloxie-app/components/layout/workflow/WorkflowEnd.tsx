@@ -1,114 +1,100 @@
 import React from 'react';
-import { Dimensions, StyleSheet, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { TextInput, View } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import {
-  faBrightnessLow,
-  faStopwatch,
-} from '@fortawesome/duotone-thin-svg-icons';
-import GlobalContainerStyle from '@/styles/GlobalContainer';
-import { shadeColor } from '@codemize/helpers/Colors';
-import { FAMILIY, SIZES } from '@codemize/constants/Fonts';
-import TouchableTag from '../../button/TouchableTag';
-import { ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
-import TouchableHapticConfirmation from '../../button/workflow/TouchableHapticConfirmation';
+import {faBrightnessLow, faStopwatch } from '@fortawesome/duotone-thin-svg-icons';
 
+import { ConvexWorkflowAPIConfirmationEnum, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
+import { useThemeColors } from '@/hooks/theme/useThemeColor';
+
+import TouchableTag from '@/components/button/TouchableTag';
+import TouchableHapticConfirmation from '@/components/button/workflow/TouchableHapticConfirmation';
+import { ListItemDropdownProps } from '@/components/lists/item/ListItemDropdown';
+
+import GlobalWorkflowStyle, { MAX_WIDTH } from '@/styles/GlobalWorkflow';
+import GlobalContainerStyle from '@/styles/GlobalContainer';
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.52
+ * @version 0.0.2
+ * @type */
 export type WorkflowEndProps = {
-  workflow?: ConvexWorkflowQueryAPIProps;
+  workflow: ConvexWorkflowQueryAPIProps;
+  getWorkflow?: () => ConvexWorkflowQueryAPIProps;
+  onChange?: (workflow: ConvexWorkflowQueryAPIProps) => void;
 };
 
 /**
- * High-level canvas that renders nodes, their connections and contextual UI for
- * building automated workflows.
- */
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.52
+ * @version 0.0.2
+ * @param {WorkflowEndProps} param0 
+ * @param {ConvexWorkflowQueryAPIProps} param0.workflow - The selected workflow object
+ * @param {Function} param0.getWorkflow - Callback function to get the current workflow from the central ref in component @see {@link WorkflowCanvas}
+ * @param {Function} param0.onChange - Callback function when user changes the confirmation button
+ * @component */
 export function WorkflowEnd({
   workflow,
+  getWorkflow,
+  onChange,
 }: WorkflowEndProps) {
+  const { workflowEndBgColor, secondaryIconColor } = useThemeColors();
+  const { t } = useTranslation();
   const refEnd = React.useRef<View>(null);
+
+  /**
+   * @description Callback when user changes the confirmation button.
+   * Uses getWorkflow() so the update is always applied on top of the latest workflow (central ref). */
+  const onPress =
+  (item: ListItemDropdownProps) => {
+    const _workflow = getWorkflow?.() ?? workflow;
+    onChange?.({
+      ..._workflow,
+      end: {
+        ..._workflow.end,
+        confirmation: item.itemKey as ConvexWorkflowAPIConfirmationEnum,
+      },
+    });
+  };
+  
   return (
-    <View style={[
-      styles.nodeWrapper,
-      { maxWidth: Dimensions.get('window').width - 28 },
-    ]}>
-      <View style={styles.tagRow}>
+    <View style={[{ maxWidth: MAX_WIDTH }]}>
+      <View style={[GlobalWorkflowStyle.node]}>
         <TouchableTag
           icon={faStopwatch as IconProp}
-          text={"Ende"}
+          text={t("i18n.screens.workflow.builder.end")}
           type="label"
           isActive={true}
           disabled={true}
-          colorActive={shadeColor(("#3F37A0"), 0)}
-          viewStyle={{ paddingVertical: 3 }} />
-        <View style={[styles.node]} pointerEvents="box-none" ref={refEnd}>
-          <View style={[GlobalContainerStyle.rowCenterStart, styles.nodeHeaderRow]}>
-
-            <FontAwesomeIcon icon={faBrightnessLow as IconProp} size={16} color={"#626D7B"} />
+          colorActive={workflowEndBgColor}
+          viewStyle={GlobalWorkflowStyle.viewTag} />
+        <View 
+          ref={refEnd}
+          style={[GlobalWorkflowStyle.nodeContent]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, GlobalWorkflowStyle.nodeHeader]}>
+            <FontAwesomeIcon 
+              icon={faBrightnessLow as IconProp} 
+              size={16} 
+              color={secondaryIconColor} />
             <TextInput
               editable={false}
-              value={"Abschluss"}
+              value={t("i18n.screens.workflow.builder.completion")}
               onChangeText={() => {}}
               placeholder="Name des Workflows"
-              style={styles.workflowNameInput}/>
+              style={GlobalWorkflowStyle.input}/>
           </View>
-          <View style={{ gap: 4}}>  
-          <TouchableHapticConfirmation
-            refContainer={refEnd}
-            onPress={() => {}}/>
+          <View style={{ gap: 4 }}>  
+            <TouchableHapticConfirmation
+              refContainer={refEnd}
+              onPress={onPress}/>
           </View>
         </View>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-
-  tagRow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-    gap: 4
-  },
-  nodeWrapper: {
-    gap: 4,
-    overflow: 'hidden',
-  },
-  node: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 4,
-    paddingTop: 6,
-    gap: 4,
-    minHeight: 34,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  nodeHeaderRow: {
-    paddingHorizontal: 4,
-    gap: 10,
-    height: 24,
-  },
-  workflowNameInput: {
-    flex: 1,
-    minWidth: 0,
-    flexShrink: 1,
-    color: "#626D7B",
-    fontSize: Number(SIZES.label),
-    fontFamily: String(FAMILIY.subtitle),
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-  nodeHeaderActions: {
-    gap: 14,
-    marginLeft: 12,
-  },
-  connectionLayer: {
-    zIndex: -1,
-  },
-});
-
 

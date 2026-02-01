@@ -16,7 +16,7 @@ import WorkflowAction from "@/components/layout/workflow/WorkflowAction";
 export type WorkflowProcessStepsItemProps = {
   item: (ConvexWorkflowActionAPIProps & { nodeType: "action" }) | (ConvexWorkflowDecisionAPIProps & { nodeType: "decision" });
   onRemoveItem: (item: ConvexWorkflowActionAPIProps | ConvexWorkflowDecisionAPIProps) => void;
-  onPressAction: (isActive: boolean) => void;
+  onPressActive: (isActive: boolean) => void;
   onPressDrag: (e: GestureResponderEvent) => void;
 };
 
@@ -28,13 +28,13 @@ export type WorkflowProcessStepsItemProps = {
  * @param {WorkflowProcessStepsItemProps} param0
  * @param {ConvexWorkflowActionAPIProps & { nodeType: "action" } | ConvexWorkflowDecisionAPIProps & { nodeType: "decision" }} param0.item - The item to render
  * @param {(item: ConvexWorkflowActionAPIProps | ConvexWorkflowDecisionAPIProps) => void} param0.onRemoveItem - Callback function when the remove button is pressed
- * @param {(isActive: boolean) => void} param0.onPressAction - Callback function when the active play/pause button is pressed
+ * @param {(isActive: boolean) => void} param0.onPressActive - Callback function when the active play/pause button is pressed
  * @param {(e: GestureResponderEvent) => void} param0.onPressDrag - Callback function when the drag button is pressed
  * @component */
 const WorkflowProcessStepsItem = ({
   item,
   onRemoveItem,
-  onPressAction,
+  onPressActive,
   onPressDrag
 }: WorkflowProcessStepsItemProps) => {
   return (
@@ -43,12 +43,13 @@ const WorkflowProcessStepsItem = ({
         <WorkflowAction
           action={item as ConvexWorkflowActionAPIProps}
           onPressRemove={onRemoveItem}
-          onPressActive={onPressAction}
+          onPressActive={onPressActive}
           onPressDrag={onPressDrag} />
       ) : (
         <WorkflowDecision
           decision={item as ConvexWorkflowDecisionAPIProps}
           onPressRemove={onRemoveItem}
+          onPressActive={onPressActive}
           onPressDrag={onPressDrag} />)}
     </View>
   );

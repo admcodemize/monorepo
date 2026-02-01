@@ -19,15 +19,26 @@
     "node": ">=18"
   },
   "packageManager": "npm@10.8.2",
+  "overrides": {
+    "fast-xml-parser": "5.3.4",
+    "expo": "~54.0.29",
+    "expo-constants": "~18.0.13",
+    "expo-router": "6.0.19",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "dependencies": {
-    "convex": "^1.28.0",
-    "expo": "~54.0.20",
+    "convex": "1.31.7",
+    "convex-helpers": "0.1.111",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "expo": "~54.0.29",
+    "react-native": "0.81.5",
+    "@sentry/react-native": "~7.2.0"
   },
   "version": "1.0.0"
 }

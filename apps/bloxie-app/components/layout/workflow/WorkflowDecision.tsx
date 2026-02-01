@@ -11,7 +11,7 @@ import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import { faBars, faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { faArrowRightToLine, faBars, faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { ConvexWorkflowDecisionAPIProps } from "@codemize/backend/Types";
@@ -19,17 +19,22 @@ import TouchableTag from "@/components/button/TouchableTag";
 import { STYLES } from "@codemize/constants/Styles";
 import { useTrays } from "react-native-trays";
 import { faSignsPost } from "@fortawesome/duotone-thin-svg-icons";
+import { resolveRuntimeIcon } from "@/helpers/System";
+import { faFilePen, faTrashSlash } from "@fortawesome/duotone-thin-svg-icons";
+import ViewBase from "@/components/container/View";
+import { useTranslation } from "react-i18next";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
  * @since 0.0.49
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type WorkflowDecisionProps = {
   decision: ConvexWorkflowDecisionAPIProps;
   onPressRemove: (decision: ConvexWorkflowDecisionAPIProps) => void;
+  onPressActive: (isActive: boolean) => void;
   onPressDrag?: (e: GestureResponderEvent) => void;
 };
 
@@ -37,18 +42,26 @@ export type WorkflowDecisionProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.49
- * @version 0.0.2
+ * @version 0.0.4
  * @param {WorkflowDecisionProps} param0
  * @param {ConvexWorkflowDecisionAPIProps} param0.decision
  * @param {(decision: ConvexWorkflowDecisionAPIProps) => void} param0.onPressRemove - Callback function when the remove button is pressed
+ * @param {(isActive: boolean) => void} param0.onPressActive - Callback function when the active play/pause button is pressed
  * @component */
 const WorkflowDecision = ({ 
   decision,
   onPressRemove,
+  onPressActive,
   onPressDrag
 }: WorkflowDecisionProps) => {
   const { secondaryBgColor, errorColor, successColor, infoColor } = useThemeColors();
   const { push, dismiss } = useTrays('main');
+  const { t } = useTranslation();
+
+  const [isActive, setIsActive] = React.useState<boolean>(decision.activityStatus ?? true);
+  React.useEffect(() => {
+    onPressActive(isActive);
+  }, [isActive, onPressActive]);
 
   /** 
    * @description Handles the press event of the remove button
@@ -79,48 +92,44 @@ const WorkflowDecision = ({
         justifyContent: 'center',
       }]}>
       <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10, gap: 14 }]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
+        <ViewBase 
+          schemeProperty="secondaryBg"
+          style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
           <TouchableHaptic onLongPress={onPressDrag}>
             <FontAwesomeIcon 
               icon={faBars as IconProp} 
-              size={12} 
+              size={14} 
               color={infoColor} />
           </TouchableHaptic>
           <FontAwesomeIcon 
             icon={faSignsPost as IconProp} 
-            size={14} 
+            size={16} 
             color={"#e09100"} />
-          {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={accentColor} />*/}
           <TextInput
             editable={false}
-            value={decision.type === "eventType" ? "Ereignistypen" : "Kalender-Verbindungen"}
-            placeholder="Name der Aktion"
-            style={{
-              color: infoColor,
-              fontSize: Number(SIZES.label),
-              fontFamily: String(FAMILIY.subtitle),
-              maxWidth: 180,
-            }}
-            onChangeText={() => {}}
-          />
-        </View>
+            value={decision.type === "eventType" ? "i18n.convex.runtime.workflowDecisions.eventType.title" : "i18n.convex.runtime.workflowDecisions.calendarConnection.title"}
+            placeholder={t("i18n.convex.runtime.workflowDecisions.placeholder")}
+            style={[GlobalWorkflowStyle.input, { color: infoColor }]} />
+        </ViewBase>
         <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
           <TouchableHaptic onPress={onPressChoose}>
-            <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 4 }]}>
-              <TextBase text="Auswählen" type="label" />
-            </View>
+            <FontAwesomeIcon 
+              icon={faFilePen as IconProp} 
+              size={14} 
+              color={infoColor} />
           </TouchableHaptic>
           <Divider vertical />
           <View style={GlobalWorkflowStyle.right}>
             <TouchableHapticIcon
-              icon={(decision.activityStatus ? faPlay : faPause) as IconProp}
-              iconSize={12}
-              iconColor={decision.activityStatus ? successColor : errorColor}
+              icon={(isActive ? faPlay : faPause) as IconProp}
+              iconSize={14}
+              iconColor={isActive ? successColor : errorColor}
               hasViewCustomStyle={true}
-              onPress={() => {}} />
+              onPress={() => setIsActive(!isActive)} />
             <TouchableHapticIcon 
-              icon={faXmark as IconProp} 
-              iconSize={12} 
+              icon={faTrashSlash as IconProp} 
+              iconSize={14} 
+              iconColor={errorColor}
               hasViewCustomStyle={true} 
               onPress={onPressRemoveInternal} />
           </View>

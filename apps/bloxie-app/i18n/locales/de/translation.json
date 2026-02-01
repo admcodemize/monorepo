@@ -120,6 +120,10 @@
           "history": "Ausgeführte Workflows"
         },
         "builder": {
+          "start": "Start",
+          "end": "Ende",
+          "completion": "Abschluss",
+          "placeholderName": "Workflow Name",
           "trigger": "Auslöser",
           "timePeriod": "Zeitraum",
           "confirmation": "Bestätigung",

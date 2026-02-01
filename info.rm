@@ -1,0 +1,4 @@
+rm -rf node_modules apps/*/node_modules packages/*/node_modules
+   rm -f package-lock.json
+   npm install
+-> Complet new installation with removing all the packages!!

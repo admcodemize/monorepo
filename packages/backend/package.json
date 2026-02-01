@@ -8,13 +8,8 @@
     "./Convert": "./Convert.ts"
   },
   "dependencies": {
-    "convex": "^1.30.0",
-    "convex-helpers": "^0.1.104",
     "@clerk/clerk-expo": "^2.17.1",
     "@clerk/types": "^4.95.1",
-    "expo": "~54.0.20",
-    "react": "19.1.0",
-    "react-native": "0.81.5",
     "rrule": "^2.8.1"
   },
   "devDependencies": {

@@ -12,11 +12,12 @@ import TouchableHaptic from "@/components/button/TouchableHaptic";
 import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import { faObjectExclude, faPause, faPlay, faXmark } from "@fortawesome/duotone-thin-svg-icons";
+import { faObjectExclude, faPause, faPlay, faTrashSlash, faXmark } from "@fortawesome/duotone-thin-svg-icons";
 import { shadeColor } from "@codemize/helpers/Colors";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { useTrays } from "react-native-trays";
-import { faBars } from "@fortawesome/pro-thin-svg-icons";
+import { faBars, faFilePen } from "@fortawesome/duotone-thin-svg-icons";
+import ViewBase from "@/components/container/View";
 
 /**
  * @public
@@ -83,53 +84,46 @@ const WorkflowAction = ({
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
         backgroundColor: shadeColor(secondaryBgColor, 0.3),
       }]}>
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: 8 }]}>
-        <TouchableHaptic onLongPress={onPressDrag}>
+        <ViewBase
+          schemeProperty="secondaryBg"
+          style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+          <TouchableHaptic onLongPress={onPressDrag}>
+            <FontAwesomeIcon 
+              icon={faBars as IconProp} 
+              size={14} 
+              color={infoColor} />
+          </TouchableHaptic>
           <FontAwesomeIcon 
-            icon={faBars as IconProp} 
-            size={12} 
+            icon={faObjectExclude as IconProp} 
+            size={14} 
             color={infoColor} />
-        </TouchableHaptic>
-        <FontAwesomeIcon 
-          icon={faObjectExclude as IconProp} 
-          size={14} 
-          color={infoColor} />
-        {/*<FontAwesomeIcon icon={resolvedIcon} size={16} color={infoColor} />*/}
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Name der Aktion"
-          style={{
-            flex: 1,
-            minWidth: 0,
-            flexShrink: 1,
-            color: infoColor,
-            maxWidth: 160,
-            fontSize: Number(SIZES.label),
-            fontFamily: String(FAMILIY.subtitle),
-          }} />
-      </View>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Name der Aktion"
+            style={[GlobalWorkflowStyle.input, { color: infoColor }]} />
+      </ViewBase>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
         <TouchableHaptic onPress={onPressEdit}>
-          <View style={[GlobalContainerStyle.rowCenterCenter]}>
-            <TextBase 
-              text={'Bearbeiten'} 
-              type="label" />
-          </View>
+          <FontAwesomeIcon 
+            icon={faFilePen as IconProp} 
+            size={14} 
+            color={infoColor} />
         </TouchableHaptic>
         <Divider vertical />
         <View style={GlobalWorkflowStyle.right}>
-        <TouchableHapticIcon
-          icon={(isActive ? faPlay : faPause) as IconProp}
-          iconSize={12}
-          iconColor={isActive ? successColor : errorColor}
-          hasViewCustomStyle={true}
-          onPress={() => setIsActive(!isActive)}/>
-        <TouchableHapticIcon
-          icon={faXmark as IconProp}
-          iconSize={12}
-          hasViewCustomStyle={true}
-          onPress={onPressRemoveInternal}/>
+          <TouchableHapticIcon
+            icon={(isActive ? faPlay : faPause) as IconProp}
+            iconSize={14}
+            iconColor={isActive ? successColor : errorColor}
+            hasViewCustomStyle={true}
+            onPress={() => setIsActive(!isActive)}/>
+          <TouchableHapticIcon 
+            icon={faTrashSlash as IconProp} 
+            iconSize={14} 
+            iconColor={errorColor}
+            hasViewCustomStyle={true} 
+            onPress={onPressRemoveInternal} />
         </View>
       </View>
     </Animated.View>

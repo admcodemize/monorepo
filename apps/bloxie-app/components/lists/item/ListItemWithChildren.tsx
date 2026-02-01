@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { Image } from "react-native";
+import { Image, TextStyle } from "react-native";
 import { ImageSourcePropType, StyleProp, View, ViewStyle } from "react-native";
 
 import { faAngleRight, faExclamationTriangle } from "@fortawesome/duotone-thin-svg-icons";
@@ -39,7 +39,7 @@ export enum ListItemWithChildrenTypeEnum {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @type */
 export type ListItemWithChildrenProps = PropsWithChildren & {
   icon?: IconProp;
@@ -49,6 +49,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
   imageHeight?: number;
   title: string;
   description?: string;
+  descriptionNumberOfLines?: number;
   titleI18nTranslation?: boolean;
   descriptionI18nTranslation?: boolean;
   gap?: number;
@@ -59,6 +60,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
   bottom?: React.ReactNode;
   isComingSoon?: boolean;
   styleTextComponent?: StyleProp<ViewStyle>;
+  styleDescriptionComponent?: StyleProp<TextStyle>;
 }
 
 /**
@@ -66,7 +68,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description A list item with a title, description and children
  * @since 0.0.2
- * @version 0.0.7
+ * @version 0.0.8
  * @param {ListItemWithChildrenProps} param0
  * @param {IconProp} param0.icon - The icon to display
  * @param {number} param0.iconSize - The custom size of the icon
@@ -75,6 +77,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
  * @param {number} param0.imageHeight - The height of the image
  * @param {string} param0.title - The title of the list item
  * @param {string} param0.description - The description of the list item
+ * @param {number} param0.descriptionNumberOfLines - The number of lines to show for the description
  * @param {boolean} param0.titleI18nTranslation - Should the title be translated
  * @param {boolean} param0.descriptionI18nTranslation - Should the description be translated
  * @param {ListItemWithChildrenTypeEnum} param0.type - The type of the list item which handles the visibility of different components
@@ -85,6 +88,7 @@ export type ListItemWithChildrenProps = PropsWithChildren & {
  * @param {React.ReactNode} param0.bottom - The bottom component to display on the bottom side of the list item
  * @param {boolean} param0.isComingSoon - Should the list item be disabled because the feature is not available yet
  * @param {StyleProp<ViewStyle>} param0.styleTextComponent - The style to display on the text component
+ * @param {StyleProp<TextStyle>} param0.styleDescriptionComponent - The style to display on the description component
  * @param {React.ReactNode} param0.children - The generic children to display on the right side of the list item
  * @component */
 const ListItemWithChildren = ({
@@ -95,6 +99,7 @@ const ListItemWithChildren = ({
   imageHeight,
   title,
   description,
+  descriptionNumberOfLines = 2,
   titleI18nTranslation = true,
   descriptionI18nTranslation = true,
   type = ListItemWithChildrenTypeEnum.select,
@@ -104,6 +109,7 @@ const ListItemWithChildren = ({
   right,
   bottom,
   styleTextComponent,
+  styleDescriptionComponent,
   isComingSoon = false,
   children,
 }: ListItemWithChildrenProps) => {
@@ -132,9 +138,9 @@ const ListItemWithChildren = ({
                 text={description}
                 type="label"
                 i18nTranslation={descriptionI18nTranslation}
-                numberOfLines={2}
+                numberOfLines={descriptionNumberOfLines}
                 ellipsizeMode="tail"
-                style={[GlobalTypographyStyle.labelText, { fontSize: Number(SIZES.label) }]} />}
+                style={[GlobalTypographyStyle.labelText, { fontSize: Number(SIZES.label) }, styleDescriptionComponent]} />}
             </View>
             {isComingSoon && <TouchableTag
               icon={faExclamationTriangle as IconProp}

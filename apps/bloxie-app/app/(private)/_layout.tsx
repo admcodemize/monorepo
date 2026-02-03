@@ -96,17 +96,14 @@ const PrivateLayout = () => {
       linkedMailAccounts={linkedMailAccounts}
       times={[]}>
         <DateTimeProvider timeZone={getTimeZone()}>
-          <Stack
-            screenOptions={{ 
-              headerShown: false 
-            }}>
-              <Stack.Protected guard={isSignedIn || false}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="(modal)/create" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/general/booking" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/general/poll" options={{ presentation: "fullScreenModal" }} />
-                <Stack.Screen name="(modal)/configuration" options={{ presentation: "fullScreenModal" }} />
-              </Stack.Protected>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Protected guard={isSignedIn || false}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(modal)/create" options={{ presentation: "fullScreenModal" }} />
+              <Stack.Screen name="(modal)/account" options={{ presentation: "fullScreenModal" }} />
+              <Stack.Screen name="(modal)/general" options={{ presentation: "fullScreenModal" }} />
+              <Stack.Screen name="(modal)/configuration" options={{ presentation: "fullScreenModal" }} />
+            </Stack.Protected>
           </Stack>  
         </DateTimeProvider>
        <RootFooter />

@@ -1,7 +1,5 @@
 import { Stack } from "expo-router";
 
-import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
-
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
@@ -10,15 +8,13 @@ import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView"
  * @version 0.0.1 */
 const PublicLayout = () => {  
   return (
-    <SafeAreaContextViewBase>
-      <Stack screenOptions={{
-          animation: "fade", 
-          animationDuration: 400,
-          headerShown: false,
-        }}>
-          <Stack.Screen name="index"/>       
-      </Stack>
-    </SafeAreaContextViewBase>
+    <Stack screenOptions={{
+        animation: "fade", 
+        animationDuration: 400,
+        headerShown: false,
+      }}>
+        <Stack.Screen name="index"/>       
+    </Stack>
   );
 }
 

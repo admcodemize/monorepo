@@ -20,7 +20,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @component */
 const ScreenTrayAction = () => {
   /** @description Used to get the theme based colors */
@@ -38,7 +38,8 @@ const ScreenTrayAction = () => {
               route={`/action/${item.route}`}
               icon={item.icon} 
               title={item.title} 
-              description={item.description} />
+              description={item.description}
+              isComingSoon={item.isComingSoon} />
           ))}
         </ListItemGroup>
         <ListItemGroup 

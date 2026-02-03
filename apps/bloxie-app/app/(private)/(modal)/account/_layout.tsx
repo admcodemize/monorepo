@@ -11,20 +11,21 @@ import { stackConfigs, trays } from "@/helpers/Trays";
  * @component */
 const ModalAccountLayout = () => {
   return (
-
-      <TrayProvider 
-        stackConfigs={stackConfigs}
-        trays={{ ...trays.main, ...trays.keyboard }}>
-          <></>
-      </TrayProvider>
-
+    <TrayProvider 
+      stackConfigs={stackConfigs}
+      trays={{ ...trays.main, ...trays.keyboard }}>
+        <Stack screenOptions={{ headerShown: false, presentation: "fullScreenModal" }}>
+          <Stack.Screen name="setting" />
+          <Stack.Screen name="user" />
+        </Stack>
+    </TrayProvider>
   );
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.46
+ * @since 0.0.29
  * @version 0.0.1
  * @component */
 const RootLayout = () => <ModalAccountLayout />;

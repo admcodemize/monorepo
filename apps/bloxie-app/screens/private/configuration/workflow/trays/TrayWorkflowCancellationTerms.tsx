@@ -178,6 +178,8 @@ const ScreenTrayWorkflowCancellationTerms = ({
                 onStyleStateChange={setStyleState} />
             </Animated.View>
             <View style={[GlobalContainerStyle.rowCenterEnd, ActionTemplateStyle.actions,{ height: TOOLBAR_HEIGHT }]}>
+              {/**
+                * @TODO Implement in a future version 
               <TouchableHapticDropdown
                 text="DE"
                 icon={faLanguage as IconProp}
@@ -185,7 +187,7 @@ const ScreenTrayWorkflowCancellationTerms = ({
                 hasViewCustomStyle={true}
                 viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
                 textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-                onPress={() => { }} />
+                onPress={() => { }} />*/}
             </View>
           </View>
 

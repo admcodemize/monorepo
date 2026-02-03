@@ -176,10 +176,11 @@ const Editor = React.forwardRef<EnrichedTextInputInstance, EditorProps>(({
   }, [refSelection]);
 
   /** 
+   * @TODO Fix the type of the event.nativeEvent
    * @description Used to handle the state change of the content inside the editor
    * -> Changes the highlighting of the styling buttons which are declared outside the editor */
   const onChangeState = React.useCallback((event: NativeSyntheticEvent<OnChangeStateEvent>) => {
-    const { isBold, isItalic, isUnderline, isOrderedList, isUnorderedList, isBlockQuote, isCodeBlock } = event.nativeEvent ?? {};
+    const { isBold, isItalic, isUnderline, isOrderedList, isUnorderedList, isBlockQuote, isCodeBlock } = event.nativeEvent ?? {} as OnChangeStateEvent;
     setStyleState((prev) => ({
       ...prev,
       isBold: isBold ?? prev.isBold,

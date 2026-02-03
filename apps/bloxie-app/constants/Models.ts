@@ -173,7 +173,7 @@ export const DROPDOWN_CALENDAR_VIEWS: CalendarViewProps[] = [{
  * @description Used for handling generic data inside tray action component 
  * @readonly
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const TRAY_ACTION_ITEMS: TrayActionItemProps[] = [{
   key: "booking",
@@ -187,6 +187,7 @@ export const TRAY_ACTION_ITEMS: TrayActionItemProps[] = [{
   icon: faBarsProgress as IconProp,
   title: "i18n.screens.trayAction.items.poll.title",
   description: "i18n.screens.trayAction.items.poll.description",
+  isComingSoon: true,
 }];
 
 /**
@@ -195,7 +196,7 @@ export const TRAY_ACTION_ITEMS: TrayActionItemProps[] = [{
  * @description Used for handling generic data inside tray configuration component 
  * @readonly
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @constant */
 export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   key: "bookingPage",
@@ -210,7 +211,7 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   description: "i18n.screens.trayAction.items.availability.description",
 }, {
   key: "type",
-  route: "type",
+  route: "eventType",
   icon: faBoltSlash as IconProp,
   title: "i18n.screens.trayAction.items.type.title",
   description: "i18n.screens.trayAction.items.type.description",
@@ -243,15 +244,17 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
  * @description Used for handling generic data inside tray configuration component 
  * @readonly
  * @since 0.0.30
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const TRAY_ACCOUNT_ITEMS: TrayActionItemProps[] = [{
   key: "settings",
+  route: "setting",
   icon: faFlaskGear as IconProp,
   title: "i18n.screens.trayAction.items.settings.title",
   description: "i18n.screens.trayAction.items.settings.description",
 }, {
   key: "user",
+  route: "user",
   icon: faUserSecret as IconProp,
   title: "i18n.screens.trayAction.items.user.title",
   description: "i18n.screens.trayAction.items.user.description",

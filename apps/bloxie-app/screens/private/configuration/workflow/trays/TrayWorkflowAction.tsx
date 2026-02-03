@@ -7,8 +7,8 @@ import { t } from "i18next";
 import { faFileDashedLine, faKeyboardDown, faLanguage, faSquareRootVariable } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { useMutation } from "convex/react";
-import { api } from "../../../../../../../../packages/backend/convex/_generated/api";
-import { Id } from "../../../../../../../../packages/backend/convex/_generated/dataModel";
+import { api } from "../../../../../../../packages/backend/convex/_generated/api";
+import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 import { ConvexRuntimeAPITemplateVariableProps, ConvexTemplateAPIProps } from "@codemize/backend/Types";
@@ -28,7 +28,7 @@ import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
 import TouchableHapticText from "@/components/button/TouchableHapticText";
 import ListItemWithChildren, { ListItemWithChildrenTypeEnum } from "@/components/lists/item/ListItemWithChildren";
 import ListItemGroup from "@/components/container/ListItemGroup";
-import ListWorkflowTemplate from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowTemplate";
+import ListWorkflowTemplate from "@/screens/private/configuration/workflow/lists/ListWorkflowTemplate";
 import Editor, { createInitialStyleState, EditorStyleState, dehydrateTemplate, hydrateTemplate, insertPatternValue } from "@/components/typography/Editor";
 import type { WorkflowNodeItemProps } from "@/components/layout/workflow/WorkflowCanvas";
 import DropdownOverlay from "@/components/container/DropdownOverlay";
@@ -342,6 +342,8 @@ const ScreenTrayWorkflowAction = ({
             <RenderVariables />
             <RenderTemplates />
             <View style={[GlobalContainerStyle.rowCenterEnd, ActionTemplateStyle.actions,{ height: TOOLBAR_HEIGHT }]}>
+              {/**
+                * @TODO Implement in a future version 
               <TouchableHapticDropdown
                 text="DE"
                 icon={faLanguage as IconProp}
@@ -349,7 +351,7 @@ const ScreenTrayWorkflowAction = ({
                 hasViewCustomStyle={true}
                 viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 6 }}
                 textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-                onPress={() => { }} />
+                onPress={() => { }} />*/}
               <RenderActionTouchable type={ActionTouchableTypeEnum.TEMPLATES} />
               <RenderActionTouchable type={ActionTouchableTypeEnum.VARIABLES} />
             </View>

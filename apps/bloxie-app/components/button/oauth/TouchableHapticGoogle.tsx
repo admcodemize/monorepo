@@ -1,11 +1,9 @@
 import React from "react";
 import { View } from "react-native";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faClouds } from "@fortawesome/duotone-thin-svg-icons";
 import { Id } from "../../../../../packages/backend/convex/_generated/dataModel";
 
 import { shadeColor } from "@codemize/helpers/Colors";
+import { SIZES } from "@codemize/constants/Fonts";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { startGoogleFlow } from "@/helpers/Provider";
@@ -14,6 +12,7 @@ import { useUserContextStore } from "@/context/UserContext";
 import { useIntegrationContextStore } from "@/context/IntegrationContext";
 
 import TouchableHaptic from "@/components/button/TouchableHaptic";
+import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import TouchableHapticGoogleStyle from "@/styles/components/button/oauth/TouchableHapticGoogle";
@@ -31,7 +30,7 @@ export type TouchableHapticGoogleProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.14
- * @version 0.0.5
+ * @version 0.0.6
  * @param {StartGoogleFlowProps} param0 - The props for the Gmail OAuth flow
  * @param {string} param0.email - The email of the user
  * @param {boolean} param0.grantScopeGmail - Whether to grant the Gmail scope
@@ -61,10 +60,10 @@ const TouchableHapticGoogle = ({
     {integrations.length < runtime.license.counter.linkedProviderCount &&<TouchableHaptic
       onPress={onPress}>
         <View style={[GlobalContainerStyle.rowCenterStart, TouchableHapticGoogleStyle.view, { backgroundColor: shadeColor(focusedBgColor, 0) }]}>
-          <FontAwesomeIcon 
-            icon={faClouds as IconProp} 
-            size={12} 
-            color={focusedContentColor} />
+          <TextBase
+            text="Verbinden" 
+            type="label" 
+            style={[{ color: focusedContentColor, fontSize: Number(SIZES.label) - 1 }]} />
         </View>
     </TouchableHaptic>}
     </>

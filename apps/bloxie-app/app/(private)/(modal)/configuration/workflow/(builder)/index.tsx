@@ -4,7 +4,7 @@ import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView"
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 
-import ScreenConfigurationWorkflowBuilder from "@/screens/private/modal/configuration/workflow/WorkflowBuilder";
+import ScreenConfigurationWorkflowBuilder from "@/screens/private/configuration/workflow/WorkflowBuilder";
 
 /** 
  * @public

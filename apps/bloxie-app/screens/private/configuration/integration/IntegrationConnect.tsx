@@ -6,8 +6,8 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 import { useMutation } from "convex/react";
-import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
-import { api } from "../../../../../../../packages/backend/convex/_generated/api";
+import { Id } from "../../../../../../packages/backend/convex/_generated/dataModel";
+import { api } from "../../../../../../packages/backend/convex/_generated/api";
 
 import { shadeColor } from "@codemize/helpers/Colors";
 import { STYLES } from "@codemize/constants/Styles";

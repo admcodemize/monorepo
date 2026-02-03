@@ -6,6 +6,7 @@ import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
+import { SIZES } from "@codemize/constants/Fonts";
 
 /**
  * @public
@@ -22,7 +23,7 @@ export type TrayHeaderProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @param {TrayHeaderProps} param0
  * @param {string} param0.title - The title to display
  * @param {string} param0.description - The description to display (below the title)
@@ -34,7 +35,7 @@ const TrayHeader = ({
   const { t } = useTranslation();
   return (
     <View style={[GlobalContainerStyle.rowStartBetween]}>
-      <View style={{ gap: 4 }}>
+      <View style={{ gap: 1 }}>
         <TextBase 
           text={t(title)}
           style={GlobalTypographyStyle.titleSubtitle} />
@@ -43,7 +44,7 @@ const TrayHeader = ({
           type="label"
           numberOfLines={3}
           ellipsizeMode={"tail"}
-          style={[GlobalTypographyStyle.labelText]} />}
+          style={[GlobalTypographyStyle.labelText, { fontSize: Number(SIZES.label) - 1 }]} />}
       </View>
     </View>
   )

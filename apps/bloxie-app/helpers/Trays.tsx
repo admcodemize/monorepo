@@ -1,12 +1,12 @@
-import ScreenTrayAction from "@/screens/private/trays/TrayAction";
-import ScreenTrayDashboard from "@/screens/private/trays/TrayDashboard";
-import ScreenTrayWorkflow, { ScreenTrayWorkflowProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflow";
-import ScreenTrayWorkflowTemplate, { ScreenTrayWorkflowTemplateProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowTemplate";
-import ScreenTrayWorkflowDecision, { ScreenTrayWorkflowDecisionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecision";
-import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowAction";
-import ScreenTrayWorkflowEventType, { ScreenTrayWorkflowEventTypeProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowEventType";
-import ScreenTrayWorkflowCancellationTerms, { ScreenTrayWorkflowCancellationTermsProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowCancellationTerms";
-import ScreenTrayWorkflowDecisionChoose, { ScreenTrayWorkflowDecisionChooseProps } from "@/screens/private/modal/configuration/workflow/trays/TrayWorkflowDecisionChoose";
+import ScreenTrayAction from "@/screens/private/TrayAction";
+import ScreenTrayDashboard from "@/screens/private/TrayDashboard";
+import ScreenTrayWorkflow, { ScreenTrayWorkflowProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflow";
+import ScreenTrayWorkflowTemplate, { ScreenTrayWorkflowTemplateProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowTemplate";
+import ScreenTrayWorkflowDecision, { ScreenTrayWorkflowDecisionProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowDecision";
+import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowAction";
+import ScreenTrayWorkflowEventType, { ScreenTrayWorkflowEventTypeProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowEventType";
+import ScreenTrayWorkflowCancellationTerms, { ScreenTrayWorkflowCancellationTermsProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowCancellationTerms";
+import ScreenTrayWorkflowDecisionChoose, { ScreenTrayWorkflowDecisionChooseProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowDecisionChoose";
 
 /**
  * @private

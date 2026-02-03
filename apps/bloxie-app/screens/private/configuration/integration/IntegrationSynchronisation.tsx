@@ -6,8 +6,8 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { formatDistanceToNow } from "date-fns";
 
 import { useMutation } from "convex/react";
-import { api } from "../../../../../../../packages/backend/convex/_generated/api";
-import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
+import { api } from "../../../../../../packages/backend/convex/_generated/api";
+import { Id } from "../../../../../../packages/backend/convex/_generated/dataModel";
 
 import { STYLES } from "@codemize/constants/Styles";
 import { shadeColor } from "@codemize/helpers/Colors";

@@ -1,23 +1,24 @@
 import React from "react";
-import { ConvexWorkflowActionAPIProps } from "@codemize/backend/Types";
-import Animated, { FadeInDown } from "react-native-reanimated";
 import { GestureResponderEvent, TextInput, View } from "react-native";
-import GlobalContainerStyle from "@/styles/GlobalContainer";
-import { faSquare } from "@fortawesome/pro-solid-svg-icons";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
+import { useTrays } from "react-native-trays";
+import { faBars, faFilePen, faObjectExclude, faPause, faPlay, faTrashSlash } from "@fortawesome/duotone-thin-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
+import { shadeColor } from "@codemize/helpers/Colors";
+import { ConvexWorkflowActionAPIProps } from "@codemize/backend/Types";
+import { STYLES } from "@codemize/constants/Styles";
+
 import TouchableHaptic from "@/components/button/TouchableHaptic";
-import TextBase from "@/components/typography/Text";
 import Divider from "@/components/container/Divider";
 import TouchableHapticIcon from "@/components/button/TouchableHaptichIcon";
-import { faObjectExclude, faPause, faPlay, faTrashSlash, faXmark } from "@fortawesome/duotone-thin-svg-icons";
-import { shadeColor } from "@codemize/helpers/Colors";
-import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
-import { useTrays } from "react-native-trays";
-import { faBars, faFilePen } from "@fortawesome/duotone-thin-svg-icons";
 import ViewBase from "@/components/container/View";
+
+import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
+import GlobalContainerStyle from "@/styles/GlobalContainer";
 
 /**
  * @public
@@ -37,7 +38,7 @@ export type WorkflowActionProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.49
- * @version 0.0.2
+ * @version 0.0.3
  * @param {WorkflowActionProps} param0
  * @param {ConvexWorkflowActionAPIProps} param0.action - The workflow action
  * @param {(action: ConvexWorkflowActionAPIProps) => void} param0.onPressRemove - Callback function when the remove button is pressed
@@ -52,12 +53,11 @@ const WorkflowAction = ({
 }: WorkflowActionProps) => {
   const { infoColor, secondaryBgColor, successColor, errorColor } = useThemeColors();
   const { push } = useTrays('keyboard');
+  const { t } = useTranslation();
 
   const [name, setName] = React.useState<string>(action.name);
   const [isActive, setIsActive] = React.useState<boolean>(action.activityStatus ?? true);
-  React.useEffect(() => {
-    onPressActive(isActive);
-  }, [isActive, onPressActive]);
+  React.useEffect(() => onPressActive(isActive), [isActive, onPressActive]);
 
   /** 
    * @description Handles the press event of the edit button
@@ -86,41 +86,41 @@ const WorkflowAction = ({
       }]}>
         <ViewBase
           schemeProperty="secondaryBg"
-          style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+          style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
           <TouchableHaptic onLongPress={onPressDrag}>
             <FontAwesomeIcon 
               icon={faBars as IconProp} 
-              size={14} 
+              size={STYLES.sizeFaIcon} 
               color={infoColor} />
           </TouchableHaptic>
           <FontAwesomeIcon 
             icon={faObjectExclude as IconProp} 
-            size={14} 
+            size={STYLES.sizeFaIcon} 
             color={infoColor} />
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Name der Aktion"
+            placeholder={t("i18n.screens.workflow.builder.nameOfAction")}
             style={[GlobalWorkflowStyle.input, { color: infoColor }]} />
       </ViewBase>
-      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
+      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: STYLES.sizeGap }]}>
         <TouchableHaptic onPress={onPressEdit}>
           <FontAwesomeIcon 
             icon={faFilePen as IconProp} 
-            size={14} 
+            size={STYLES.sizeFaIcon} 
             color={infoColor} />
         </TouchableHaptic>
         <Divider vertical />
         <View style={GlobalWorkflowStyle.right}>
           <TouchableHapticIcon
             icon={(isActive ? faPlay : faPause) as IconProp}
-            iconSize={14}
+            iconSize={STYLES.sizeFaIcon}
             iconColor={isActive ? successColor : errorColor}
             hasViewCustomStyle={true}
             onPress={() => setIsActive(!isActive)}/>
           <TouchableHapticIcon 
             icon={faTrashSlash as IconProp} 
-            iconSize={14} 
+            iconSize={STYLES.sizeFaIcon} 
             iconColor={errorColor}
             hasViewCustomStyle={true} 
             onPress={onPressRemoveInternal} />

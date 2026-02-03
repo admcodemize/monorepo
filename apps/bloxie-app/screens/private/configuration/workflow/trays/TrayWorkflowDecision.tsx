@@ -1,6 +1,6 @@
 import { ConvexRuntimeAPIWorkflowDecisionProps } from "@codemize/backend/Types";
 
-import ListWorkflowDecision from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowDecision";
+import ListWorkflowDecision from "@/screens/private/configuration/workflow/lists/ListWorkflowDecision";
 import TrayContainer from "@/components/container/TrayContainer";
 
 /**
@@ -27,7 +27,7 @@ const ScreenTrayWorkflowDecision = ({
   return (
     <TrayContainer 
       title={"i18n.screens.trayWorkflowDecision.title"} 
-      description={"i18n.screens.trayWorkflowDecisions.description"}>
+      description={"i18n.screens.trayWorkflowDecision.description"}>
         <ListWorkflowDecision
           showListGroup={false}
           onPress={onPress} />

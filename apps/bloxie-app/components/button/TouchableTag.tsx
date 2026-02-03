@@ -63,7 +63,7 @@ const TouchableTag = ({
   text,
   type = "label",
   colorActive = "#159F85",
-  colorInactive = "#ababab",
+  colorInactive = "#a8a8a8",
   backgroundColor,
   disabled = false,
   isActive = false,

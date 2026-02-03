@@ -75,6 +75,8 @@ const WorkflowDecision = ({
    * -> Opens the tray for choosing the decision */
   const onPressChoose = React.useCallback(() => {
     push('TrayWorkflowDecisionChoose', {
+      type: decision.type,
+      selectedKeys: [],
       onPress: () => {
         dismiss('TrayWorkflowDecisionChoose');
       },
@@ -84,57 +86,50 @@ const WorkflowDecision = ({
   return (
     <Animated.View
       entering={FadeInDown.duration(160)}
-      style={[{
-        backgroundColor: shadeColor(secondaryBgColor, 0.1),
-        gap: 8,
-        paddingVertical: 6,
-        borderRadius: 8,
-        justifyContent: 'center',
+      style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
+        backgroundColor: shadeColor(secondaryBgColor, 0.3),
       }]}>
-      <View style={[GlobalContainerStyle.rowCenterBetween, { paddingHorizontal: 10, gap: 14 }]}>
         <ViewBase 
           schemeProperty="secondaryBg"
-          style={[GlobalContainerStyle.rowCenterStart, { gap: 12 }]}>
+          style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
           <TouchableHaptic onLongPress={onPressDrag}>
             <FontAwesomeIcon 
               icon={faBars as IconProp} 
-              size={14} 
+              size={STYLES.sizeFaIcon} 
               color={infoColor} />
           </TouchableHaptic>
           <FontAwesomeIcon 
             icon={faSignsPost as IconProp} 
-            size={16} 
+            size={STYLES.sizeFaIcon} 
             color={"#e09100"} />
           <TextInput
             editable={false}
-            value={decision.type === "eventType" ? "i18n.convex.runtime.workflowDecisions.eventType.title" : "i18n.convex.runtime.workflowDecisions.calendarConnection.title"}
-            placeholder={t("i18n.convex.runtime.workflowDecisions.placeholder")}
+            value={t(decision.type === "eventType" ? "i18n.convex.runtime.workflowDecisions.eventType.title" : "i18n.convex.runtime.workflowDecisions.calendarConnection.title")}
             style={[GlobalWorkflowStyle.input, { color: infoColor }]} />
         </ViewBase>
-        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 14 }]}>
+        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: STYLES.sizeGap }]}>
           <TouchableHaptic onPress={onPressChoose}>
             <FontAwesomeIcon 
               icon={faFilePen as IconProp} 
-              size={14} 
+              size={STYLES.sizeFaIcon} 
               color={infoColor} />
           </TouchableHaptic>
           <Divider vertical />
           <View style={GlobalWorkflowStyle.right}>
             <TouchableHapticIcon
               icon={(isActive ? faPlay : faPause) as IconProp}
-              iconSize={14}
+              iconSize={STYLES.sizeFaIcon}
               iconColor={isActive ? successColor : errorColor}
               hasViewCustomStyle={true}
               onPress={() => setIsActive(!isActive)} />
             <TouchableHapticIcon 
               icon={faTrashSlash as IconProp} 
-              iconSize={14} 
+              iconSize={STYLES.sizeFaIcon} 
               iconColor={errorColor}
               hasViewCustomStyle={true} 
               onPress={onPressRemoveInternal} />
           </View>
         </View>
-      </View>
     </Animated.View>
   );
 };

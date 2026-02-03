@@ -143,6 +143,7 @@ const ScreenConfigurationWorkflowBuilder = () => {
    */
   const handleAddDecision = React.useCallback(
     (decision: ConvexRuntimeAPIWorkflowDecisionProps) => {
+      console.log("decision", decision);
       setWorkflowState((prev) => {
         if (!prev) return prev;
         const processItems = prev.process?.items ?? [];
@@ -169,7 +170,7 @@ const ScreenConfigurationWorkflowBuilder = () => {
   return (
     <>
     <WorkflowCanvas
-      workflow={workflowState}
+      workflow={workflowState ?? createEmptyWorkflow()}
       onAddAction={handleAddAction}
       onAddDecision={handleAddDecision}
       onRemoveItem={handleRemoveItem}

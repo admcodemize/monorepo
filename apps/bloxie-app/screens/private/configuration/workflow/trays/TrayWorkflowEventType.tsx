@@ -1,6 +1,6 @@
 import { ConvexTemplateAPIProps } from "@codemize/backend/Types";
 
-import ListWorkflowTemplate from "@/screens/private/modal/configuration/workflow/lists/ListWorkflowTemplate";
+import ListWorkflowTemplate from "@/screens/private/configuration/workflow/lists/ListWorkflowTemplate";
 import TrayContainer from "@/components/container/TrayContainer";
 
 /**

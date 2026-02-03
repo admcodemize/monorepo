@@ -129,6 +129,7 @@
           "confirmation": "Bestätigung",
           "cancellationTerms": "Stornierungsbedingungen",
           "activityStatus": "Ausführungszustand",
+          "nameOfAction": "Name der Aktion",
           "mailAccounts": {
             "title": "E-Mail-Konten",
             "descriptionNoReply": "Rückanworten der Teilnehmer/Eingeladenen werden NICHT verarbeitet bzw. weitergeleitet"
@@ -251,8 +252,8 @@
             "description": "Persönliche Konfiguration der Anwendung"
           },
           "user": {
-            "title": "Benutzer",
-            "description": "Allgemeine Benutzereinstellungen"
+            "title": "Benutzerkonto",
+            "description": "Verwalte dein Benutzerkonto"
           }
         }
       },
@@ -260,9 +261,9 @@
         "title": "Vorlagen",
         "description": "Wähle eine Vorlage aus um deine Aktion zu personalisieren. Eine vordefinierte E-Mail-Nachricht ist enthalten, welche nachträglich auf die persönlichen Bedürfnissen angepasst werden kann."
       },
-      "trayWorkflowDecisions": {
-        "title": "Entscheidungsvorlagen",
-        "description": "Wähle eine Entscheidung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren.",
+      "trayWorkflowDecision": {
+        "title": "Entscheidungen",
+        "description": "Wähle eine Entscheidung aus um deine nachfolgenden Aktionen innerhalb des Ausführungsprozesses zu personalisieren.",
         "eventType": {
           "title": "Ereignistyp",
           "description": "Wähle einen Ereignistyp aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
@@ -270,11 +271,14 @@
         "calendarConnection": {
           "title": "Kalenderverbindung",
           "description": "Wähle eine Kalenderverbindung aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+        },
+        "choose": {
+          "title": "Auswahl der Entscheidungen"
         }
       },
       "trayWorkflowEventType": {
         "title": "Ereignistypen",
-        "description": "Wähle einen Ereignistyp aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+        "description": "Wähle einen Ereignistyp aus um deine nachfolgenden Aktionen innerhalb des Ausführungsprozesses zu personalisieren."
       },
       "trayWorkflowCalendar": {
         "title": "Kalender",

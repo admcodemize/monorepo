@@ -7,6 +7,7 @@ import { faBolt, faBrightnessLow } from '@fortawesome/duotone-thin-svg-icons';
 
 import { useThemeColors } from '@/hooks/theme/useThemeColor';
 import { ConvexWorkflowAPITimePeriodEnum, ConvexWorkflowAPITriggerEnum, ConvexWorkflowQueryAPIProps } from '@codemize/backend/Types';
+import { STYLES } from '@codemize/constants/Styles';
 
 import TouchableTag from '@/components/button/TouchableTag';
 import TouchableHapticTrigger from '@/components/button/workflow/TouchableHapticTrigger';
@@ -33,7 +34,7 @@ export type WorkflowStartProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.53
- * @version 0.0.1
+ * @version 0.0.2
  * @param {WorkflowStartProps} param0 
  * @param {ConvexWorkflowQueryAPIProps} param0.workflow - The selected workflow object
  * @param {Function} param0.getWorkflow - Callback function to get the current workflow from the central ref in component @see {@link WorkflowCanvas}
@@ -115,7 +116,7 @@ const WorkflowStart = ({
             <View style={[GlobalContainerStyle.rowCenterStart, GlobalWorkflowStyle.nodeHeader]}>
               <FontAwesomeIcon 
                 icon={faBrightnessLow as IconProp} 
-                size={16} 
+                size={STYLES.sizeFaIcon} 
                 color={secondaryIconColor} />
               <TextInput
                 value={workflowName}

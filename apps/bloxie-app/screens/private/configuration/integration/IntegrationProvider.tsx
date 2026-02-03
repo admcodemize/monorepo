@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { SIZES } from "@codemize/constants/Fonts";
 import { shadeColor } from "@codemize/helpers/Colors";
 
-import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
+import { Id } from "../../../../../../packages/backend/convex/_generated/dataModel";
 import { ConvexCalendarQueryAPIProps } from "@codemize/backend/Types";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
@@ -117,7 +117,7 @@ const ScreenConfigurationIntegrationProvider = () => {
                 title={group.title}
                 style={{ paddingHorizontal: 6 }}>
               </ListItemGroup>
-                {group.items.map((item, index) => (
+                {group.items.map((item) => (
                   <ScreenConfigurationIntegrationProviderItem
                     key={`${KEYS.providerGroupItem}-${item.integrationKey}`}
                     {...item}

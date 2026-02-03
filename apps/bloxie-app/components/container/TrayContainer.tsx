@@ -26,7 +26,7 @@ export type TrayContainerProps = PropsWithChildren & {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.46
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TrayContainerProps} param0
  * @param {string} param0.title - The title of the tray container
  * @param {string} param0.description - The description of the tray container (below the title => Maximum of 3 lines)
@@ -42,7 +42,6 @@ const TrayContainer = ({
     <View style={{ 
       backgroundColor: primaryBgColor, 
       borderColor: primaryBorderColor,
-      height: children ? 'auto' : DIM.height - 100,
     }}>
       <View style={{ gap: STYLES.sizeGap }}>
         <View style={[TrayContainerStyle.container, { backgroundColor: shadeColor(secondaryBgColor, 0.3) }]}>
@@ -55,7 +54,6 @@ const TrayContainer = ({
             borderColor: shadeColor(primaryBorderColor, 0.4),
             backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
             paddingVertical: STYLES.paddingVertical,
-            height: children ? 'auto' : DIM.height - 146,
           }]}>
             {children}
           </View>

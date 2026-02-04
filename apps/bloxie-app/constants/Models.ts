@@ -215,6 +215,7 @@ export const TRAY_CONFIGURATION_ITEMS: TrayActionItemProps[] = [{
   icon: faBoltSlash as IconProp,
   title: "i18n.screens.trayAction.items.type.title",
   description: "i18n.screens.trayAction.items.type.description",
+  modal: "i18n.screens.trayAction.items.type.modal",
 }, {
   key: "integration",
   route: "integration",

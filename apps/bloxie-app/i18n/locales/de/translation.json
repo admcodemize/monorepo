@@ -219,7 +219,8 @@
           },
           "type": {
             "title": "Ereignistypen",
-            "description": "Verwendung für das Buchen von Ereignissen auf der öffentlichen Buchungsseite durch Drittperson"
+            "description": "Verwendung für das Buchen von Ereignissen auf der öffentlichen Buchungsseite durch Drittperson",
+            "modal": "Ereignistypen ermöglichen es dir, verschiedene Buchungsoptionen für unterschiedliche Varianten von Ereignissen zu definieren."
           },
           "poll": {
             "title": "Umfrage",

@@ -5,7 +5,7 @@ import { faBrightnessLow, faLayerGroup, faMicrochip } from "@fortawesome/duotone
 import WorkflowFooter from "@/components/layout/workflow/WorkflowFooter";
 import { WorkflowCanvas, WorkflowNode, WorkflowNodeItemProps, WorkflowNodeItemType } from "@/components/layout/workflow/WorkflowCanvas";
 import { ConvexRuntimeAPIWorkflowDecisionProps, ConvexTemplateAPIProps, ConvexWorkflowActionAPIProps, ConvexWorkflowAPIProps, ConvexWorkflowDecisionAPIProps, ConvexWorkflowQueryAPIProps } from "@codemize/backend/Types";
-import { Id } from "../../../../../../../packages/backend/convex/_generated/dataModel";
+import { Id } from "../../../../../../packages/backend/convex/_generated/dataModel";
 import { useConfigurationContextStore } from "@/context/ConfigurationContext";
 
 const createEmptyWorkflow = (): ConvexWorkflowQueryAPIProps => ({

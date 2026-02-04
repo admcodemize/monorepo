@@ -11,13 +11,11 @@ import ToastifyProvider from 'toastify-react-native';
 import { config } from "@/helpers/Toastify";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { useFontFamily, useFontSize } from "@/hooks/typography/useFont";
+import { useMaterialTabs } from "@/hooks/container/useMaterialTabs";
 import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
-import { STYLES } from "@codemize/constants/Styles";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
-import { useMaterialTabs } from "@/hooks/container/useMaterialTabs";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -59,12 +57,11 @@ const ModalConfigurationIntegrationLayout = () => {
       <ToastifyProvider config={config} />
       <StackModalHeader 
         title={tray!.title} 
-        description={tray?.modal || ""} />
-      <MaterialTopTabs 
-        screenOptions={screenOptions}>
-          <MaterialTopTabs.Screen name="index" options={{ title: t("i18n.screens.integrations.horizontalNavigation.provider").toUpperCase() }} />
-          <MaterialTopTabs.Screen name="connection" options={{ title: t("i18n.screens.integrations.horizontalNavigation.connections").toUpperCase() }} />
-          <MaterialTopTabs.Screen name="synchronisation" options={{ title: t("i18n.screens.integrations.horizontalNavigation.synchronization").toUpperCase() }} />
+        description={tray?.modal} />
+      <MaterialTopTabs screenOptions={screenOptions}>
+        <MaterialTopTabs.Screen name="index" options={{ title: t("i18n.screens.integrations.horizontalNavigation.provider").toUpperCase() }} />
+        <MaterialTopTabs.Screen name="connection" options={{ title: t("i18n.screens.integrations.horizontalNavigation.connections").toUpperCase() }} />
+        <MaterialTopTabs.Screen name="synchronisation" options={{ title: t("i18n.screens.integrations.horizontalNavigation.synchronization").toUpperCase() }} />
       </MaterialTopTabs>
     </SafeAreaContextViewBase>
   );

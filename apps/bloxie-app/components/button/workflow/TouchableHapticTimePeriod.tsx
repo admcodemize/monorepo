@@ -19,6 +19,7 @@ import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
+import GlobalTypographyStyle from "@/styles/GlobalTypography";
 
 /**
  * @public
@@ -137,12 +138,9 @@ const TouchableHapticTimePeriod = ({
           value={timePeriodValue}
           onChangeText={onChangeTimePeriodValue}
           keyboardType="number-pad"
-          style={{
-            color: infoColor,
-            textAlign: "center",
-            fontSize: Number(SIZES.label),
-            height: 30
-          }} />
+          style={[GlobalTypographyStyle.inputText, {
+            color: infoColor
+          }]} />
         <TouchableHapticDropdown
           ref={refTimePeriod}
           text={selected.title}

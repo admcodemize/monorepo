@@ -30,6 +30,12 @@ const GlobalTypographyStyle = StyleSheet.create({
   headerSubtitle: {
     fontSize: Number(SIZES.header), 
     fontFamily: String(FAMILIY.header) 
+  },
+  inputText: {
+    textAlign: "center",
+    fontSize: Number(SIZES.label),
+    fontFamily: String(FAMILIY.subtitle),
+    height: 30
   }
 })
 

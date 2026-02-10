@@ -10,13 +10,13 @@ export const MAX_WIDTH = Dimensions.get('window').width - 28;
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.2
+ * @version 0.0.3
  * @description Global styles for the workflow components
  * @component */
 const GlobalWorkflowStyle = StyleSheet.create({
   touchableParent: {
     gap: 18,
-    height: 28,
+    height: 32,
     paddingHorizontal: 10,
     borderRadius: 8
   },

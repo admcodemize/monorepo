@@ -2,66 +2,70 @@ import React from "react";
 import { TextInput, View } from "react-native";
 import { t } from "i18next";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { faGlobePointer, faHand } from "@fortawesome/pro-thin-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faSignature } from "@fortawesome/duotone-thin-svg-icons";
+
+import { STYLES } from "@codemize/constants/Styles";
 
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { STYLES } from "@codemize/constants/Styles";
 
 import TextBase from "@/components/typography/Text";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
-import Editor from "@/components/typography/Editor";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @since 0.0.57
+ * @since 0.0.58
  * @version 0.0.1
  * @type */
-export type InputTypeNameProps = {
+export type InputInvitationSlugProps = {
 };
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @description Returns a input text component for the name of the event type
- * @since 0.0.57
+ * @description Returns a input text component for the invitation limit of the event type
+ * @since 0.0.58
  * @version 0.0.3
- * @param {InputTypeNameProps} param0 
+ * @param {InputInvitationSlugProps} param0 
  * @component */
-const InputTypeName = ({
-}: InputTypeNameProps) => {
-  const { secondaryBgColor, infoColor } = useThemeColors();
-
+const InputInvitationSlug = ({
+}: InputInvitationSlugProps) => {
+  const { infoColor, textColor, labelColor } = useThemeColors();
   return (
     <View
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
         //backgroundColor: secondaryBgColor,
+        gap: 0
       }]}>
         <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
           <FontAwesomeIcon 
-            icon={faSignature as IconProp} 
+            icon={faGlobePointer as IconProp} 
             size={STYLES.sizeFaIcon} 
             color={infoColor} />
           <TextBase
-            text={"Name des Ereignistyp"} 
+            text={"Slug"} 
             style={{ color: infoColor }} />
+          <TextBase 
+            text={t("bloxie.ch/mstoeckli7/")} 
+            style={{ color: labelColor }} />
         </View>
         <TextInput
-          placeholder={t("Ereignistyp 1")}
+          placeholder={t("event-type-slug")}
           cursorColor={infoColor}
           selectionColor={infoColor}
+          maxLength={20}
           style={[GlobalTypographyStyle.inputText, {
             textAlign: "right",
             color: infoColor,
             flexGrow: 1,
-            fontSize: 12
+            height: "auto"
           }]} />
-    </View>
+      </View>
   );
 };
 
-export default InputTypeName;
+export default InputInvitationSlug;

@@ -40,10 +40,6 @@ export const MaterialTopTabs = withLayoutContext<
  * @version 0.0.1
  * @component */
 const ModalConfigurationEventTypeLayout = () => {
-  const { id } = useLocalSearchParams();
-  const { t } = useTranslation();
-  const { tertiaryBgColor } = useThemeColors();
-
   /** 
    * @description Returns the default screen options for the material top tabs
    * @see {@link hooks/container/useMaterialTabs} */
@@ -52,6 +48,7 @@ const ModalConfigurationEventTypeLayout = () => {
   return (
     <MaterialTopTabs screenOptions={screenOptions}>
       <MaterialTopTabs.Screen name="index" options={{ title: "Allgemein".toUpperCase() }} />
+      <MaterialTopTabs.Screen name="bookingPage" options={{ title: "Buchungsseite".toUpperCase() }} />
       <MaterialTopTabs.Screen name="additional" options={{ title: "Weitere Einstellungen".toUpperCase() }} />
     </MaterialTopTabs>
   );

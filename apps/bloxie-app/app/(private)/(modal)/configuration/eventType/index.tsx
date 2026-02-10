@@ -12,11 +12,9 @@ import { Button } from "react-native";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.54
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const ModalConfigurationEventTypes = () => {
-  const { secondaryBgColor } = useThemeColors();
-
   const onPress = () => {
     router.push({ 
       pathname: "/configuration/eventType/[id]", 
@@ -27,7 +25,7 @@ const ModalConfigurationEventTypes = () => {
   }
 
   return (
-    <SafeAreaContextViewBase style={{ backgroundColor: shadeColor(secondaryBgColor, 0.3) }}>
+    <SafeAreaContextViewBase style={{  }}>
       <Button 
         title="Press me" 
         onPress={onPress} />

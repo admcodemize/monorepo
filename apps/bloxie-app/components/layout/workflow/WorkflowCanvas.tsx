@@ -21,7 +21,7 @@ import { ConvexRuntimeAPIWorkflowDecisionProps, ConvexTemplateAPIProps, ConvexWo
 import { Id } from '../../../../../packages/backend/convex/_generated/dataModel';
 import { LanguageEnumProps } from '@/helpers/System';
 import TouchableHapticTrigger from '../../button/workflow/TouchableHapticTrigger';
-import TouchableHapticTimePeriod from '../../button/workflow/TouchableHapticTimePeriod';
+import TouchableHapticTimePeriod from '../../button/TouchableHapticTimePeriod';
 import TouchableHapticConfirmation from '../../button/workflow/TouchableHapticConfirmation';
 import TouchableHapticActivityStatus from '../../button/workflow/TouchableHapticActivityStatus';
 import WorkflowProcessSteps from './WorkflowProcessSteps';

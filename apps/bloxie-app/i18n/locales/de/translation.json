@@ -21,6 +21,18 @@
       "week": "KW"
     },
     "dropdown": {
+      "general": {
+        "timePeriod": {
+          "week": "Wochen",
+          "day": "Tage",
+          "hour": "Stunden",
+          "minute": "Minuten"
+        },
+        "duration": {
+          "hour": "Stunden",
+          "minute": "Minuten"
+        }
+      },
       "dashboard": {
         "calendar": {
           "last30Days": "Letzte 30 Tage",
@@ -54,12 +66,6 @@
               "title": "Nach Ereignisende",
               "description": "Teilnehmer welche vor Ereignisbeginn das Ereignis storniert haben erhalten keine Benachrichtigung mehr"
             }
-          },
-          "timePeriod": {
-            "week": "Wochen",
-            "day": "Tage",
-            "hour": "Stunden",
-            "minute": "Minuten"
           },
           "confirmation": {
             "pushNotification": {

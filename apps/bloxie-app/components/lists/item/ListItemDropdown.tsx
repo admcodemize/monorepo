@@ -18,13 +18,14 @@ import ActionTemplateStyle from "@/styles/screens/private/tray/modal/workflow/Ac
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.43
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type ListItemDropdownProps = {
   itemKey: string;
   title: string;
   description?: string;
   icon?: IconProp;
+  iconThin?: IconProp;
   image?: ImageSourcePropType;
   isSelected?: boolean;
   right?: React.ReactNode;

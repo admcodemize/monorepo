@@ -33,7 +33,7 @@ const GlobalTypographyStyle = StyleSheet.create({
   },
   inputText: {
     textAlign: "center",
-    fontSize: Number(SIZES.label),
+    fontSize: Number(SIZES.text),
     fontFamily: String(FAMILIY.subtitle),
     height: 30
   }

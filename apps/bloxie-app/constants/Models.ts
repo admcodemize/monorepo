@@ -1,7 +1,7 @@
 import { WorkflowActionEnum } from "@/components/button/workflow/TouchableHapticAction";
 import { WorkflowActivityStatusEnum } from "@/components/button/workflow/TouchableHapticActivityStatus";
 import { WorkflowConfirmationEnum } from "@/components/button/workflow/TouchableHapticConfirmation";
-import { WorkflowTimePeriodEnum } from "@/components/button/workflow/TouchableHapticTimePeriod";
+import { TimePeriodEnum } from "@/components/button/TouchableHapticTimePeriod";
 import { WorkflowTriggerEnum } from "@/components/button/workflow/TouchableHapticTrigger";
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import {
@@ -35,7 +35,13 @@ import {
   faPause,
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import {
+import { 
+  faCalendarWeek as faCalendarWeekThin, 
+  faCalendarDay as faCalendarDayThin, 
+  faStopwatch as faStopwatchThin, 
+  faStopwatch20 as faStopwatch20Thin 
+} from "@fortawesome/pro-thin-svg-icons";
+import {  
   faBold,
   faCalendarDay as faCalendarDaySolid,
   faCalendarDays as faCalendarDaysSolid,
@@ -49,6 +55,7 @@ import {
   faBlockQuote,
   faCode
 } from "@fortawesome/pro-solid-svg-icons";
+import { DurationEnum } from "@/components/button/eventType/TouchableHapticDuration";
 
 /**
  * @public
@@ -339,28 +346,53 @@ export const WORKFLOW_TRIGGER_ITEMS: ListItemDropdownProps[] = [{
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @description Used for handling the workflow time period items for the dropdown
+ * @description Used for handling the time period items for the dropdown
  * @readonly
  * @since 0.0.43
- * @version 0.0.2
+ * @version 0.0.4
  * @constant */
-export const WORKFLOW_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
-  itemKey: WorkflowTimePeriodEnum.WEEK,
-  title: "i18n.dropdown.workflow.builder.timePeriod.week",
-  icon: faCalendarWeek as IconProp
+export const DROPDOWN_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: TimePeriodEnum.WEEK,
+  title: "i18n.dropdown.general.timePeriod.week",
+  icon: faCalendarWeek as IconProp,
+  iconThin: faCalendarWeekThin as IconProp,
 }, {
-  itemKey: WorkflowTimePeriodEnum.DAY,
-  title: "i18n.dropdown.workflow.builder.timePeriod.day",
-  icon: faCalendarDay as IconProp
+  itemKey: TimePeriodEnum.DAY,
+  title: "i18n.dropdown.general.timePeriod.day",
+  icon: faCalendarDay as IconProp,
+  iconThin: faCalendarDayThin as IconProp,
 }, {
-  itemKey: WorkflowTimePeriodEnum.HOUR,
-  title: "i18n.dropdown.workflow.builder.timePeriod.hour",
+  itemKey: TimePeriodEnum.HOUR,
+  title: "i18n.dropdown.general.timePeriod.hour",
   icon: faStopwatch as IconProp,
+  iconThin: faStopwatchThin as IconProp,
   isSelected: true,
 }, {
-  itemKey: WorkflowTimePeriodEnum.MINUTE,
-  title: "i18n.dropdown.workflow.builder.timePeriod.minute",
-  icon: faStopwatch20 as IconProp
+  itemKey: TimePeriodEnum.MINUTE,
+  title: "i18n.dropdown.general.timePeriod.minute",
+  icon: faStopwatch20 as IconProp,
+  iconThin: faStopwatch20Thin as IconProp,
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the duration items for the dropdown
+ * @readonly
+ * @since 0.0.58
+ * @version 0.0.1
+ * @constant */
+export const DROPDOWN_DURATION_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: DurationEnum.HOUR,
+  title: "i18n.dropdown.general.duration.hour",
+  icon: faStopwatch as IconProp,
+  iconThin: faStopwatchThin as IconProp,
+}, {
+  itemKey: DurationEnum.MINUTE,
+  title: "i18n.dropdown.general.duration.minute",
+  icon: faStopwatch20 as IconProp,
+  iconThin: faStopwatch20Thin as IconProp,
+  isSelected: true,
 }];
 
 /**

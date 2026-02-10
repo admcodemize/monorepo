@@ -9,7 +9,6 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import TextBase from "@/components/typography/Text";
 import TouchableHaptic from "@/components/button/TouchableHaptic";
 
-import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 
 /**
@@ -29,7 +28,7 @@ export type ListItemGroupProps = PropsWithChildren & {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.4
  * @description A container for a group of settings
  * -> Used for components such as ListItemWithChildren or all the other components that are registered in the path components/list/..
  * @param {ListItemGroupProps} param0
@@ -52,10 +51,10 @@ const ListItemGroup = ({
         {title && <TextBase 
           text={title}
           type="label"
-          style={[GlobalTypographyStyle.standardText, { 
-            fontSize: 9,
-            textTransform: "uppercase"
-        }]} />}
+          style={[{ 
+            textTransform: "uppercase",
+            fontSize: 10
+          }]} />}
         {description && <TouchableHaptic onPress={() => { console.log(description); }}>
           <FontAwesomeIcon 
               icon={faSquareInfo as IconProp} 

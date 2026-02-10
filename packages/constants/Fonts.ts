@@ -20,7 +20,7 @@ type FontProps = {
  * @constant */
 export const SIZES = <FontProps>{
   label: 11,
-  text: 11,
+  text: 12,
   subtitle: 12,
   title: 12,
   header: 12

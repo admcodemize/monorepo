@@ -11,12 +11,13 @@ import { STYLES } from '@codemize/constants/Styles';
 
 import TouchableTag from '@/components/button/TouchableTag';
 import TouchableHapticTrigger from '@/components/button/workflow/TouchableHapticTrigger';
-import TouchableHapticTimePeriod from '@/components/button/workflow/TouchableHapticTimePeriod';
+import TouchableHapticTimePeriod from '@/components/button/TouchableHapticTimePeriod';
 import TouchableHapticActivityStatus, { WorkflowActivityStatusEnum } from '@/components/button/workflow/TouchableHapticActivityStatus';
 import { ListItemDropdownProps } from '@/components/lists/item/ListItemDropdown';
 
 import GlobalWorkflowStyle, { MAX_WIDTH } from '@/styles/GlobalWorkflow';
 import GlobalContainerStyle from '@/styles/GlobalContainer';
+import { DROPDOWN_TIME_PERIOD_ITEMS } from '@/constants/Models';
 
 /**
  * @public
@@ -34,7 +35,7 @@ export type WorkflowStartProps = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.53
- * @version 0.0.2
+ * @version 0.0.3
  * @param {WorkflowStartProps} param0 
  * @param {ConvexWorkflowQueryAPIProps} param0.workflow - The selected workflow object
  * @param {Function} param0.getWorkflow - Callback function to get the current workflow from the central ref in component @see {@link WorkflowCanvas}
@@ -50,6 +51,7 @@ const WorkflowStart = ({
 
   const refStart = React.useRef<View>(null);
   const [workflowName, setWorkflowName] = React.useState(workflow?.name ?? "");
+  const [selectedTimePeriod, setSelectedTimePeriod] = React.useState<ListItemDropdownProps>(DROPDOWN_TIME_PERIOD_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps);
 
   /**
    * @description Callback when user changes trigger, time period or activity status.
@@ -131,7 +133,7 @@ const WorkflowStart = ({
             onPress={onPress("trigger")} />
           <TouchableHapticTimePeriod
             refContainer={refStart}
-            workflow={workflow}
+            selectedItem={selectedTimePeriod}
             onPress={onPress("timePeriod")}
             onChangeValue={onChangeTimePeriodValue}/>
           <TouchableHapticActivityStatus
@@ -146,3 +148,14 @@ const WorkflowStart = ({
 };
 
 export default WorkflowStart;
+
+/**
+ * 
+  const [selected, setSelected] = React.useState<ListItemDropdownProps>(WORKFLOW_TIME_PERIOD_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps);
+  const [timePeriodValue, setTimePeriodValue] = React.useState<string>("24");
+
+  React.useEffect(() => {
+    /** @description Set the selected time period/value based on the workflow start time period if it is defined *
+    if (workflow?.start.timePeriod) setSelected(WORKFLOW_TIME_PERIOD_ITEMS.find((item) => item.itemKey === workflow?.start.timePeriod) as ListItemDropdownProps);
+  }, [workflow?.start.timePeriod]);
+ */

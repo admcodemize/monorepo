@@ -21,13 +21,14 @@ export type EditorStyleState = Record<typeof EDITOR_STYLE_ITEMS[number]["state"]
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type EditorProps = {
   placeholder?: string;
   defaultValue?: string;
   mentionIndicators?: string[];
   maxHeight?: DimensionValue;
+  minHeight?: DimensionValue;
   primaryTextColor?: string;
   fontSize?: number;
   padding?: number;
@@ -131,12 +132,13 @@ export const insertPatternValue = (
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.38
- * @version 0.0.1
+ * @version 0.0.2
  * @param {EditorProps} param0
  * @param {string} param0.placeholder - The placeholder of the editor
  * @param {string} param0.defaultValue - The default value of the editor -> html or plain text
  * @param {string[]} param0.mentionIndicators - The indicators of the mentions -> @ => mentions and # => variables
  * @param {DimensionValue} param0.maxHeight - The maximum height of the editor
+ * @param {DimensionValue} param0.minHeight - The minimum height of the editor
  * @param {string} param0.textColor - The text color of the editor -> default is infoColor
  * @param {number} param0.fontSize - The font size of the editor -> default is text size
  * @param {number} param0.padding - The padding of the editor -> default is 4
@@ -149,6 +151,7 @@ const Editor = React.forwardRef<EnrichedTextInputInstance, EditorProps>(({
   defaultValue,
   mentionIndicators = ["#", "@"],
   maxHeight = "100%",
+  minHeight = 0,
   primaryTextColor,
   fontSize = Number(SIZES.text),
   padding = 4,
@@ -222,6 +225,7 @@ const Editor = React.forwardRef<EnrichedTextInputInstance, EditorProps>(({
         padding,
         color: primaryTextColor || infoColor,
         maxHeight: maxHeight,
+        minHeight: minHeight,
         borderBottomWidth: showBorderBottom ? 1 : 0,
         borderBottomColor: primaryBorderColor,
       }} />

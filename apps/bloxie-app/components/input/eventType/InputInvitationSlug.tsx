@@ -55,6 +55,8 @@ const InputInvitationSlug = ({
         </View>
         <TextInput
           placeholder={t("event-type-slug")}
+          keyboardType="url"
+          autoCapitalize="none"
           cursorColor={infoColor}
           selectionColor={infoColor}
           maxLength={20}

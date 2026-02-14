@@ -21,7 +21,9 @@ import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import TouchableHaptic from "../TouchableHaptic";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
-import { faBadgeCheck, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
+import { faEnvelope, faGaugeSimpleMax, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
+import TouchableHapticLink from "./TouchableHapticLink";
+import TouchableHapticSwitch from "../TouchableHapticSwitch";
 
 /**
  * @public
@@ -29,7 +31,7 @@ import { faBadgeCheck, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
  * @since 0.0.58
  * @version 0.0.1
  * @type */
-export type TouchableHapticConfirmationPageProps = {
+export type TouchableHapticParticipantInformationProps = {
   refContainer: React.RefObject<View|null>;
   selectedItem: ListItemDropdownProps;
   onPress: (item: ListItemDropdownProps) => void;
@@ -41,18 +43,18 @@ export type TouchableHapticConfirmationPageProps = {
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.58
  * @version 0.0.1
- * @param {TouchableHapticConfirmationPageProps} param0 
+ * @param {TouchableHapticLimitsProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
  * @param {ListItemDropdownProps} param0.selectedItem - The selected item object
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
-const TouchableHapticConfirmationPage = ({
+const TouchableHapticParticipantInformation = ({
   refContainer,
   selectedItem,
   onPress,
-}: TouchableHapticConfirmationPageProps) => {
+}: TouchableHapticParticipantInformationProps) => {
   const refTimePeriod = React.useRef<View>(null);
-  const { secondaryBgColor, tertiaryBgColor, infoColor, linkColor } = useThemeColors();
+  const { secondaryBgColor, infoColor, linkColor, labelColor } = useThemeColors();
 
   const [selected, setSelected] = React.useState<ListItemDropdownProps>(selectedItem);
 
@@ -72,7 +74,7 @@ const TouchableHapticConfirmationPage = ({
   const children = () => {
     return (
       <ListDropdown
-        title={t("Bestätigungsseite")} 
+        title={t("Limits")} 
         items={DROPDOWN_DURATION_ITEMS}
         width={140}
         selectedItem={selected}
@@ -99,32 +101,90 @@ const TouchableHapticConfirmationPage = ({
       children: children(),
     });
   }
-  
   return (
-    <View
-      style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        backgroundColor: secondaryBgColor,
-      }]}>
+    <View style={[GlobalWorkflowStyle.touchableParent, { gap: 6, height: "auto",
+      //backgroundColor: secondaryBgColor,
+      paddingTop: 4,
+      paddingHorizontal: 0
+     }]}>
+      <View
+        style={[GlobalContainerStyle.rowCenterBetween, {
+          paddingHorizontal: 10
+          //backgroundColor: secondaryBgColor,
+        }]}>
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
         <FontAwesomeIcon 
-          icon={faBadgeCheck as IconProp} 
+          icon={faGaugeSimpleMax as IconProp} 
           size={STYLES.sizeFaIcon} />
         <TextBase
-          text={t("Bestätigungsseite")} 
+          text={t("Informationen zum Teilnehmer")} 
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
-        <TouchableHapticDropdown
-          ref={refTimePeriod}
-          text={"In-App-Standard"}
-          backgroundColor={tertiaryBgColor}
-          hasViewCustomStyle
-          textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
-          viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-          onPress={onPressDropdown}/>
+        <TouchableHaptic>
+          <FontAwesomeIcon
+            icon={faPlus as IconProp}
+            size={STYLES.sizeFaIcon}
+            color={linkColor} />
+        </TouchableHaptic>
       </View>
+    </View>
+      <View style={{ paddingHorizontal: 10 }}>
+        <TextBase
+          text={t("Definiert welche Eingabe-Informationen dem Teilnehmer bei der Buchung angezeigt werden.")} 
+          type="label"
+          style={{ color: labelColor }} />   
+      </View> 
+      <TouchableHapticParticipantInformationItem refContainer={refContainer} selectedItem={selectedItem} type="email" isRequired={true} />
+      {/*<TouchableHapticParticipantInformationItem refContainer={refContainer} selectedItem={selectedItem} type="name" />
+      <TouchableHapticParticipantInformationItem refContainer={refContainer} selectedItem={selectedItem} type="phone" />*/}
     </View>
   );
 };
 
-export default TouchableHapticConfirmationPage;
+const TouchableHapticParticipantInformationItem = ({
+  refContainer,
+  selectedItem,
+  type,
+  isRequired,
+}: {
+  refContainer: React.RefObject<View|null>;
+  selectedItem: ListItemDropdownProps;
+  type: "email" | "name" | "phone";
+  isRequired?: boolean;
+}) => {
+  const { secondaryBgColor, infoColor, labelColor } = useThemeColors();
+
+  const [timePeriodValue, setTimePeriodValue] = React.useState<string>("30");
+
+  /**
+   * @description Used to change the time period value
+   * -> Change the value on the parent component
+   * @param {string} text - The new time period value
+   * @function */
+  const onChangeTimePeriodValue = (text: string) => {
+    setTimePeriodValue(text);
+    //onChangeValue(text);
+  };
+
+  return (
+    <View style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
+      backgroundColor: secondaryBgColor,
+      padding: 0,
+    }]}>
+      <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+      <FontAwesomeIcon 
+        icon={faEnvelope as IconProp} 
+        size={STYLES.sizeFaIcon} />
+      <TextBase text={type === "email" ? t("E-Mail Adresse") : type === "name" ? t("Name/Vorname") : t("Telefonnummer")} type="label" style={{ color: infoColor }} />
+      {isRequired && <TextBase text={t("(Pflicht-Eingabe)")} type="label" style={{ color: labelColor }} />}
+      </View>
+      <View style={[{ gap: 12 }, GlobalContainerStyle.rowCenterCenter]}>
+        {!isRequired && <TouchableHapticSwitch
+          state={true}
+          onStateChange={() => {}} />}
+      </View>
+    </View>
+  );
+}
+export default TouchableHapticParticipantInformation;

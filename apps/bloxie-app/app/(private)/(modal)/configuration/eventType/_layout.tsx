@@ -1,13 +1,12 @@
 import { Stack } from "expo-router";
-import ToastifyProvider from 'toastify-react-native';
 
-import { config } from "@/helpers/Toastify";
 import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { TRAY_CONFIGURATION_ITEMS } from "@/constants/Models";
 
 import StackModalHeader from "@/components/container/StackModalHeader";
 import SafeAreaContextViewBase from "@/components/container/SafeAreaContextView";
+import DropdownOverlay from "@/components/container/DropdownOverlay";
 
 /**
  * @public
@@ -29,6 +28,7 @@ const ModalConfigurationEventTypeLayout = () => {
         <Stack.Screen name="index" />
         <Stack.Screen name="[id]" />
       </Stack>
+      <DropdownOverlay />
     </SafeAreaContextViewBase>
   );
 }

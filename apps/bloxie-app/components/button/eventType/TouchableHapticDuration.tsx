@@ -50,7 +50,7 @@ export type TouchableHapticDurationProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticDurationProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
  * @param {ListItemDropdownProps} param0.selectedItem - The selected item object
@@ -85,7 +85,7 @@ const TouchableHapticDuration = ({
   const children = () => {
     return (
       <ListDropdown
-        title={t("Dauer")} 
+        title={t("i18n.buttons.duration.title")} 
         items={DROPDOWN_DURATION_ITEMS}
         width={140}
         selectedItem={selected}
@@ -133,7 +133,7 @@ const TouchableHapticDuration = ({
           icon={selected.iconThin as IconProp} 
           size={STYLES.sizeFaIcon} />
         <TextBase
-          text={t("Dauer")} 
+          text={t("i18n.buttons.duration.title")} 
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>

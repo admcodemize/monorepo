@@ -7,6 +7,7 @@ import ScreenTrayWorkflowAction, { ScreenTrayWorkflowActionProps } from "@/scree
 import ScreenTrayWorkflowEventType, { ScreenTrayWorkflowEventTypeProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowEventType";
 import ScreenTrayWorkflowCancellationTerms, { ScreenTrayWorkflowCancellationTermsProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowCancellationTerms";
 import ScreenTrayWorkflowDecisionChoose, { ScreenTrayWorkflowDecisionChooseProps } from "@/screens/private/configuration/workflow/trays/TrayWorkflowDecisionChoose";
+import ScreenTrayLocation, { ScreenTrayLocationProps } from "@/screens/private/configuration/eventType/trays/TrayLocation";
 
 /**
  * @private
@@ -48,7 +49,7 @@ export const stackConfigs = {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.10
+ * @version 0.0.11
  * @object */
 export const trays = {
   main: {
@@ -67,5 +68,6 @@ export const trays = {
     /** @description Workflow trays @see {@link screens/private/modal/configuration/workflow/trays} -> Special settings for keyboard handling */
     TrayWorkflowAction: { component: (props: ScreenTrayWorkflowActionProps) => <ScreenTrayWorkflowAction {...props} /> },
     TrayWorkflowCancellationTerms: { component: (props: ScreenTrayWorkflowCancellationTermsProps) => <ScreenTrayWorkflowCancellationTerms {...props} /> },
+    TrayLocation: { component: (props: ScreenTrayLocationProps) => <ScreenTrayLocation {...props} /> },
   }
 };

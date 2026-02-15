@@ -1,6 +1,6 @@
 import TouchableHapticBufferTime, { BufferTimeType } from "@/components/button/eventType/TouchableHapticBufferTime";
 import TouchableHapticConfirmationPage from "@/components/button/eventType/TouchableHapticConfirmationPage";
-import TouchableHapticDetailInformation from "@/components/button/eventType/TouchableHapticParticipantInformation";
+import TouchableHapticParticipantInformation from "@/components/button/eventType/TouchableHapticParticipantInformation";
 import TouchableHapticExecuteWorkflow from "@/components/button/eventType/TouchableHapticExecuteWorkflow";
 import TouchableHapticFrequency from "@/components/button/eventType/TouchableHapticFrequency";
 import TouchableHapticLimits from "@/components/button/eventType/TouchableHapticLimits";
@@ -30,6 +30,7 @@ import React from "react";
 import { Dimensions, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import TouchableHapticInviteGuests from "@/components/button/eventType/TouchableHapticInviteGuests";
+import TouchableHapticParticipantQuestion from "@/components/button/eventType/TouchableHapticParticipantQuestion";
 
 const ModalConfigurationEventTypeAdditional= () => {
   const { secondaryBgColor, infoColor } = useThemeColors();
@@ -63,7 +64,7 @@ const ModalConfigurationEventTypeAdditional= () => {
           <View 
             style={[GlobalViewStyle.actionContainerItem]}>
             <View style={{ gap: 4, alignSelf: 'stretch' }}>  
-              <TouchableHapticDetailInformation
+              <TouchableHapticParticipantInformation
                 refContainer={refStart}
                 selectedItem={DROPDOWN_DURATION_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps}
                 onPress={() => {}} />

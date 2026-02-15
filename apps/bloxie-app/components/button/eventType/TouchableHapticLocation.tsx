@@ -15,6 +15,15 @@ import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
+import { useTrays } from "react-native-trays";
+
+export enum LocationEnum {
+  OFFICE = "office",
+  ADDRESS = "address",
+  GOOGLE_MEET = "googleMeet",
+  PHONE = "phone",
+  CUSTOM = "custom",
+}
 
 /**
  * @public
@@ -41,6 +50,19 @@ const TouchableHapticLocation = ({
   const refLocation = React.useRef<View>(null);
   const { secondaryBgColor, tertiaryBgColor, infoColor, textColor, labelColor } = useThemeColors();
 
+  const { push, dismiss } = useTrays('keyboard');
+
+  /**
+   * @description Used to open the location tray for adding one or more locations
+   * @function */
+  const onPressLocation = () => {
+    push('TrayLocation', {
+      onAfterSave: () => {
+        dismiss('TrayLocation');
+      },
+    });
+  } 
+
   return (
     <View
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
@@ -51,12 +73,12 @@ const TouchableHapticLocation = ({
           icon={faMapPin as IconProp} 
           size={STYLES.sizeFaIcon} />
         <TextBase
-          text={t("Ort")} 
+          text={t("i18n.buttons.location.title")} 
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 2 }]}>
         <TextBase
-          text={`${t("Primär")}: `}
+          text={`${t("i18n.buttons.location.primary")}: `}
           type="label"
           style={{ color: labelColor }} />
         <TouchableHapticDropdown
@@ -66,7 +88,7 @@ const TouchableHapticLocation = ({
           hasViewCustomStyle
           textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
           viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
-          onPress={() => {}}/>
+          onPress={onPressLocation}/>
       </View>
     </View>
   );

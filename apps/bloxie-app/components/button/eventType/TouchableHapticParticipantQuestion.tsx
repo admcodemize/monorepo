@@ -21,7 +21,7 @@ import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import TouchableHaptic from "../TouchableHaptic";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
-import { faCalendarUsers, faEnvelope, faGaugeSimpleMax, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
+import { faCalendarUsers, faEnvelope, faGaugeSimpleMax, faListTimeline, faSquarePollHorizontal } from "@fortawesome/pro-thin-svg-icons";
 import TouchableHapticLink from "./TouchableHapticLink";
 import TouchableHapticSwitch from "../TouchableHapticSwitch";
 
@@ -31,7 +31,7 @@ import TouchableHapticSwitch from "../TouchableHapticSwitch";
  * @since 0.0.58
  * @version 0.0.1
  * @type */
-export type TouchableHapticParticipantInformationProps = {
+export type TouchableHapticParticipantQuestionProps = {
   refContainer: React.RefObject<View|null>;
   selectedItem: ListItemDropdownProps;
   onPress: (item: ListItemDropdownProps) => void;
@@ -48,11 +48,11 @@ export type TouchableHapticParticipantInformationProps = {
  * @param {ListItemDropdownProps} param0.selectedItem - The selected item object
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
-const TouchableHapticParticipantInformation = ({
+const TouchableHapticParticipantQuestion = ({
   refContainer,
   selectedItem,
   onPress,
-}: TouchableHapticParticipantInformationProps) => {
+}: TouchableHapticParticipantQuestionProps) => {
   const refTimePeriod = React.useRef<View>(null);
   const { secondaryBgColor, infoColor, linkColor, labelColor } = useThemeColors();
 
@@ -114,10 +114,10 @@ const TouchableHapticParticipantInformation = ({
         }]}>
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
         <FontAwesomeIcon 
-          icon={faCalendarUsers as IconProp} 
+          icon={faSquarePollHorizontal as IconProp} 
           size={STYLES.sizeFaIcon} />
         <TextBase
-          text={t("Informationen zum Teilnehmer")} 
+          text={t("Fragen an den Teilnehmer")} 
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
@@ -131,18 +131,18 @@ const TouchableHapticParticipantInformation = ({
     </View>
       <View style={{ paddingHorizontal: 10 }}>
         <TextBase
-          text={t("Definiert welche Eingabe-Informationen dem Teilnehmer bei der Buchung angezeigt werden.")} 
+          text={t("Relevante Fragen für den weiterführenden Dialog mit dem Teilnehmer.")} 
           type="label"
           style={{ color: labelColor }} />   
       </View> 
-      <TouchableHapticParticipantInformationItem refContainer={refContainer} selectedItem={selectedItem} type="email" isRequired={true} />
+      <TouchableHapticParticipantQuestionItem refContainer={refContainer} selectedItem={selectedItem} type="email" isRequired={true} />
       {/*<TouchableHapticParticipantInformationItem refContainer={refContainer} selectedItem={selectedItem} type="name" />
       <TouchableHapticParticipantInformationItem refContainer={refContainer} selectedItem={selectedItem} type="phone" />*/}
     </View>
   );
 };
 
-const TouchableHapticParticipantInformationItem = ({
+const TouchableHapticParticipantQuestionItem = ({
   refContainer,
   selectedItem,
   type,
@@ -187,4 +187,4 @@ const TouchableHapticParticipantInformationItem = ({
     </View>
   );
 }
-export default TouchableHapticParticipantInformation;
+export default TouchableHapticParticipantQuestion;

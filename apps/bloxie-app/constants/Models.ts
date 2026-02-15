@@ -39,7 +39,13 @@ import {
   faCalendarWeek as faCalendarWeekThin, 
   faCalendarDay as faCalendarDayThin, 
   faStopwatch as faStopwatchThin, 
-  faStopwatch20 as faStopwatch20Thin 
+  faStopwatch20 as faStopwatch20Thin, 
+  faBriefcase,
+  faMapPin,
+  faHeadset,
+  faPhone,
+  faMobileRetro,
+  faInputText
 } from "@fortawesome/pro-thin-svg-icons";
 import {  
   faBold,
@@ -56,6 +62,8 @@ import {
   faCode
 } from "@fortawesome/pro-solid-svg-icons";
 import { DurationEnum } from "@/components/button/eventType/TouchableHapticDuration";
+import { LocationEnum } from "@/components/button/eventType/TouchableHapticLocation";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 /**
  * @public
@@ -393,6 +401,36 @@ export const DROPDOWN_DURATION_ITEMS: ListItemDropdownProps[] = [{
   icon: faStopwatch20 as IconProp,
   iconThin: faStopwatch20Thin as IconProp,
   isSelected: true,
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the location items for the dropdown
+ * @readonly
+ * @since 0.0.60
+ * @version 0.0.1
+ * @constant */
+export const EVENT_TYPE_LOCATIONS: ListItemDropdownProps[] = [{
+  itemKey: LocationEnum.OFFICE,
+  title: "i18n.dropdown.general.location.office",
+  icon: faBriefcase as IconProp
+}, {
+  itemKey: LocationEnum.ADDRESS,
+  title: "i18n.dropdown.general.location.address",
+  icon: faMapPin as IconProp,
+}, {
+  itemKey: LocationEnum.GOOGLE_MEET,
+  title: "i18n.dropdown.general.location.googleMeet",
+  icon: faHeadset as IconProp,
+}, {
+  itemKey: LocationEnum.PHONE,
+  title: "i18n.dropdown.general.location.phone",
+  icon: faMobileRetro as IconProp,
+}, {
+  itemKey: LocationEnum.CUSTOM,
+  title: "i18n.dropdown.general.location.custom",
+  icon: faInputText as IconProp,
 }];
 
 /**

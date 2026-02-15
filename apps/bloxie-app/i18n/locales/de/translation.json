@@ -12,7 +12,14 @@
     },
     "buttons": {
       "close": "Schliessen",
-      "save": "Speichern"
+      "save": "Speichern",
+      "duration": {
+        "title": "Dauer"
+      },
+      "location": {
+        "title": "Ort",
+        "primary": "Primär"
+      }
     },
     "searchField": {
       "placeholder": "Suchen"
@@ -294,6 +301,10 @@
       "trayWorkflows": {
         "title": "Workflows",
         "description": "Verwalte deine Workflows"
+      },
+      "trayLocation": {
+        "title": "Ort",
+        "description": "Wähle einen Ort aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
       }
     },
     "convex": {

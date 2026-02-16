@@ -106,6 +106,15 @@
             }
           }
         }
+      },
+      "eventType": {
+        "location": {
+          "office": "Büroräumlichkeit",
+          "address": "Geschäfts-/Privatadresse",
+          "googleMeet": "Google Meet-Besprechung",
+          "phone": "Telefonbesprechung",
+          "custom": "Benutzerdefinierter Ort"
+        }
       }
     },
     "screens": {

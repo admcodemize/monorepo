@@ -15,11 +15,12 @@ const DIM = Dimensions.get("window");
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.46
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TrayContainerProps = PropsWithChildren & {
   title: string;
   description?: string;
+  paddingHorizontal?: number;
 }
 
 /**
@@ -30,11 +31,13 @@ export type TrayContainerProps = PropsWithChildren & {
  * @param {TrayContainerProps} param0
  * @param {string} param0.title - The title of the tray container
  * @param {string} param0.description - The description of the tray container (below the title => Maximum of 3 lines)
+ * @param {number} param0.paddingHorizontal - The horizontal padding of the tray container
  * @param {React.ReactNode} param0.children - The children to display inside the tray container (white background with a border)
  * @component */
 const TrayContainer = ({
   title,
   description,
+  paddingHorizontal = 10,
   children,
 }: TrayContainerProps) => {
   const { primaryBgColor, primaryBorderColor, secondaryBgColor, tertiaryBgColor } = useThemeColors();
@@ -54,6 +57,7 @@ const TrayContainer = ({
             borderColor: shadeColor(primaryBorderColor, 0.4),
             backgroundColor: shadeColor(tertiaryBgColor, 0.8), 
             paddingVertical: STYLES.paddingVertical,
+            paddingHorizontal,
           }]}>
             {children}
           </View>

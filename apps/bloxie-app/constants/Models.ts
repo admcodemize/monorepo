@@ -413,23 +413,28 @@ export const DROPDOWN_DURATION_ITEMS: ListItemDropdownProps[] = [{
  * @constant */
 export const EVENT_TYPE_LOCATIONS: ListItemDropdownProps[] = [{
   itemKey: LocationEnum.OFFICE,
-  title: "i18n.dropdown.general.location.office",
+  title: "i18n.dropdown.eventType.location.office",
+  description: "i18n.dropdown.eventType.location.office.description",
   icon: faBriefcase as IconProp
 }, {
   itemKey: LocationEnum.ADDRESS,
-  title: "i18n.dropdown.general.location.address",
+  title: "i18n.dropdown.eventType.location.address",
+  description: "i18n.dropdown.eventType.location.address.description",
   icon: faMapPin as IconProp,
 }, {
   itemKey: LocationEnum.GOOGLE_MEET,
-  title: "i18n.dropdown.general.location.googleMeet",
+  title: "i18n.dropdown.eventType.location.googleMeet",
+  description: "i18n.dropdown.eventType.location.googleMeet.description",
   icon: faHeadset as IconProp,
 }, {
   itemKey: LocationEnum.PHONE,
-  title: "i18n.dropdown.general.location.phone",
+  title: "i18n.dropdown.eventType.location.phone",
+  description: "i18n.dropdown.eventType.location.phone.description",
   icon: faMobileRetro as IconProp,
 }, {
   itemKey: LocationEnum.CUSTOM,
-  title: "i18n.dropdown.general.location.custom",
+  title: "i18n.dropdown.eventType.location.custom",
+  description: "i18n.dropdown.eventType.location.custom.description",
   icon: faInputText as IconProp,
 }];
 

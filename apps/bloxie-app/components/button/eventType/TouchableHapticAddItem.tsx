@@ -20,6 +20,26 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import TouchableHaptic from "../TouchableHaptic";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
+import TouchableHapticSwitch from "../TouchableHapticSwitch";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.62
+ * @version 0.0.1
+ * @enum */
+export enum TouchableHapticAddItemTypeEnum {
+  SWITCH = "switch",
+  BUTTON = "button",
+}
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.62
+ * @version 0.0.1
+ * @type */
+export type TouchableHapticAddItemType = "switch" | "button";
 
 /**
  * @public
@@ -30,7 +50,11 @@ import { faPlus } from "@fortawesome/pro-solid-svg-icons";
 export type TouchableHapticAddItemProps = {
   text: string;
   icon: IconProp;
-  onPress: () => void;
+  type?: TouchableHapticAddItemType;
+  state?: boolean;
+  disabled?: boolean;
+  onPress?: () => void;
+  onStateChange?: (state: boolean) => void;
 };
 
 /**
@@ -43,13 +67,30 @@ export type TouchableHapticAddItemProps = {
  * @param {string} param0.text - The text of the button
  * @param {IconProp} param0.icon - The icon of the button
  * @param {Function} param0.onPress - Callback function when user pressed the button
+ * @param {boolean} param0.disabled - Whether the button is disabled
  * @component */
 const TouchableHapticAddItem = ({
   text = "Geschäfts-/Privatadresse hinzufügen",
   icon,
-  onPress,
+  type = TouchableHapticAddItemTypeEnum.BUTTON,
+  state,
+  disabled = false,
+  onPress = () => {},
+  onStateChange = () => {},
 }: TouchableHapticAddItemProps) => {
   const { secondaryBgColor, infoColor, linkColor } = useThemeColors();
+  const [stateInternal, setStateInternal] = React.useState<boolean>(state ?? false);
+  
+  /**
+   * @description Used to change the state of the switch
+   * @param {boolean} state - The new state of the switch
+   * @function */
+  const onStateChangeInternal = 
+  (state: boolean) => {
+    setStateInternal(state);
+    onStateChange?.(state);
+  };
+
   return (
     <View
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
@@ -64,12 +105,17 @@ const TouchableHapticAddItem = ({
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
-        <TouchableHaptic>
+        {type === TouchableHapticAddItemTypeEnum.BUTTON && <TouchableHaptic 
+          onPress={onPress}
+          disabled={disabled}>
           <FontAwesomeIcon
-            icon={faPlus as IconProp}
-            size={STYLES.sizeFaIcon}
-            color={linkColor} />
-        </TouchableHaptic>
+              icon={faPlus as IconProp}
+              size={STYLES.sizeFaIcon}
+              color={linkColor} />
+        </TouchableHaptic>}
+        {type === TouchableHapticAddItemTypeEnum.SWITCH && <TouchableHapticSwitch
+          state={stateInternal}
+          onStateChange={onStateChangeInternal} />}
       </View>
     </View>
   );

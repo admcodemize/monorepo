@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import { View, Dimensions } from "react-native"
 
 import { shadeColor } from "@codemize/helpers/Colors"
@@ -8,8 +8,6 @@ import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import TrayHeader from "@/components/container/TrayHeader"
 
 import TrayContainerStyle from "@/styles/components/container/TrayContainer";
-
-const DIM = Dimensions.get("window");
 
 /**
  * @public

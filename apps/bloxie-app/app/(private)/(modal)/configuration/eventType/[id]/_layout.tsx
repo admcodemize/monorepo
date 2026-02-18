@@ -15,6 +15,7 @@ import { shadeColor } from "@codemize/helpers/Colors";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { STYLES } from "@codemize/constants/Styles";
 
+
 const { Navigator } = createMaterialTopTabNavigator();
 
 /**

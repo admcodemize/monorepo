@@ -8,6 +8,7 @@ import TouchableHapticShowBookingPage from "@/components/button/eventType/Toucha
 import TouchableHapticShowRemainingSeats from "@/components/button/eventType/TouchableHapticShowRemainingSeats";
 import TouchableHapticTimePeriod from "@/components/button/TouchableHapticTimePeriod";
 import TouchableHapticTrigger from "@/components/button/workflow/TouchableHapticTrigger";
+import DropdownOverlay from "@/components/container/DropdownOverlay";
 import ListItemGroup from "@/components/container/ListItemGroup";
 import InputInvitationLimit from "@/components/input/eventType/InputInvitationLimit";
 import InputTypeName from "@/components/input/eventType/InputTypeName";

@@ -409,31 +409,31 @@ export const DROPDOWN_DURATION_ITEMS: ListItemDropdownProps[] = [{
  * @description Used for handling the location items for the dropdown
  * @readonly
  * @since 0.0.60
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const EVENT_TYPE_LOCATIONS: ListItemDropdownProps[] = [{
   itemKey: LocationEnum.OFFICE,
-  title: "i18n.dropdown.eventType.location.office",
+  title: "i18n.dropdown.eventType.location.office.title",
   description: "i18n.dropdown.eventType.location.office.description",
   icon: faBriefcase as IconProp
 }, {
   itemKey: LocationEnum.ADDRESS,
-  title: "i18n.dropdown.eventType.location.address",
+  title: "i18n.dropdown.eventType.location.address.title",
   description: "i18n.dropdown.eventType.location.address.description",
   icon: faMapPin as IconProp,
 }, {
   itemKey: LocationEnum.GOOGLE_MEET,
-  title: "i18n.dropdown.eventType.location.googleMeet",
+  title: "i18n.dropdown.eventType.location.googleMeet.title",
   description: "i18n.dropdown.eventType.location.googleMeet.description",
   icon: faHeadset as IconProp,
-}, {
+}, /*{
   itemKey: LocationEnum.PHONE,
-  title: "i18n.dropdown.eventType.location.phone",
+  title: "i18n.dropdown.eventType.location.phone.title",
   description: "i18n.dropdown.eventType.location.phone.description",
   icon: faMobileRetro as IconProp,
-}, {
+}, */{
   itemKey: LocationEnum.CUSTOM,
-  title: "i18n.dropdown.eventType.location.custom",
+  title: "i18n.dropdown.eventType.location.custom.title",
   description: "i18n.dropdown.eventType.location.custom.description",
   icon: faInputText as IconProp,
 }];

@@ -13,6 +13,7 @@
     "buttons": {
       "close": "Schliessen",
       "save": "Speichern",
+      "cancel": "Abbrechen",
       "duration": {
         "title": "Dauer"
       },
@@ -109,11 +110,26 @@
       },
       "eventType": {
         "location": {
-          "office": "Büroräumlichkeit",
-          "address": "Geschäfts-/Privatadresse",
-          "googleMeet": "Google Meet-Besprechung",
-          "phone": "Telefonbesprechung",
-          "custom": "Benutzerdefinierter Ort"
+          "office": {
+            "title": "Büroräumlichkeit",
+            "description": "Büroräumlichkeit für die Buchung"
+          },
+          "address": {
+            "title": "Geschäfts-/Privatadresse",
+            "description": "Geschäfts-/Privatadresse für die Buchung"
+          },
+          "googleMeet": {
+            "title": "Google Meet-Besprechung",
+            "description": "Aktivieren "
+          },
+          "phone": {
+            "title": "Telefonbesprechung",
+            "description": "Telefonbesprechung für die Buchung"
+          },
+          "custom": {
+            "title": "Benutzerdefinierter Ort",
+            "description": "Benutzerdefinierter Ort für die Buchung"
+          }
         }
       }
     },
@@ -313,7 +329,9 @@
       },
       "trayLocation": {
         "title": "Ort",
-        "description": "Wähle einen Ort aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren."
+        "description": "Wähle einen Ort aus um deine nachfolgende Aktion innerhalb des Ausführungsprozesses zu personalisieren.",
+        "primary": "Primärer Ort",
+        "dropdownPlaceholder": "Ausgewählte Orte"
       }
     },
     "convex": {

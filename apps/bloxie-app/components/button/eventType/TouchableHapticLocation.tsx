@@ -16,6 +16,8 @@ import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import { useTrays } from "react-native-trays";
+import { ScreenTrayLocationInputs } from "@/screens/private/configuration/eventType/trays/TrayLocation";
+import { EVENT_TYPE_LOCATIONS } from "@/constants/Models";
 
 export enum LocationEnum {
   OFFICE = "office",
@@ -48,17 +50,22 @@ const TouchableHapticLocation = ({
   onPress,
 }: TouchableHapticLocationProps) => {
   const refLocation = React.useRef<View>(null);
-  const { secondaryBgColor, tertiaryBgColor, infoColor, textColor, labelColor } = useThemeColors();
-
+  const { secondaryBgColor, tertiaryBgColor, infoColor, labelColor } = useThemeColors();
   const { push, dismiss } = useTrays('keyboard');
+
+  const [locations, setLocations] = React.useState<ScreenTrayLocationInputs>();
+  const [primary, setPrimary] = React.useState<LocationEnum>(LocationEnum.OFFICE);
 
   /**
    * @description Used to open the location tray for adding one or more locations
    * @function */
   const onPressLocation = () => {
     push('TrayLocation', {
-      onAfterSave: () => {
+      locations: locations,
+      onAfterSave: (primary: LocationEnum, locations: ScreenTrayLocationInputs) => {
         dismiss('TrayLocation');
+        setPrimary(primary);
+        setLocations(locations);
       },
     });
   } 
@@ -83,7 +90,7 @@ const TouchableHapticLocation = ({
           style={{ color: labelColor }} />
         <TouchableHapticDropdown
           ref={refLocation}
-          text={t("Microsoft Teams-Besprechung")}
+          text={t(`${EVENT_TYPE_LOCATIONS.find((item) => item.itemKey === primary)?.title}`)}
           backgroundColor={tertiaryBgColor}
           hasViewCustomStyle
           textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}

@@ -34,39 +34,45 @@ export type InputInvitationSlugProps = {
  * @component */
 const InputInvitationSlug = ({
 }: InputInvitationSlugProps) => {
-  const { infoColor, textColor, labelColor } = useThemeColors();
+  const { infoColor, labelColor, errorColor } = useThemeColors();
   return (
-    <View
-      style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        //backgroundColor: secondaryBgColor,
-        gap: 0
-      }]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
-          <FontAwesomeIcon 
-            icon={faGlobePointer as IconProp} 
-            size={STYLES.sizeFaIcon} 
-            color={infoColor} />
-          <TextBase
-            text={"Slug"} 
-            style={{ color: infoColor }} />
-          <TextBase 
-            text={t("bloxie.ch/mstoeckli7/")} 
-            style={{ color: labelColor }} />
+    <View style={[GlobalWorkflowStyle.touchableParent, {
+      gap: 6,
+      height: "auto",
+      paddingVertical: 6
+    }]}>
+      <View style={[GlobalContainerStyle.rowCenterBetween]}>
+          <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+            <FontAwesomeIcon 
+              icon={faGlobePointer as IconProp} 
+              size={STYLES.sizeFaIcon} 
+              color={infoColor} />
+            <TextBase
+              text={"Slug"} 
+              style={{ color: infoColor }} />
+            <TextBase 
+              text={t("bloxie.ch/mstoeckli7/")} 
+              style={{ color: labelColor }} />
+          </View>
+          <TextInput
+            placeholder={t("event-type-slug")}
+            keyboardType="url"
+            autoCapitalize="none"
+            cursorColor={infoColor}
+            selectionColor={infoColor}
+            maxLength={20}
+            style={[GlobalTypographyStyle.inputText, {
+              textAlign: "right",
+              color: infoColor,
+              flexGrow: 1,
+              height: "auto"
+            }]} />
         </View>
-        <TextInput
-          placeholder={t("event-type-slug")}
-          keyboardType="url"
-          autoCapitalize="none"
-          cursorColor={infoColor}
-          selectionColor={infoColor}
-          maxLength={20}
-          style={[GlobalTypographyStyle.inputText, {
-            textAlign: "right",
-            color: infoColor,
-            flexGrow: 1,
-            height: "auto"
-          }]} />
-      </View>
+        <TextBase
+          text={t("URL-Pfad wird bereits von einem anderen Ereignistyp verwendet.")}
+          type="label"
+          style={{ color: errorColor }} />
+    </View>
   );
 };
 

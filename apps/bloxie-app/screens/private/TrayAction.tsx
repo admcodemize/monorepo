@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Linking } from "react-native";
 import { router } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
@@ -20,7 +20,7 @@ import GlobalContainerStyle from "@/styles/GlobalContainer";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.3
+ * @version 0.0.4
  * @component */
 const ScreenTrayAction = () => {
   /** @description Used to get the theme based colors */
@@ -48,7 +48,7 @@ const ScreenTrayAction = () => {
             {TRAY_CONFIGURATION_ITEMS.map((item) => (
               <ScreenTrayActionItemChildren 
                 key={item.key}
-                route={`/configuration/${item.route}`}
+                route={item.route ? `/configuration/${item.route}` : undefined}
                 icon={item.icon} 
                 title={item.title} 
                 description={item.description}
@@ -56,7 +56,8 @@ const ScreenTrayAction = () => {
                 right={item.key === "bookingPage" ? <FontAwesomeIcon
                   icon={faArrowUpRightFromSquare as IconProp}
                   size={STYLES.sizeFaIcon}
-                  color={primaryIconColor} /> : undefined} />
+                  color={primaryIconColor} /> : undefined}
+                onPress={() => item.key === "bookingPage" && Linking.openURL("https://bloxie.ch/mstoeckli7/")} />
             ))}
         </ListItemGroup>
         <ListItemGroup 
@@ -68,11 +69,7 @@ const ScreenTrayAction = () => {
                 route={`/account/${item.route}`}
                 icon={item.icon} 
                 title={item.title} 
-                description={item.description}
-                right={item.key === "bookingPage" ? <FontAwesomeIcon
-                  icon={faArrowUpRightFromSquare as IconProp}
-                  size={STYLES.sizeFaIcon}
-                  color={primaryIconColor} /> : undefined} />
+                description={item.description} />
             ))}
         </ListItemGroup>
       </View>
@@ -84,7 +81,7 @@ const ScreenTrayAction = () => {
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 type ScreenTrayActionItemChildrenProps = {
   route?: string;
@@ -93,19 +90,22 @@ type ScreenTrayActionItemChildrenProps = {
   description: string;
   right?: React.ReactNode;
   isComingSoon?: boolean;
+  onPress?: () => void;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.2
+ * @version 0.0.3
  * @param {ScreenTrayActionItemChildrenProps} param0
  * @param {string} param0.route - The route to navigate to
  * @param {IconProp} param0.icon - The icon to display
  * @param {string} param0.title - The title of the list item
  * @param {string} param0.description - The description of the list item
  * @param {React.ReactNode} param0.right - The right component to display on the right side of the list item
+ * @param {boolean} param0.isComingSoon - Whether the list item is coming soon
+ * @param {() => void} param0.onPress - The function to call when the list item is pressed and no route is provided
  * @component */
 const ScreenTrayActionItemChildren = ({
   route,
@@ -113,17 +113,21 @@ const ScreenTrayActionItemChildren = ({
   title,
   description,
   right,
-  isComingSoon = false
+  isComingSoon = false,
+  onPress
 }: ScreenTrayActionItemChildrenProps) => {
+  console.log("route", route);
   /**
    * @description Handles the on press event for the list item
    * @function */
-  const onPress = () => route && router.push(`/(private)/(modal)${route}`);
+  const onPressInternal = () => !route
+    ? onPress?.()
+    : route && router.push(`/(private)/(modal)${route}`);
 
   return (
     <TouchableHaptic
       disabled={isComingSoon}
-      onPress={onPress}>
+      onPress={onPressInternal}>
         <View style={[GlobalContainerStyle.columnStartStart]}>
           <ListItemWithChildren
             icon={icon} 

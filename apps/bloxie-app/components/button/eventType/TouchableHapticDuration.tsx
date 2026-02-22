@@ -30,6 +30,7 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
 export enum DurationEnum {
   HOUR = "hour",
   MINUTE = "minute",
+  DAY = "day",
 }
 
 /**

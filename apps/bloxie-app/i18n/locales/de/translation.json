@@ -35,10 +35,6 @@
           "day": "Tage",
           "hour": "Stunden",
           "minute": "Minuten"
-        },
-        "duration": {
-          "hour": "Stunden",
-          "minute": "Minuten"
         }
       },
       "dashboard": {
@@ -109,26 +105,39 @@
         }
       },
       "eventType": {
+        "minTimeBeforeEvent": {
+          "title": "Vorlaufzeit",
+          "beforeEventStart": "vor Ereignisbeginn",
+          "description": "Die minimale Buchungszeit vor Ereignisbeginn legt fest, wie lange ein Teilnehmer vor dem Ereignisbeginn mindestens buchen muss."
+        },
+        "futureBooking": {
+          "workdays": "Arbeitstage",
+          "calendarDays": "Kalendertage",
+          "title": "Buchung in Zukunft",
+          "booking": "Buchung",
+          "inFuture": "in Zukunft",
+          "description": "Definiert wie weit in die Zukunft ein Teilnehmer buchen kann. Arbeitstage beinhaltet nur Werktage (Mo-Fr) und Kalendertage beinhaltet alle Tage des Jahres."
+        },
         "location": {
           "office": {
             "title": "Büroräumlichkeit",
-            "description": "Büroräumlichkeit für die Buchung"
+            "description": "Vor-Ort-Termin in einem bestimmten Raum"
           },
           "address": {
             "title": "Geschäfts-/Privatadresse",
-            "description": "Geschäfts-/Privatadresse für die Buchung"
+            "description": "Termin an einer Geschäftsstelle oder privaten Adresse"
           },
           "googleMeet": {
             "title": "Google Meet-Besprechung",
-            "description": "Aktivieren "
+            "description": "Automatisch generierter Videokonferenz-Link"
           },
           "phone": {
             "title": "Telefonbesprechung",
-            "description": "Telefonbesprechung für die Buchung"
+            "description": "Termin per Telefonanruf"
           },
           "custom": {
             "title": "Benutzerdefinierter Ort",
-            "description": "Benutzerdefinierter Ort für die Buchung"
+            "description": "Eigener Ort/Treffpunkt oder ein persönlicher Link eines Dienstes wie Zoom, Teams, etc."
           }
         }
       }
@@ -278,7 +287,7 @@
             "modal": "Das Workflow System ermöglicht es dir, automatische Prozesse für deine Buchungen zu erstellen. Die Einrichtung spart Ihnen vor und nach den Terminen Zeit und Ressourcen.."
           },
           "availability": {
-            "title": "Verfügbarkeiten",
+            "title": "Arbeitszeitpläne",
             "description": "Wochen-/Datumsbasierte Anwesenheitszeiten"
           },
           "integration": {

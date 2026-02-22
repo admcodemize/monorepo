@@ -33,6 +33,7 @@ import {
   faBridgeCircleCheck,
   faPlay,
   faPause,
+  faCalendarRange
 } from "@fortawesome/duotone-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { 
@@ -40,11 +41,11 @@ import {
   faCalendarDay as faCalendarDayThin, 
   faStopwatch as faStopwatchThin, 
   faStopwatch20 as faStopwatch20Thin, 
+  faBusinessTime as faBusinessTimeThin,
+  faCalendarRange as faCalendarRangeThin,
   faBriefcase,
   faMapPin,
   faHeadset,
-  faPhone,
-  faMobileRetro,
   faInputText
 } from "@fortawesome/pro-thin-svg-icons";
 import {  
@@ -63,7 +64,7 @@ import {
 } from "@fortawesome/pro-solid-svg-icons";
 import { DurationEnum } from "@/components/button/eventType/TouchableHapticDuration";
 import { LocationEnum } from "@/components/button/eventType/TouchableHapticLocation";
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { FutureBookingEnum } from "@/components/button/eventType/TouchableHapticFutureBooking";
 
 /**
  * @public
@@ -388,19 +389,44 @@ export const DROPDOWN_TIME_PERIOD_ITEMS: ListItemDropdownProps[] = [{
  * @description Used for handling the duration items for the dropdown
  * @readonly
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @constant */
 export const DROPDOWN_DURATION_ITEMS: ListItemDropdownProps[] = [{
   itemKey: DurationEnum.HOUR,
-  title: "i18n.dropdown.general.duration.hour",
+  title: "i18n.dropdown.general.timePeriod.hour",
   icon: faStopwatch as IconProp,
   iconThin: faStopwatchThin as IconProp,
 }, {
   itemKey: DurationEnum.MINUTE,
-  title: "i18n.dropdown.general.duration.minute",
+  title: "i18n.dropdown.general.timePeriod.minute",
   icon: faStopwatch20 as IconProp,
   iconThin: faStopwatch20Thin as IconProp,
   isSelected: true,
+}, {
+  itemKey: DurationEnum.DAY,
+  title: "i18n.dropdown.general.timePeriod.day",
+  icon: faCalendarDays as IconProp,
+  iconThin: faCalendarDayThin as IconProp,
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the future booking items for the dropdown
+ * @readonly
+ * @since 0.0.64
+ * @version 0.0.1
+ * @constant */
+export const DROPDOWN_FUTURE_BOOKING: ListItemDropdownProps[] = [{
+  itemKey: FutureBookingEnum.WORKDAYS,
+  title: "i18n.dropdown.eventType.futureBooking.workdays",
+  icon: faBusinessTime as IconProp,
+  iconThin: faBusinessTimeThin as IconProp,
+}, {
+  itemKey: FutureBookingEnum.CALENDARDAYS,
+  title: "i18n.dropdown.eventType.futureBooking.calendarDays",
+  icon: faCalendarRange as IconProp,
+  iconThin: faCalendarRangeThin as IconProp
 }];
 
 /**

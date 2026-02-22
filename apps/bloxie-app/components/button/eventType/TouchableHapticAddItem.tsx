@@ -45,10 +45,11 @@ export type TouchableHapticAddItemType = "switch" | "button";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.61
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TouchableHapticAddItemProps = {
   text: string;
+  description?: string;
   icon: IconProp;
   type?: TouchableHapticAddItemType;
   state?: boolean;
@@ -62,15 +63,20 @@ export type TouchableHapticAddItemProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.61
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticAddItemProps} param0 
  * @param {string} param0.text - The text of the button
+ * @param {string} param0.description - The description of the button
  * @param {IconProp} param0.icon - The icon of the button
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @param {boolean} param0.disabled - Whether the button is disabled
+ * @param {TouchableHapticAddItemType} param0.type - The type of the button
+ * @param {boolean} param0.state - The state of the switch
+ * @param {Function} param0.onStateChange - Callback function when the state of the switch changes
  * @component */
 const TouchableHapticAddItem = ({
-  text = "Geschäfts-/Privatadresse hinzufügen",
+  text,
+  description,
   icon,
   type = TouchableHapticAddItemTypeEnum.BUTTON,
   state,
@@ -78,7 +84,7 @@ const TouchableHapticAddItem = ({
   onPress = () => {},
   onStateChange = () => {},
 }: TouchableHapticAddItemProps) => {
-  const { secondaryBgColor, infoColor, linkColor } = useThemeColors();
+  const { secondaryBgColor, infoColor, linkColor, labelColor } = useThemeColors();
   const [stateInternal, setStateInternal] = React.useState<boolean>(state ?? false);
   
   /**
@@ -92,31 +98,42 @@ const TouchableHapticAddItem = ({
   };
 
   return (
-    <View
-      style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        backgroundColor: secondaryBgColor,
-      }]}>
-      <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
-        <FontAwesomeIcon 
-          icon={icon} 
-          size={STYLES.sizeFaIcon} />
-        <TextBase
-          text={text} 
-          style={{ color: infoColor }} />
+    <View style={[GlobalWorkflowStyle.touchableParent, {
+      justifyContent: "center",
+      backgroundColor: secondaryBgColor,
+      height: "auto",
+      gap: 4,
+      minHeight: 32,
+      paddingVertical: 6
+    }]}>
+      <View
+        style={[GlobalContainerStyle.rowCenterBetween]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+          <FontAwesomeIcon 
+            icon={icon} 
+            size={STYLES.sizeFaIcon} />
+          <TextBase
+            text={text} 
+            style={{ color: infoColor }} />
+        </View>
+        <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
+          {type === TouchableHapticAddItemTypeEnum.BUTTON && <TouchableHaptic 
+            onPress={onPress}
+            disabled={disabled}>
+            <FontAwesomeIcon
+                icon={faPlus as IconProp}
+                size={STYLES.sizeFaIcon}
+                color={linkColor} />
+          </TouchableHaptic>}
+          {type === TouchableHapticAddItemTypeEnum.SWITCH && <TouchableHapticSwitch
+            state={stateInternal}
+            onStateChange={onStateChangeInternal} />}
+        </View>
       </View>
-      <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
-        {type === TouchableHapticAddItemTypeEnum.BUTTON && <TouchableHaptic 
-          onPress={onPress}
-          disabled={disabled}>
-          <FontAwesomeIcon
-              icon={faPlus as IconProp}
-              size={STYLES.sizeFaIcon}
-              color={linkColor} />
-        </TouchableHaptic>}
-        {type === TouchableHapticAddItemTypeEnum.SWITCH && <TouchableHapticSwitch
-          state={stateInternal}
-          onStateChange={onStateChangeInternal} />}
-      </View>
+      {description && <TextBase
+        text={description}
+        type="label"
+        style={{ color: labelColor }} />}
     </View>
   );
 };

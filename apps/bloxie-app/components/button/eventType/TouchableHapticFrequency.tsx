@@ -27,7 +27,7 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
  * @since 0.0.58
  * @version 0.0.1
  * @enum */
-export enum DurationEnum {
+export enum FrequencyEnum {
   HOUR = "hour",
   MINUTE = "minute",
   DAY = "day",

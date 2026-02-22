@@ -2,6 +2,7 @@ import React from "react";
 import { TextInput, View } from "react-native";
 import { t } from "i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faTimer } from "@fortawesome/pro-thin-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
@@ -9,7 +10,7 @@ import { STYLES } from "@codemize/constants/Styles";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { DROPDOWN_DURATION_ITEMS } from "@/constants/Models";
+import { DROPDOWN_FUTURE_BOOKING } from "@/constants/Models";
 
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import TextBase from "@/components/typography/Text";
@@ -19,18 +20,17 @@ import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
-import { faTimer } from "@fortawesome/pro-thin-svg-icons";
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @readonly
- * @since 0.0.58
+ * @since 0.0.64
  * @version 0.0.1
  * @enum */
-export enum DurationEnum {
-  HOUR = "hour",
-  MINUTE = "minute",
+export enum FutureBookingEnum {
+  WORKDAYS = "workdays",
+  CALENDARDAYS = "calendarDays",
 }
 
 /**
@@ -86,8 +86,8 @@ const TouchableHapticFutureBooking = ({
   const children = () => {
     return (
       <ListDropdown
-        title={t("Buchung in Zukunft")} 
-        items={DROPDOWN_DURATION_ITEMS}
+        title={t("i18n.dropdown.eventType.futureBooking.title")} 
+        items={DROPDOWN_FUTURE_BOOKING}
         width={140}
         selectedItem={selected}
         onPressItem={(item) => {
@@ -125,19 +125,19 @@ const TouchableHapticFutureBooking = ({
   }
 
   return (
-    <View style={[GlobalWorkflowStyle.touchableParent, { gap: 0, height: "auto", paddingBottom: 4,
+    <View style={[GlobalWorkflowStyle.touchableParent, { 
+      gap: 0, 
+      height: "auto", 
+      paddingBottom: 4,
       backgroundColor: secondaryBgColor,
-     }]}>
-      <View
-        style={[GlobalContainerStyle.rowCenterBetween, {
-          //backgroundColor: secondaryBgColor,
-        }]}>
+    }]}>
+      <View style={[GlobalContainerStyle.rowCenterBetween]}>
           <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
             <FontAwesomeIcon 
               icon={faTimer as IconProp} 
               size={STYLES.sizeFaIcon} />
             <TextBase
-              text={t("Buchung in Zukunft")} 
+              text={t("i18n.dropdown.eventType.futureBooking.booking")} 
               style={{ color: infoColor }} />
           </View>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
@@ -150,16 +150,20 @@ const TouchableHapticFutureBooking = ({
               }]} />
             <TouchableHapticDropdown
               ref={refTimePeriod}
-              text={"Arbeitstage"}
+              text={selected.title}
               backgroundColor={tertiaryBgColor}
               hasViewCustomStyle
               textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
               viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
               onPress={onPressDropdown}/>
+            <TextBase
+              text={t("i18n.dropdown.eventType.futureBooking.inFuture")} 
+              type="label"
+              style={{ color: labelColor }} />
           </View>
       </View>
       <TextBase
-        text={t("Definiert wie lange ein Teilnehmer in Zukunft buchen kann.")} 
+        text={t("i18n.dropdown.eventType.futureBooking.description")} 
         type="label"
         style={{ color: labelColor }} />    
     </View>

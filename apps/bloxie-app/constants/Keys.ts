@@ -2,7 +2,7 @@
  * @private
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.6
+ * @version 0.0.7
  * @type */
 type KeysProps = {
   providerGroup: string;
@@ -26,13 +26,14 @@ type KeysProps = {
   calendarHourGridItem: string;
   calendarHoursDivider: string;
   listDropdownItem: string;
+  eventTypeColor: string;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.2
- * @version 0.0.6
+ * @version 0.0.7
  * @constant */
 export const KEYS: KeysProps = {
   providerGroup: "providerGroup",
@@ -56,4 +57,5 @@ export const KEYS: KeysProps = {
   calendarHourGridItem: "calendarHourGridItem",
   calendarHoursDivider: "calendarHoursDivider",
   listDropdownItem: "listDropdownItem",
+  eventTypeColor: "eventTypeColor",
 }

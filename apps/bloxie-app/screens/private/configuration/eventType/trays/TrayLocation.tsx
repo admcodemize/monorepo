@@ -35,17 +35,19 @@ export type ScreenTrayLocationInputs = {
   [LocationEnum.ADDRESS]: string[];
   [LocationEnum.PHONE]: string[];
   [LocationEnum.CUSTOM]: string[];
+  [LocationEnum.GOOGLE_MEET]?: boolean;
 }
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.62
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type ScreenTrayLocationInputsProps = {
   locationKey: LocationEnum;
   text: string;
+  description?: string;
   icon: IconProp;
   placeholder: string;
   inputs: ScreenTrayLocationInputs;
@@ -114,16 +116,17 @@ const ScreenTrayLocation = ({
   const { dismiss } = useTrays('keyboard');
 
   /** @description Used to initialize the inputs for the tray based on the locations passed to the tray */
-  const initialInputs: ScreenTrayLocationInputs = locations || {
+  const initialInputs: ScreenTrayLocationInputs = {
     [LocationEnum.OFFICE]: [],
     [LocationEnum.ADDRESS]: [],
     [LocationEnum.PHONE]: [],
     [LocationEnum.CUSTOM]: [],
+    ...locations,
   };
 
   /** @description Used to initialize the items for the dropdown */
-  const initialItems: ListItemDropdownProps[] = ([LocationEnum.OFFICE, LocationEnum.ADDRESS, LocationEnum.PHONE, LocationEnum.CUSTOM] as (keyof ScreenTrayLocationInputs)[])
-    .filter((key) => initialInputs[key]?.length > 0)
+  const initialItems: ListItemDropdownProps[] = ([LocationEnum.OFFICE, LocationEnum.ADDRESS, LocationEnum.PHONE, LocationEnum.CUSTOM, LocationEnum.GOOGLE_MEET] as (keyof ScreenTrayLocationInputs)[])
+    .filter((key) => key === LocationEnum.GOOGLE_MEET ? !!initialInputs[key] : (initialInputs[key] as string[])?.length > 0)
     .map((key) => EVENT_TYPE_LOCATIONS.find((item) => item.itemKey === key)!)
     .filter(Boolean);
 
@@ -138,7 +141,7 @@ const ScreenTrayLocation = ({
   const insert = 
   (location: LocationEnum) => setInputs((prev) => ({
     ...prev,
-    [location]: [...(prev[location as keyof ScreenTrayLocationInputs] ?? []), ""],
+    [location]: [...((prev[location as keyof ScreenTrayLocationInputs] as string[]) ?? []), ""],
   }));
 
   /**
@@ -151,7 +154,7 @@ const ScreenTrayLocation = ({
     location: LocationEnum, 
     index: number, 
     text: string
-  ) => setInputs((prev) => ({ ...prev, [location]: (prev[location as keyof ScreenTrayLocationInputs] ?? []).map((v, i) => i === index ? text : v) }));
+  ) => setInputs((prev) => ({ ...prev, [location]: ((prev[location as keyof ScreenTrayLocationInputs] as string[]) ?? []).map((v, i) => i === index ? text : v) }));
 
   /**
    * @description Removes an item from the dropdown and updates the selected item to the first remaining item or the placeholder
@@ -160,7 +163,7 @@ const ScreenTrayLocation = ({
   const removeItem = (location: LocationEnum) => {
     setItems((prev) => {
       const filtered = prev.filter((item) => item.itemKey !== location);
-      setSelectedItem(filtered[0] ?? LOCATION_EMPTY_PLACEHOLDER_ITEM);
+      if (selectedItem.itemKey === location) setSelectedItem(filtered[0] ?? LOCATION_EMPTY_PLACEHOLDER_ITEM);
       return filtered;
     });
   };
@@ -174,7 +177,7 @@ const ScreenTrayLocation = ({
     location: LocationEnum, 
     index: number
   ) => setInputs((prev) => {
-    const updated = (prev[location as keyof ScreenTrayLocationInputs] ?? []).filter((_, i) => i !== index);
+    const updated = ((prev[location as keyof ScreenTrayLocationInputs] as string[]) ?? []).filter((_, i) => i !== index);
     if (updated.length === 0) removeItem(location);
     return { ...prev, [location]: updated };
   });
@@ -250,6 +253,7 @@ const ScreenTrayLocation = ({
       [LocationEnum.ADDRESS]: inputs[LocationEnum.ADDRESS].filter((v) => v.trim() !== ""),
       [LocationEnum.PHONE]: inputs[LocationEnum.PHONE].filter((v) => v.trim() !== ""),
       [LocationEnum.CUSTOM]: inputs[LocationEnum.CUSTOM].filter((v) => v.trim() !== ""),
+      [LocationEnum.GOOGLE_MEET]: !!inputs[LocationEnum.GOOGLE_MEET],
     });
   };
 
@@ -259,6 +263,7 @@ const ScreenTrayLocation = ({
    * @function */
   const onStateChange = 
   (state: boolean) => {
+    setInputs((prev) => ({ ...prev, [LocationEnum.GOOGLE_MEET]: state }));
     if (state) onPressInsert(LocationEnum.GOOGLE_MEET);
     else removeItem(LocationEnum.GOOGLE_MEET);
   }
@@ -287,8 +292,10 @@ const ScreenTrayLocation = ({
           </View>
           <TouchableHapticAddItem 
             text={LOCATION_ITEM_PLACEHOLDERS[LocationEnum.GOOGLE_MEET]}
+            description={EVENT_TYPE_LOCATIONS.find((item) => item.itemKey === LocationEnum.GOOGLE_MEET)?.description}
             icon={faHeadset as IconProp} 
             type={TouchableHapticAddItemTypeEnum.SWITCH}
+            state={items.find((item) => item.itemKey === LocationEnum.GOOGLE_MEET) ? true : false}
             onStateChange={onStateChange} />
           {EVENT_TYPE_LOCATIONS
           .filter((item) => item.itemKey !== LocationEnum.GOOGLE_MEET)
@@ -297,6 +304,7 @@ const ScreenTrayLocation = ({
               key={item.itemKey}
               locationKey={item.itemKey as LocationEnum}
               text={item.title}
+              description={item.description}
               icon={item.icon as IconProp}
               placeholder={LOCATION_ITEM_PLACEHOLDERS[item.itemKey as LocationEnum]}
               inputs={inputs}
@@ -339,13 +347,14 @@ const ScreenTrayLocation = ({
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.63
- * @version 0.0.1
+ * @version 0.0.2
  * @param {ScreenTrayLocationInputsProps} param0
- * @param {LocationEnum} param0.locationKey - The key of the location to display
+ * @param {LocationEnum} param0.locationKey - The key of the location 
  * @param {string} param0.text - The text of the insert button to display
- * @param {IconProp} param0.icon - The icon of the insert button to display
- * @param {string} param0.placeholder - The placeholder of the input to display
- * @param {ScreenTrayLocationInputs} param0.inputs - The inputs to display (office, address, phone, custom)
+ * @param {string} param0.description - The additional description of the location
+ * @param {IconProp} param0.icon - The icon of the insert button 
+ * @param {string} param0.placeholder - The placeholder of the input 
+ * @param {ScreenTrayLocationInputs} param0.inputs - The inputs 
  * @param {Function} param0.insert - Callback function to insert a new item
  * @param {Function} param0.update - Callback function to update an input
  * @param {Function} param0.remove - Callback function to remove an input
@@ -354,6 +363,7 @@ const ScreenTrayLocation = ({
 const ScreenTrayLocationInputs = ({
   locationKey,
   text,
+  description,
   icon,
   placeholder,
   inputs,
@@ -374,9 +384,10 @@ const ScreenTrayLocationInputs = ({
     <>
     <TouchableHapticAddItem 
       text={text} 
+      description={description}
       icon={icon} 
       onPress={onPressInternal} />
-    {inputs[locationKey as keyof ScreenTrayLocationInputs].map((input, index) => (
+    {(inputs[locationKey as keyof ScreenTrayLocationInputs] as string[]).map((input, index) => (
       <InputWithLabel 
         key={`${locationKey}-${index}`}
         icon={faInputText as IconProp} 

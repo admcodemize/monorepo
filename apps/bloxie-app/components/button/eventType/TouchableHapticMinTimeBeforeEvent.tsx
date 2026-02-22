@@ -23,19 +23,6 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @readonly
- * @since 0.0.58
- * @version 0.0.1
- * @enum */
-export enum DurationEnum {
-  HOUR = "hour",
-  MINUTE = "minute",
-  DAY = "day",
-}
-
-/**
- * @public
- * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.58
  * @version 0.0.1
  * @type */
@@ -51,7 +38,7 @@ export type TouchableHapticMinTimeBeforeEventProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticMinTimeBeforeEventProps} param0 
  * @param {React.RefObject<View|null>} param0.refContainer - Reference to the container view which is used for the dropdown positioning
  * @param {ListItemDropdownProps} param0.selectedItem - The selected item object
@@ -65,7 +52,7 @@ const TouchableHapticMinTimeBeforeEvent = ({
   onChangeValue,
 }: TouchableHapticMinTimeBeforeEventProps) => {
   const refTimePeriod = React.useRef<View>(null);
-  const { secondaryBgColor, tertiaryBgColor, infoColor, labelColor } = useThemeColors();
+  const { tertiaryBgColor, infoColor, labelColor } = useThemeColors();
 
   const [selected, setSelected] = React.useState<ListItemDropdownProps>(selectedItem);
   const [timePeriodValue, setTimePeriodValue] = React.useState<string>("30");
@@ -88,7 +75,7 @@ const TouchableHapticMinTimeBeforeEvent = ({
       <ListDropdown
         title={t("Minimale Buchungszeit")} 
         items={DROPDOWN_DURATION_ITEMS}
-        width={140}
+        width={180}
         selectedItem={selected}
         onPressItem={(item) => {
           setSelected(item);
@@ -127,15 +114,13 @@ const TouchableHapticMinTimeBeforeEvent = ({
   return (
     <View style={[GlobalWorkflowStyle.touchableParent, { gap: 0, height: "auto", paddingBottom: 4 }]}>
       <View
-        style={[GlobalContainerStyle.rowCenterBetween, {
-          //backgroundColor: secondaryBgColor,
-        }]}>
+        style={[GlobalContainerStyle.rowCenterBetween]}>
           <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
             <FontAwesomeIcon 
               icon={selected.iconThin as IconProp} 
               size={STYLES.sizeFaIcon} />
             <TextBase
-              text={t("Minimale Buchungszeit")} 
+              text={t("i18n.dropdown.eventType.minTimeBeforeEvent.title")} 
               style={{ color: infoColor }} />
           </View>
           <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
@@ -154,10 +139,14 @@ const TouchableHapticMinTimeBeforeEvent = ({
               textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}
               viewCustomStyle={{ ...GlobalContainerStyle.rowCenterCenter, gap: 4 }}
               onPress={onPressDropdown}/>
+            <TextBase
+              text={t("i18n.dropdown.eventType.minTimeBeforeEvent.beforeEventStart")} 
+              type="label"
+              style={{ color: labelColor }} />
           </View>
       </View>
       <TextBase
-        text={t("Die minimale Buchungszeit vor Ereignisbeginn legt fest, wie lange ein Teilnehmer vor dem Ereignisbeginn mindestens buchen muss.")} 
+        text={t("i18n.dropdown.eventType.minTimeBeforeEvent.description")} 
         type="label"
         style={{ color: labelColor }} />    
     </View>

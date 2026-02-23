@@ -4,7 +4,7 @@ import { ConvexRuntimeAPITemplateVariableProps } from "@codemize/backend/Types";
 import { SIZES } from "@codemize/constants/Fonts";
 import React, { RefObject } from "react";
 import { DimensionValue, NativeSyntheticEvent } from "react-native";
-import { EnrichedTextInput, EnrichedTextInputInstance, OnChangeSelectionEvent, OnChangeStateEvent } from "react-native-enriched";
+import { EnrichedTextInput, EnrichedTextInputInstance, OnChangeHtmlEvent, OnChangeSelectionEvent, OnChangeStateEvent } from "react-native-enriched";
 
 type EditorHtmlStyleProps = {
   colorMention: string;
@@ -35,6 +35,7 @@ export type EditorProps = {
   showBorderBottom?: boolean;
   onIsFocused?: (isFocused: boolean) => void;
   onStyleStateChange?: (styleState: EditorStyleState) => void;
+  onChangeHtml?: (html: string) => void;
 }
 
 /**
@@ -157,7 +158,8 @@ const Editor = React.forwardRef<EnrichedTextInputInstance, EditorProps>(({
   padding = 4,
   showBorderBottom = false,
   onIsFocused = () => {},
-  onStyleStateChange = () => {}
+  onStyleStateChange = () => {},
+  onChangeHtml
 }, ref) => {
   const { infoColor, textColor, primaryTemplateBgColor, primaryBorderColor } = useThemeColors();
   const refSelection = React.useRef<{ start: number; end: number }>({ start: 0, end: 0 });
@@ -168,6 +170,12 @@ const Editor = React.forwardRef<EnrichedTextInputInstance, EditorProps>(({
   React.useEffect(() => {
     onStyleStateChange(styleState);
   }, [styleState, onStyleStateChange]);
+
+  /** @description Used to handle the html change of the content inside the editor */
+  const onChangeHtmlInternal = React.useCallback(
+    (event: NativeSyntheticEvent<OnChangeHtmlEvent>) => {
+      onChangeHtml?.(event.nativeEvent.value);
+    }, [onChangeHtml]);
 
   /** @description Used to handle the selection change of the content inside the editor */
   const onChangeSelectionInternal = React.useCallback(
@@ -210,6 +218,7 @@ const Editor = React.forwardRef<EnrichedTextInputInstance, EditorProps>(({
       onBlur={() => onIsFocused(false)}
       editable={true}
       onChangeSelection={onChangeSelectionInternal}
+      onChangeHtml={onChangeHtmlInternal}
       onChangeState={onChangeState}
       htmlStyle={generateEditorHtmlStyle({
         colorMention: textColor,

@@ -9,7 +9,7 @@ import { STYLES } from "@codemize/constants/Styles";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { DROPDOWN_DURATION_ITEMS } from "@/constants/Models";
+import { DROPDOWN_CONFIRMATION_PAGE, DROPDOWN_DURATION_ITEMS } from "@/constants/Models";
 
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import TextBase from "@/components/typography/Text";
@@ -22,6 +22,17 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
 import TouchableHaptic from "../TouchableHaptic";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
 import { faBadgeCheck, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.65
+ * @version 0.0.1
+ * @enum */
+export enum ConfirmationPageEnum {
+  IN_APP = "inApp",
+  CUSTOM_URL = "customUrl",
+}
 
 /**
  * @public
@@ -72,9 +83,9 @@ const TouchableHapticConfirmationPage = ({
   const children = () => {
     return (
       <ListDropdown
-        title={t("Bestätigungsseite")} 
-        items={DROPDOWN_DURATION_ITEMS}
-        width={140}
+        title={t("i18n.screens.eventType.confirmationPage.title")} 
+        items={DROPDOWN_CONFIRMATION_PAGE}
+        width={180}
         selectedItem={selected}
         onPressItem={(item) => {
           setSelected(item);
@@ -110,13 +121,13 @@ const TouchableHapticConfirmationPage = ({
           icon={faBadgeCheck as IconProp} 
           size={STYLES.sizeFaIcon} />
         <TextBase
-          text={t("Bestätigungsseite")} 
+          text={t("i18n.screens.eventType.confirmationPage.title")} 
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
         <TouchableHapticDropdown
           ref={refTimePeriod}
-          text={"In-App-Standard"}
+          text={selected.title}
           backgroundColor={tertiaryBgColor}
           hasViewCustomStyle
           textCustomStyle={{ fontSize: Number(SIZES.label), fontFamily: String(FAMILIY.subtitle) }}

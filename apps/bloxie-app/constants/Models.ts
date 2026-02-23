@@ -43,10 +43,14 @@ import {
   faStopwatch20 as faStopwatch20Thin, 
   faBusinessTime as faBusinessTimeThin,
   faCalendarRange as faCalendarRangeThin,
+  faGlobePointer as faGlobePointerThin,
+  faMobileScreenButton as faMobileScreenButtonThin,
   faBriefcase,
   faMapPin,
   faHeadset,
-  faInputText
+  faInputText,
+  faGlobePointer,
+  faMobileScreenButton
 } from "@fortawesome/pro-thin-svg-icons";
 import {  
   faBold,
@@ -65,6 +69,7 @@ import {
 import { DurationEnum } from "@/components/button/eventType/TouchableHapticDuration";
 import { LocationEnum } from "@/components/button/eventType/TouchableHapticLocation";
 import { FutureBookingEnum } from "@/components/button/eventType/TouchableHapticFutureBooking";
+import { ConfirmationPageEnum } from "@/components/button/eventType/TouchableHapticConfirmationPage";
 
 /**
  * @public
@@ -422,11 +427,33 @@ export const DROPDOWN_FUTURE_BOOKING: ListItemDropdownProps[] = [{
   title: "i18n.dropdown.eventType.futureBooking.workdays",
   icon: faBusinessTime as IconProp,
   iconThin: faBusinessTimeThin as IconProp,
+  isSelected: true,
 }, {
   itemKey: FutureBookingEnum.CALENDARDAYS,
   title: "i18n.dropdown.eventType.futureBooking.calendarDays",
   icon: faCalendarRange as IconProp,
   iconThin: faCalendarRangeThin as IconProp
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the confirmation page items for the dropdown
+ * @readonly
+ * @since 0.0.65
+ * @version 0.0.1
+ * @constant */
+export const DROPDOWN_CONFIRMATION_PAGE: ListItemDropdownProps[] = [{
+  itemKey: ConfirmationPageEnum.IN_APP,
+  title: "i18n.dropdown.eventType.confirmationPage.inApp",
+  icon: faMobileScreenButton as IconProp,
+  iconThin: faMobileScreenButtonThin as IconProp,
+  isSelected: true,
+}, {
+  itemKey: ConfirmationPageEnum.CUSTOM_URL,
+  title: "i18n.dropdown.eventType.confirmationPage.customUrl",
+  icon: faGlobePointer as IconProp,
+  iconThin: faGlobePointerThin as IconProp,
 }];
 
 /**

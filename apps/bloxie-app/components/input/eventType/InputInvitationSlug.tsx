@@ -2,7 +2,7 @@ import React from "react";
 import { TextInput, View } from "react-native";
 import { t } from "i18next";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faGlobePointer, faHand } from "@fortawesome/pro-thin-svg-icons";
+import { faGlobePointer } from "@fortawesome/pro-thin-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 import { STYLES } from "@codemize/constants/Styles";
@@ -19,9 +19,10 @@ import GlobalTypographyStyle from "@/styles/GlobalTypography";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type InputInvitationSlugProps = {
+  onChangeValue: (value: string) => void;
 };
 
 /**
@@ -33,8 +34,20 @@ export type InputInvitationSlugProps = {
  * @param {InputInvitationSlugProps} param0 
  * @component */
 const InputInvitationSlug = ({
+  onChangeValue,
 }: InputInvitationSlugProps) => {
   const { infoColor, labelColor, errorColor } = useThemeColors();
+  const [value, setValue] = React.useState<string>("");
+
+  /**
+   * @description Used to handle the change event of the input field
+   * @param {string} value - The new value of the input field
+   * @function */
+  const onChangeValueInternal = (value: string) => {
+    setValue(value);
+    onChangeValue(value);
+  };
+
   return (
     <View style={[GlobalWorkflowStyle.touchableParent, {
       gap: 6,
@@ -48,13 +61,15 @@ const InputInvitationSlug = ({
               size={STYLES.sizeFaIcon} 
               color={infoColor} />
             <TextBase
-              text={"Slug"} 
+              text={t("i18n.screens.eventType.bookingPage.invitationSlug.title")} 
               style={{ color: infoColor }} />
             <TextBase 
-              text={t("bloxie.ch/mstoeckli7/")} 
+              text={t("./mstoeckli7/")} 
               style={{ color: labelColor }} />
           </View>
           <TextInput
+            value={value}
+            onChangeText={onChangeValueInternal}
             placeholder={t("event-type-slug")}
             keyboardType="url"
             autoCapitalize="none"
@@ -69,7 +84,7 @@ const InputInvitationSlug = ({
             }]} />
         </View>
         <TextBase
-          text={t("URL-Pfad wird bereits von einem anderen Ereignistyp verwendet.")}
+          text={t("i18n.screens.eventType.bookingPage.invitationSlug.description")}
           type="label"
           style={{ color: errorColor }} />
     </View>

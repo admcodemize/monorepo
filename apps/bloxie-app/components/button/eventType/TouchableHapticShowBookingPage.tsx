@@ -1,5 +1,6 @@
 import React from "react";
 import { View } from "react-native";
+import { t } from "i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faEyeSlash } from "@fortawesome/duotone-thin-svg-icons";
@@ -20,7 +21,7 @@ import TouchableHapticSwitch from "../TouchableHapticSwitch";
  * @version 0.0.1
  * @type */
 export type TouchableHapticShowBookingPageProps = {
-
+  onChangeValue: (value: boolean) => void;
 };
 
 /**
@@ -31,12 +32,13 @@ export type TouchableHapticShowBookingPageProps = {
  * @version 0.0.1
  * @component */
 const TouchableHapticShowBookingPage = ({
+  onChangeValue,
 }: TouchableHapticShowBookingPageProps) => {
   const { secondaryBgColor, infoColor } = useThemeColors();
 
   const [showBookingPage, setShowBookingPage] = React.useState<boolean>(true);
   React.useEffect(() => {
-    console.log("showBookingPage", showBookingPage);
+    onChangeValue(showBookingPage);
   }, [showBookingPage]);
 
   return (
@@ -49,7 +51,7 @@ const TouchableHapticShowBookingPage = ({
           icon={faEyeSlash as IconProp} 
           size={STYLES.sizeFaIcon} />
         <TextBase
-          text={"Sichtbar auf der Buchungsseite"} 
+          text={t("i18n.screens.eventType.bookingPage.showBookingPage.title")} 
           style={{ color: infoColor }} />
       </View>
       <TouchableHapticSwitch

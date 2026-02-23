@@ -118,6 +118,10 @@
           "inFuture": "in Zukunft",
           "description": "Definiert wie weit in die Zukunft ein Teilnehmer buchen kann. Arbeitstage beinhaltet nur Werktage (Mo-Fr) und Kalendertage beinhaltet alle Tage des Jahres."
         },
+        "confirmationPage": {
+          "inApp": "In-App-Standard",
+          "customUrl": "Externe URL"
+        },
         "location": {
           "office": {
             "title": "Büroräumlichkeit",
@@ -158,6 +162,20 @@
             "confirmedAppointments": "Bestätigungen",
             "rejectedAppointments": "Ablehnungen"
           }
+        }
+      },
+      "eventType": {
+        "bookingPage": {
+          "invitationSlug": {
+            "title": "Slug",
+            "description": "URL-Pfad wird bereits von einem anderen Ereignistyp verwendet."
+          },
+          "showBookingPage": {
+            "title": "Sichtbar auf der Buchungsseite"
+          }
+        },
+        "confirmationPage": {
+          "title": "Bestätigungsseite"
         }
       },
       "workflow": {

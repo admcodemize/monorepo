@@ -14,7 +14,7 @@ import InputInvitationLimit from "@/components/input/eventType/InputInvitationLi
 import InputTypeName from "@/components/input/eventType/InputTypeName";
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import TextBase from "@/components/typography/Text";
-import { DROPDOWN_DURATION_ITEMS, DROPDOWN_TIME_PERIOD_ITEMS } from "@/constants/Models";
+import { DROPDOWN_DURATION_ITEMS, DROPDOWN_FUTURE_BOOKING, DROPDOWN_TIME_PERIOD_ITEMS } from "@/constants/Models";
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalViewStyle from "@/styles/GlobalView";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
@@ -43,7 +43,7 @@ const ModalConfigurationEventTypeGeneral= () => {
             style={[GlobalViewStyle.actionContainerItem]}>
             <View style={{ gap: 4, alignSelf: 'stretch' }}>  
               <InputTypeName />
-              <TouchableHapticShowBookingPage />
+              <TouchableHapticShowBookingPage onChangeValue={() => {}} />
               <TouchableHapticDuration
                 refContainer={refStart}
                 selectedItem={DROPDOWN_DURATION_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps}
@@ -80,7 +80,7 @@ const ModalConfigurationEventTypeGeneral= () => {
                 onChangeValue={() => {}} />
               <TouchableHapticFutureBooking
                 refContainer={refStart}
-                selectedItem={DROPDOWN_DURATION_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps}
+                selectedItem={DROPDOWN_FUTURE_BOOKING.find((item) => item.isSelected) as ListItemDropdownProps}
                 onPress={() => {}}
                 onChangeValue={() => {}} />
               <TouchableHapticAvailability

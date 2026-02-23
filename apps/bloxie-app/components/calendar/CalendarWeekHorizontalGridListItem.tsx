@@ -357,7 +357,7 @@ const CalendarWeekHorizontalGridListItem = ({
     }}>
       <CalendarHourGrid numberOfDays={config.numberOfDays} />
 
-      <ListItemEventAway width={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7)} height={60} left={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1} top={120}> 
+      {/*<ListItemEventAway width={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7)} height={60} left={((Dimensions.get("window").width - STYLES.calendarHourWidth - 7) / 7) * 1 + 1} top={120}> 
         <View>
         <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
           </View>
@@ -366,7 +366,7 @@ const CalendarWeekHorizontalGridListItem = ({
         <View>
         <TextBase type="label" text={"Equans: SAPCR-1172: Aktivitäten/Leistungsarten"} style={{ fontSize: 9, color: shadeColor("#a553bb", -0.5) }} />
           </View>
-      </ListItemEventTentiative>
+      </ListItemEventTentiative>*/}
 
       {weekEvents.map(({ event, layout, isAllDay, calendar, key, dayIndex }) => {
         const normalizedEvent = {

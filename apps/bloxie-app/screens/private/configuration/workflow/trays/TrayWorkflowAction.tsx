@@ -371,7 +371,7 @@ const ScreenTrayWorkflowAction = ({
                       key={item.key}
                       icon={item.icon as IconProp}
                       iconSize={14}
-                      iconColor={isActive ? "#fff" : shadeColor(infoColor, 0.3)}
+                      iconColor={isActive ? primaryBgColor : shadeColor(infoColor, 0.3)}
                       hasViewCustomStyle={true}
                       viewCustomStyle={{ 
                         backgroundColor: isActive 

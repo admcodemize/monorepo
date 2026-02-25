@@ -60,7 +60,7 @@ const ModalConfigurationEventTypeBookingPage= () => {
           <View 
             style={[GlobalViewStyle.actionContainerItem]}>
             <View style={{ gap: 4, alignSelf: 'stretch' }}>  
-              <TouchableHapticShowConfirmationPage />
+              <TouchableHapticShowConfirmationPage onChangeState={() => {}} />
               <TouchableHapticConfirmationPage
                 refContainer={refStart}
                 selectedItem={DROPDOWN_CONFIRMATION_PAGE.find((item) => item.isSelected) as ListItemDropdownProps}

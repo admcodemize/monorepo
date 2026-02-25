@@ -9,8 +9,6 @@ import { faTrashSlash } from "@fortawesome/duotone-thin-svg-icons";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { STYLES } from "@codemize/constants/Styles";
 
-import TextBase from "@/components/typography/Text";
-
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
@@ -20,12 +18,11 @@ import TouchableHapticIcon from "../TouchableHaptichIcon";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.58
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type TouchableHapticLinkProps = {
   link: string;
   name: string;
-  onPress: () => void;
   onPressRemove: (e: GestureResponderEvent) => void;
 };
 
@@ -34,18 +31,18 @@ export type TouchableHapticLinkProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.58
- * @version 0.0.2
+ * @version 0.0.3
  * @param {TouchableHapticLinkProps} param0 
- * @param {Function} param0.onPress - Callback function when user pressed the button
+ * @param {string} param0.link - The link 
+ * @param {string} param0.name - The name of the link
+ * @param {Function} param0.onPressRemove - Callback function when user pressed the remove button
  * @component */
 const TouchableHapticLink = ({
   link,
   name,
-  onPress,
   onPressRemove,
 }: TouchableHapticLinkProps) => {
-  const refLink = React.useRef<View>(null);
-  const { secondaryBgColor, tertiaryBgColor, infoColor, textColor, labelColor, errorColor } = useThemeColors();
+  const { secondaryBgColor, infoColor, errorColor } = useThemeColors();
 
   const [linkInternal, setLinkInternal] = React.useState<string>(link);
   const [nameInternal, setNameInternal] = React.useState<string>(name);

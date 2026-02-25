@@ -17,33 +17,28 @@ import TouchableHapticSwitch from "../TouchableHapticSwitch";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TouchableHapticShowConfirmationPageProps = {
-
+  onChangeState: (state: boolean) => void;
 };
 
 /**
  * @public
  * @author Marc Stöckli - Codemize GmbH 
- * @description Returns 
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @component */
 const TouchableHapticShowConfirmationPage = ({
+  onChangeState,
 }: TouchableHapticShowConfirmationPageProps) => {
-  const { secondaryBgColor, infoColor } = useThemeColors();
+  const { infoColor } = useThemeColors();
 
   const [showConfirmationPage, setShowConfirmationPage] = React.useState<boolean>(true);
-  React.useEffect(() => {
-    console.log("showConfirmationPage", showConfirmationPage);
-  }, [showConfirmationPage]);
+  React.useEffect(() => onChangeState(showConfirmationPage), [showConfirmationPage]);
 
   return (
-    <View
-      style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        //backgroundColor: secondaryBgColor,
-      }]}>
+    <View style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent]}>
       <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
         <FontAwesomeIcon 
           icon={faEyeSlash as IconProp} 

@@ -50,7 +50,9 @@ import {
   faHeadset,
   faInputText,
   faGlobePointer,
-  faMobileScreenButton
+  faMobileScreenButton,
+  faUser,
+  faAddressCard
 } from "@fortawesome/pro-thin-svg-icons";
 import {  
   faBold,
@@ -70,6 +72,7 @@ import { DurationEnum } from "@/components/button/eventType/TouchableHapticDurat
 import { LocationEnum } from "@/components/button/eventType/TouchableHapticLocation";
 import { FutureBookingEnum } from "@/components/button/eventType/TouchableHapticFutureBooking";
 import { ConfirmationPageEnum } from "@/components/button/eventType/TouchableHapticConfirmationPage";
+import { ParticipantInformationEnum } from "@/components/button/eventType/TouchableHapticParticipantInformation";
 
 /**
  * @public
@@ -454,6 +457,26 @@ export const DROPDOWN_CONFIRMATION_PAGE: ListItemDropdownProps[] = [{
   title: "i18n.dropdown.eventType.confirmationPage.customUrl",
   icon: faGlobePointer as IconProp,
   iconThin: faGlobePointerThin as IconProp,
+}];
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @description Used for handling the participant information items for the dropdown
+ * @readonly
+ * @since 0.0.68
+ * @version 0.0.1
+ * @constant */
+export const DROPDOWN_PARTICIPANT_INFORMATION_ITEMS: ListItemDropdownProps[] = [{
+  itemKey: ParticipantInformationEnum.NAME,
+  title: "i18n.dropdown.eventType.participantInformation.name",
+  icon: faAddressCard as IconProp,
+  iconThin: faAddressCard as IconProp,
+}, {
+  itemKey: ParticipantInformationEnum.PHONE,
+  title: "i18n.dropdown.eventType.participantInformation.phone",
+  icon: faMobileScreenButton as IconProp,
+  iconThin: faMobileScreenButtonThin as IconProp,
 }];
 
 /**

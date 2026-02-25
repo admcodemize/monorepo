@@ -220,3 +220,30 @@ export const resolveRuntimeIcon = (
 export const isFontAwesomeIcon = (
   value: IconDefinition|IconPrefix|IconPack|unknown
 ): value is IconDefinition => typeof value === "object" && value !== null && "iconName" in value && "prefix" in value;
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.68
+ * @version 0.0.1
+ * @description Creates a RFC4122-like UUID v4 without external dependencies.
+ * Uses crypto random values when available, otherwise falls back to Math.random. 
+ * @function */
+export const createUuidV4 = (): string => {
+  const bytes = new Uint8Array(16);
+  const cryptoApi = globalThis.crypto;
+
+  if (cryptoApi?.getRandomValues) {
+    cryptoApi.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i += 1) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+};

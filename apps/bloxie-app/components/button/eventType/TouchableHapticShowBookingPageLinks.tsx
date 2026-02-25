@@ -5,8 +5,9 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faEyeSlash } from "@fortawesome/duotone-thin-svg-icons";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
 
-import { STYLES } from "@codemize/constants/Styles";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
+import { createUuidV4 } from "@/helpers/System";
+import { STYLES } from "@codemize/constants/Styles";
 
 import TextBase from "@/components/typography/Text";
 
@@ -16,6 +17,12 @@ import TouchableHapticSwitch from "../TouchableHapticSwitch";
 import TouchableHaptic from "../TouchableHaptic";
 import TouchableHapticLink from "./TouchableHapticLink";
 
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.68
+ * @version 0.0.1
+ * @type */
 export type TouchableHapticShowBookingPageLinkProps = {
   id: string;
   link: string;
@@ -23,29 +30,10 @@ export type TouchableHapticShowBookingPageLinkProps = {
 };
 
 /**
- * @description Creates a RFC4122-like UUID v4 without external dependencies.
- * Uses crypto random values when available, otherwise falls back to Math.random.
- */
-const createUuidV4 = (): string => {
-  const bytes = new Uint8Array(16);
-  const cryptoApi = globalThis.crypto;
-
-  if (cryptoApi?.getRandomValues) {
-    cryptoApi.getRandomValues(bytes);
-  } else {
-    for (let i = 0; i < bytes.length; i += 1) {
-      bytes[i] = Math.floor(Math.random() * 256);
-    }
-  }
-
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
-
-  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
-};
-
-/**
+ * @private
+ * @author Marc Stöckli - Codemize GmbH 
+ * @since 0.0.68
+ * @version 0.0.1
  * @description Creates an empty link object
  * @function */
 const createEmptyLink = (): TouchableHapticShowBookingPageLinkProps => ({ id: createUuidV4(), link: "", name: "" });
@@ -126,7 +114,6 @@ const TouchableHapticShowBookingPageLinks = ({
           key={link.id}
           link={link.link}
           name={link.name}
-          onPress={() => {}}
           onPressRemove={onPressRemove(link.id)} />
       ))}
     </View>

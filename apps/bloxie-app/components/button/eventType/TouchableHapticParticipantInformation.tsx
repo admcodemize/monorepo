@@ -9,7 +9,7 @@ import { STYLES } from "@codemize/constants/Styles";
 
 import { useDropdown } from "@/hooks/button/useDropdown";
 import { useThemeColors } from "@/hooks/theme/useThemeColor";
-import { DROPDOWN_DURATION_ITEMS } from "@/constants/Models";
+import { DROPDOWN_DURATION_ITEMS, DROPDOWN_PARTICIPANT_INFORMATION_ITEMS } from "@/constants/Models";
 
 import { ListItemDropdownProps } from "@/components/lists/item/ListItemDropdown";
 import TextBase from "@/components/typography/Text";
@@ -24,6 +24,18 @@ import { faPlus } from "@fortawesome/pro-solid-svg-icons";
 import { faCalendarUsers, faEnvelope, faGaugeSimpleMax, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
 import TouchableHapticLink from "./TouchableHapticLink";
 import TouchableHapticSwitch from "../TouchableHapticSwitch";
+
+/**
+ * @public
+ * @author Marc Stöckli - Codemize GmbH 
+ * @readonly
+ * @since 0.0.68
+ * @version 0.0.1
+ * @enum */
+export enum ParticipantInformationEnum {
+  NAME = "name",
+  PHONE = "phone",
+}
 
 /**
  * @public
@@ -74,9 +86,9 @@ const TouchableHapticParticipantInformation = ({
   const children = () => {
     return (
       <ListDropdown
-        title={t("Limits")} 
-        items={DROPDOWN_DURATION_ITEMS}
-        width={140}
+        title={t("Informationen zum Teilnehmer")} 
+        items={DROPDOWN_PARTICIPANT_INFORMATION_ITEMS}
+        width={200}
         selectedItem={selected}
         onPressItem={(item) => {
           setSelected(item);
@@ -102,7 +114,8 @@ const TouchableHapticParticipantInformation = ({
     });
   }
   return (
-    <View style={[GlobalWorkflowStyle.touchableParent, { gap: 6, height: "auto",
+    <View 
+    style={[GlobalWorkflowStyle.touchableParent, { gap: 6, height: "auto",
       //backgroundColor: secondaryBgColor,
       paddingTop: 4,
       paddingHorizontal: 0
@@ -121,7 +134,7 @@ const TouchableHapticParticipantInformation = ({
           style={{ color: infoColor }} />
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
-        <TouchableHaptic>
+        <TouchableHaptic onPress={onPressDropdown} ref={refTimePeriod}>
           <FontAwesomeIcon
             icon={faPlus as IconProp}
             size={STYLES.sizeFaIcon}

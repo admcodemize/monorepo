@@ -53,7 +53,7 @@ const ModalConfigurationEventTypeAdditional= () => {
               <TouchableHapticLimits
                 refContainer={refStart}
                 selectedItem={DROPDOWN_DURATION_ITEMS.find((item) => item.isSelected) as ListItemDropdownProps}
-                onPress={() => {}} />
+                onChangeLimits={(limits) => { console.log(limits); }} />
               <TouchableHapticExecuteWorkflow />
             </View>
           </View>

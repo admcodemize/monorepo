@@ -28,7 +28,6 @@ import { Dimensions, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 const ModalConfigurationEventTypeBookingPage= () => {
-  const { secondaryBgColor, infoColor } = useThemeColors();
   const refStart = React.useRef<View>(null);
   return (
 <View style={{ paddingHorizontal: STYLES.paddingHorizontal, paddingVertical: STYLES.paddingVertical,
@@ -65,7 +64,8 @@ const ModalConfigurationEventTypeBookingPage= () => {
               <TouchableHapticConfirmationPage
                 refContainer={refStart}
                 selectedItem={DROPDOWN_CONFIRMATION_PAGE.find((item) => item.isSelected) as ListItemDropdownProps}
-                onPress={() => {}} />
+                onPress={() => {}}
+                onChangeValue={() => { console.log("onChangeValue"); }} />
             </View>
           </View>
         </View>  
@@ -75,11 +75,9 @@ const ModalConfigurationEventTypeBookingPage= () => {
           <View 
             style={[GlobalViewStyle.actionContainerItem]}>
             <View style={{ gap: 4, alignSelf: 'stretch' }}>  
-              <TouchableHapticShowBookingPageLinks />
-              <TouchableHapticLink
-                onPress={() => {}} />
-              <TouchableHapticLink
-                onPress={() => {}} />
+              <TouchableHapticShowBookingPageLinks 
+                onChangeState={() => {}}
+                onChangeLinks={() => {}} />
             </View>
           </View>
         </View>  

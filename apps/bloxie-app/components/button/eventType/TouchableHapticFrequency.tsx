@@ -125,13 +125,14 @@ const TouchableHapticFrequency = ({
   }
 
   return (
-    <View style={[GlobalWorkflowStyle.touchableParent, { gap: 0, height: "auto", paddingBottom: 4,
+    <View style={[GlobalWorkflowStyle.touchableParent, { 
+      gap: 0, 
+      height: "auto", 
+      paddingBottom: 6,
       backgroundColor: secondaryBgColor,
      }]}>
       <View
-        style={[GlobalContainerStyle.rowCenterBetween, {
-          
-        }]}>
+        style={[GlobalContainerStyle.rowCenterBetween, { height: 32 }]}>
           <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
             <FontAwesomeIcon 
               icon={selected.iconThin as IconProp} 

@@ -175,7 +175,8 @@
           }
         },
         "confirmationPage": {
-          "title": "Bestätigungsseite"
+          "title": "Bestätigungsseite",
+          "customUrlPlaceholder": "www.custom-url.com/confirmation"
         }
       },
       "workflow": {

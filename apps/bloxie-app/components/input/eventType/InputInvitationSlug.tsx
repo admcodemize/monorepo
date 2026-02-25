@@ -30,7 +30,7 @@ export type InputInvitationSlugProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a input text component for the invitation limit of the event type
  * @since 0.0.58
- * @version 0.0.3
+ * @version 0.0.4
  * @param {InputInvitationSlugProps} param0 
  * @component */
 const InputInvitationSlug = ({
@@ -52,41 +52,40 @@ const InputInvitationSlug = ({
     <View style={[GlobalWorkflowStyle.touchableParent, {
       gap: 6,
       height: "auto",
-      paddingVertical: 6
     }]}>
-      <View style={[GlobalContainerStyle.rowCenterBetween]}>
-          <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
-            <FontAwesomeIcon 
-              icon={faGlobePointer as IconProp} 
-              size={STYLES.sizeFaIcon} 
-              color={infoColor} />
-            <TextBase
-              text={t("i18n.screens.eventType.bookingPage.invitationSlug.title")} 
-              style={{ color: infoColor }} />
-            <TextBase 
-              text={t("./mstoeckli7/")} 
-              style={{ color: labelColor }} />
-          </View>
-          <TextInput
-            value={value}
-            onChangeText={onChangeValueInternal}
-            placeholder={t("event-type-slug")}
-            keyboardType="url"
-            autoCapitalize="none"
-            cursorColor={infoColor}
-            selectionColor={infoColor}
-            maxLength={20}
-            style={[GlobalTypographyStyle.inputText, {
-              textAlign: "right",
-              color: infoColor,
-              flexGrow: 1,
-              height: "auto"
-            }]} />
+      <View style={[GlobalContainerStyle.rowCenterBetween, { height: 32 }]}>
+        <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+          <FontAwesomeIcon 
+            icon={faGlobePointer as IconProp} 
+            size={STYLES.sizeFaIcon} 
+            color={infoColor} />
+          <TextBase
+            text={t("i18n.screens.eventType.bookingPage.invitationSlug.title")} 
+            style={{ color: infoColor }} />
+          <TextBase 
+            text={t("./mstoeckli7/")} 
+            style={{ color: labelColor }} />
         </View>
-        <TextBase
-          text={t("i18n.screens.eventType.bookingPage.invitationSlug.description")}
-          type="label"
-          style={{ color: errorColor }} />
+        <TextInput
+          value={value}
+          onChangeText={onChangeValueInternal}
+          placeholder={t("event-type-slug")}
+          keyboardType="url"
+          autoCapitalize="none"
+          cursorColor={infoColor}
+          selectionColor={infoColor}
+          maxLength={20}
+          style={[GlobalTypographyStyle.inputText, {
+            textAlign: "right",
+            color: infoColor,
+            flexGrow: 1,
+            height: "auto"
+          }]} />
+      </View>
+      <TextBase
+        text={t("i18n.screens.eventType.bookingPage.invitationSlug.description")}
+        type="label"
+        style={{ color: errorColor, paddingBottom: 6 }} />
     </View>
   );
 };

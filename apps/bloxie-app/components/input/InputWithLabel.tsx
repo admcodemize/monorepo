@@ -20,14 +20,16 @@ import TouchableHaptic from "../button/TouchableHaptic";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.61
- * @version 0.0.2
+ * @version 0.0.3
  * @type */
 export type InputWithLabelProps = {
-  icon: IconProp;
+  icon?: IconProp;
   label?: string;
   placeholder: string;
   textAlign?: "left" | "right";
   value: string;
+  paddingHorizontal?: number;
+  showRemoveButton?: boolean;
   onPressRemove?: () => void;
   onChangeText: (text: string) => void;
 };
@@ -37,11 +39,14 @@ export type InputWithLabelProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a input text component for the address of the event type
  * @since 0.0.61
- * @version 0.0.2
+ * @version 0.0.3
  * @param {InputWithLabelProps} param0 
  * @param {string} param0.label - The label on the left side of the input
  * @param {string} param0.placeholder - The placeholder of the input field
  * @param {string} param0.value - The value of the input field
+ * @param {number} param0.paddingHorizontal - The padding horizontal of the parent container
+ * @param {boolean} param0.showRemoveButton - The visibility of the remove button
+ * @param {Function} param0.onPressRemove - The function to call when the remove button is pressed
  * @param {Function} param0.onChangeText - The function to call when the text changes on the input field
  * @component */
 const InputWithLabel = ({
@@ -50,6 +55,8 @@ const InputWithLabel = ({
   placeholder,
   textAlign = "right",
   value,
+  paddingHorizontal = 0,
+  showRemoveButton = true,
   onChangeText = () => {},
   onPressRemove = () => {},
 }: InputWithLabelProps) => {
@@ -64,40 +71,39 @@ const InputWithLabel = ({
   ) => onChangeText?.(e.nativeEvent?.text ?? "");
 
   return (
-    <View
-      style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
-        //backgroundColor: secondaryBgColor,
-      }]}>
-        <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
-          <FontAwesomeIcon 
-            icon={icon} 
-            size={STYLES.sizeFaIcon} 
-            color={infoColor} />
-          {label && <TextBase
-            text={label} 
-            style={{ color: infoColor }} />}
-        </View>
-        <TextInput
-          value={value}
-          placeholder={t(placeholder)}
-          onChange={onChangeTextInternal}
-          multiline={false}
-          autoCapitalize="none"
-          cursorColor={infoColor}
-          selectionColor={infoColor}
-          style={[GlobalTypographyStyle.inputText, {
-            textAlign: textAlign,
-            color: infoColor,
-            flex: 1,
-            maxHeight: 24,
-          }]} />
-        <TouchableHaptic onPress={onPressRemove}>
-          <FontAwesomeIcon
-            icon={faTrashSlash as IconProp}
-            size={STYLES.sizeFaIcon}
-            color={errorColor} />
-        </TouchableHaptic>
-      </View>
+    <View style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
+      paddingHorizontal
+    }]}>
+      {(icon || label) && <View style={[GlobalContainerStyle.rowCenterStart, { gap: STYLES.sizeGap }]}>
+        {icon && <FontAwesomeIcon 
+          icon={icon} 
+          size={STYLES.sizeFaIcon} 
+          color={infoColor} />}
+        {label && <TextBase
+          text={label} 
+          style={{ color: infoColor }} />}
+      </View>}
+      <TextInput
+        value={value}
+        placeholder={t(placeholder)}
+        onChange={onChangeTextInternal}
+        multiline={false}
+        autoCapitalize="none"
+        cursorColor={infoColor}
+        selectionColor={infoColor}
+        style={[GlobalTypographyStyle.inputText, {
+          textAlign: textAlign,
+          color: infoColor,
+          flex: 1,
+          maxHeight: 24,
+        }]} />
+      {showRemoveButton && <TouchableHaptic onPress={onPressRemove}>
+        <FontAwesomeIcon
+          icon={faTrashSlash as IconProp}
+          size={STYLES.sizeFaIcon}
+          color={errorColor} />
+      </TouchableHaptic>}
+    </View>
   );
 };
 

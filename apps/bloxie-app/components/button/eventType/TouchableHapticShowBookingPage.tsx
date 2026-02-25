@@ -37,9 +37,7 @@ const TouchableHapticShowBookingPage = ({
   const { secondaryBgColor, infoColor } = useThemeColors();
 
   const [showBookingPage, setShowBookingPage] = React.useState<boolean>(true);
-  React.useEffect(() => {
-    onChangeValue(showBookingPage);
-  }, [showBookingPage]);
+  React.useEffect(() => onChangeValue(showBookingPage), [showBookingPage]);
 
   return (
     <View

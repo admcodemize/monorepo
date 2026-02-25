@@ -61,7 +61,7 @@ const InputDescription = ({
 
   return (
     <View style={[GlobalWorkflowStyle.touchableParent, { 
-      height: "auto",
+      height: 150,
       gap: 10,
       paddingVertical: 6,
       backgroundColor: secondaryBgColor,
@@ -78,7 +78,6 @@ const InputDescription = ({
       <Editor
         ref={refBody}
         defaultValue={value}
-        minHeight={80}
         padding={0}
         primaryTextColor={"#000"}
         fontSize={Number(SIZES.label)}

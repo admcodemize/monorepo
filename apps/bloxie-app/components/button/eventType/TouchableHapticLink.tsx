@@ -1,18 +1,15 @@
 import React from "react";
-import { TextInput, View } from "react-native";
+import { GestureResponderEvent, TextInput, View } from "react-native";
 import { t } from "i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faLink, faMapPin } from "@fortawesome/pro-thin-svg-icons";
+import { faLink } from "@fortawesome/pro-thin-svg-icons";
 import { faTrashSlash } from "@fortawesome/duotone-thin-svg-icons";
 
-import { FAMILIY, SIZES } from "@codemize/constants/Fonts";
+import { useThemeColors } from "@/hooks/theme/useThemeColor";
 import { STYLES } from "@codemize/constants/Styles";
 
-import { useThemeColors } from "@/hooks/theme/useThemeColor";
-
 import TextBase from "@/components/typography/Text";
-import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown";
 
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
@@ -23,10 +20,13 @@ import TouchableHapticIcon from "../TouchableHaptichIcon";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @type */
 export type TouchableHapticLinkProps = {
+  link: string;
+  name: string;
   onPress: () => void;
+  onPressRemove: (e: GestureResponderEvent) => void;
 };
 
 /**
@@ -34,18 +34,22 @@ export type TouchableHapticLinkProps = {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns a touchable (opacity) button with included haptic gesture -> Only for platform iOs/android
  * @since 0.0.58
- * @version 0.0.1
+ * @version 0.0.2
  * @param {TouchableHapticLinkProps} param0 
  * @param {Function} param0.onPress - Callback function when user pressed the button
  * @component */
 const TouchableHapticLink = ({
+  link,
+  name,
   onPress,
+  onPressRemove,
 }: TouchableHapticLinkProps) => {
   const refLink = React.useRef<View>(null);
   const { secondaryBgColor, tertiaryBgColor, infoColor, textColor, labelColor, errorColor } = useThemeColors();
 
-  const [linkValue, setLinkValue] = React.useState<string>("");
-  const [linkName, setLinkName] = React.useState<string>("");
+  const [linkInternal, setLinkInternal] = React.useState<string>(link);
+  const [nameInternal, setNameInternal] = React.useState<string>(name);
+
   return (
     <View
       style={[GlobalContainerStyle.rowCenterBetween, GlobalWorkflowStyle.touchableParent, {
@@ -55,16 +59,12 @@ const TouchableHapticLink = ({
         <FontAwesomeIcon 
           icon={faLink as IconProp} 
           size={STYLES.sizeFaIcon} />
-        <TextBase
-          text={t("#1")}
-          style={{ color: labelColor }} />
         <TextInput
-          value={linkName}
-          onChangeText={setLinkName}
+          value={nameInternal}
+          onChangeText={setNameInternal}
           selectionColor={infoColor}
           cursorColor={infoColor}
           placeholder={t("Anzeigename")}
-          //keyboardType="url"
           style={[GlobalTypographyStyle.inputText, {
             textAlign: "left",
             color: infoColor,
@@ -73,12 +73,13 @@ const TouchableHapticLink = ({
       </View>
       <View style={[GlobalContainerStyle.rowCenterCenter, { gap: 12 }]}>
         <TextInput
-          value={linkValue}
-          onChangeText={setLinkValue}
+          value={linkInternal}
+          onChangeText={setLinkInternal}
           selectionColor={infoColor}
           cursorColor={infoColor}
           placeholder={t("www.url.com")}
           keyboardType="url"
+          autoCapitalize="none"
           style={[GlobalTypographyStyle.labelText, {
             color: infoColor
           }]} />
@@ -87,7 +88,7 @@ const TouchableHapticLink = ({
           iconSize={STYLES.sizeFaIcon} 
           iconColor={errorColor}
           hasViewCustomStyle={true} 
-          onPress={() => {}} />
+          onPress={onPressRemove} />
       </View>
     </View>
   );

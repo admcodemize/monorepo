@@ -123,7 +123,7 @@ const TouchableHapticFrequency = ({
       children: children(),
     });
   }
-
+ 
   return (
     <View style={[GlobalWorkflowStyle.touchableParent, { 
       gap: 0, 

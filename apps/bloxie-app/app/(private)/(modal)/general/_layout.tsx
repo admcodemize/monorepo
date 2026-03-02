@@ -1,5 +1,5 @@
 import { TrayProvider } from "react-native-trays";
-import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { stackConfigs, trays } from "@/helpers/Trays";
 
@@ -7,17 +7,17 @@ import { stackConfigs, trays } from "@/helpers/Trays";
  * @public
  * @author Marc Stöckli - Codemize GmbH 
  * @since 0.0.46
- * @version 0.0.4
+ * @version 0.0.5
  * @component */
 const ModalGeneralLayout = () => {
   return (
-
+    <SafeAreaProvider>
       <TrayProvider 
         stackConfigs={stackConfigs}
         trays={{ ...trays.main, ...trays.keyboard }}>
           <></>
       </TrayProvider>
-
+    </SafeAreaProvider>
   );
 }
 

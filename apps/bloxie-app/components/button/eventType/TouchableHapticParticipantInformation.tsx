@@ -19,11 +19,11 @@ import TouchableHapticDropdown from "@/components/button/TouchableHapticDropdown
 import GlobalContainerStyle from "@/styles/GlobalContainer";
 import GlobalWorkflowStyle from "@/styles/GlobalWorkflow";
 import GlobalTypographyStyle from "@/styles/GlobalTypography";
-import TouchableHaptic from "../TouchableHaptic";
+import TouchableHaptic from "@/components/button/TouchableHaptic";
 import { faPlus } from "@fortawesome/pro-solid-svg-icons";
 import { faCalendarUsers, faEnvelope, faGaugeSimpleMax, faListTimeline } from "@fortawesome/pro-thin-svg-icons";
-import TouchableHapticLink from "./TouchableHapticLink";
-import TouchableHapticSwitch from "../TouchableHapticSwitch";
+import TouchableHapticLink from "@/components/button/eventType/TouchableHapticLink";
+import TouchableHapticSwitch from "@/components/button/TouchableHapticSwitch";
 
 /**
  * @public

@@ -1,5 +1,5 @@
-import { ViewProps } from "react-native";
-import { Edge, SafeAreaView } from "react-native-safe-area-context";
+import { View, ViewProps } from "react-native";
+import { Edge, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useThemeColor } from "@/hooks/theme/useThemeColor";
 
@@ -29,7 +29,7 @@ export type SafeAreaViewProps = ViewProps & {
  * @author Marc Stöckli - Codemize GmbH 
  * @description Returns theme based, flexible and styled safe context view, which will be used as a default container component
  * @since 0.0.1
- * @version 0.0.1
+ * @version 0.0.2
  * @param {Object} param0 - Handles the returning of a view component with themed background color and custom styling
  * @param {string} param0.dark - Custom hex color in dark mode 
  * @param {string} param0.light - Custom hex color in light mode
@@ -43,17 +43,24 @@ const SafeAreaContextViewBase = ({
   schemeProperty = "primaryBg",
   style,
   ...props
-}: SafeAreaViewProps) => (
-  <SafeAreaView 
-    edges={edges}
-    style={[{ 
-      flex: 1,
-      backgroundColor: useThemeColor(schemeProperty, { 
-        dark, 
-        light 
-      })
-    }, style]} 
-    {...props} />
-)
+}: SafeAreaViewProps) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[{
+        flex: 1,
+        backgroundColor: useThemeColor(schemeProperty, {
+          dark,
+          light
+        }),
+        paddingTop: edges.includes("top") ? insets.top : 0,
+        paddingRight: edges.includes("right") ? insets.right : 0,
+        paddingBottom: edges.includes("bottom") ? insets.bottom : 0,
+        paddingLeft: edges.includes("left") ? insets.left : 0
+      }, style]}
+      {...props}
+    />
+  );
+}
 
 export default SafeAreaContextViewBase;

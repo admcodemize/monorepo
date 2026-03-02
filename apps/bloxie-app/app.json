@@ -43,32 +43,53 @@
       "favicon": ""
     },
     "plugins": [
-      ["expo-router", {
-        "origin": "https://bloxie.ch/"
-      }],
-      ["expo-notifications"],
-      ["expo-splash-screen", {
-        "image": "",
-        "imageWidth": 200,
-        "resizeMode": "contain",
-        "backgroundColor": "#ffffff",
-        "dark": {
-          "backgroundColor": "#000000"
+      [
+        "expo-router",
+        {
+          "origin": "https://bloxie.ch/"
         }
-      }],
-      ["expo-localization"],
-      ["expo-secure-store", {
-        "configureAndroidBackup": true,
-        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
-      }],
-      ["@sentry/react-native/expo", {
-        "url": "https://sentry.io/",
-        "project": "bloxie",
-        "organization": "codemize-gmbh"
-      }],
-      ["@react-native-google-signin/google-signin", {
-        "iosUrlScheme": "com.googleusercontent.apps.666953031943-gl30ibjglicn13hna67upqn2a2mt6obl"
-      }]
+      ],
+      [
+        "expo-notifications"
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      [
+        "expo-localization"
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "bloxie",
+          "organization": "codemize-gmbh"
+        }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.666953031943-gl30ibjglicn13hna67upqn2a2mt6obl"
+        }
+      ],
+      "expo-font",
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": false,

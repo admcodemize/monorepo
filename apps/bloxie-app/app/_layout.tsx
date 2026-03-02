@@ -66,10 +66,17 @@ const StartSlot = () => {
 
   React.useEffect((): void => {
     if (!isLoaded) return;
+    const currentGroup = segments[0];
 
-    if (isSignedIn && !segments[0].includes("(private)")) router.replace("/(private)/(tabs)")
-    else if (!isSignedIn) router.replace("/(public)")
-  }, [isSignedIn, isLoaded]);
+    if (isSignedIn && currentGroup !== "(private)") {
+      router.replace("/(private)/(tabs)");
+      return;
+    }
+
+    if (!isSignedIn && currentGroup !== "(public)") {
+      router.replace("/(public)");
+    }
+  }, [isSignedIn, isLoaded, segments, router]);
 
   return (
     <SafeAreaContextViewBase schemeProperty="tertiaryBg">
